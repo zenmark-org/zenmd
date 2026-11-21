@@ -56,8 +56,8 @@ func TestGlossarySortsGroupsAndCounts(t *testing.T) {
 	if len(warns) != 0 {
 		t.Errorf("warnings %v", warns)
 	}
-	// Case and accents ignored: apple, Äpfel (apfel), Éclair, zebra; digits under #.
-	for _, want := range []string{"5|", "A+ B C ", "E+ ", "Z+ ", "#+", "letter-a=A:apple(g/a.md)Äpfel(g/ae.md);", "letter-e=E:Éclair(g/e.md);", "letter-z=Z:zebra(g/z.md);", "letter-other=#:42(g/n.md);"} {
+	// Case and accents ignored: Äpfel (apfel) before apple, Éclair, zebra; digits under #.
+	for _, want := range []string{"5|", "A+ B C ", "E+ ", "Z+ ", "#+", "letter-a=A:Äpfel(g/ae.md)apple(g/a.md);", "letter-e=E:Éclair(g/e.md);", "letter-z=Z:zebra(g/z.md);", "letter-other=#:42(g/n.md);"} {
 		if !strings.Contains(html, want) {
 			t.Errorf("missing %q in %s", want, html)
 		}
@@ -110,7 +110,7 @@ func TestGlossaryWithoutFolderSite(t *testing.T) {
 	}
 }
 
-const termTpl = `{{with .TermPage}}{{with .Prev}}<{{.Title}}({{.Path}}){{end}}|{{with .Next}}>{{.Title}}({{.Path}}){{end}}|{{range .See}}[{{.Title}}:{{.Path}}:{{.Missing}}]{{end}}{{end}}`
+const termTpl = `{{with .TermPage}}{{with .Prev}}prev:{{.Title}}({{.Path}}){{end}}|{{with .Next}}next:{{.Title}}({{.Path}}){{end}}|{{range .See}}[{{.Title}}:{{.Path}}:{{.Missing}}]{{end}}{{end}}`
 
 func termApply(t *testing.T, self string, content string, fm map[string]any, pages []FolderPage) (string, []string) {
 	t.Helper()
@@ -120,7 +120,8 @@ func termApply(t *testing.T, self string, content string, fm map[string]any, pag
 	if err != nil {
 		t.Fatal(err)
 	}
-	return res.HTML, res.Warnings
+	inner := res.HTML[strings.Index(res.HTML, ">")+1:]
+	return strings.TrimSuffix(inner, "</div>"), res.Warnings
 }
 
 func TestTermPageNeighboursAndSee(t *testing.T) {
@@ -131,7 +132,7 @@ func TestTermPageNeighboursAndSee(t *testing.T) {
 	}
 	html, warns := termApply(t, "g/b.md", "<p>A yellow fruit.</p>",
 		map[string]any{"title": "Banana", "layout": "term", "see": []any{"c.md", "./a.md", "gone.md"}}, pages)
-	for _, want := range []string{"<Apple(g/a.md)", ">cherry(g/c.md)", "[cherry:g/c.md:false]", "[Apple:g/a.md:false]", "[gone.md::true]"} {
+	for _, want := range []string{"prev:Apple(g/a.md)", "next:cherry(g/c.md)", "[cherry:g/c.md:false]", "[Apple:g/a.md:false]", "[gone.md::true]"} {
 		if !strings.Contains(html, want) {
 			t.Errorf("missing %q in %s", want, html)
 		}
@@ -141,7 +142,7 @@ func TestTermPageNeighboursAndSee(t *testing.T) {
 	}
 	// The first term has no previous, the last no next.
 	html, _ = termApply(t, "g/a.md", "<p>A fruit.</p>", map[string]any{"title": "Apple", "layout": "term"}, pages)
-	if !strings.HasPrefix(html, "|>Banana(g/b.md)|") {
+	if !strings.HasPrefix(html, "|next:Banana(g/b.md)|") {
 		t.Errorf("first term: %s", html)
 	}
 }
@@ -150,7 +151,7 @@ func TestTermPageUsesTheShownText(t *testing.T) {
 	// The unsaved title and text of the page itself win over the file on disk.
 	pages := []FolderPage{termPage("Old title", "b.md", "old", nil), termPage("Mango", "m.md", "A fruit.", nil)}
 	html, _ := termApply(t, "g/b.md", "<p>New.</p>", map[string]any{"title": "Zucchini", "layout": "term"}, pages)
-	if !strings.HasPrefix(html, "<Mango(g/m.md)||") {
+	if !strings.HasPrefix(html, "prev:Mango(g/m.md)||") {
 		t.Errorf("%s", html)
 	}
 }

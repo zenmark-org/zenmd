@@ -52,7 +52,8 @@ func TestBuiltInsLoad(t *testing.T) {
 	has("article", false, false)
 	has("slides", false, true)
 	has("course", false, true)
-	for _, id := range []string{"docs", "post", "landing", "wide", "handout"} {
+	has("glossary", true, true)
+	for _, id := range []string{"docs", "post", "landing", "wide", "handout", "term"} {
 		has(id, true, false)
 	}
 }
@@ -120,7 +121,10 @@ func TestCheckBlockKeepsTaskList(t *testing.T) {
 type site struct {
 	prev, next *core.Link
 	children   []core.Child
+	folder     []core.FolderPage
 }
+
+func (s site) Folder(string) []core.FolderPage { return s.folder }
 
 func (s site) Breadcrumb(string) []core.Crumb             { return nil }
 func (s site) Neighbours(string) (*core.Link, *core.Link) { return s.prev, s.next }
@@ -251,6 +255,101 @@ func TestLayoutNeeds(t *testing.T) {
 					t.Errorf("%s: %s mentions the %s block but does not require plugin %s", m.ID, f.Name(), name, p)
 				}
 			}
+		}
+	}
+}
+
+// ---- term and glossary
+
+func termFile(title, file, def string, extra map[string]any) core.FolderPage {
+	meta := map[string]any{"title": title, "layout": "term"}
+	for k, v := range extra {
+		meta[k] = v
+	}
+	return core.FolderPage{Title: title, Path: "g/" + file, Meta: meta, Definition: def}
+}
+
+func glossaryRender(t *testing.T, folder []core.FolderPage, path, src string) render.Page {
+	t.Helper()
+	p, err := renderer(t, site{folder: folder}, nil).Render(path, []byte(src))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return p
+}
+
+func TestTerm(t *testing.T) {
+	folder := []core.FolderPage{termFile("Apple", "a.md", "A fruit.", nil), termFile("Cherry", "c.md", "A fruit.", nil)}
+	p := glossaryRender(t, folder, "g/b.md",
+		"---\ntitle: Banana\nlayout: term\nabbr: BNN\naliases: [plantain, \"<b>x</b>\"]\nsee: [a.md, gone.md]\n---\nA long yellow fruit.\n\n## Examples\n\nPeel it.\n")
+	mustHave(t, p.HTML, `data-zen-layout="term"`, `<h1 class="zl-term-title">Banana</h1>`, `class="zl-term-abbr">BNN<`,
+		"plantain", "&lt;b&gt;x&lt;/b&gt;", `class="zl-term-text"`, "A long yellow fruit.", `<h2 id="examples">`,
+		`class="zl-term-see"`, `data-path="g/a.md"`, ">Apple<", "gone.md", `data-path="g/c.md"`, "zl-term-prev", "zl-term-next")
+	if strings.Contains(p.HTML, `data-path="g/gone.md"`) {
+		t.Errorf("a missing term is linked: %s", p.HTML)
+	}
+	if len(p.Warnings) != 1 || !strings.Contains(p.Warnings[0], `see: "gone.md"`) {
+		t.Errorf("warnings %v", p.Warnings)
+	}
+	if strings.Join(p.Assets.CSS, ",") != "/_layouts/term/term.css?v=0.0-test" {
+		t.Errorf("assets %+v", p.Assets)
+	}
+	// A bare term: no abbreviation, no aliases, no see also, and the first term has no previous link.
+	p = glossaryRender(t, folder, "g/aa.md", "---\ntitle: Aardvark\nlayout: term\n---\nAn animal.\n")
+	for _, no := range []string{"zl-term-abbr", "zl-term-aliases", "zl-term-see", "zl-term-prev"} {
+		if strings.Contains(p.HTML, no) {
+			t.Errorf("%s shown without data: %s", no, p.HTML)
+		}
+	}
+	mustHave(t, p.HTML, "zl-term-next", ">Apple<")
+	if len(p.Warnings) != 0 {
+		t.Errorf("warnings %v", p.Warnings)
+	}
+}
+
+func TestGlossary(t *testing.T) {
+	folder := []core.FolderPage{
+		termFile("Slug", "slug.md", "The short name of a page <in> its address.", map[string]any{"aliases": []any{"permalink"}}),
+		termFile("Frontmatter", "fm.md", "The block of settings at the top of a page.", nil),
+		termFile("API", "api.md", "A way for programs to talk.", map[string]any{"abbr": "Application Programming Interface"}),
+		{Title: "Notes", Path: "g/notes.md", Meta: map[string]any{"title": "Notes"}, Definition: "Not a term."},
+	}
+	p := glossaryRender(t, folder, "g/index.md", "---\ntitle: Glossary\nlayout: glossary\n---\nWords used in this guide.\n")
+	mustHave(t, p.HTML, `data-zen-layout="glossary"`, `<h1 class="zl-gloss-title">Glossary</h1>`, "Words used in this guide.",
+		`class="zl-gloss-count"`, "3 terms", `class="zl-gloss-bar"`, `href="#letter-a"`, `href="#letter-f"`, `href="#letter-s"`,
+		`<h2 id="letter-a"`, `<h2 id="letter-f"`, `<h2 id="letter-s"`, `data-path="g/api.md"`, ">API<", "Application Programming Interface",
+		"permalink", "The short name of a page &lt;in&gt; its address.", `data-path="g/fm.md"`)
+	if strings.Contains(p.HTML, "Notes") || strings.Contains(p.HTML, "Not a term") {
+		t.Errorf("a non-term page is listed: %s", p.HTML)
+	}
+	// Letters without terms are greyed and not links.
+	if strings.Contains(p.HTML, `href="#letter-b"`) || !strings.Contains(p.HTML, `class="zl-gloss-off"`) {
+		t.Errorf("empty letters: %s", p.HTML)
+	}
+	// A-Z order: API, Frontmatter, Slug.
+	if a, f, s := strings.Index(p.HTML, "g/api.md"), strings.Index(p.HTML, "g/fm.md"), strings.Index(p.HTML, "g/slug.md"); !(a < f && f < s) {
+		t.Errorf("order %d %d %d", a, f, s)
+	}
+	if strings.Join(p.Assets.JS, ",") != "/_layouts/glossary/glossary.js?v=0.0-test" || strings.Join(p.Assets.CSS, ",") != "/_layouts/glossary/glossary.css?v=0.0-test" {
+		t.Errorf("assets %+v", p.Assets)
+	}
+	if len(p.Warnings) != 0 {
+		t.Errorf("warnings %v", p.Warnings)
+	}
+	// An empty folder says so; a single term is "1 term".
+	p = glossaryRender(t, nil, "g/index.md", "---\ntitle: Glossary\nlayout: glossary\n---\n")
+	mustHave(t, p.HTML, "No terms yet", "0 terms")
+	p = glossaryRender(t, folder[:1], "g/index.md", "---\ntitle: Glossary\nlayout: glossary\n---\n")
+	mustHave(t, p.HTML, "1 term<")
+}
+
+func TestGlossaryProblemsAreWarnings(t *testing.T) {
+	folder := []core.FolderPage{termFile("Retry", "r.md", "", nil), termFile("retry", "r2.md", "Again.", map[string]any{"see": []any{"x.md"}})}
+	p := glossaryRender(t, folder, "g/index.md", "---\ntitle: Glossary\nlayout: glossary\n---\n")
+	all := strings.Join(p.Warnings, "\n")
+	for _, want := range []string{"duplicate term", "has no definition", `see: "x.md"`} {
+		if !strings.Contains(all, want) {
+			t.Errorf("no warning %q in %s", want, all)
 		}
 	}
 }
