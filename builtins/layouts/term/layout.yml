@@ -13,4 +13,4 @@ help:
   summary: "One entry of a glossary: the term large, its abbreviation and aliases, the definition (the first paragraph) set apart, the rest of the text, See also links from see:, and links to the terms before and after it in alphabetical order. The first paragraph is the definition, at most 60 words. Frontmatter: title, aliases, abbr, see, tags."
   snippets:
     - title: A term
-      markdown: "---\ntitle: Idempotent\nlayout: term\naliases: [idempotence]\nsee: [retry.md]\n---\nAn operation is idempotent when doing it twice has the same effect as doing it once.\n\n## Examples\n\nSetting a value is idempotent. Adding one to it is not.\n"
+      markdown: "---\ntitle: Idempotent\nlayout: term\naliases: [idempotence]\n---\nAn operation is idempotent when doing it twice has the same effect as doing it once.\n\n## Examples\n\nSetting a value is idempotent. Adding one to it is not.\n"
