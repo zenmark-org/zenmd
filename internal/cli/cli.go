@@ -134,13 +134,16 @@ type Build struct {
 // written.
 type Builder func(Build, io.Writer, io.Writer) error
 
-// Init describes `zenmd init`: start a folder from a site template, or list and
-// update the templates. It never asks anything, so it works in scripts.
+// Init describes `zenmd init` and `zenmd blueprint`: start a folder from a
+// blueprint (formerly a site template), list the blueprints, update one, or
+// make a new blueprint. It never asks anything, so it works in scripts.
 type Init struct {
-	Dir, Template string            // absolute target folder; template id (or the id to update)
+	Dir, Template string            // absolute target folder; blueprint id (or the id to update or make)
 	Values        map[string]string // --title, --author and --set key=value
 	List, Update  bool
 	ShowDir       bool
+	New           bool   // zenmd blueprint new <id>: write a blueprint into the blueprints folder
+	From          string // zenmd blueprint new --from <id>: start from this blueprint
 }
 
 // Initer does what `zenmd init` asks. It writes its result to stdout and notes
@@ -165,8 +168,12 @@ Usage:
   zenmd export pdf [folder] [-o file.pdf]
                         write the whole folder as one PDF file; options below
   zenmd build [folder]  same as export site
-  zenmd init site [--techdocs|--learning|--planner] [folder]
-                        start a folder from a site template; options below
+  zenmd init --blueprint <id> [folder]
+                        start a folder from a blueprint; options below
+                        (zenmd init site --techdocs works too)
+  zenmd blueprint list  list the blueprints
+  zenmd blueprint new <id> [--from <id>]
+                        write a new blueprint into the blueprints folder
   zenmd help            show this help
   zenmd version         show the version
 
@@ -176,9 +183,9 @@ Options:
   --                  treat the following arguments as paths
 
 Init options:
-  --template <id>     the template (--<id> works too); none: list them
+  --blueprint <id>    the blueprint (--template <id>, --<id> work too)
   --title <text>      the site title; --author <text>; --set <key=value>
-  --list              list the templates; --update <id>; --dir
+  --list              list the blueprints; --update <id>; --dir
 
 ` + optionHelp("Export site options", siteOptions) + `  (also for zenmd build)
   A flag wins over the folder's export: settings, then config.yml.
@@ -229,6 +236,8 @@ func Run(args []string, cwd string, stdout, stderr io.Writer, launch Launcher, b
 			return runExport(args[i+1:], cwd, stdout, stderr, build, pdf)
 		case flags && first && arg == "init":
 			return runInit(args[i+1:], cwd, stdout, stderr, initer)
+		case flags && first && arg == "blueprint":
+			return runBlueprint(args[i+1:], cwd, stdout, stderr, initer)
 		case flags && first && arg == "edit":
 			mode = "edit"
 		default:
@@ -419,7 +428,7 @@ func runInit(args []string, cwd string, stdout, stderr io.Writer, initer Initer)
 			in.Update = true
 			pickTemplate(value())
 			noTemplate = true
-		case flags && name == "--template":
+		case flags && (name == "--template" || name == "--blueprint"):
 			pickTemplate(value())
 		case flags && name == "--title":
 			v := value()
@@ -457,8 +466,8 @@ func runInit(args []string, cwd string, stdout, stderr io.Writer, initer Initer)
 		return fail(stderr, usageError("--list, --dir and --update cannot be used together"))
 	case modes == 1 && (site || len(paths) > 0 || len(set) > 0 || title != nil || author != nil || (in.Template != "" && !noTemplate)):
 		return fail(stderr, usageError("--list, --dir and --update take nothing else"))
-	case modes == 0 && !site:
-		return fail(stderr, usageError("zenmd init what? try: zenmd init site --techdocs"))
+	case modes == 0 && !site && in.Template == "":
+		return fail(stderr, usageError("zenmd init what? try: zenmd init --blueprint techdocs"))
 	case len(paths) > 1:
 		return fail(stderr, usageError("more than one folder given"))
 	}
@@ -490,8 +499,66 @@ func runInit(args []string, cwd string, stdout, stderr io.Writer, initer Initer)
 		return fail(stderr, err)
 	}
 	if missing {
-		fmt.Fprintln(stderr, "zenmd: choose a template, for example: zenmd init site --techdocs")
+		fmt.Fprintln(stderr, "zenmd: choose a blueprint, for example: zenmd init --blueprint techdocs")
 		return 2
+	}
+	return 0
+}
+
+// runBlueprint parses the arguments after `zenmd blueprint`: list, or new <id>
+// [--from <id>]. The check, save and add-section commands come later.
+func runBlueprint(args []string, cwd string, stdout, stderr io.Writer, initer Initer) int {
+	in := Init{Values: map[string]string{}, Dir: cwd}
+	var rest []string
+	var perr error
+	for i := 0; i < len(args) && perr == nil; i++ {
+		arg := args[i]
+		name, val, hasVal := strings.Cut(arg, "=")
+		switch {
+		case arg == "-h" || arg == "--help":
+			fmt.Fprint(stdout, usage)
+			return 0
+		case name == "--from":
+			if in.From != "" {
+				perr = usageError("more than one --from given")
+			} else if hasVal && val != "" {
+				in.From = val
+			} else if !hasVal && i+1 < len(args) && args[i+1] != "" {
+				i++
+				in.From = args[i]
+			} else {
+				perr = usageError("--from needs a blueprint id")
+			}
+		case strings.HasPrefix(arg, "-") && arg != "-":
+			perr = usageError("unknown option " + arg)
+		default:
+			rest = append(rest, arg)
+		}
+	}
+	switch {
+	case perr != nil:
+		return fail(stderr, perr)
+	case len(rest) == 0:
+		return fail(stderr, usageError("zenmd blueprint what? try: zenmd blueprint list"))
+	case rest[0] == "list" && len(rest) == 1 && in.From == "":
+		in.List = true
+	case rest[0] == "new" && len(rest) == 2:
+		in.New, in.Template = true, rest[1]
+	case rest[0] == "new":
+		return fail(stderr, usageError("zenmd blueprint new needs one id, for example: zenmd blueprint new mine --from techdocs"))
+	case rest[0] == "list":
+		return fail(stderr, usageError("zenmd blueprint list takes nothing else"))
+	default:
+		return fail(stderr, usageError("unknown blueprint command "+rest[0]+" (list and new are there; check, save and add-section come later)"))
+	}
+	if in.From != "" && !in.New {
+		return fail(stderr, usageError("--from goes with zenmd blueprint new"))
+	}
+	if initer == nil {
+		return fail(stderr, errors.New("zenmd blueprint is not available in this build"))
+	}
+	if err := initer(in, stdout, stderr); err != nil {
+		return fail(stderr, err)
 	}
 	return 0
 }

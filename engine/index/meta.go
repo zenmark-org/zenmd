@@ -17,6 +17,9 @@ type Meta struct {
 	Order  *int
 	Parent string
 	Hidden bool
+	// Sort is nav.sort (title or newest-first): how the children of this page
+	// are to be ordered. It is read and checked; the sidebar does not apply it yet.
+	Sort string
 }
 
 // Parent markers for pages without a parent page.
@@ -307,8 +310,14 @@ func ParseMeta(frontmatter map[string]any) (m Meta, slug string, warnings []stri
 			} else {
 				warn("nav.hidden must be true or false")
 			}
+		case "sort":
+			if s, ok := v.(string); ok && (s == "title" || s == "newest-first") {
+				m.Sort = s
+			} else {
+				warn("nav.sort must be title or newest-first")
+			}
 		default:
-			warn("nav.%s is not a known key (title, order, parent, hidden)", k)
+			warn("nav.%s is not a known key (title, order, parent, hidden, sort)", k)
 		}
 	}
 	return m, slug, warnings

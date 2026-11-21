@@ -13,7 +13,7 @@ const tpl = (id: string, over: Partial<SiteTemplate> = {}): SiteTemplate => ({
 const TEMPLATES: SiteTemplate[] = [
   tpl("techdocs"),
   tpl("learning", { ask: [{ key: "title", label: "Course title", default: "" }] }),
-  tpl("broken", { error: "template.yml: id is required" }),
+  tpl("broken", { error: "blueprint.yml: id is required" }),
   tpl("planner", { ask: [] }),
 ];
 
@@ -104,7 +104,7 @@ test("arrow keys and clicks choose; an invalid template is greyed out with its e
   await settle();
   const broken = o.cards()[2];
   expect(broken.getAttribute("aria-disabled")).toBe("true");
-  expect(broken.textContent).toContain("template.yml: id is required");
+  expect(broken.textContent).toContain("blueprint.yml: id is required");
   expect(broken.tabIndex).toBe(-1);
   broken.click();
   expect(broken.getAttribute("aria-checked")).toBe("false");
@@ -252,7 +252,7 @@ test("no templates: says so and offers to reveal the folder", async () => {
   const api = rig([]);
   const o = open(api);
   await settle();
-  expect(o.d.el.textContent).toContain("No templates");
+  expect(o.d.el.textContent).toContain("No blueprints");
   expect(o.cards()).toHaveLength(0);
   expect((o.btn("Create") as HTMLButtonElement).disabled).toBe(true);
   o.btn("Reveal in Finder").click();
@@ -268,22 +268,22 @@ test("only invalid templates: nothing can be chosen", async () => {
   expect((o.btn("Create") as HTMLButtonElement).disabled).toBe(true);
 });
 
-test("Open templates folder is hidden unless developer mode is on", async () => {
+test("Open blueprints folder is hidden unless developer mode is on", async () => {
   let o = open(rig());
   await settle();
-  expect(o.d.el.textContent).not.toContain("Open templates folder");
+  expect(o.d.el.textContent).not.toContain("Open blueprints folder");
   o.d.close();
   localStorage.setItem("zen.developer", "1");
   o = open(rig());
   await settle();
-  expect(o.d.el.textContent).toContain("Open templates folder");
+  expect(o.d.el.textContent).toContain("Open blueprints folder");
   localStorage.removeItem("zen.developer");
 });
 
 test("empty state: Reveal in Finder only in developer mode", async () => {
   let o = open(rig([]));
   await settle();
-  expect(o.d.el.textContent).toContain("No templates");
+  expect(o.d.el.textContent).toContain("No blueprints");
   expect(o.d.el.textContent).not.toContain("Reveal in Finder");
   o.d.close();
   localStorage.setItem("zen.developer", "1");
@@ -293,18 +293,18 @@ test("empty state: Reveal in Finder only in developer mode", async () => {
   localStorage.removeItem("zen.developer");
 });
 
-test("a failing list is an error, and Open templates folder reveals the folder", async () => {
+test("a failing list is an error, and Open blueprints folder reveals the folder", async () => {
   localStorage.setItem("zen.developer", "1");
   const api = rig();
   api.fail.siteTemplates = new Error("cannot read");
   const o = open(api);
   await settle();
   expect(o.q("[role=alert]").textContent).toContain("cannot read");
-  o.btn("Open templates folder").click();
+  o.btn("Open blueprints folder").click();
   await settle();
   expect(api.site.revealTemplates).toHaveLength(1);
   api.fail.revealTemplates = new Error("no finder");
-  o.btn("Open templates folder").click();
+  o.btn("Open blueprints folder").click();
   await settle();
   expect(o.q("[role=alert]").textContent).toContain("no finder");
 });

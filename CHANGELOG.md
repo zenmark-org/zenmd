@@ -7,6 +7,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/VERSIONING.md).
 ## [Unreleased]
 
 ### Added
+- Blueprints (formerly site templates): `zenmd init --blueprint <id>`, `zenmd blueprint list` and `zenmd blueprint new <id> [--from <id>]`, File › New from Blueprint… and Settings › Blueprints. A `blueprint.yml` can list `sections:` that zen builds into folders, index pages, a README of links and path rules in `.zenmd.yml`; the built-in Technical documentation blueprint now has an overview, getting started, how-tos, explanation, reference, a glossary and releases, with seven built-in page templates. The old names (`template.yml`, `templates:` in config.yml and in the assembly, `zenmd init site --template`) still work.
 - Export is back in Zenmark: File › Export › Website… (⇧⌘B) and PDF… (⇧⌘P), Settings › Export and the Export button, with an Export page in the demo guide (#19).
 - Settings › Export › PDF is a form like the website's (output file, drafts, pages, cover, open when done, Save as folder defaults), saved under export.pdf.
 - An exported website has the app's fixed top bar: a button to hide the sidebar, back and forward, and the breadcrumb.

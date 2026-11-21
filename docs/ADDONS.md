@@ -4,14 +4,14 @@ An **add-on** is an optional capability that an app includes only when it is
 built with it: usually a helper program, the Go code that drives it, and the UI
 it adds. Each app built on the kit (Zenmark today; HashDoc, HashTalk, HashStudy
 and HashDish later) lists its add-ons in `apps/<app>/app-assembly.yml`, next to
-its built-in plugins, layouts, site templates and theme (specs/kit/assembly):
+its built-in plugins, layouts, blueprints and theme (specs/kit/assembly):
 
 ```yaml
 app: zenmark
 addons: [vale]
 plugins: all
 layouts: all
-templates: all
+blueprints: all
 theme: default
 ```
 

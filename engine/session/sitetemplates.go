@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/zenmark-org/zenmd/builtins"
 	"github.com/zenmark-org/zenmd/engine/config"
 	"github.com/zenmark-org/zenmd/engine/sitetemplates"
 )
@@ -49,18 +50,26 @@ func (e siteEnv) dir() (string, []string) {
 	if e.globalPath == "" {
 		return "", nil
 	}
-	return config.Load(e.globalPath, "").TemplatesDir(filepath.Dir(e.globalPath))
+	return config.Load(e.globalPath, "").BlueprintsDir(filepath.Dir(e.globalPath))
 }
 
 // list installs the presets that are not there yet, and lists the templates.
 // When the folder cannot be written to, the presets that are not in it are
 // listed from zen itself, with a note.
 func (e siteEnv) list() TemplateListing {
+	l := e.list0()
+	for i := range l.Templates {
+		l.Templates[i].PageSource = builtins.PageTemplates()
+	}
+	return l
+}
+
+func (e siteEnv) list0() TemplateListing {
 	dir, warns := e.dir()
 	out := TemplateListing{Dir: dir, Warnings: warns}
 	if dir == "" {
 		out.Templates, _ = sitetemplates.Builtins(e.builtins)
-		out.Note = "There is no settings folder, so the built-in templates are used as they are."
+		out.Note = "There is no settings folder, so the built-in blueprints are used as they are."
 		return out
 	}
 	err := sitetemplates.Install(dir, e.builtins)
@@ -87,7 +96,7 @@ func (e siteEnv) list() TemplateListing {
 			}
 			return a.Name < b.Name
 		})
-		out.Note = fmt.Sprintf("The templates folder (%s) cannot be written to, so the built-in templates are used as they are.", dir)
+		out.Note = fmt.Sprintf("The blueprints folder (%s) cannot be written to, so the built-in blueprints are used as they are.", dir)
 	}
 	return out
 }
@@ -141,12 +150,23 @@ func (t TemplatesAPI) Dir() string { return t.env.list().Dir }
 // Folder is Dir without installing anything, with the problems found.
 func (t TemplatesAPI) Folder() (string, []string) { return t.env.dir() }
 
+// New starts blueprint id in the blueprints folder, from blueprint from when
+// given, and returns the new folder (zenmd blueprint new).
+func (t TemplatesAPI) New(id, from string) (string, error) {
+	dir, _ := t.env.dir()
+	if dir == "" {
+		return "", errors.New("there is no blueprints folder")
+	}
+	t.env.list() // install the built-ins, so --from can find them in the folder
+	return sitetemplates.New(dir, t.env.builtins, id, from)
+}
+
 // Update writes the newer built-in template id beside the user's copy and
 // returns where it wrote it.
 func (t TemplatesAPI) Update(id string) (string, error) {
 	dir, _ := t.env.dir()
 	if dir == "" {
-		return "", errors.New("there is no templates folder")
+		return "", errors.New("there is no blueprints folder")
 	}
 	t.env.list() // install what is missing, so there is a record
 	return sitetemplates.Update(dir, t.env.builtins, id)
@@ -167,10 +187,10 @@ func (t TemplatesAPI) Plan(id, dir string) (Plan, error) {
 	}
 	tpl, l, ok := t.env.find(id)
 	if !ok {
-		return Plan{}, fmt.Errorf("there is no template %q", id)
+		return Plan{}, fmt.Errorf("there is no blueprint %q", id)
 	}
 	if l.Holds(dir) {
-		return Plan{}, errors.New("choose a folder outside the templates folder")
+		return Plan{}, errors.New("choose a folder outside the blueprints folder")
 	}
 	return Plan{t: tpl, dir: dir}, nil
 }

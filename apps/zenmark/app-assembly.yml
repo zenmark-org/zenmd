@@ -12,6 +12,6 @@ features: [reader, nav, inspector, developer, find, editor, print, export]
 addons: []
 plugins: [codeblock, diagram, check, quiz, sandbox, rating]
 layouts: all
-templates: []
+blueprints: []
 dialects: all
 theme: default

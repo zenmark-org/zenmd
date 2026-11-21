@@ -17,7 +17,7 @@ import (
 )
 
 // EventNewSite asks the main window to show the New Site dialog (File > New
-// Site from Template…, Shift+Cmd+N). No payload.
+// from Blueprint…, Shift+Cmd+N). No payload.
 const EventNewSite = "menu:new-site"
 
 // siteBuiltins are the built-in presets of this app (its assembly); tests replace them.
@@ -26,7 +26,7 @@ var siteBuiltins fs.FS = assemblyTemplates()
 // revealInFinder shows a folder in Finder; tests replace it.
 var revealInFinder = func(dir string) error { return desktop.Reveal(dir) }
 
-// SiteTemplates lists the site templates for the New Site dialog and the
+// SiteTemplates lists the blueprints (formerly site templates) for the New Site dialog and the
 // welcome screen, installing the built-in presets on first use.
 func (z *Zen) SiteTemplates() ([]SiteTemplate, error) {
 	if err := requireFeature("newsite"); err != nil {
@@ -85,7 +85,7 @@ func (z *Zen) CreateSite(id, dir string, values map[string]string) (r0 Startup, 
 	return z.Startup(), nil
 }
 
-// TemplatesDir is the templates folder (templates.dir in config.yml, or the
+// TemplatesDir is the blueprints folder (blueprints.dir in config.yml, or the
 // default next to it), "" when there is none.
 func (z *Zen) TemplatesDir() (string, error) {
 	if err := requireFeature("newsite"); err != nil {
@@ -94,7 +94,7 @@ func (z *Zen) TemplatesDir() (string, error) {
 	return z.s.Templates().Dir(), nil
 }
 
-// RevealTemplates shows the templates folder in Finder, creating it (with the
+// RevealTemplates shows the blueprints folder in Finder, creating it (with the
 // built-in presets) when it is not there yet.
 func (z *Zen) RevealTemplates() (err error) {
 	defer z.logCall("RevealTemplates", &err)
@@ -103,7 +103,7 @@ func (z *Zen) RevealTemplates() (err error) {
 	}
 	dir := z.s.Templates().Dir()
 	if dir == "" {
-		return errors.New("there is no templates folder")
+		return errors.New("there is no blueprints folder")
 	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
@@ -111,7 +111,7 @@ func (z *Zen) RevealTemplates() (err error) {
 	return revealInFinder(dir)
 }
 
-// InitSite is `zenmd init`: it lists templates, writes a newer built-in beside
+// InitSite is `zenmd init` and `zenmd blueprint`: it lists blueprints, makes one, writes a newer built-in beside
 // the user's copy, or creates a site, and tells what it did on stdout.
 func InitSite(i cli.Init, stdout, stderr io.Writer) error {
 	globalPath, _ := config.GlobalPath()
@@ -124,9 +124,17 @@ func initSite(tpls session.TemplatesAPI, i cli.Init, stdout, stderr io.Writer) e
 	if i.ShowDir {
 		dir, _ := tpls.Folder()
 		if dir == "" {
-			return errors.New("there is no templates folder")
+			return errors.New("there is no blueprints folder")
 		}
 		fmt.Fprintln(stdout, dir)
+		return nil
+	}
+	if i.New {
+		out, err := tpls.New(i.Template, i.From)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintf(stdout, "Made the blueprint %s in %s. Edit its blueprint.yml, then try it with: zenmd init --blueprint %s <folder>\n", i.Template, out, i.Template)
 		return nil
 	}
 	if i.Update {
@@ -166,7 +174,7 @@ func initSite(tpls session.TemplatesAPI, i cli.Init, stdout, stderr io.Writer) e
 			}
 		}
 		if len(l.Templates) == 0 {
-			fmt.Fprintln(stdout, "No templates.")
+			fmt.Fprintln(stdout, "No blueprints.")
 		}
 		return nil
 	}
@@ -185,13 +193,13 @@ func initSite(tpls session.TemplatesAPI, i cli.Init, stdout, stderr io.Writer) e
 				ids = append(ids, x.ID)
 			}
 		}
-		return cli.UsageError(fmt.Sprintf("there is no template %q (templates: %s)", i.Template, strings.Join(ids, ", ")))
+		return cli.UsageError(fmt.Sprintf("there is no blueprint %q (blueprints: %s)", i.Template, strings.Join(ids, ", ")))
 	}
 	if t.Err != "" {
-		return fmt.Errorf("template %s is not valid: %s", t.ID, t.Err)
+		return fmt.Errorf("blueprint %s is not valid: %s", t.ID, t.Err)
 	}
 	if l.Holds(i.Dir) {
-		return errors.New("choose a folder outside the templates folder")
+		return errors.New("choose a folder outside the blueprints folder")
 	}
 	res, err := sitetemplates.Create(t, i.Dir, i.Values)
 	if err != nil {

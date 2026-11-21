@@ -1,4 +1,4 @@
-package sitetemplates_test
+package blueprints_test
 
 import (
 	"io/fs"
@@ -10,12 +10,12 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/zenmark-org/zenmd/builtins/blueprints"
 	"github.com/zenmark-org/zenmd/builtins/plugins/check"
 	"github.com/zenmark-org/zenmd/builtins/plugins/codeblock"
 	"github.com/zenmark-org/zenmd/builtins/plugins/diagram"
 	"github.com/zenmark-org/zenmd/builtins/plugins/quiz"
 	"github.com/zenmark-org/zenmd/builtins/plugins/sandbox"
-	"github.com/zenmark-org/zenmd/builtins/sitetemplates"
 	"github.com/zenmark-org/zenmd/engine/plugins"
 	enginetemplates "github.com/zenmark-org/zenmd/engine/sitetemplates"
 )
@@ -42,7 +42,7 @@ func blockOwner(t *testing.T) map[string]string {
 
 func TestTemplatesDeclareNeeds(t *testing.T) {
 	owner := blockOwner(t)
-	entries, err := fs.ReadDir(sitetemplates.FS, ".")
+	entries, err := fs.ReadDir(blueprints.FS, ".")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +51,7 @@ func TestTemplatesDeclareNeeds(t *testing.T) {
 			continue
 		}
 		id := e.Name()
-		data, err := fs.ReadFile(sitetemplates.FS, id+"/template.yml")
+		data, err := fs.ReadFile(blueprints.FS, id+"/blueprint.yml")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -64,11 +64,11 @@ func TestTemplatesDeclareNeeds(t *testing.T) {
 			t.Errorf("%s: requires.layouts is empty", id)
 		}
 		usedLayouts, usedPlugins := map[string]bool{}, map[string]bool{}
-		err = fs.WalkDir(sitetemplates.FS, id, func(p string, d fs.DirEntry, err error) error {
+		err = fs.WalkDir(blueprints.FS, id, func(p string, d fs.DirEntry, err error) error {
 			if err != nil || d.IsDir() {
 				return err
 			}
-			raw, err := fs.ReadFile(sitetemplates.FS, p)
+			raw, err := fs.ReadFile(blueprints.FS, p)
 			if err != nil {
 				return err
 			}
@@ -158,15 +158,15 @@ func keys(m map[string]bool) []string {
 }
 
 func TestIDsMatchFolders(t *testing.T) {
-	entries, _ := fs.ReadDir(sitetemplates.FS, ".")
+	entries, _ := fs.ReadDir(blueprints.FS, ".")
 	var dirs []string
 	for _, e := range entries {
 		if e.IsDir() {
 			dirs = append(dirs, e.Name())
 		}
 	}
-	if strings.Join(set2(dirs), ",") != strings.Join(set2(sitetemplates.IDs), ",") {
-		t.Errorf("IDs %v, folders %v", sitetemplates.IDs, dirs)
+	if strings.Join(set2(dirs), ",") != strings.Join(set2(blueprints.IDs), ",") {
+		t.Errorf("IDs %v, folders %v", blueprints.IDs, dirs)
 	}
 }
 

@@ -174,7 +174,7 @@ func TestFeaturesGenerated(t *testing.T) {
 	if got := read("app: demo\n"); !strings.Contains(got, noNewsite) {
 		t.Errorf("missing features means all:\n%s", got)
 	}
-	if got := read("app: demo\ntemplates: all\nlayouts: all\nplugins: all\n"); !strings.Contains(got, `"export", "newsite", "developer"}`) {
+	if got := read("app: demo\nblueprints: [learning]\nlayouts: all\nplugins: all\n"); !strings.Contains(got, `"export", "newsite", "developer"}`) {
 		t.Errorf("features all with templates:\n%s", got)
 	}
 	if got := read("app: demo\nfeatures: [reader, nav]\n"); !strings.Contains(got, `Features:  []string{"reader", "nav"}`) {

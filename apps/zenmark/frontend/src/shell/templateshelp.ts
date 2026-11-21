@@ -1,6 +1,6 @@
-// Settings › Templates (ui/settings-layout): the site templates of File › New Site from Template… in the left
-// column (name, with a mark only for templates that are not built in or are invalid), and in the right one the
-// description, what it asks when a site is made, and Show Templates Folder. All text goes in through textContent.
+// Settings › Blueprints (ui/settings-layout): the blueprints of File › New from Blueprint… in the left
+// column (name, with a mark only for blueprints that are not built in or are invalid), and in the right one the
+// description, what it asks when a site is made, and Show Blueprints Folder. All text goes in through textContent.
 import type { Api, SiteTemplate } from "../api";
 import { button, el, type SettingsItem } from "@zenmd/kit";
 
@@ -27,12 +27,12 @@ export function createTemplatesSection(opts: { api: Api; newsite?: boolean }): T
       failure = "";
     } catch (err) {
       templates = [];
-      failure = `Could not list templates: ${message(err)}`;
+      failure = `Could not list blueprints: ${message(err)}`;
       return [];
     }
     return templates.map((t): SettingsItem => ({
       id: t.id, label: t.name || t.id,
-      note: [t.error ? "Invalid" : "", t.builtin ? "" : "Your templates"].filter(Boolean).join(" · ") || undefined,
+      note: [t.error ? "Invalid" : "", t.builtin ? "" : "Your blueprints"].filter(Boolean).join(" · ") || undefined,
     }));
   }
 
@@ -43,7 +43,7 @@ export function createTemplatesSection(opts: { api: Api; newsite?: boolean }): T
     status.setAttribute("role", "status");
     const head = el("div", "zen-plugin-help-head");
     if (t.version) head.append(el("span", "zen-settings-plugin-version", t.version));
-    head.append(el("span", "zen-settings-plugin-kind", t.builtin ? "Built in" : "Your templates"));
+    head.append(el("span", "zen-settings-plugin-kind", t.builtin ? "Built in" : "Your blueprints"));
     right.append(head);
     if (t.description) right.append(el("p", "zen-plugin-help-description", t.description));
     if (t.error) right.append(el("p", "zen-settings-plugin-problem", t.error));
@@ -54,9 +54,9 @@ export function createTemplatesSection(opts: { api: Api; newsite?: boolean }): T
       for (const a of t.ask) list.append(el("li", "", a.default ? `${a.label} (default ${a.default})` : a.label));
       right.append(list);
     }
-    const folder = button("Show Templates Folder", () => {
+    const folder = button("Show Blueprints Folder", () => {
       status.textContent = "";
-      api.revealTemplates().catch((err) => { status.textContent = `Could not show the templates folder: ${message(err)}`; });
+      api.revealTemplates().catch((err) => { status.textContent = `Could not show the blueprints folder: ${message(err)}`; });
     });
     const actions = el("div", "zen-settings-actions");
     actions.append(folder);
@@ -64,5 +64,5 @@ export function createTemplatesSection(opts: { api: Api; newsite?: boolean }): T
     return () => {};
   }
 
-  return { items, render, empty: () => failure || (inBuild ? "No templates." : "No templates in this build."), destroy() {} };
+  return { items, render, empty: () => failure || (inBuild ? "No blueprints." : "No blueprints in this build."), destroy() {} };
 }

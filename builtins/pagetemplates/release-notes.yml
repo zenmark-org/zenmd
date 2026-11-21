@@ -1,0 +1,22 @@
+id: release-notes
+name: Release notes
+description: "What changed in one release: Added, Changed, Fixed"
+layout: docs
+fields:
+  title:   { required: true }
+  version: { type: string, required: true }                       # semver, such as 1.2.0
+  date:    { type: date, required: true, default: "{{today}}" }
+skeleton: |
+  # {{title}} {{version}}
+
+  ## Added
+
+  - A new thing
+
+  ## Changed
+
+  - A thing that works differently now
+
+  ## Fixed
+
+  - A bug that is gone

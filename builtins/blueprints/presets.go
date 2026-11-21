@@ -1,7 +1,7 @@
-// Package sitetemplates holds zen's built-in site templates (core/init): a
-// folder for each preset, each with a template.yml and the files it copies.
-// core/sitetemplates installs them into the user's templates folder.
-package sitetemplates
+// Package blueprints holds zen's built-in blueprints (formerly site templates): a
+// folder for each preset, each with a blueprint.yml and the files it copies.
+// engine/sitetemplates installs them into the user's blueprints folder.
+package blueprints
 
 import (
 	"embed"
@@ -31,10 +31,10 @@ func Sub(ids ...string) (fs.FS, error) {
 	seen := map[string]bool{}
 	for _, id := range ids {
 		if !slices.Contains(IDs, id) {
-			return nil, fmt.Errorf("unknown site template %q; known templates: %s", id, strings.Join(IDs, ", "))
+			return nil, fmt.Errorf("unknown blueprint %q; known blueprints: %s", id, strings.Join(IDs, ", "))
 		}
 		if seen[id] {
-			return nil, fmt.Errorf("site template %q is listed twice", id)
+			return nil, fmt.Errorf("blueprint %q is listed twice", id)
 		}
 		seen[id] = true
 	}

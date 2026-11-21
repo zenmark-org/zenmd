@@ -75,7 +75,7 @@ type menuItem struct {
 }
 
 const (
-	labelNewSite       = "New Site from Template…"
+	labelNewSite       = "New from Blueprint…"
 	labelPrintPage     = "Print Page…"
 	labelExport        = "Export"
 	labelExportWebsite = "Website…"

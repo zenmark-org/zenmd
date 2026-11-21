@@ -97,10 +97,10 @@ The key was `build:` before; it is still read, with a note under Problems, and S
 ## What an app is built from
 
 `apps/<app>/app-assembly.yml` lists the app's add-ons, built-in plugins, layouts,
-site templates and theme (specs/kit/assembly; `all` means every built-in of that
+blueprints and theme (specs/kit/assembly; `all` means every built-in of that
 kind). `task build|package|run|dev|release APP=zenmark` (the default app) reads
 it, checks what each template and layout needs (`requires:` in their
-`template.yml` / `layout.yml`), and regenerates `apps/<app>/assembly_gen.go`
+`blueprint.yml` / `layout.yml`), and regenerates `apps/<app>/assembly_gen.go`
 (by hand: `go run ./kit/assembly/cmd/gen apps/<app>`; `-tags-only` and
 `-ids-only` print the add-on tags or the ids).
 
@@ -125,7 +125,7 @@ item, shortcut, button or Settings section, and its service methods refuse
 | `inspector` | the Inspector panel, ⌥⌘I | `reader` |
 | `print` | Print Page and Site | `reader` |
 | `export` | Export › Website (and PDF with `print`), `zenmd export` | `reader` |
-| `newsite` | New Site from Template | a template |
+| `newsite` | New from Blueprint | a blueprint |
 | `developer` | the Developer panel, Settings › Developer | – |
 
 Plugins, layouts, dialects and the `vale` add-on need `reader`. `features: []` is a
