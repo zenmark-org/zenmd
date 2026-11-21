@@ -152,6 +152,11 @@ type Startup struct {
 // PageChanged is the payload of page:changed.
 type PageChanged struct {
 	Path string `json:"path"`
+	// Dependent is set when the page's file did not change but what it shows
+	// did: a glossary index or a term page whose folder gained, lost or
+	// changed a term. The page view re-renders; the editor has nothing to
+	// reload.
+	Dependent bool `json:"dependent,omitempty"`
 }
 
 // ErrNoWorkspace is returned by calls that need an open folder when there is none.
@@ -834,6 +839,10 @@ func (s *Session) handle(evs []watch.Event) {
 	if (assets || cfg) && s.current != "" && !seen[s.current] {
 		pages = append(pages, s.current)
 	}
+	dependent := ""
+	if reindex && !seen[s.current] {
+		dependent = s.folderDependentLocked(pages)
+	}
 	s.mu.Unlock()
 
 	if ws != nil {
@@ -842,9 +851,43 @@ func (s *Session) handle(evs []watch.Event) {
 	for _, p := range pages {
 		s.emit(EventPageChanged, PageChanged{Path: p})
 	}
+	if dependent != "" {
+		s.emit(EventPageChanged, PageChanged{Path: dependent, Dependent: true})
+	}
 	if cfg {
 		s.reconcileStreams() // a plugin may have been switched off
 	}
+}
+
+// folderDependentLocked returns the open page when it reads the other pages of
+// its folder (a glossary index, or a term page with its neighbours) and one of
+// changed is in that folder; "" otherwise. Only these two layouts read their
+// folder, and only the open page is checked, so a change costs one read.
+func (s *Session) folderDependentLocked(changed []string) string {
+	cur := s.current
+	if cur == "" || s.ws == nil {
+		return ""
+	}
+	near := false
+	for _, p := range changed {
+		if p != cur && path.Dir(p) == path.Dir(cur) {
+			near = true
+			break
+		}
+	}
+	if !near {
+		return ""
+	}
+	src, err := s.ws.Read(cur)
+	if err != nil {
+		return ""
+	}
+	fm, _, _ := config.SplitFrontmatter(src)
+	switch layouts.Resolve(cur, fm, s.cfg.ForPage(fm).Layouts()).Name {
+	case "glossary", "term":
+		return cur
+	}
+	return ""
 }
 
 // reloadConfig re-reads the config files after one was saved in the editor
