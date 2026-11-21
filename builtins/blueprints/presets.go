@@ -1,7 +1,7 @@
-// Package sitetemplates holds zen's built-in site templates (core/init): a
-// folder for each preset, each with a template.yml and the files it copies.
-// core/sitetemplates installs them into the user's templates folder.
-package sitetemplates
+// Package blueprints holds zen's built-in blueprints (formerly site templates): a
+// folder for each preset, each with a blueprint.yml and the files it copies.
+// engine/sitetemplates installs them into the user's blueprints folder.
+package blueprints
 
 import (
 	"embed"

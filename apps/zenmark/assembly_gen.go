@@ -5,6 +5,7 @@ package app
 import (
 	"io/fs"
 
+	"github.com/zenmark-org/zenmd/builtins/blueprints"
 	"github.com/zenmark-org/zenmd/builtins/dialects/myst"
 	"github.com/zenmark-org/zenmd/builtins/layouts"
 	"github.com/zenmark-org/zenmd/builtins/plugins/check"
@@ -13,7 +14,6 @@ import (
 	"github.com/zenmark-org/zenmd/builtins/plugins/quiz"
 	"github.com/zenmark-org/zenmd/builtins/plugins/rating"
 	"github.com/zenmark-org/zenmd/builtins/plugins/sandbox"
-	"github.com/zenmark-org/zenmd/builtins/sitetemplates"
 	"github.com/zenmark-org/zenmd/engine/dialects"
 	enginelayouts "github.com/zenmark-org/zenmd/engine/layouts"
 	"github.com/zenmark-org/zenmd/engine/plugins"
@@ -37,9 +37,9 @@ func assemblyLayouts(version string) *enginelayouts.Registry {
 	return layouts.Registry(version, "article", "docs", "post", "landing", "wide", "handout", "slides", "course")
 }
 
-// assemblyTemplates holds the built-in site templates this app includes.
+// assemblyTemplates holds the built-in blueprints this app includes.
 func assemblyTemplates() fs.FS {
-	f, err := sitetemplates.Sub()
+	f, err := blueprints.Sub()
 	if err != nil {
 		panic(err)
 	}

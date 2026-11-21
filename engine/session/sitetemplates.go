@@ -49,7 +49,7 @@ func (e siteEnv) dir() (string, []string) {
 	if e.globalPath == "" {
 		return "", nil
 	}
-	return config.Load(e.globalPath, "").TemplatesDir(filepath.Dir(e.globalPath))
+	return config.Load(e.globalPath, "").BlueprintsDir(filepath.Dir(e.globalPath))
 }
 
 // list installs the presets that are not there yet, and lists the templates.

@@ -2,7 +2,7 @@
 // layouts and site templates, ready to hand to a session or a renderer.
 //
 // The sub-packages hold the pieces (plugins/codeblock, plugins/diagram,
-// plugins/check, plugins/quiz, plugins/sandbox, plugins/rating, layouts and sitetemplates);
+// plugins/check, plugins/quiz, plugins/sandbox, plugins/rating, layouts and blueprints);
 // this package assembles them, so there is one list that the Zenmark app, the
 // zenmd command and an embedding program all use:
 //
@@ -28,7 +28,7 @@ import (
 	"github.com/zenmark-org/zenmd/builtins/plugins/quiz"
 	"github.com/zenmark-org/zenmd/builtins/plugins/rating"
 	"github.com/zenmark-org/zenmd/builtins/plugins/sandbox"
-	"github.com/zenmark-org/zenmd/builtins/sitetemplates"
+	"github.com/zenmark-org/zenmd/builtins/blueprints"
 	"github.com/zenmark-org/zenmd/engine/dialects"
 	enginelayouts "github.com/zenmark-org/zenmd/engine/layouts"
 	"github.com/zenmark-org/zenmd/engine/plugins"
@@ -56,7 +56,7 @@ func Layouts(version string) *enginelayouts.Registry {
 // SiteTemplates returns the built-in site templates, one folder per preset:
 // techdocs, learning and planner.
 func SiteTemplates() fs.FS {
-	return sitetemplates.FS
+	return blueprints.FS
 }
 
 // PluginIDs lists the built-in plugins in the order Plugins registers them.
@@ -132,7 +132,7 @@ func LayoutsFor(version string, ids []string) (*enginelayouts.Registry, error) {
 // SiteTemplatesFor returns the built-in site templates named, one folder per
 // template, in the order given. An empty list gives an empty file system.
 func SiteTemplatesFor(ids []string) (fs.FS, error) {
-	return sitetemplates.Sub(ids...)
+	return blueprints.Sub(ids...)
 }
 
 // DialectIDs lists the built-in markdown dialects in the order Dialects

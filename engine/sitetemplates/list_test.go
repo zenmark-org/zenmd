@@ -40,7 +40,7 @@ func TestList(t *testing.T) {
 	if got[1].Description != "First by name" {
 		t.Errorf("alpha: %+v", got[1])
 	}
-	if got[3].Err == "" || got[3].Name != "broken" || got[4].Err == "" || !strings.Contains(got[4].Err, "template.yml") {
+	if got[3].Err == "" || got[3].Name != "broken" || got[4].Err == "" || !strings.Contains(got[4].Err, "blueprint.yml") {
 		t.Errorf("invalid ones: %+v %+v", got[3], got[4])
 	}
 	// The duplicate id: the first folder name wins ("a-folder" before "dup-b"), and a warning says so.

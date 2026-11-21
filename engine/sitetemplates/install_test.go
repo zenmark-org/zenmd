@@ -13,7 +13,7 @@ func TestInstall(t *testing.T) {
 	if err := Install(dir, b); err != nil {
 		t.Fatal(err)
 	}
-	if got := walk(t, filepath.Join(dir, "sites")); strings.Join(got, ",") != ".zen-templates.yml,planner/.zenmd.yml,planner/template.yml,techdocs/README.md,techdocs/template.yml" {
+	if got := walk(t, filepath.Join(dir, "sites")); strings.Join(got, ",") != ".zen-templates.yml,planner/.zenmd.yml,planner/blueprint.yml,techdocs/README.md,techdocs/blueprint.yml" {
 		t.Fatalf("installed: %v", got)
 	}
 	rec := read(t, dir, "sites/.zen-templates.yml")
@@ -78,7 +78,7 @@ func TestInstall(t *testing.T) {
 	if err != nil || out != filepath.Join(dir, "sites", "techdocs.new") {
 		t.Fatalf("update: %q %v", out, err)
 	}
-	if !strings.Contains(read(t, out, "template.yml"), "1.1.0") || read(t, dir, "sites/techdocs/README.md") != "mine" {
+	if !strings.Contains(read(t, out, "blueprint.yml"), "1.1.0") || read(t, dir, "sites/techdocs/README.md") != "mine" {
 		t.Error("update content or user's copy changed")
 	}
 	if l, _ := ListWith(dir, b2); len(l) != 1 || l[0].Update != "" {
