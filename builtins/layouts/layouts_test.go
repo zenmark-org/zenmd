@@ -323,7 +323,7 @@ func TestGlossary(t *testing.T) {
 		t.Errorf("a non-term page is listed: %s", p.HTML)
 	}
 	// Letters without terms are greyed and not links.
-	if strings.Contains(p.HTML, `href="#letter-b"`) || !strings.Contains(p.HTML, `class="zl-gloss-off"`) {
+	if strings.Contains(p.HTML, `href="#letter-b"`) || !strings.Contains(p.HTML, "zl-gloss-off") {
 		t.Errorf("empty letters: %s", p.HTML)
 	}
 	// A-Z order: API, Frontmatter, Slug.

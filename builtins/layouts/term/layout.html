@@ -1,0 +1,22 @@
+<article class="zl-term">
+  <header class="zl-term-head">
+    <h1 class="zl-term-title">{{.Title}}</h1>
+    {{with .Field "abbr"}}<p class="zl-term-abbr">{{.}}</p>{{end}}
+    {{with .Field "aliases"}}<p class="zl-term-aliases">Also: {{join . ", "}}</p>{{end}}
+  </header>
+  <div class="zl-term-text">{{.Content}}</div>
+  {{with .TermPage}}
+  {{with .See}}
+  <section class="zl-term-see" aria-label="See also">
+    <p class="zl-term-see-title">See also</p>
+    <ul>{{range .}}<li>{{if .Missing}}<span>{{.Title}}</span>{{else}}<a data-zen-link="internal" data-path="{{.Path}}">{{.Title}}</a>{{end}}</li>{{end}}</ul>
+  </section>
+  {{end}}
+  {{if or .Prev .Next}}
+  <nav class="zl-term-pager" aria-label="Previous and next term">
+    {{with .Prev}}<a data-zen-link="internal" data-path="{{.Path}}" class="zl-term-prev"><small>‹ Previous</small><span>{{.Title}}</span></a>{{end}}
+    {{with .Next}}<a data-zen-link="internal" data-path="{{.Path}}" class="zl-term-next"><small>Next ›</small><span>{{.Title}}</span></a>{{end}}
+  </nav>
+  {{end}}
+  {{end}}
+</article>
