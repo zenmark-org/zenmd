@@ -8,5 +8,4 @@ layouts:
 plugins:
   diagram: { theme: neutral }
 
-export:
-  out: _site
+# zenmd export site (or File › Export › Website) writes the website to exports/html.

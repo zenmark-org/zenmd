@@ -7,6 +7,4 @@ plugins:
   codeblock: true
   diagram: { theme: neutral }
 
-# zenmd build turns this folder into a website you can host anywhere.
-export:
-  out: _site
+# zenmd export site (or File › Export › Website) writes the website to exports/html.
