@@ -1,0 +1,31 @@
+<div class="zl-gloss">
+  <header class="zl-gloss-head">
+    <h1 class="zl-gloss-title">{{.Title}}</h1>
+    {{with .Glossary}}<p class="zl-gloss-count">{{.Count}} term{{if ne .Count 1}}s{{end}}</p>{{end}}
+  </header>
+  <div class="zl-gloss-intro">{{.Content}}</div>
+  {{with .Glossary}}
+  {{if .Count}}
+  <div class="zl-gloss-tools">
+    <nav class="zl-gloss-bar" aria-label="Letters">
+      {{range .Letters}}{{if .Has}}<a href="#{{.ID}}" class="zl-gloss-letter zen-btn">{{.Label}}</a>{{else}}<span class="zl-gloss-letter zl-gloss-off zen-btn">{{.Label}}</span>{{end}}{{end}}
+    </nav>
+  </div>
+  {{range .Groups}}
+  <section class="zl-gloss-group" aria-label="{{.Letter}}">
+    <h2 id="{{.ID}}" class="zl-gloss-head-letter">{{.Letter}}</h2>
+    <ul class="zl-gloss-list">
+      {{range .Terms}}<li class="zl-gloss-entry">
+        <a data-zen-link="internal" data-path="{{.Path}}" class="zl-gloss-term">{{.Title}}</a>
+        {{with .Abbr}}<span class="zl-gloss-abbr">{{.}}</span>{{end}}
+        {{with .Aliases}}<span class="zl-gloss-aliases">also {{join . ", "}}</span>{{end}}
+        {{with .Definition}}<p class="zl-gloss-def">{{.}}</p>{{end}}
+      </li>{{end}}
+    </ul>
+  </section>
+  {{end}}
+  {{else}}
+  <p class="zl-gloss-empty">No terms yet. Add a page with the term layout beside this one.</p>
+  {{end}}
+  {{end}}
+</div>

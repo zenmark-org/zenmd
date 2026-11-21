@@ -86,7 +86,7 @@ func TestCreatePageTemplatesRender(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Cleanup(z.close)
-	for _, layout := range []string{"", "slides", "course", "docs", "post", "landing", "wide", "handout"} {
+	for _, layout := range []string{"", "slides", "course", "docs", "post", "landing", "wide", "handout", "term", "glossary"} {
 		rel, err := z.CreatePage("new-"+layout, layout)
 		if err != nil {
 			t.Fatal(err)

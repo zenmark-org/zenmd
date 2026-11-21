@@ -120,7 +120,7 @@ export interface KitHost extends RuntimeHost {
   setNavHidden?(path: string, hidden: boolean): Promise<void>;
   revealInFinder?(path: string): Promise<void>;
   /** Also delivered when another window saved the page ("editor:saved"). */
-  on(event: "page:changed", fn: (e: { path: string }) => void): () => void;
+  on(event: "page:changed", fn: (e: { path: string; dependent?: boolean }) => void): () => void;
   /** Another window's unsaved text for a page (see draft); content null = draft gone. */
   on(event: "page:draft", fn: (d: Draft) => void): () => void;
   /** The external plugin set or a trust decision changed (or a folder was opened): reload plugin scripts and styles. */

@@ -60,6 +60,10 @@ type Input struct {
 	// Image resolves an image field: a workspace path or an https address to
 	// the URL the page may show; false when it is neither.
 	Image func(value string) (string, bool)
+	// LayoutOf names the layout a page of the folder uses (its frontmatter,
+	// the config's patterns and default); the glossary needs it to find the
+	// term pages. nil: no page is a term.
+	LayoutOf func(path string, meta map[string]any) string
 }
 
 // Result is a page inside its layout.
@@ -80,11 +84,16 @@ type Data struct {
 	Words       int
 	ReadingTime int // minutes, at least 1
 
-	fields   map[string]any
-	options  map[string]any
-	site     Site
-	children []Child
-	got      bool
+	fields      map[string]any
+	options     map[string]any
+	site        Site
+	children    []Child
+	got         bool
+	frontmatter map[string]any
+	layoutOf    func(path string, meta map[string]any) string
+	warn        func(string)
+	gloss       *Glossary
+	termPage    *TermPage
 }
 
 // Field returns the frontmatter field name, typed by its declaration in
@@ -133,7 +142,8 @@ func (l *Layout) Apply(in Input) (Result, error) {
 	opts := l.options(in.Options, &res)
 	inner := in.Content
 	if l.tmpl != nil {
-		d := &Data{Title: in.Title, Path: in.Path, Content: template.HTML(in.Content), site: in.Site, options: opts}
+		d := &Data{Title: in.Title, Path: in.Path, Content: template.HTML(in.Content), site: in.Site, options: opts,
+			frontmatter: in.Frontmatter, layoutOf: in.LayoutOf, warn: func(m string) { l.warnf(&res, "%s", m) }}
 		d.fields = l.fields(in, &res)
 		if in.Site != nil {
 			d.Breadcrumb = in.Site.Breadcrumb(in.Path)

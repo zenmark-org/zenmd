@@ -10,7 +10,7 @@ type Method = "startup" | "appReady" | "pickFolder" | "cancelOpen" | "closeFolde
   | "plugins" | "pluginTrust" | "pluginStorageGet" | "pluginStorageSet" | "pluginInvoke" | "pluginStream" | "pluginCancel" | "pluginStorageKeys"
   | "reorderNav" | "setNavHidden" | "dialects" | "setDialect" | "dialectHint" | "dismissDialectHint"
   | "logs" | "layouts" | "layoutTrust" | "layoutStorageGet" | "layoutStorageSet" | "layoutStorageKeys";
-type Events = { "workspace:changed": Workspace; "page:changed": { path: string }; "workspace:opened": Startup; "page:draft": Draft; "plugin:stream": PluginStreamEvent; "plugins:changed": undefined; "layouts:changed": undefined; "menu:new-page": undefined; "menu:settings": undefined; "menu:close-folder": undefined; "workspace:opening": OpenProgress; "menu:new-site": undefined; "menu:build-website": undefined; "build:progress": BuildProgress; "pdf:export": PdfExported; "menu:print-page": undefined; "menu:find": undefined; "menu:find-next": undefined; "menu:find-previous": undefined; "menu:zoom-in": undefined; "menu:zoom-out": undefined; "menu:zoom-reset": undefined };
+type Events = { "workspace:changed": Workspace; "page:changed": { path: string; dependent?: boolean }; "workspace:opened": Startup; "page:draft": Draft; "plugin:stream": PluginStreamEvent; "plugins:changed": undefined; "layouts:changed": undefined; "menu:new-page": undefined; "menu:settings": undefined; "menu:close-folder": undefined; "workspace:opening": OpenProgress; "menu:new-site": undefined; "menu:build-website": undefined; "build:progress": BuildProgress; "pdf:export": PdfExported; "menu:print-page": undefined; "menu:find": undefined; "menu:find-next": undefined; "menu:find-previous": undefined; "menu:zoom-in": undefined; "menu:zoom-out": undefined; "menu:zoom-reset": undefined };
 
 /** A plugin as tests write it: the help and what it adds default to nothing. */
 export type PluginSeed = Omit<PluginInfo, "help" | "blocks" | "inlines" | "layouts" | "options"> & Partial<Pick<PluginInfo, "help" | "blocks" | "inlines" | "layouts" | "options">>;
@@ -72,7 +72,7 @@ const SAMPLE_TEMPLATES: SiteTemplate[] = [
 export const ZENMARK_BUILD: BuildInfo = {
   app: "zenmark", features: [...FEATURE_IDS], addons: [],
   plugins: ["codeblock", "diagram", "check", "quiz", "sandbox"],
-  layouts: ["article", "docs", "post", "landing", "wide", "handout", "slides", "course"],
+  layouts: ["article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "slides", "course"],
   templates: ["techdocs", "learning", "planner"],
   dialects: ["myst"],
   theme: "default",

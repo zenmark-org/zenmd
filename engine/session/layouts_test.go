@@ -67,7 +67,7 @@ func TestLayoutsListJSON(t *testing.T) {
 		}
 		by[it["id"].(string)] = it
 	}
-	for _, id := range []string{"article", "docs", "post", "landing", "wide", "handout", "slides", "course"} {
+	for _, id := range []string{"article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "slides", "course"} {
 		it := by[id]
 		if it == nil || it["source"] != "builtin" || it["status"] != "on" {
 			t.Errorf("built-in %s: %v", id, it)

@@ -377,7 +377,10 @@ export const pageFeature: Feature = {
     }
 
     const offChanged = ctx.api.on("page:changed", ({ path }) => {
-      if (path === shownPath && path === ctx.store.get().path && draft === null) void load(true);
+      if (path !== shownPath || path !== ctx.store.get().path) return;
+      // An editor draft stays on screen; a page that reads its folder (the glossary) shows it again, as the terms changed.
+      if (draft === null) void load(true);
+      else void showDraft(path, draft);
     });
     const offDraft = ctx.api.on("page:draft", ({ path, content }) => {
       if (path !== shownPath || path !== ctx.store.get().path) return;

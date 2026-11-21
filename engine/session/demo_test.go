@@ -304,7 +304,8 @@ func TestDemoFolder(t *testing.T) {
 		"features/index.md":         "features/reader.md,features/navigation.md,features/find.md,features/editor.md,features/inspector.md,features/printing.md,features/export.md,features/developer.md",
 		"features/reader.md":        "features/markdown.md,features/myst.md",
 		"plugins/index.md":          "plugins/codeblock.md,plugins/diagram.md,plugins/check.md,plugins/quiz.md,plugins/sandbox.md,plugins/rating.md",
-		"layouts/index.md":          "layouts/article.md,layouts/docs.md,layouts/post.md,layouts/landing.md,layouts/wide.md,layouts/handout.md,layouts/slides.md,layouts/course.md",
+		"layouts/index.md":          "layouts/article.md,layouts/docs.md,layouts/post.md,layouts/landing.md,layouts/wide.md,layouts/handout.md,layouts/slides.md,layouts/course.md,layouts/glossary/index.md",
+		"layouts/glossary/index.md": "layouts/glossary/dialect.md,layouts/glossary/frontmatter.md,layouts/glossary/layout.md,layouts/glossary/plugin.md,layouts/glossary/slug.md",
 		"configuration/settings.md": "configuration/reference.md",
 	}
 	var check func([]NavNode)
@@ -356,7 +357,10 @@ func TestDemoFolder(t *testing.T) {
 			t.Errorf("%s: warnings %v", p, pg.Warnings)
 		}
 		// Each layout's own page shows it; every other page is an article.
-		wantLayout := map[string]string{"layouts/docs.md": "docs", "layouts/post.md": "post", "layouts/index.md": "landing", "layouts/landing.md": "docs", "layouts/wide.md": "wide", "layouts/handout.md": "handout", "layouts/slides.md": "slides", "layouts/course.md": "course"}[p]
+		wantLayout := map[string]string{"layouts/docs.md": "docs", "layouts/post.md": "post", "layouts/index.md": "landing", "layouts/landing.md": "docs", "layouts/wide.md": "wide", "layouts/handout.md": "handout", "layouts/slides.md": "slides", "layouts/course.md": "course", "layouts/glossary/index.md": "glossary"}[p]
+		if strings.HasPrefix(p, "layouts/glossary/") && wantLayout == "" {
+			wantLayout = "term"
+		}
 		if wantLayout == "" {
 			wantLayout = "article"
 		}

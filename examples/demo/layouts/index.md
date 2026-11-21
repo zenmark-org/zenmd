@@ -29,6 +29,8 @@ has these layouts:
 | [handout](handout.md) | a one-pager on a paper sheet |
 | [slides](slides.md) | a page shown as slides, one at a time |
 | [course](course.md) | a page shown as steps, unlocked by checklists |
+| [glossary](glossary/index.md) | the A to Z index of a folder of terms, built from its pages |
+| [term](glossary/slug.md) | one entry of a glossary: the definition, see also and neighbouring terms |
  Settings has a **Layouts** section that lists the
 layouts with help and snippets to copy; see
 [Settings](../configuration/settings.md).
