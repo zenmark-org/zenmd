@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Meta is the navigation metadata of a page, from its frontmatter nav key.
@@ -18,8 +19,13 @@ type Meta struct {
 	Parent string
 	Hidden bool
 	// Sort is nav.sort (title or newest-first): how the children of this page
-	// are to be ordered. It is read and checked; the sidebar does not apply it yet.
+	// are ordered. When set it decides over the children's nav.order.
 	Sort string
+	// Children is nav.children: "folder" makes every page of the folder that
+	// no link places a child of this page (an index.md or README.md).
+	Children string
+	// Date and Version are the frontmatter date and version, for newest-first.
+	Date, Version string
 }
 
 // Parent markers for pages without a parent page.
@@ -82,10 +88,34 @@ func BuildWithMeta(files []string, home string, links func(path string) []string
 		}
 	}
 	sort.Strings(rest)
-	for _, f := range rest {
-		if !placed(f) {
-			add(f, inOther)
+	// nav.children: folder on an index.md or README.md adopts the pages of
+	// its folder that no link placed.
+	folderIndex := map[string]string{} // lower-cased folder -> its index page
+	if meta != nil {
+		for _, f := range files {
+			base := strings.ToLower(path.Base(f))
+			if canon[strings.ToLower(f)] != f || (base != "index.md" && base != "readme.md") || meta(f).Children != "folder" {
+				continue
+			}
+			dir := strings.ToLower(path.Dir(f))
+			if cur, ok := folderIndex[dir]; !ok || strings.ToLower(path.Base(cur)) != "index.md" && base == "index.md" {
+				folderIndex[dir] = f
+			}
 		}
+	}
+	for _, f := range rest {
+		if placed(f) {
+			continue
+		}
+		if ixp, ok := folderIndex[strings.ToLower(path.Dir(f))]; ok && ixp != f {
+			// the index is placed before its children (it may itself be in Other pages)
+			if !placed(ixp) {
+				add(ixp, inOther)
+			}
+			add(f, pos[strings.ToLower(ixp)])
+			continue
+		}
+		add(f, inOther)
 	}
 	n := len(seq)
 
@@ -144,17 +174,8 @@ func BuildWithMeta(files []string, home string, links func(path string) []string
 	for _, c := range children {
 		byOrder(c)
 	}
-
-	// 4 parents before children: titles, hidden and breadcrumbs.
-	topo := make([]int, 0, n)
-	topo = append(append(topo, roots...), others...)
-	for q := 0; q < len(topo); q++ {
-		topo = append(topo, children[topo[q]]...)
-	}
 	titleOf := make([]string, n)
-	hidden := make([]bool, n)
-	for _, i := range topo {
-		p := seq[i]
+	for i, p := range seq {
 		switch {
 		case metaOf[i].Title != "":
 			titleOf[i] = metaOf[i].Title
@@ -164,6 +185,31 @@ func BuildWithMeta(files []string, home string, links func(path string) []string
 		default:
 			titleOf[i] = titles(p)
 		}
+	}
+	for i, c := range children {
+		switch metaOf[i].Sort {
+		case "title":
+			sort.SliceStable(c, func(a, b int) bool {
+				ka, kb := Fold(titleOf[c[a]]), Fold(titleOf[c[b]])
+				if ka != kb {
+					return ka < kb
+				}
+				return seq[c[a]] < seq[c[b]]
+			})
+		case "newest-first":
+			sort.SliceStable(c, func(a, b int) bool { return newer(metaOf[c[a]], seq[c[a]], metaOf[c[b]], seq[c[b]]) })
+		}
+	}
+
+	// 4 parents before children: titles, hidden and breadcrumbs.
+	topo := make([]int, 0, n)
+	topo = append(append(topo, roots...), others...)
+	for q := 0; q < len(topo); q++ {
+		topo = append(topo, children[topo[q]]...)
+	}
+	hidden := make([]bool, n)
+	for _, i := range topo {
+		p := seq[i]
 		hidden[i] = metaOf[i].Hidden || par[i] >= 0 && hidden[par[i]]
 		var bc []Crumb
 		if par[i] >= 0 {
@@ -206,6 +252,69 @@ func BuildWithMeta(files []string, home string, links func(path string) []string
 		ix.tree = append(ix.tree, other)
 	}
 	return ix
+}
+
+// newer orders pages newest first: by date, then version (semver), then file name, all descending.
+func newer(a Meta, ap string, b Meta, bp string) bool {
+	if a.Date != b.Date {
+		return a.Date > b.Date
+	}
+	if c := cmpVersion(a.Version, b.Version); c != 0 {
+		return c > 0
+	}
+	return ap > bp
+}
+
+// cmpVersion compares dotted versions numerically; a pre-release (1.0.0-rc1)
+// is below its release and an empty version below any.
+func cmpVersion(a, b string) int {
+	if a == b {
+		return 0
+	}
+	if a == "" || b == "" {
+		if a == "" {
+			return -1
+		}
+		return 1
+	}
+	split := func(v string) ([]int, bool) {
+		v = strings.TrimPrefix(strings.TrimSpace(v), "v")
+		pre := false
+		if i := strings.IndexAny(v, "-+"); i >= 0 {
+			pre = v[i] == '-'
+			v = v[:i]
+		}
+		var out []int
+		for _, part := range strings.Split(v, ".") {
+			n, _ := strconv.Atoi(part)
+			out = append(out, n)
+		}
+		return out, pre
+	}
+	x, xp := split(a)
+	y, yp := split(b)
+	for i := 0; i < len(x) || i < len(y); i++ {
+		var p, q int
+		if i < len(x) {
+			p = x[i]
+		}
+		if i < len(y) {
+			q = y[i]
+		}
+		if p != q {
+			if p < q {
+				return -1
+			}
+			return 1
+		}
+	}
+	switch {
+	case xp && !yp:
+		return -1
+	case !xp && yp:
+		return 1
+	}
+	return 0
 }
 
 // ancestor reports whether a is j or one of its ancestors.
@@ -269,6 +378,10 @@ func ParseMeta(frontmatter map[string]any) (m Meta, slug string, warnings []stri
 			warn("slug must be lower-case letters, digits, - and / between parts (at most %d characters)", maxSlug)
 		}
 	}
+	m.Date, m.Version = textOf(frontmatter["date"]), textOf(frontmatter["version"])
+	if l, _ := frontmatter["layout"].(string); l == "glossary" {
+		m.Children, m.Sort = "folder", "title" // what the glossary layout implies; nav can override
+	}
 	v, ok := frontmatter["nav"]
 	if !ok || v == nil {
 		return m, slug, warnings
@@ -316,11 +429,32 @@ func ParseMeta(frontmatter map[string]any) (m Meta, slug string, warnings []stri
 			} else {
 				warn("nav.sort must be title or newest-first")
 			}
+		case "children":
+			if s, ok := v.(string); ok && s == "folder" {
+				m.Children = s
+			} else {
+				warn("nav.children must be folder")
+			}
 		default:
-			warn("nav.%s is not a known key (title, order, parent, hidden, sort)", k)
+			warn("nav.%s is not a known key (title, order, parent, hidden, sort, children)", k)
 		}
 	}
 	return m, slug, warnings
+}
+
+// textOf renders a frontmatter scalar (a date may come as a time) as text; dates as YYYY-MM-DD.
+func textOf(v any) string {
+	switch t := v.(type) {
+	case nil:
+		return ""
+	case string:
+		return strings.TrimSpace(t)
+	case time.Time:
+		return t.Format("2006-01-02")
+	case float64, int, int64:
+		return fmt.Sprint(t)
+	}
+	return ""
 }
 
 func intValue(v any) (int, bool) {

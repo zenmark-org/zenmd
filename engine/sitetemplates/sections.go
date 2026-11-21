@@ -503,9 +503,9 @@ func (t Template) generate(vals map[string]string) ([]generated, string, error) 
 			}
 		}
 		if s.Order != "" {
-			idx = append(idx, KV{"nav", "{ sort: " + s.Order + " }"})
+			idx = append(idx, KV{"nav", "{ children: folder, sort: " + s.Order + " }"})
 		} else if s.Index.Layout == "glossary" {
-			idx = append(idx, KV{"nav", "{ sort: title }"})
+			idx = append(idx, KV{"nav", "{ children: folder, sort: title }"})
 		}
 		out = append(out, generated{dest: folder + "/index.md", data: frontmatter(idx) + text})
 		if s.Template != "" {

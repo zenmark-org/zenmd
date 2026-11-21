@@ -9,12 +9,12 @@ import (
 	"strings"
 	"testing"
 
-	"gopkg.in/yaml.v3"
 	"github.com/zenmark-org/zenmd/builtins/blueprints"
 	"github.com/zenmark-org/zenmd/builtins/pagetemplates"
 	"github.com/zenmark-org/zenmd/engine/config"
 	"github.com/zenmark-org/zenmd/engine/index"
 	enginetemplates "github.com/zenmark-org/zenmd/engine/sitetemplates"
+	"gopkg.in/yaml.v3"
 )
 
 // fresh makes a folder from the built-in blueprint id, as zenmd init --blueprint does.

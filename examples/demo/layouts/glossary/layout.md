@@ -2,9 +2,6 @@
 title: Layout
 layout: term
 see: [frontmatter.md, plugin.md]
-nav:
-  parent: layouts/glossary/index.md
-  order: 3
 ---
 The look and feel of a whole page: its structure, type and behaviour. A page chooses one with the layout key in its frontmatter, and gets the article layout when it names none.
 
