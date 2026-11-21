@@ -301,7 +301,7 @@ func TestDemoFolder(t *testing.T) {
 		t.Errorf("README children = %s\nwant %s", got, want)
 	}
 	sub := map[string]string{
-		"features/index.md":         "features/reader.md,features/navigation.md,features/find.md,features/editor.md,features/inspector.md,features/printing.md,features/export.md,features/developer.md",
+		"features/index.md":         "features/reader.md,features/navigation.md,features/find.md,features/editor.md,features/inspector.md,features/printing.md,features/export.md,features/blueprints.md,features/developer.md",
 		"features/reader.md":        "features/markdown.md,features/myst.md",
 		"plugins/index.md":          "plugins/codeblock.md,plugins/diagram.md,plugins/check.md,plugins/quiz.md,plugins/sandbox.md,plugins/rating.md",
 		"layouts/index.md":          "layouts/article.md,layouts/docs.md,layouts/post.md,layouts/landing.md,layouts/wide.md,layouts/handout.md,layouts/slides.md,layouts/course.md,layouts/glossary/index.md",
@@ -423,7 +423,7 @@ func TestDemoFeaturesMatchAssembly(t *testing.T) {
 		t.Fatal(err)
 	}
 	page := map[string]string{"reader": "reader.md", "nav": "navigation.md", "find": "find.md", "editor": "editor.md",
-		"inspector": "inspector.md", "print": "printing.md", "export": "export.md", "developer": "developer.md"}
+		"inspector": "inspector.md", "print": "printing.md", "export": "export.md", "newsite": "blueprints.md", "developer": "developer.md"}
 	have := assemblyIDs(t, a.Features)
 	if have == nil { // `all`
 		have = map[string]bool{}
@@ -506,7 +506,7 @@ func TestDemoMatchesAssembly(t *testing.T) {
 	blockPlugin := map[string]string{"mermaid": "diagram", "diagram": "diagram", "check": "check", "quiz": "quiz", "quiz-results": "quiz", "sandbox": "sandbox", "rating": "rating", "rating-results": "rating"}
 	fence := regexp.MustCompile("(?m)^\\s*(?:```+|~~~+|:::+)\\s*(\\{[a-z-]+\\}|[A-Za-z][\\w-]*)")
 	// Words for features this build lacks (the showcase has them); the guide must not name them.
-	lacking := []string{".zen/"}
+	lacking := []string{".zen/plugins", ".zen/layouts"} // folder plugins and layouts (a folder's .zen/templates come with blueprints)
 	// Words for a feature, an add-on or a dialect: allowed once the assembly has it.
 	haveFeature, haveAddon := assemblyIDs(t, a.Features), assemblyIDs(t, a.Addons)
 	for _, w := range []struct {

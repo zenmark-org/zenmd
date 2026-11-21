@@ -39,7 +39,7 @@ func assemblyLayouts(version string) *enginelayouts.Registry {
 
 // assemblyTemplates holds the built-in blueprints this app includes.
 func assemblyTemplates() fs.FS {
-	f, err := blueprints.Sub()
+	f, err := blueprints.Sub("techdocs", "learning", "planner")
 	if err != nil {
 		panic(err)
 	}
@@ -59,10 +59,10 @@ func assemblyDialects() *dialects.Registry {
 // Settings. The add-ons are the ones linked in (build tags), added at run time.
 var assemblyInfo = session.BuildInfo{
 	App:       "zenmark",
-	Features:  []string{"reader", "nav", "inspector", "developer", "find", "editor", "print", "export"},
+	Features:  []string{"reader", "nav", "inspector", "developer", "find", "editor", "print", "export", "newsite"},
 	Plugins:   []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating"},
 	Layouts:   []string{"article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "slides", "course"},
-	Templates: []string{},
+	Templates: []string{"techdocs", "learning", "planner"},
 	Dialects:  []string{"myst"},
 	Theme:     "default",
 }
