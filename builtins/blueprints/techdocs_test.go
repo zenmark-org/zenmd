@@ -1,0 +1,146 @@
+package blueprints_test
+
+import (
+	"io/fs"
+	"os"
+	"path/filepath"
+	"regexp"
+	"sort"
+	"strings"
+	"testing"
+
+	"github.com/zenmark-org/zenmd/builtins/blueprints"
+	"github.com/zenmark-org/zenmd/builtins/pagetemplates"
+	"github.com/zenmark-org/zenmd/engine/config"
+	enginetemplates "github.com/zenmark-org/zenmd/engine/sitetemplates"
+)
+
+// fresh makes a folder from the built-in blueprint id, as zenmd init --blueprint does.
+func fresh(t *testing.T, id string) string {
+	t.Helper()
+	list, _ := enginetemplates.Builtins(blueprints.FS)
+	for _, tp := range list {
+		if tp.ID != id {
+			continue
+		}
+		if tp.Err != "" {
+			t.Fatalf("%s is invalid: %s", id, tp.Err)
+		}
+		tp.PageSource = pagetemplates.FS
+		target := filepath.Join(t.TempDir(), "My Docs")
+		if _, err := enginetemplates.Create(tp, target, map[string]string{"title": "My Docs", "author": "Ana", "product": "Zed"}); err != nil {
+			t.Fatal(err)
+		}
+		return target
+	}
+	t.Fatalf("no blueprint %s", id)
+	return ""
+}
+
+func readFile(t *testing.T, root, rel string) string {
+	t.Helper()
+	b, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(b)
+}
+
+func TestTechdocsHasSevenSectionsInOrder(t *testing.T) {
+	root := fresh(t, "techdocs")
+	want := []string{"overview", "getting-started", "how-tos", "explanation", "reference", "glossary", "releases"}
+	home := readFile(t, root, "README.md")
+	links := regexp.MustCompile(`\]\(([a-z-]+)/index\.md\)`).FindAllStringSubmatch(home, -1)
+	var got []string
+	for _, m := range links {
+		got = append(got, m[1])
+	}
+	if strings.Join(got, ",") != strings.Join(want, ",") {
+		t.Errorf("README links %v, want %v:\n%s", got, want, home)
+	}
+	for _, s := range want {
+		if _, err := os.Stat(filepath.Join(root, s, "index.md")); err != nil {
+			t.Errorf("%s has no index.md", s)
+		}
+	}
+	for _, f := range []string{"overview/presentation.md", "getting-started/installation.md", "getting-started/first-steps.md", "how-tos/example-task.md", "explanation/architecture.md", "reference/configuration.md", "glossary/example-term.md", "CONTRIBUTING.md"} {
+		if _, err := os.Stat(filepath.Join(root, f)); err != nil {
+			t.Errorf("missing %s", f)
+		}
+	}
+}
+
+func TestTechdocsPagesAndRules(t *testing.T) {
+	root := fresh(t, "techdocs")
+	if g := readFile(t, root, "glossary/index.md"); !strings.Contains(g, "layout: glossary") || !strings.Contains(g, "sort: title") {
+		t.Errorf("glossary index:\n%s", g)
+	}
+	if g := readFile(t, root, "glossary/example-term.md"); !strings.Contains(g, "layout: term") || !strings.Contains(g, "title: Example term") {
+		t.Errorf("example term:\n%s", g)
+	}
+	if o := readFile(t, root, "overview/index.md"); !strings.Contains(o, "Zed is") || !strings.Contains(o, "(../releases/index.md)") {
+		t.Errorf("overview index:\n%s", o)
+	}
+	if p := readFile(t, root, "overview/presentation.md"); !strings.Contains(p, "layout: slides") || !strings.Contains(p, "title: Zed in five slides") {
+		t.Errorf("presentation:\n%s", p)
+	}
+	matches, _ := filepath.Glob(filepath.Join(root, "releases", "*-first-release.md"))
+	if len(matches) != 1 || !regexp.MustCompile(`^\d{4}-\d{2}-\d{2}-first-release\.md$`).MatchString(filepath.Base(matches[0])) {
+		t.Fatalf("first release: %v", matches)
+	}
+	rel, _ := os.ReadFile(matches[0])
+	if !strings.Contains(string(rel), "version: 0.1.0") || !strings.Contains(string(rel), "date: ") {
+		t.Errorf("first release:\n%s", rel)
+	}
+	if r := readFile(t, root, "releases/index.md"); !strings.Contains(r, "sort: newest-first") {
+		t.Errorf("releases index:\n%s", r)
+	}
+	// The folder's settings load clean and keep the path rules, in section order.
+	cfg := config.Load("", root)
+	if w := cfg.Warnings(); len(w) != 0 {
+		t.Errorf("config warnings: %v", w)
+	}
+	var rules []string
+	for _, r := range cfg.TemplateRules() {
+		rules = append(rules, r.Pattern+"="+r.Name)
+	}
+	wantRules := "overview/**=overview,getting-started/**=tutorial,how-tos/**=how-to,explanation/**=explanation,reference/**=reference,glossary/**=term,releases/**=release-notes"
+	if strings.Join(rules, ",") != wantRules {
+		t.Errorf("rules %v", rules)
+	}
+	if !strings.Contains(readFile(t, root, ".zenmd.yml"), "layout: docs") {
+		t.Error("layout: docs missing from .zenmd.yml")
+	}
+	// The site's own page templates, as the blueprint names them.
+	entries, _ := os.ReadDir(filepath.Join(root, ".zen", "templates"))
+	var names []string
+	for _, e := range entries {
+		names = append(names, strings.TrimSuffix(e.Name(), ".yml"))
+	}
+	sort.Strings(names)
+	if strings.Join(names, ",") != "explanation,how-to,overview,reference,release-notes,term,tutorial" {
+		t.Errorf("templates %v", names)
+	}
+	// No placeholder is left in any page.
+	_ = filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
+		if err == nil && !d.IsDir() && strings.HasSuffix(p, ".md") && !strings.Contains(p, ".zen/") {
+			if b, _ := os.ReadFile(p); strings.Contains(string(b), "{{") {
+				t.Errorf("%s has a placeholder left", p)
+			}
+		}
+		return nil
+	})
+}
+
+// Every built-in blueprint builds on a fresh folder.
+func TestBuiltinBlueprintsBuild(t *testing.T) {
+	for _, id := range blueprints.IDs {
+		root := fresh(t, id)
+		if _, err := os.Stat(filepath.Join(root, "README.md")); err != nil {
+			t.Errorf("%s: no README.md", id)
+		}
+		if w := config.Load("", root).Warnings(); len(w) != 0 {
+			t.Errorf("%s: config warnings %v", id, w)
+		}
+	}
+}

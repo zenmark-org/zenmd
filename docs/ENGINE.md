@@ -42,7 +42,7 @@ kit or an app, and the kit never imports an app; tests enforce both.
 | Part | Today | Engine or app |
 |---|---|---|
 | `internal/core/*` (workspace, config, index, render, plugins, extplugins, scriptplugins, layouts, lint, watch, site, sitetemplates, atomicfile) | No dependency on the app | **Engine** (already clean) |
-| `internal/plugins/*`, `internal/layouts/*`, `internal/sitetemplates/*` | Built-ins | **Engine** (default set; apps may add or leave out) |
+| `internal/plugins/*`, `internal/layouts/*`, `internal/sitetemplates/*` (blueprints) | Built-ins | **Engine** (default set; apps may add or leave out) |
 | `internal/app/state.go`, `opening.go`, `build.go`, `buildui.go` (core part), `print.go` (document), `extplugins.go`, `layouts.go`, `stream.go`, `assets.go`, `slugs.go`, `sitetemplates.go` (core part) | Mixed with Wails types and events | **Engine:** becomes `session`, a headless folder session |
 | `internal/app/windows.go`, dialogs, native print, Finder, `channel*`, bookmarks, the `Run` helper | Wails | **Kit** (`kit/desktop`) |
 | `internal/app/app.go`, `menu.go`, `service.go` bindings, settings, New Site, Build Website | Wails | **App** (`apps/zenmark`) |

@@ -60,7 +60,7 @@ func TestMenuSpecProduction(t *testing.T) {
 		"-",
 		"Quit Zenmark [CmdOrCtrl+Q]",
 		"# File",
-		"New Site from Template… [CmdOrCtrl+Shift+N]",
+		"New from Blueprint… [CmdOrCtrl+Shift+N]",
 		"-",
 		"New Page… [CmdOrCtrl+N]",
 		"Open Folder… [CmdOrCtrl+O]",
@@ -161,7 +161,7 @@ func TestMenuActions(t *testing.T) {
 		FindNext:     func() { calls = append(calls, "find-next") },
 		FindPrevious: func() { calls = append(calls, "find-previous") },
 	}
-	for _, label := range []string{"New Page…", "Open Folder…", "Settings…", "New Site from Template…", "Website…", "Print Page…", "PDF…", "Close Folder", "Find…", "Find Next", "Find Previous"} {
+	for _, label := range []string{"New Page…", "Open Folder…", "Settings…", "New from Blueprint…", "Website…", "Print Page…", "PDF…", "Close Folder", "Find…", "Find Next", "Find Previous"} {
 		f := act.forLabel(label)
 		if f == nil {
 			t.Fatalf("no action for %s", label)
@@ -388,7 +388,7 @@ func TestMenuPerFeature(t *testing.T) {
 		{"inspector", nil},
 		{"print", []string{"Print Page…", "  PDF…"}},
 		{"export", []string{"> Export", "  Website…", "  PDF…"}},
-		{"newsite", []string{"New Site from Template…"}},
+		{"newsite", []string{"New from Blueprint…"}},
 		{"developer", []string{"# Develop", "Reload", "Toggle DevTools"}},
 	}
 	for _, c := range cases {

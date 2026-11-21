@@ -94,32 +94,32 @@ test("section list per build", () => {
     s.destroy();
     return n;
   };
-  expect(list()).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Templates", "Layouts", "Plugins", "Export", "Developer"]); // the full build; no This build
+  expect(list()).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Blueprints", "Layouts", "Plugins", "Export", "Developer"]); // the full build; no This build
   // the starting shell
-  expect(list(["reader", "nav", "inspector", "developer"])).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Templates", "Layouts", "Plugins", "Developer"]);
+  expect(list(["reader", "nav", "inspector", "developer"])).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Blueprints", "Layouts", "Plugins", "Developer"]);
   // the bare shell
   expect(list([])).toEqual(["Appearance", "Accessibility"]);
   // a feature brings its section
-  expect(list(["reader", "editor"])).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Templates", "Layouts", "Plugins"]);
-  expect(list(["newsite"])).toEqual(["Appearance", "Accessibility", "Templates"]);
+  expect(list(["reader", "editor"])).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Blueprints", "Layouts", "Plugins"]);
+  expect(list(["newsite"])).toEqual(["Appearance", "Accessibility", "Blueprints"]);
   expect(list(["export"])).toEqual(["Appearance", "Accessibility", "Export"]);
   expect(list(["developer"])).toEqual(["Appearance", "Accessibility", "Developer"]);
   expect(list(["editor"])).toEqual(["Configuration", "Appearance", "Accessibility"]);
-  expect(list(["reader"])).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Templates", "Layouts", "Plugins"]);
+  expect(list(["reader"])).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Blueprints", "Layouts", "Plugins"]);
 });
 
-test("templates: below Reader in every build with the reader; without New Site it lists none and asks nothing", async () => {
+test("blueprints: below Reader in every build with the reader; without New Site it lists none and asks nothing", async () => {
   const { api, s } = setup({ features: ["reader", "nav", "inspector", "developer"] });
-  await go(s, "templates");
+  await go(s, "blueprints");
   expect(api.callsTo("siteTemplates")).toHaveLength(0);
-  expect(leftCol(s, "templates").textContent).toBe("No templates in this build.");
-  expect(detail(s, "templates").textContent).toBe("");
+  expect(leftCol(s, "blueprints").textContent).toBe("No blueprints in this build.");
+  expect(detail(s, "blueprints").textContent).toBe("");
 });
 
 test("every section is two columns, and the arrows of the section list move through the sections", async () => {
   const { s } = setup();
   await settle();
-  for (const id of ["appearance", "accessibility", "config", "reader", "layouts", "plugins", "templates", "export", "developer"]) {
+  for (const id of ["appearance", "accessibility", "config", "reader", "layouts", "plugins", "blueprints", "export", "developer"]) {
     expect(panel(s, id).querySelector(".zen-settings-cols"), id).not.toBeNull();
   }
   expect(s.el.querySelector("h1")!.textContent).toBe("Settings");
@@ -412,10 +412,10 @@ test("plugin, layout and template lists", async () => {
   expect(lnote("broken")).toBe("Invalid · This folder");
   // templates
   const t = setup({ templates: TEMPLATES });
-  await go(t.s, "templates");
-  expect(rows(t.s, "templates").map((r) => r.dataset.item)).toEqual(["techdocs", "mine", "bad"]);
-  expect(rows(t.s, "templates").map((r) => r.querySelector(".zen-settings-item-note")?.textContent ?? null)).toEqual([null, "Your templates", "Invalid · Your templates"]);
-  expect(rows(t.s, "templates")[0].querySelector(".zen-settings-item-label")!.textContent).toBe("Technical documentation");
+  await go(t.s, "blueprints");
+  expect(rows(t.s, "blueprints").map((r) => r.dataset.item)).toEqual(["techdocs", "mine", "bad"]);
+  expect(rows(t.s, "blueprints").map((r) => r.querySelector(".zen-settings-item-note")?.textContent ?? null)).toEqual([null, "Your blueprints", "Invalid · Your blueprints"]);
+  expect(rows(t.s, "blueprints")[0].querySelector(".zen-settings-item-label")!.textContent).toBe("Technical documentation");
 });
 
 test("plugins: the list reads the API each time the page is shown; text is plain; empty and failing states", async () => {
@@ -656,22 +656,22 @@ test("layouts: snippets with Copy; built-in layouts preview through api.preview,
   expect(leftCol(e.s, "layouts").textContent).toContain("Could not list layouts: down");
 });
 
-test("templates: description, what it asks, the invalid reason as text; Show Templates Folder", async () => {
+test("blueprints: description, what it asks, the invalid reason as text; Show Blueprints Folder", async () => {
   const { api, s } = setup({ templates: TEMPLATES });
-  await go(s, "templates");
-  const d = () => detail(s, "templates");
+  await go(s, "blueprints");
+  const d = () => detail(s, "blueprints");
   expect(d().querySelector("h3")!.textContent).toBe("Technical documentation");
   expect(d().textContent).toContain("Tutorials and <b>reference</b>");
   expect(d().textContent).toContain("Site title");
   expect(d().querySelector("b")).toBeNull();
-  btn(d(), "Show Templates Folder").click();
+  btn(d(), "Show Blueprints Folder").click();
   await settle();
   expect(api.callsTo("revealTemplates")).toHaveLength(1);
-  row(s, "templates", "bad").click();
+  row(s, "blueprints", "bad").click();
   expect(d().textContent).toContain("template.yml: no files <i>x</i>");
   expect(d().querySelector("i")).toBeNull();
   api.failNext("revealTemplates", new Error("no folder"));
-  btn(d(), "Show Templates Folder").click();
+  btn(d(), "Show Blueprints Folder").click();
   await settle();
   expect(d().querySelector("[role=status]")!.textContent).toContain("no folder");
 });

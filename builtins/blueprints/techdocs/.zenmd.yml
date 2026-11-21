@@ -1,11 +1,7 @@
 # Settings for this site. Edit freely: zen reads this file again when it changes.
+# The page layout and the page template rules (templates:) are added below
+# when the site is made.
 version: 1
-
-# Every page uses the docs layout (contents rail, Previous and Next links),
-# except the home page.
-layout: docs
-layouts:
-  "README.md": landing
 
 plugins:
   codeblock: true

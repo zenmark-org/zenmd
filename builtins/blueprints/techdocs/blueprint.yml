@@ -1,10 +1,68 @@
 id: techdocs
 name: Technical documentation
-description: Tutorials, how-to guides, reference and explanation, laid out after Diátaxis
-version: 1.0.0
+description: Overview, getting started, how-tos, explanation, reference, glossary and releases
+version: 2.0.0
 order: 10
-requires: { layouts: [docs, landing], plugins: [codeblock, diagram] }
+requires: { layouts: [docs, landing, slides, term, glossary], plugins: [codeblock, diagram] }
 ask:
   title: { label: Site title, default: "{{folder}}" }
   author: { label: Author, default: "the team" }
+  product: { label: Product name, default: "{{title}}" }
 ignore: [".DS_Store"]
+layout: docs
+home:
+  title: "{{title}}"
+sections:
+  - id: overview
+    title: Overview
+    folder: overview
+    template: overview
+    index: { template: overview }
+    pages:
+      - { file: presentation.md, title: "{{product}} in five slides", layout: slides }
+  - id: getting-started
+    title: Getting started
+    folder: getting-started
+    template: tutorial
+    index: { layout: landing, tagline: "From nothing to your first result" }
+    pages:
+      - { file: installation.md, title: Installation }
+      - { file: first-steps.md, title: Your first steps }
+  - id: how-tos
+    title: How-tos
+    folder: how-tos
+    template: how-to
+    index: { layout: landing, tagline: "Steps for one real task" }
+    pages:
+      - { file: example-task.md, title: Do one task }
+  - id: explanation
+    title: Explanation
+    folder: explanation
+    template: explanation
+    index: { layout: landing, tagline: "Why it works the way it does" }
+    pages:
+      - { file: architecture.md, title: How it works }
+  - id: reference
+    title: Reference
+    folder: reference
+    template: reference
+    index: { layout: landing, tagline: "Exact facts to look up" }
+    pages:
+      - { file: configuration.md, title: Configuration }
+  - id: glossary
+    title: Glossary
+    folder: glossary
+    template: term
+    index: { layout: glossary }
+    pages:
+      - { file: example-term.md, title: Example term }
+  - id: releases
+    title: Releases
+    folder: releases
+    template: release-notes
+    index: { layout: landing, tagline: "What changed, newest first" }
+    order: newest-first
+    pages:
+      - { file: "{{today}}-first-release.md", title: First release, set: { version: 0.1.0 } }
+files: [CONTRIBUTING.md]
+templates: [overview, tutorial, how-to, explanation, reference, term, release-notes]

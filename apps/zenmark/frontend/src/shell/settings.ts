@@ -1,7 +1,7 @@
 // The Settings page of Zenmark (ui/settings-layout): the kit's frame (kit/ui shell/settings.ts), where every
 // section has two columns (what you pick on the left, its preview, help and actions on the right), and zen's
 // sections: Appearance, Accessibility (zoom, motion, contrast and the reader's text), Configuration (the two config files), Markdown (the dialects the folder uses), Layouts,
-// Plugins, Templates, Export (the website and the PDF, in place) and Developer. What the build contains is in
+// Plugins, Blueprints, Export (the website and the PDF, in place) and Developer. What the build contains is in
 // Zenmark › About. A section whose feature the build leaves out is not there. All text through textContent.
 import { appearanceSection, button, createSettingsFrame, developerSection, el, hasFeature, mountPage, reloadSettings, type DialectInfo, type SettingsItem, type SettingsSection, type SettingsView } from "@zenmd/kit";
 import { accessibilitySection } from "@zenmd/kit/shell/settings";
@@ -230,12 +230,12 @@ export function createSettingsView(opts: {
     appearanceSection(doc, opts.appearanceExtra),
     // Accessibility is in every build; its Reading item is the reader's.
     accessibilitySection(doc, { reader: hasFeature(api, "reader"), setZoom: opts.setZoom }),
-    // The sections of a feature the build leaves out are not there at all (kit/shell-features): Markdown, Templates,
-    // Layouts and Plugins belong to the reader (Templates also to newsite, and lists none without it), Export to
+    // The sections of a feature the build leaves out are not there at all (kit/shell-features): Markdown, Blueprints,
+    // Layouts and Plugins belong to the reader (Blueprints also to newsite, and lists none without it), Export to
     // export, Developer to developer.
     ...(hasFeature(api, "reader") || hasFeature(api, "newsite") ? [
       ...(hasFeature(api, "reader") ? [reader] : []),
-      { id: "templates", label: "Templates", ...templates },
+      { id: "blueprints", label: "Blueprints", ...templates },
       ...(hasFeature(api, "reader") ? [
         { id: "layouts", label: "Layouts", ...layouts },
         { id: "plugins", label: "Plugins", ...plugins },

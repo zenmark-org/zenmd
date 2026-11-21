@@ -31,10 +31,10 @@ func Sub(ids ...string) (fs.FS, error) {
 	seen := map[string]bool{}
 	for _, id := range ids {
 		if !slices.Contains(IDs, id) {
-			return nil, fmt.Errorf("unknown site template %q; known templates: %s", id, strings.Join(IDs, ", "))
+			return nil, fmt.Errorf("unknown blueprint %q; known blueprints: %s", id, strings.Join(IDs, ", "))
 		}
 		if seen[id] {
-			return nil, fmt.Errorf("site template %q is listed twice", id)
+			return nil, fmt.Errorf("blueprint %q is listed twice", id)
 		}
 		seen[id] = true
 	}

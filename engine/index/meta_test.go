@@ -186,6 +186,16 @@ func TestHidden(t *testing.T) {
 	}
 }
 
+// nav.sort (written by blueprint sections) is known and kept; the sidebar does not use it yet.
+func TestParseMetaSort(t *testing.T) {
+	for _, v := range []string{"title", "newest-first"} {
+		m, _, w := ParseMeta(map[string]any{"nav": map[string]any{"sort": v}})
+		if m.Sort != v || len(w) != 0 {
+			t.Errorf("%s: %+v %v", v, m, w)
+		}
+	}
+}
+
 func TestParseMeta(t *testing.T) {
 	m, slug, w := ParseMeta(map[string]any{
 		"title": "Page",
@@ -216,6 +226,8 @@ func TestParseMeta(t *testing.T) {
 		{"nav": map[string]any{"parent": ""}},
 		{"nav": map[string]any{"hidden": "yes"}},
 		{"nav": map[string]any{"colour": "red"}},
+		{"nav": map[string]any{"sort": "sideways"}},
+		{"nav": map[string]any{"sort": 3}},
 		{"slug": ""},
 		{"slug": "../etc"},
 		{"slug": "/install"},

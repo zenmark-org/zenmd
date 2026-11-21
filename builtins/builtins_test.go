@@ -113,10 +113,10 @@ func TestFor(t *testing.T) {
 	if !reflect.DeepEqual(names, []string{"planner", "techdocs"}) {
 		t.Errorf("SiteTemplatesFor lists %v", names)
 	}
-	if _, err := fs.Stat(fsys, "planner/template.yml"); err != nil {
+	if _, err := fs.Stat(fsys, "planner/blueprint.yml"); err != nil {
 		t.Error(err)
 	}
-	if _, err := fs.Stat(fsys, "learning/template.yml"); err == nil {
+	if _, err := fs.Stat(fsys, "learning/blueprint.yml"); err == nil {
 		t.Error("learning was not selected")
 	}
 	if _, err := SiteTemplatesFor([]string{"nope"}); err == nil || !strings.Contains(err.Error(), "techdocs, learning, planner") {

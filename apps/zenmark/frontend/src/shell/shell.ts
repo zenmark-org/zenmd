@@ -250,7 +250,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
   }
 
   /**
-   * File › New Site from Template… (⇧⌘N) and the welcome cards. The api methods come from core/init;
+   * File › New from Blueprint… (⇧⌘N) and the welcome cards. The api methods come from core/init;
    * an api that does not have them (an older one, a test) simply has no templates.
    */
   const siteApi: SiteApi | null = api;
@@ -468,20 +468,20 @@ export function createShell(root: HTMLElement, { api, features, search, random =
   /** The most cards the welcome screen shows; Show all… has the rest. */
   const WELCOME_CARDS = 6;
 
-  /** "Start from a template": a card for each valid template, below Open a folder. */
+  /** "Start from a blueprint": a card for each valid template, below Open a folder. */
   async function showTemplates(view: HTMLElement): Promise<void> {
     if (!siteApi || !has("newsite")) return;
     let all: SiteTemplate[];
     try {
       all = (await siteApi.siteTemplates()).filter((t) => !t.error);
     } catch (err) {
-      console.error("zen: listing the site templates failed", err);
+      console.error("zen: listing the blueprints failed", err);
       return;
     }
     if (destroyed || !view.isConnected || all.length === 0) return;
     const section = el("section", "zen-welcome-templates zen-welcome-later");
     section.setAttribute("aria-labelledby", "zen-welcome-templates-title");
-    const heading = el("h2", "", "Start from a template");
+    const heading = el("h2", "", "Start from a blueprint");
     heading.id = "zen-welcome-templates-title";
     const grid = el("div", "zen-welcome-cards");
     for (const t of all.slice(0, WELCOME_CARDS)) {
@@ -648,7 +648,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
   });
   // Go closes the editor windows before it opens another folder.
   const offNewPage = api.on("menu:new-page", () => showNewPage());
-  // File › New Site from Template… works from the welcome screen and from an open folder.
+  // File › New from Blueprint… works from the welcome screen and from an open folder.
   const offNewSite = siteApi ? siteApi.on("menu:new-site", () => showNewSite()) : () => {};
   // Zen › Settings… (⌘,) from any window: Go shows the main window first.
   const offSettings = api.on("menu:settings", openSettings);

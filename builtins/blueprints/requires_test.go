@@ -10,12 +10,12 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/zenmark-org/zenmd/builtins/blueprints"
 	"github.com/zenmark-org/zenmd/builtins/plugins/check"
 	"github.com/zenmark-org/zenmd/builtins/plugins/codeblock"
 	"github.com/zenmark-org/zenmd/builtins/plugins/diagram"
 	"github.com/zenmark-org/zenmd/builtins/plugins/quiz"
 	"github.com/zenmark-org/zenmd/builtins/plugins/sandbox"
-	"github.com/zenmark-org/zenmd/builtins/blueprints"
 	"github.com/zenmark-org/zenmd/engine/plugins"
 	enginetemplates "github.com/zenmark-org/zenmd/engine/sitetemplates"
 )

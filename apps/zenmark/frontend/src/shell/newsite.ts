@@ -1,5 +1,5 @@
-// File › New Site from Template… (⇧⌘N) and the welcome screen's template
-// cards (core/init): a modal that picks a site template, asks for its values,
+// File › New from Blueprint… (⇧⌘N) and the welcome screen's template
+// cards (core/init): a modal that picks a blueprint, asks for its values,
 // lets the user choose a folder in the native panel, and creates the site
 // through api.createSite. A pattern like newpage.ts.
 //
@@ -9,7 +9,7 @@
 import type { Api, SiteTemplate, Startup } from "../api";
 import { button, developerEnabled, el } from "@zenmd/kit";
 
-/** A site template as the Go service lists it. An invalid one has `error` set. */
+/** A blueprint (a site template before) as the Go service lists it. An invalid one has `error` set. */
 export type { SiteTemplate } from "../api";
 
 export type SiteApi = Pick<Api, "on"> & {
@@ -57,13 +57,13 @@ export function openNewSite(opts: NewSiteOptions): NewSiteDialog {
   form.setAttribute("role", "dialog");
   form.setAttribute("aria-modal", "true");
   form.noValidate = true;
-  const title = el("h2", "zen-newsite-title", "New site from a template");
+  const title = el("h2", "zen-newsite-title", "New from a blueprint");
   title.id = `zen-newsite-title-${id}`;
   form.setAttribute("aria-labelledby", title.id);
 
-  const listLabel = el("p", "zen-newsite-label", "Template");
+  const listLabel = el("p", "zen-newsite-label", "Blueprint");
   listLabel.id = `zen-newsite-templates-${id}`;
-  const status = el("p", "zen-newsite-status", "Loading templates…");
+  const status = el("p", "zen-newsite-status", "Loading blueprints…");
   status.setAttribute("role", "status");
   const group = el("div", "zen-newsite-templates");
   group.setAttribute("role", "radiogroup");
@@ -83,7 +83,7 @@ export function openNewSite(opts: NewSiteOptions): NewSiteDialog {
   const error = el("p", "zen-newsite-error");
   error.setAttribute("role", "alert");
 
-  const reveal = button("Open templates folder", () => void revealFolder(), { className: "zen-newsite-link" });
+  const reveal = button("Open blueprints folder", () => void revealFolder(), { className: "zen-newsite-link" });
   const actions = el("div", "zen-newsite-actions");
   const cancel = button("Cancel", () => close());
   const create = el("button", "primary", "Create");
@@ -213,10 +213,10 @@ export function openNewSite(opts: NewSiteOptions): NewSiteDialog {
     status.remove();
     if (all.length === 0) {
       empty.hidden = false;
-      const msg = el("p", "", "No templates in the templates folder.");
+      const msg = el("p", "", "No blueprints in the blueprints folder.");
       empty.replaceChildren(msg);
       if (developerEnabled()) empty.append(button("Reveal in Finder", () => void revealFolder()));
-      void opts.api.templatesDir?.().then((dir) => { if (dir) msg.textContent = `No templates in ${dir}.`; }, () => {});
+      void opts.api.templatesDir?.().then((dir) => { if (dir) msg.textContent = `No blueprints in ${dir}.`; }, () => {});
       return;
     }
     group.hidden = false;
@@ -235,7 +235,7 @@ export function openNewSite(opts: NewSiteOptions): NewSiteDialog {
   }, (err) => {
     if (closed) return;
     status.remove();
-    fail(`Could not list the templates: ${message(err)}`);
+    fail(`Could not list the blueprints: ${message(err)}`);
   });
 
   form.addEventListener("submit", async (e) => {

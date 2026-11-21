@@ -20,15 +20,16 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/zenmark-org/zenmd/builtins/blueprints"
 	"github.com/zenmark-org/zenmd/builtins/dialects/myst"
 	"github.com/zenmark-org/zenmd/builtins/layouts"
+	"github.com/zenmark-org/zenmd/builtins/pagetemplates"
 	"github.com/zenmark-org/zenmd/builtins/plugins/check"
 	"github.com/zenmark-org/zenmd/builtins/plugins/codeblock"
 	"github.com/zenmark-org/zenmd/builtins/plugins/diagram"
 	"github.com/zenmark-org/zenmd/builtins/plugins/quiz"
 	"github.com/zenmark-org/zenmd/builtins/plugins/rating"
 	"github.com/zenmark-org/zenmd/builtins/plugins/sandbox"
-	"github.com/zenmark-org/zenmd/builtins/blueprints"
 	"github.com/zenmark-org/zenmd/engine/dialects"
 	enginelayouts "github.com/zenmark-org/zenmd/engine/layouts"
 	"github.com/zenmark-org/zenmd/engine/plugins"
@@ -57,6 +58,13 @@ func Layouts(version string) *enginelayouts.Registry {
 // techdocs, learning and planner.
 func SiteTemplates() fs.FS {
 	return blueprints.FS
+}
+
+// PageTemplates returns the built-in page templates, one <id>.yml each:
+// overview, tutorial, how-to, explanation, reference, term and release-notes.
+// A blueprint copies the ones it names into the folder it makes.
+func PageTemplates() fs.FS {
+	return pagetemplates.FS
 }
 
 // PluginIDs lists the built-in plugins in the order Plugins registers them.

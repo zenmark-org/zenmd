@@ -365,6 +365,18 @@ func sectionLinks(secs []Section, dir, skip string) string {
 	return strings.TrimRight(b.String(), "\n")
 }
 
+// fileLinks lists the other markdown files of files: as links after the
+// sections, so the sidebar finds them.
+func (t Template) fileLinks() string {
+	var b strings.Builder
+	for _, f := range t.Files {
+		if strings.HasSuffix(strings.ToLower(f), ".md") && safeRel(f) {
+			fmt.Fprintf(&b, "\n- [%s](%s)", strings.TrimSuffix(path.Base(f), path.Ext(f)), f)
+		}
+	}
+	return b.String()
+}
+
 // relTo is target (a root-relative slash path) as a link from the folder dir.
 func relTo(dir, target string) string {
 	if dir == "" || dir == "." {
@@ -427,7 +439,7 @@ func (t Template) generate(vals map[string]string) ([]generated, string, error) 
 		}
 		title := replace(ht, vals)
 		out = append(out, generated{dest: "README.md", data: frontmatter([]KV{{"title", scalar(title)}}) +
-			"# " + title + "\n\n" + "Start here. Each section below has its own folder.\n\n" + sectionLinks(t.Sections, "", "") + "\n"})
+			"# " + title + "\n\n" + "Start here. Each section below has its own folder.\n\n" + sectionLinks(t.Sections, "", "") + t.fileLinks() + "\n"})
 	}
 	for _, s := range t.Sections {
 		for _, id := range []string{s.Template, s.Index.Template} {
@@ -478,6 +490,17 @@ func (t Template) generate(vals map[string]string) ([]generated, string, error) 
 				idx = append(idx, KV{"tagline", scalar(replace(s.Index.Tagline, vals))})
 			}
 			text = "# " + stitle + "\n"
+		}
+		if len(s.Pages) > 0 && s.Index.Layout != "glossary" { // the sidebar is built from links
+			var links []string
+			for _, p := range s.Pages {
+				links = append(links, fmt.Sprintf("- [%s](%s)", replace(p.Title, vals), replace(p.File, vals)))
+			}
+			if s.Index.Template != "" {
+				text = strings.TrimRight(text, "\n") + "\n" + strings.Join(links, "\n") + "\n"
+			} else {
+				text += "\n" + strings.Join(links, "\n") + "\n"
+			}
 		}
 		if s.Order != "" {
 			idx = append(idx, KV{"nav", "{ sort: " + s.Order + " }"})

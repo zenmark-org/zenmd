@@ -354,9 +354,30 @@ func TestInitCommand(t *testing.T) {
 	initd(run(t, h, nil, "init", "--dir"), Init{Dir: h, ShowDir: true, Values: vals()})
 	initd(run(t, h, nil, "init", "--update", "techdocs"), Init{Dir: h, Update: true, Template: "techdocs", Values: vals()})
 	initd(run(t, h, nil, "init", "--update=planner"), Init{Dir: h, Update: true, Template: "planner", Values: vals()})
+	// zenmd init --blueprint <id>: the new spelling, with or without "site".
+	initd(run(t, h, nil, "init", "--blueprint", "techdocs"), Init{Dir: h, Template: "techdocs", Values: vals()})
+	initd(run(t, h, nil, "init", "--blueprint=learning", "my docs"), Init{Dir: filepath.Join(h, "my docs"), Template: "learning", Values: vals()})
+	initd(run(t, h, nil, "init", "site", "--blueprint", "planner", "--title", "P"), Init{Dir: h, Template: "planner", Values: vals("title", "P")})
+	// zenmd blueprint list and new.
+	initd(run(t, h, nil, "blueprint", "list"), Init{Dir: h, List: true, Values: vals()})
+	initd(run(t, h, nil, "blueprint", "new", "mine"), Init{Dir: h, New: true, Template: "mine", Values: vals()})
+	initd(run(t, h, nil, "blueprint", "new", "mine", "--from", "techdocs"), Init{Dir: h, New: true, Template: "mine", From: "techdocs", Values: vals()})
+	initd(run(t, h, nil, "blueprint", "--from=techdocs", "new", "mine"), Init{Dir: h, New: true, Template: "mine", From: "techdocs", Values: vals()})
+	for _, a := range [][]string{
+		{"blueprint"}, {"blueprint", "new"}, {"blueprint", "new", "a", "b"}, {"blueprint", "list", "x"}, {"blueprint", "list", "--from", "x"},
+		{"blueprint", "save"}, {"blueprint", "check", "x"}, {"blueprint", "new", "a", "--from"}, {"blueprint", "new", "a", "--nope"},
+	} {
+		r := run(t, h, nil, a...)
+		if r.code != 2 || r.inited || !strings.Contains(r.stderr, "Usage:") {
+			t.Errorf("%v: %+v", a, r)
+		}
+	}
+	if r := run(t, h, nil, "--help"); !strings.Contains(r.stdout, "zenmd init --blueprint <id>") || !strings.Contains(r.stdout, "zenmd blueprint list") || !strings.Contains(r.stdout, "zenmd blueprint new <id> [--from <id>]") {
+		t.Errorf("usage lacks the blueprint commands:\n%s", r.stdout)
+	}
 	// Without a template: the list is printed, exit 2.
 	r := run(t, h, nil, "init", "site")
-	if r.code != 2 || !r.i.List || !strings.Contains(r.stdout, "techdocs  Technical documentation") || !strings.Contains(r.stderr, "--techdocs") || r.launched {
+	if r.code != 2 || !r.i.List || !strings.Contains(r.stdout, "techdocs  Technical documentation") || !strings.Contains(r.stderr, "--blueprint techdocs") || r.launched {
 		t.Errorf("no template: %+v", r)
 	}
 	// "init" is a command only first; after -- it is a path.

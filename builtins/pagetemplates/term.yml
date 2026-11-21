@@ -1,0 +1,16 @@
+id: term
+name: Glossary term
+description: "One term and its definition, one file per term"
+layout: term
+fields:
+  title:   { required: true }            # the term
+  aliases: { type: list }                # other spellings
+  abbr:    { type: string }              # an abbreviation
+  see:     { type: list }                # related terms: files in this folder
+  tags:    { type: list }
+skeleton: |
+  The definition in one or two sentences (at most 60 words). Say what the term means, not how it is used.
+
+  ## Examples
+
+  An example of the term in use.
