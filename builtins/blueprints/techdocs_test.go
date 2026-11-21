@@ -144,3 +144,62 @@ func TestBuiltinBlueprintsBuild(t *testing.T) {
 		}
 	}
 }
+
+func TestTechdocsNewTermAppearsUnderGlossary(t *testing.T) {
+	root := fresh(t, "techdocs")
+	for _, idx := range []string{"glossary/index.md", "releases/index.md"} {
+		if g := readFile(t, root, idx); !strings.Contains(g, "children: folder") {
+			t.Errorf("%s has no children: folder:\n%s", idx, g)
+		}
+	}
+	// A term added by hand after creation is listed, A to Z, without any link.
+	if err := os.WriteFile(filepath.Join(root, "glossary", "aardvark.md"), []byte("---\ntitle: Aardvark\nlayout: term\n---\nAn animal.\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	var files []string
+	metas := map[string]index.Meta{}
+	filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !strings.HasSuffix(p, ".md") {
+			return nil
+		}
+		rel, _ := filepath.Rel(root, p)
+		rel = filepath.ToSlash(rel)
+		files = append(files, rel)
+		fm := map[string]any{}
+		if b, err := os.ReadFile(p); err == nil {
+			if s := string(b); strings.HasPrefix(s, "---\n") {
+				if end := strings.Index(s[4:], "\n---"); end >= 0 {
+					yaml.Unmarshal([]byte(s[4:4+end]), &fm)
+				}
+			}
+		}
+		metas[rel], _, _ = index.ParseMeta(fm)
+		return nil
+	})
+	titleOf := func(p string) string {
+		return strings.TrimSuffix(filepath.Base(p), ".md")
+	}
+	ix := index.BuildWithMeta(files, "README.md", func(string) []string { return nil }, titleOf, func(p string) index.Meta { return metas[p] })
+	var g *index.Node
+	var walk func(ns []index.Node)
+	walk = func(ns []index.Node) {
+		for i := range ns {
+			if ns[i].Path == "glossary/index.md" {
+				g = &ns[i]
+			}
+			walk(ns[i].Children)
+		}
+	}
+	walk(ix.Tree())
+	if g == nil {
+		t.Fatal("no glossary index in the tree")
+	}
+	var got []string
+	for _, c := range g.Children {
+		got = append(got, c.Path)
+	}
+	want := []string{"glossary/aardvark.md", "glossary/example-term.md"}
+	if strings.Join(got, ",") != strings.Join(want, ",") {
+		t.Fatalf("glossary children %v, want %v", got, want)
+	}
+}
