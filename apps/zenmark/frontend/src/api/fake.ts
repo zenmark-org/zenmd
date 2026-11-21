@@ -72,7 +72,7 @@ const SAMPLE_TEMPLATES: SiteTemplate[] = [
 export const ZENMARK_BUILD: BuildInfo = {
   app: "zenmark", features: [...FEATURE_IDS], addons: [],
   plugins: ["codeblock", "diagram", "check", "quiz", "sandbox"],
-  layouts: ["article", "docs", "post", "landing", "wide", "handout", "slides", "course"],
+  layouts: ["article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "slides", "course"],
   templates: ["techdocs", "learning", "planner"],
   dialects: ["myst"],
   theme: "default",
