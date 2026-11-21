@@ -517,15 +517,7 @@ func TestPresets(t *testing.T) {
 			cfg2 := t.TempDir()
 			var out, errOut bytes.Buffer
 			err = session.WriteSite(session.SiteEnv{GlobalPath: filepath.Join(cfg2, "config.yml"), Runtime: stubAssets()}, session.SiteOptions{Dir: target}, &out, &errOut)
-			// The term and glossary layouts come with a separate change; until they are in
-			// this build, techdocs' two pages that name them warn, and only those.
 			stderr, stdout := errOut.String(), out.String()
-			for _, l := range []string{`glossary/example-term.md: unknown layout "term"` + "\n", `glossary/index.md: unknown layout "glossary"` + "\n"} {
-				if strings.Contains(stderr, l) {
-					stderr = strings.Replace(stderr, l, "", 1)
-					stdout = strings.Replace(stdout, "(2 warnings)", "", 1)
-				}
-			}
 			if err != nil || stderr != "" || !strings.HasPrefix(stdout, "Built ") || strings.Contains(stdout, "warning") {
 				t.Errorf("build: %v\nstdout %q\nstderr %q", err, out.String(), errOut.String())
 			}
