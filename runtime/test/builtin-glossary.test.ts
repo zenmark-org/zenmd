@@ -22,7 +22,7 @@ const entry = (term: string, def: string, aliases = "") =>
 const group = (id: string, letter: string, ...entries: string[]) =>
   `<section class="zl-gloss-group"><h2 id="${id}">${letter}</h2><ul class="zl-gloss-list">${entries.join("")}</ul></section>`;
 const letters = (on: string) =>
-  [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ#"].map((l) => on.includes(l) ? `<a href="#letter-${l.toLowerCase()}" class="zl-gloss-letter zen-btn">${l}</a>` : `<span class="zl-gloss-letter zl-gloss-off zen-btn">${l}</span>`).join("");
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("").map((l) => on.includes(l) ? `<a href="#letter-${l.toLowerCase()}" class="zl-gloss-letter zen-btn">${l}</a>` : `<span class="zl-gloss-letter zl-gloss-off zen-btn">${l}</span>`).join("");
 const PAGE = `<div class="zl-gloss"><header><h1>Glossary</h1><p class="zl-gloss-count">3 terms</p></header>
 <div class="zl-gloss-tools"><nav class="zl-gloss-bar" aria-label="Letters">${letters("AEZ")}</nav></div>
 ${group("letter-a", "A", entry("Apple", "A fruit.", "malus"))}${group("letter-e", "E", entry("Éclair", "A cake."))}${group("letter-z", "Z", entry("Zebra", "A striped animal."))}</div>`;
