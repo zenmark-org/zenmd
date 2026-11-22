@@ -121,3 +121,21 @@ test("mounting twice does not add a second filter", async () => {
   rt.mountAll(root);
   expect(w.querySelectorAll("input.zl-gloss-filter")).toHaveLength(1);
 });
+
+// The filter and New Term… share a row under the letter bar; the bar never wraps (the letters shrink to fit).
+test("the filter goes into the row with New Term…, before the button", async () => {
+  const withRow = PAGE.replace("</nav></div>", '</nav><div class="zl-gloss-row"><a class="zen-btn zl-gloss-new" data-zen-action="new-term" data-folder="g">New Term…</a></div></div>');
+  const w = await render(withRow);
+  const row = w.querySelector(".zl-gloss-row")!;
+  expect(Array.from(row.children).map((c) => c.className)).toEqual(["zl-gloss-filter zen-field", "zen-btn zl-gloss-new"]);
+});
+
+test("the letter bar is one row: no wrap, letters share the width", async () => {
+  const { readFileSync } = await import("node:fs");
+  const css = readFileSync(new URL("../../builtins/layouts/glossary/glossary.css", import.meta.url), "utf8");
+  const rule = (sel: string) => css.match(new RegExp(`\\.${sel}\\s*\\{[^}]*\\}`))?.[0] ?? "";
+  expect(rule("zl-gloss-bar")).toMatch(/flex-wrap:\s*nowrap/);
+  expect(rule("zl-gloss-letter")).toMatch(/flex:\s*1 1 0/);
+  expect(rule("zl-gloss-letter")).toMatch(/min-width:\s*0/);
+  expect(rule("zl-gloss-row")).toMatch(/display:\s*flex/);
+});
