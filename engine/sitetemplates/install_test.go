@@ -214,3 +214,51 @@ func TestUpdateWithoutFingerprintGetsNew(t *testing.T) {
 		t.Errorf("record:\n%s", read(t, dir, "blueprints/.zen-templates.yml"))
 	}
 }
+
+func TestInstallUpdatesUntouchedBlueprints(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "templates")
+	if err := Install(dir, builtinsFS("1.0.0")); err != nil {
+		t.Fatal(err)
+	}
+	put(t, dir, map[string]string{"blueprints/planner/blueprint.yml": "id: planner\nname: Mine\nversion: 1.0.0\n"})
+	b2 := builtinsFS("1.1.0")
+	if err := Install(dir, b2); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(read(t, dir, "blueprints/techdocs/blueprint.yml"), "1.1.0") {
+		t.Error("untouched blueprint not updated")
+	}
+	if read(t, dir, "blueprints/planner/blueprint.yml") != "id: planner\nname: Mine\nversion: 1.0.0\n" {
+		t.Error("edited blueprint changed")
+	}
+	if _, err := os.Stat(filepath.Join(dir, "blueprints", "planner.new")); err == nil {
+		t.Error("no .new from the pass")
+	}
+	l, _ := ListWith(dir, b2)
+	for _, x := range l {
+		if (x.ID == "planner") != (x.Update != "") {
+			t.Errorf("%s update %q", x.ID, x.Update)
+		}
+	}
+	// Deleted stays deleted; no fingerprint stays untouched.
+	if err := os.RemoveAll(filepath.Join(dir, "blueprints", "techdocs")); err != nil {
+		t.Fatal(err)
+	}
+	if err := Install(dir, builtinsFS("1.2.0")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "blueprints", "techdocs")); err == nil {
+		t.Error("deleted blueprint came back")
+	}
+	d2 := t.TempDir()
+	put(t, d2, map[string]string{
+		"blueprints/techdocs/blueprint.yml": "id: techdocs\nname: Tech docs\nversion: 1.0.0\n",
+		"blueprints/.zen-templates.yml":     "installed:\n    techdocs: 1.0.0\n",
+	})
+	if err := Install(d2, builtinsFS("1.1.0")); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(read(t, d2, "blueprints/techdocs/blueprint.yml"), "1.1.0") {
+		t.Error("copy without a fingerprint was replaced")
+	}
+}

@@ -274,3 +274,88 @@ func TestPageTemplateLookupOrder(t *testing.T) {
 		t.Error("../x found")
 	}
 }
+
+// An install pass brings untouched copies up to the built-in version, silently.
+func TestInstallPagesUpdatesUntouched(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "templates")
+	if err := InstallPages(dir, pagesFS("1.0.0")); err != nil {
+		t.Fatal(err)
+	}
+	b2 := pagesFS("1.1.0")
+	// Edited: left alone, update still available.
+	edited := "id: term\nname: Mine\nversion: 1.0.0\n"
+	put(t, dir, map[string]string{"pages/term.yml": edited})
+	if err := InstallPages(dir, b2); err != nil {
+		t.Fatal(err)
+	}
+	if got := read(t, dir, "pages/how-to.yml"); got != string(b2["how-to.yml"].Data) {
+		t.Errorf("untouched copy not updated:\n%s", got)
+	}
+	if read(t, dir, "pages/term.yml") != edited {
+		t.Error("edited copy changed")
+	}
+	if _, err := os.Stat(filepath.Join(dir, "pages", "term.yml.new")); err == nil {
+		t.Error("the pass writes no .new")
+	}
+	rec := read(t, dir, "pages/.zen-templates.yml")
+	if !strings.Contains(rec, "how-to: 1.1.0") || !strings.Contains(rec, "term: 1.0.0") {
+		t.Errorf("record:\n%s", rec)
+	}
+	list, _ := ListPages(dir, b2, "")
+	for _, p := range list {
+		if want := map[string]string{"how-to": "", "term": "1.1.0"}[p.ID]; p.Update != want {
+			t.Errorf("%s update %q, want %q", p.ID, p.Update, want)
+		}
+	}
+	// The new fingerprint is recorded: the next version follows too.
+	if err := InstallPages(dir, pagesFS("1.2.0")); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(read(t, dir, "pages/how-to.yml"), "version: 1.2.0") {
+		t.Error("second update missing")
+	}
+}
+
+func TestInstallPagesDeletedStaysDeletedAndNoFingerprint(t *testing.T) {
+	dir := t.TempDir()
+	if err := InstallPages(dir, pagesFS("1.0.0")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Remove(filepath.Join(dir, "pages", "term.yml")); err != nil {
+		t.Fatal(err)
+	}
+	if err := InstallPages(dir, pagesFS("1.1.0")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "pages", "term.yml")); err == nil {
+		t.Error("deleted copy came back")
+	}
+	// A record without fingerprints: nothing is replaced.
+	d2 := t.TempDir()
+	old := "id: term\nname: Term\nversion: 1.0.0\n"
+	put(t, d2, map[string]string{"pages/term.yml": old, "pages/.zen-templates.yml": "installed:\n    term: 1.0.0\n"})
+	if err := InstallPages(d2, pagesFS("1.1.0")); err != nil {
+		t.Fatal(err)
+	}
+	if read(t, d2, "pages/term.yml") != old {
+		t.Error("copy without a fingerprint was replaced")
+	}
+}
+
+// pages/release-notes.yml installed at 1.0.0 with a fingerprint follows the built-in.
+func TestInstallPagesReleaseNotes(t *testing.T) {
+	mk := func(ver, extra string) fstest.MapFS {
+		return fstest.MapFS{"release-notes.yml": {Data: []byte("id: release-notes\nname: Release notes\nversion: " + ver + "\nlayout: docs\nfields:\n  title: { required: true }\n" + extra + "skeleton: |\n  # {{title}}\n")}}
+	}
+	dir := t.TempDir()
+	if err := InstallPages(dir, mk("1.0.0", "")); err != nil {
+		t.Fatal(err)
+	}
+	b := mk("1.1.0", "  version: { required: true }\n  date: { required: true }\n")
+	if err := InstallPages(dir, b); err != nil {
+		t.Fatal(err)
+	}
+	if read(t, dir, "pages/release-notes.yml") != string(b["release-notes.yml"].Data) {
+		t.Errorf("not the built-in's content:\n%s", read(t, dir, "pages/release-notes.yml"))
+	}
+}

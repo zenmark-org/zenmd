@@ -304,3 +304,28 @@ func TestCreateRollsBackOnFailure(t *testing.T) {
 		t.Errorf("partial site left behind: %v", walk(t, target))
 	}
 }
+
+// An ask default may use {{key}} of an earlier ask: it follows that answer.
+func TestAskDefaultNamesEarlierAnswer(t *testing.T) {
+	man := "id: demo\nname: Demo\nversion: 1.0.0\nask:\n  title: { label: Title, default: \"{{folder}}\" }\n  product: { label: Product, default: \"{{title}}\" }\n  tagline: { label: Tagline, default: \"{{product}}!\" }\n"
+	dir := t.TempDir()
+	tp := tmpl(t, dir, "demo", man, map[string]string{"README.md": "{{title}}|{{product}}|{{tagline}}"})
+	cases := []struct {
+		given map[string]string
+		want  string
+	}{
+		{map[string]string{"title": "Acme"}, "Acme|Acme|Acme!"},
+		{nil, "td3|td3|td3!"},
+		{map[string]string{"title": "Acme", "product": "Zed"}, "Acme|Zed|Zed!"},
+		{map[string]string{"title": "Acme", "product": ""}, "Acme|Acme|Acme!"},
+	}
+	for i, c := range cases {
+		target := filepath.Join(t.TempDir(), "td3")
+		if _, err := Create(tp, target, c.given); err != nil {
+			t.Fatal(err)
+		}
+		if got := read(t, target, "README.md"); got != c.want {
+			t.Errorf("case %d: %q, want %q", i, got, c.want)
+		}
+	}
+}

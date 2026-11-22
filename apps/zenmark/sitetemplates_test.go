@@ -808,3 +808,16 @@ func TestTemplatesCommand(t *testing.T) {
 		t.Errorf("init --dir: %q %v", o.String(), err)
 	}
 }
+
+// zenmd init --blueprint techdocs --title Acme: the product follows the title.
+func TestCreateSiteProductFollowsTitle(t *testing.T) {
+	z, _, _, _ := newTestZen(t, "", "", "")
+	target := filepath.Join(t.TempDir(), "td3")
+	if _, err := z.CreateSite("techdocs", target, map[string]string{"title": "Acme"}); err != nil {
+		t.Fatal(err)
+	}
+	b, err := os.ReadFile(filepath.Join(target, "presentation.md"))
+	if err != nil || !strings.Contains(string(b), "# Acme in five slides") {
+		t.Errorf("%v\n%s", err, b)
+	}
+}
