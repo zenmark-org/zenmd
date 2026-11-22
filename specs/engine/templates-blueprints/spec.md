@@ -381,6 +381,25 @@ An operation is idempotent when doing it twice has the same effect as doing it o
   - the first paragraph is the definition and is required, at most 60 words (a warning beyond);
   - every `see:` entry is a term page in the same folder (an error if it's missing).
 
+### Changes after the first try-out (2026-11-22)
+
+1. **The term is the page's H1.**
+   - **The file:** a term page starts with `# Idempotent`, with no `title:` in its frontmatter. The definition is the first paragraph after the H1.
+   - **The layout:** the `term` layout shows the H1 as the big term, so the term isn't shown twice.
+   - **Old files:** a `title:` in frontmatter is still read when there is no H1, so the demo's earlier terms keep working.
+   - **Shared code:** the glossary index, the A–Z sort and the duplicate check all use the same title.
+   - **New pages:** the `term` page template's skeleton is `# {{title}}`, then the definition placeholder.
+2. **Terms are hidden from the sidebar.**
+   - **What shows:** a page whose layout is `term` gets `nav: { hidden: true }` by default, so the sidebar shows only the Glossary page and not each term. A term page can still set `nav: { hidden: false }`.
+   - **How you reach them:** term pages stay reachable through the index, their ‹ previous / next › links, `see:` links, find and links from other pages.
+   - **The breadcrumb:** it still shows Glossary › Term, through `children: folder`.
+3. **A way to add a term.**
+   - **The index:** in a build with the editor, the glossary index shows a **New Term…** button above the letter bar (`.zen-btn`, from the plugin kit). It asks for the term, makes `<glossary folder>/<slug>.md` from the `term` template (`# Term`, then the definition placeholder) and opens it in the editor. The new term appears in the index straight away, through the live rebuild.
+   - **The sidebar:** the Glossary page's menu gets **New Term…** too.
+   - **Slugs:** the file name is the term's slug (lowercase, `-` for spaces, accents folded). If that file exists, the dialog says so and offers to open it.
+   - **CLI first:** `zenmd glossary add "<Term>" [--folder glossary] [--definition "…"] [--open]` writes the same file. Without `--folder`, it finds the folder's only `glossary` index, and with more than one it asks for `--folder`. `zenmd glossary list [folder]` lists the terms A–Z with their definitions.
+   - **Exported sites:** no button, because there is nothing to edit.
+
 ### The `glossary` layout (new built-in), for `glossary/index.md`
 
 - **Built, not written:** the index renders the term pages of its own folder, every `.md` beside it whose layout is `term`. The file holds only its frontmatter and an optional intro paragraph, so it never needs editing when terms change, and git sees no churn.
