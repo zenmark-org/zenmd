@@ -46,6 +46,9 @@ type Template struct {
 	// PageSource is where the built-in page templates are (<id>.yml); the
 	// blueprint's own .zen/templates wins. The session sets it.
 	PageSource fs.FS
+	// PagesDir is templates/pages on this Mac: its copies come after the
+	// blueprint's own and before the built-in ones. "" for none.
+	PagesDir string
 
 	ignore []string // names or paths not copied
 	fsys   fs.FS    // where the files are; set by List and Builtins

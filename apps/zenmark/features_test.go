@@ -145,10 +145,13 @@ func TestServiceRefusesMissing(t *testing.T) {
 		calls   map[string]func(z *Zen) error
 	}{
 		{"reader", map[string]func(z *Zen) error{
-			"Page":    func(z *Zen) error { _, err := z.Page("README.md"); return err },
-			"Source":  func(z *Zen) error { _, err := z.Source("README.md"); return err },
-			"Preview": func(z *Zen) error { _, err := z.Preview("README.md", "# x"); return err },
-			"Plugins": func(z *Zen) error { _, err := z.PluginInvoke("codeblock", "README.md", "{}"); return err },
+			"Page":                func(z *Zen) error { _, err := z.Page("README.md"); return err },
+			"Source":              func(z *Zen) error { _, err := z.Source("README.md"); return err },
+			"Preview":             func(z *Zen) error { _, err := z.Preview("README.md", "# x"); return err },
+			"Plugins":             func(z *Zen) error { _, err := z.PluginInvoke("codeblock", "README.md", "{}"); return err },
+			"PageTemplates":       func(z *Zen) error { _, err := z.PageTemplates(); return err },
+			"RevealPageTemplates": func(z *Zen) error { return z.RevealPageTemplates() },
+			"UpdateTemplate/page": func(z *Zen) error { _, err := z.UpdateTemplate("page", "how-to"); return err },
 		}},
 		{"nav", map[string]func(z *Zen) error{
 			"RevealInFinder": func(z *Zen) error { return z.RevealInFinder("README.md") },
@@ -181,11 +184,16 @@ func TestServiceRefusesMissing(t *testing.T) {
 			"OpenExport":        func(z *Zen) error { return z.OpenExport() },
 		}},
 		{"newsite", map[string]func(z *Zen) error{
-			"SiteTemplates":   func(z *Zen) error { _, err := z.SiteTemplates(); return err },
-			"PickSiteFolder":  func(z *Zen) error { _, err := z.PickSiteFolder(); return err },
-			"CreateSite":      func(z *Zen) error { _, err := z.CreateSite("learning", t.TempDir()+"/new", nil); return err },
-			"TemplatesDir":    func(z *Zen) error { _, err := z.TemplatesDir(); return err },
-			"RevealTemplates": func(z *Zen) error { return z.RevealTemplates() },
+			"SiteTemplates":            func(z *Zen) error { _, err := z.SiteTemplates(); return err },
+			"PickSiteFolder":           func(z *Zen) error { _, err := z.PickSiteFolder(); return err },
+			"CreateSite":               func(z *Zen) error { _, err := z.CreateSite("learning", t.TempDir()+"/new", nil); return err },
+			"TemplatesDir":             func(z *Zen) error { _, err := z.TemplatesDir(); return err },
+			"RevealTemplates":          func(z *Zen) error { return z.RevealTemplates() },
+			"UpdateTemplate/blueprint": func(z *Zen) error { _, err := z.UpdateTemplate("blueprint", "techdocs"); return err },
+		}},
+		{"editor", map[string]func(z *Zen) error{
+			"CopyPageTemplate": func(z *Zen) error { _, err := z.CopyPageTemplate("how-to"); return err },
+			"OpenPageTemplate": func(z *Zen) error { return z.OpenPageTemplate("how-to") },
 		}},
 		{"developer", map[string]func(z *Zen) error{
 			"Logs": func(z *Zen) error { _, err := z.Logs(0); return err },

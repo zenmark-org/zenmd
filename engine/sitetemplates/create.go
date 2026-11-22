@@ -370,8 +370,8 @@ func (t Template) insideTemplates(abs string) bool {
 	if t.Dir == "" {
 		return false
 	}
-	tdir := filepath.Dir(t.Dir) // .../sites
-	if filepath.Base(tdir) == "sites" {
+	tdir := filepath.Dir(t.Dir) // .../blueprints
+	if filepath.Base(tdir) == "blueprints" {
 		tdir = filepath.Dir(tdir)
 	}
 	return within(real(abs), real(tdir))

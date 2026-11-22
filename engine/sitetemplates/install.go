@@ -1,6 +1,8 @@
 package sitetemplates
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -14,31 +16,94 @@ import (
 )
 
 // RecordFile records which built-in presets were installed, and in which
-// version; it sits in <templates dir>/sites.
+// version; it sits in <templates dir>/blueprints and in <templates dir>/pages.
 const RecordFile = ".zen-templates.yml"
 
+// record is what an install wrote. Fingerprints are the SHA-256 of what each
+// install wrote ("sha256:<hex>"): a copy that still matches is untouched and an
+// update may replace it in place. A record from before fingerprints has none,
+// and its copies count as edited.
 type record struct {
-	Installed map[string]string `yaml:"installed"`
+	Installed    map[string]string `yaml:"installed"`
+	Fingerprints map[string]string `yaml:"fingerprints,omitempty"`
 }
 
-func readRecord(sites string) record {
+func readRecord(folder string) record {
 	var r record
-	if data, err := os.ReadFile(filepath.Join(sites, RecordFile)); err == nil {
+	if data, err := os.ReadFile(filepath.Join(folder, RecordFile)); err == nil {
 		_ = yaml.Unmarshal(data, &r)
 	}
 	if r.Installed == nil {
 		r.Installed = map[string]string{}
 	}
+	if r.Fingerprints == nil {
+		r.Fingerprints = map[string]string{}
+	}
 	return r
 }
 
-func writeRecord(sites string, r record) error {
+func writeRecord(folder string, r record) error {
 	data, err := yaml.Marshal(r)
 	if err != nil {
 		return err
 	}
-	head := "# Written by zen: which built-in templates were installed here, and in which version.\n# A template that is listed here and was deleted is not installed again.\n"
-	return atomicfile.Write(filepath.Join(sites, RecordFile), append([]byte(head), data...))
+	head := "# Written by zen: which built-in templates were installed here, in which version,\n# and a fingerprint of what was written (a copy you have not edited can be updated in place).\n# A template that is listed here and was deleted is not installed again.\n"
+	return atomicfile.Write(filepath.Join(folder, RecordFile), append([]byte(head), data...))
+}
+
+// fingerprintFS is the SHA-256 of a folder's files (their paths and contents,
+// in name order), as "sha256:<hex>". Folders themselves are not part of it.
+func fingerprintFS(fsys fs.FS) (string, error) {
+	h := sha256.New()
+	err := fs.WalkDir(fsys, ".", func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		fmt.Fprintf(h, "%s\x00", p)
+		if !d.Type().IsRegular() { // a link or special file: its presence counts
+			fmt.Fprintf(h, "%s\x00", d.Type())
+			return nil
+		}
+		data, err := fs.ReadFile(fsys, p)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintf(h, "%d\x00", len(data))
+		h.Write(data)
+		return nil
+	})
+	if err != nil {
+		return "", err
+	}
+	return "sha256:" + hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// fingerprintDir is fingerprintFS of a real folder; a link or a missing folder is an error.
+func fingerprintDir(dir string) (string, error) {
+	fi, err := os.Lstat(dir)
+	if err != nil {
+		return "", err
+	}
+	if !fi.IsDir() {
+		return "", errors.New(dir + " is not a folder")
+	}
+	return fingerprintFS(os.DirFS(dir))
+}
+
+// fingerprintBytes is the fingerprint of one file.
+func fingerprintBytes(data []byte) string {
+	sum := sha256.Sum256(data)
+	return "sha256:" + hex.EncodeToString(sum[:])
+}
+
+// UpdateResult says what an update did: Path is the copy that was replaced
+// (InPlace) or the new copy written beside the user's edited one.
+type UpdateResult struct {
+	Path    string
+	InPlace bool
 }
 
 // builtinIDs lists the valid presets of a bundle, sorted.
@@ -58,12 +123,12 @@ func builtinIDs(builtins fs.FS) ([]Template, error) {
 }
 
 // Install copies the built-in presets that were never installed into
-// <dir>/sites. An installed template is never overwritten and one the user
+// <dir>/blueprints. An installed template is never overwritten and one the user
 // deleted is not installed again (the record remembers). A folder the user
 // made with the same name is theirs and is left alone. An error means the
 // folder cannot be written; the presets can then be used from the bundle.
 func Install(dir string, builtins fs.FS) error {
-	sites := SitesDir(dir)
+	sites := BlueprintsDir(dir)
 	if err := os.MkdirAll(sites, 0o755); err != nil {
 		return err
 	}
@@ -85,6 +150,9 @@ func Install(dir string, builtins fs.FS) error {
 			return fmt.Errorf("installing %s: %w", t.ID, err)
 		}
 		rec.Installed[t.ID] = t.Version
+		if fp, err := fingerprintFS(t.fsys); err == nil {
+			rec.Fingerprints[t.ID] = fp
+		}
 		changed = true
 	}
 	if changed || !fileExists(filepath.Join(sites, RecordFile)) {
@@ -95,15 +163,17 @@ func Install(dir string, builtins fs.FS) error {
 
 func fileExists(p string) bool { _, err := os.Lstat(p); return err == nil }
 
-// Update writes the built-in template id, when it is newer than the one that
-// was installed, to <dir>/sites/<id>.new beside the user's copy, and returns
-// that folder. The user's copy is never touched.
-func Update(dir string, builtins fs.FS, id string) (string, error) {
-	sites := SitesDir(dir)
+// Update brings the built-in template id to its newer version. A copy that
+// still matches the fingerprint of its install is untouched, and is replaced
+// in place. An edited copy (or one whose install recorded no fingerprint) is
+// never touched: the new version is written to <dir>/blueprints/<id>.new
+// beside it instead.
+func Update(dir string, builtins fs.FS, id string) (UpdateResult, error) {
+	sites := BlueprintsDir(dir)
 	rec := readRecord(sites)
 	have, ok := rec.Installed[id]
 	if !ok {
-		return "", fmt.Errorf("%q is not a built-in template that was installed here", id)
+		return UpdateResult{}, fmt.Errorf("%q is not a built-in blueprint that was installed here", id)
 	}
 	var t *Template
 	list, _ := Builtins(builtins)
@@ -113,23 +183,60 @@ func Update(dir string, builtins fs.FS, id string) (string, error) {
 		}
 	}
 	if t == nil {
-		return "", fmt.Errorf("this zen has no built-in template %q", id)
+		return UpdateResult{}, fmt.Errorf("this zen has no built-in blueprint %q", id)
 	}
 	if !newer(t.Version, have) {
-		return "", fmt.Errorf("%s is up to date (version %s)", id, have)
+		return UpdateResult{}, fmt.Errorf("%s is up to date (version %s)", id, have)
+	}
+	fp, err := fingerprintFS(t.fsys)
+	if err != nil {
+		return UpdateResult{}, err
+	}
+	copyPath := filepath.Join(sites, id)
+	if want, ok := rec.Fingerprints[id]; ok {
+		if cur, err := fingerprintDir(copyPath); err == nil && cur == want {
+			if err := replaceTree(t.fsys, copyPath); err != nil {
+				return UpdateResult{}, fmt.Errorf("updating %s: %w", id, err)
+			}
+			rec.Installed[id], rec.Fingerprints[id] = t.Version, fp
+			return UpdateResult{Path: copyPath, InPlace: true}, writeRecord(sites, rec)
+		}
 	}
 	dest := filepath.Join(sites, id+".new")
 	if fileExists(dest) {
-		return "", fmt.Errorf("%s already exists; compare it with your copy and delete it first", path.Base(dest))
+		return UpdateResult{}, fmt.Errorf("%s already exists; compare it with your copy and delete it first", path.Base(dest))
 	}
 	if err := copyTree(t.fsys, dest); err != nil {
-		return "", err
+		return UpdateResult{}, err
 	}
 	rec.Installed[id] = t.Version
 	if err := writeRecord(sites, rec); err != nil {
-		return dest, err
+		return UpdateResult{Path: dest}, err
 	}
-	return dest, nil
+	return UpdateResult{Path: dest}, nil
+}
+
+// replaceTree replaces the folder dest with a copy of src. The new copy is
+// made beside it first, and the old one is put back when the swap fails.
+func replaceTree(src fs.FS, dest string) error {
+	parent, base := filepath.Dir(dest), filepath.Base(dest)
+	staged := filepath.Join(parent, ".tmp-update-"+base)
+	old := filepath.Join(parent, ".tmp-old-"+base)
+	_ = os.RemoveAll(staged)
+	_ = os.RemoveAll(old)
+	if err := copyTree(src, staged); err != nil {
+		return err
+	}
+	if err := os.Rename(dest, old); err != nil {
+		os.RemoveAll(staged)
+		return err
+	}
+	if err := os.Rename(staged, dest); err != nil {
+		_ = os.Rename(old, dest)
+		os.RemoveAll(staged)
+		return err
+	}
+	return os.RemoveAll(old)
 }
 
 // copyTree copies a template folder to dest through a temporary folder, so a

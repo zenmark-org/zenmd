@@ -50,8 +50,7 @@ type Config struct {
 	dialects []string // markdown.dialects of the folder's .zenmd.yml
 	logo     string   // logo: a folder-relative image path (the folder's, else the global one)
 
-	blueprints    any            // the global blueprints: key, read by BlueprintsDir
-	templates     any            // the old name of blueprints: in the global config (read the same way)
+	templates     any            // the global templates: key ({ dir }), read by TemplatesDir
 	templateRules []TemplateRule // the folder's templates: path rules (pattern to page template)
 	build         map[string]any // merged export: sections, checked by Build
 	buildErr      error          // an export: key that is not a mapping
@@ -488,19 +487,8 @@ func (c *Config) loadFile(path string, global bool) {
 			c.legacyBuild(path, doc, v)
 		case "export":
 			c.mergeBuild(v)
-		case "blueprints":
-			if !global {
-				warn("blueprints can only be set in the global config")
-				continue
-			}
-			c.blueprints = v
 		case "templates":
-			if global { // the old name of blueprints:
-				if _, both := doc["blueprints"]; both {
-					c.notices = append(c.notices, fmt.Sprintf("templates: in %s is ignored because blueprints: is set", filepath.Base(path)))
-					continue
-				}
-				c.notices = append(c.notices, fmt.Sprintf("templates: in %s is now blueprints:; rename the key", filepath.Base(path)))
+			if global { // the templates folder: { dir: ... }
 				c.templates = v
 				continue
 			}

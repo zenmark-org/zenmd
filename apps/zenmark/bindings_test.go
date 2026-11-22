@@ -17,6 +17,7 @@ var serviceMethods = []string{
 	"PluginStorageKeys", "PluginStorageSet", "PluginStream", "PluginTrust", "Plugins", "Preview",
 	"PrintPage", "PrintSite", "PrintWindow", "ReorderNav", "RevealBuiltSite", "RevealExport", "RevealInFinder", "RevealTemplates", "Save", "SaveBuildDefaults", "SetDialect",
 	"SetNavHidden", "SiteTemplates", "Source", "Startup", "TemplatesDir",
+	"CopyPageTemplate", "OpenPageTemplate", "PageTemplates", "RevealPageTemplates", "UpdateTemplate",
 }
 
 func TestServiceMethodsUnchanged(t *testing.T) {

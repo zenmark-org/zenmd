@@ -1,6 +1,7 @@
 id: tutorial
 name: Tutorial
 description: "Learn by doing: a guided lesson that always works (Diátaxis)"
+version: 1.0.0
 layout: docs
 fields:
   title: { required: true }

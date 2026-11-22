@@ -281,6 +281,7 @@ func (in *buildInput) Render(path string) (site.Page, error) {
 	sn := s.snapLocked(path)
 	s.mu.Unlock()
 	sn.extWarns = nil // reported once for the site, not on every page
+	sn.tmplWarns = nil
 	p, err := sn.render(path, src)
 	if err != nil {
 		return site.Page{}, err

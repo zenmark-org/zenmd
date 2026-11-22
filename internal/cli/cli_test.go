@@ -372,6 +372,23 @@ func TestInitCommand(t *testing.T) {
 			t.Errorf("%v: %+v", a, r)
 		}
 	}
+	// zenmd templates list, show, update and --dir: the page templates.
+	initd(run(t, h, nil, "templates", "list"), Init{Dir: h, Pages: true, List: true, Values: vals()})
+	initd(run(t, h, nil, "templates", "show", "how-to"), Init{Dir: h, Pages: true, Show: true, Template: "how-to", Values: vals()})
+	initd(run(t, h, nil, "templates", "update", "how-to"), Init{Dir: h, Pages: true, Update: true, Template: "how-to", Values: vals()})
+	initd(run(t, h, nil, "templates", "--dir"), Init{Dir: h, Pages: true, ShowDir: true, Values: vals()})
+	for _, a := range [][]string{
+		{"templates"}, {"templates", "show"}, {"templates", "update"}, {"templates", "show", "a", "b"}, {"templates", "list", "x"},
+		{"templates", "--dir", "list"}, {"templates", "new"}, {"templates", "list", "--nope"},
+	} {
+		r := run(t, h, nil, a...)
+		if r.code != 2 || r.inited || !strings.Contains(r.stderr, "Usage:") {
+			t.Errorf("%v: %+v", a, r)
+		}
+	}
+	if r := run(t, h, nil, "--help"); !strings.Contains(r.stdout, "zenmd templates list") || !strings.Contains(r.stdout, "zenmd templates show <id>") || !strings.Contains(r.stdout, "zenmd templates update <id>") || !strings.Contains(r.stdout, "zenmd templates --dir") {
+		t.Errorf("usage lacks the templates commands:\n%s", r.stdout)
+	}
 	if r := run(t, h, nil, "--help"); !strings.Contains(r.stdout, "zenmd init --blueprint <id>") || !strings.Contains(r.stdout, "zenmd blueprint list") || !strings.Contains(r.stdout, "zenmd blueprint new <id> [--from <id>]") {
 		t.Errorf("usage lacks the blueprint commands:\n%s", r.stdout)
 	}

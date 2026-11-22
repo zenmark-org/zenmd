@@ -1,6 +1,7 @@
 id: term
 name: Glossary term
 description: "One term and its definition, one file per term"
+version: 1.0.0
 layout: term
 fields:
   title:   { required: true }            # the term

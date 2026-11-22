@@ -1,8 +1,8 @@
 package pagetemplates
 
 import (
-	"regexp"
 	"io/fs"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -21,7 +21,7 @@ func TestBuiltinPageTemplates(t *testing.T) {
 		data, _ := fs.ReadFile(FS, e.Name())
 		var p struct {
 			ID, Name, Description, Layout, Skeleton, Version string
-			Fields                                  map[string]any
+			Fields                                           map[string]any
 		}
 		if err := yaml.Unmarshal(data, &p); err != nil {
 			t.Fatalf("%s: %v", e.Name(), err)
