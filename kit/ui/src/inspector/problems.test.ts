@@ -370,3 +370,12 @@ test("title note: a title: next to an H1 is a warning, and the same text is a su
   expect(sev(DIFF)).toBe("warning");
   expect(sev(SAME)).toBe("suggestion");
 });
+
+test("version note: a release version that is not semver is a warning with a Fix line", () => {
+  const NOTE = "version must be a semantic version such as 0.2.0";
+  const i = warned([NOTE]);
+  expect(kinds(i)).toEqual(["warning"]);
+  select1(i, 0);
+  expect(detail(i, "message")).toBe(NOTE);
+  expect(detail(i, "fix")).toBe('Write the version without a v, quoted, such as version: "0.2.0"');
+});

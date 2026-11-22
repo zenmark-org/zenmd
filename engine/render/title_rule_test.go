@@ -99,3 +99,62 @@ func TestTitleRuleLayoutField(t *testing.T) {
 		}
 	}
 }
+
+// A layout's title: can be a pattern over its fields, such as "v{{version}}".
+func TestTitleRulePattern(t *testing.T) {
+	rel := layoutFS(t, "release", "id: release\nversion: 1.0.0\ntitle: \"v{{version}}\"\ntemplate: layout.html\nfields:\n  version: { type: string }\n", map[string]string{"layout.html": "<div>{{.Body}}</div>"})
+	bare := layoutFS(t, "bare", "id: bare\nversion: 1.0.0\ntitle: version\ntemplate: layout.html\nfields:\n  version: { type: string }\n", map[string]string{"layout.html": "<div>{{.Body}}</div>"})
+	r := layoutRenderer(t, nil, rel, bare)
+	cases := []struct{ name, path, src, want string }{
+		{"pattern", "r/a.md", "---\nlayout: release\nversion: \"0.2.0\"\n---\n## Added\n", "v0.2.0"},
+		{"pattern, unquoted", "r/a.md", "---\nlayout: release\nversion: 0.2.0\n---\n## Added\n", "v0.2.0"},
+		{"pattern, field missing: file name", "r/a.md", "---\nlayout: release\n---\n## Added\n", "a"},
+		{"h1 still wins", "r/a.md", "---\nlayout: release\nversion: 0.2.0\n---\n# Big\n", "Big"},
+		{"a bare field keeps working", "r/b.md", "---\nlayout: bare\nversion: 0.1.0\n---\n## Added\n", "0.1.0"},
+	}
+	for _, c := range cases {
+		p, err := r.Render(c.path, []byte(c.src))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if p.Title != c.want {
+			t.Errorf("%s: Render title %q, want %q", c.name, p.Title, c.want)
+		}
+		if got := r.Title(c.path, []byte(c.src)); got != c.want {
+			t.Errorf("%s: Title %q, want %q", c.name, got, c.want)
+		}
+	}
+}
+
+const noteVersion = "version must be a semantic version such as 0.2.0"
+
+// A release page whose version is not semver gets a page warning.
+func TestReleaseVersionWarning(t *testing.T) {
+	rel := layoutFS(t, "release", "id: release\nversion: 1.0.0\ntitle: \"v{{version}}\"\ntemplate: layout.html\nfields:\n  version: { type: string }\n", map[string]string{"layout.html": "<div>{{.Body}}</div>"})
+	r := layoutRenderer(t, nil, rel)
+	has := func(src string) bool {
+		p, err := r.Render("r/a.md", []byte(src))
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, w := range p.Warnings {
+			if w == noteVersion {
+				return true
+			}
+		}
+		return false
+	}
+	for _, v := range []string{`"0.2.0"`, "0.2.0", `"1.0.0-beta.1"`} {
+		if has("---\nlayout: release\nversion: " + v + "\n---\n## Added\n") {
+			t.Errorf("version %s is fine but warned", v)
+		}
+	}
+	for _, v := range []string{"1.10", `"v0.2.0"`, "2", `"soon"`} {
+		if !has("---\nlayout: release\nversion: " + v + "\n---\n## Added\n") {
+			t.Errorf("version %s must warn", v)
+		}
+	}
+	if !has("---\nlayout: release\n---\n## Added\n") {
+		t.Error("a release with no version must warn")
+	}
+}

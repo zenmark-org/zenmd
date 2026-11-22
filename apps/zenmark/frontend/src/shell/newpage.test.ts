@@ -165,3 +165,38 @@ test("Esc, Cancel and a click outside close it", () => {
   o.d.el.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
   expect(o.onClose).toHaveBeenCalledTimes(1);
 });
+
+test("in a folder whose rule is release-notes the suggested name comes from api.suggestPageName", async () => {
+  api = createFakeApi({ layouts: LAYOUTS, suggestedPageNames: { "releases/": "releases/v0.4.0" } });
+  const { q } = open("releases/");
+  await settle();
+  expect(api.callsTo("suggestPageName")).toEqual([["releases/"]]);
+  const name = q<HTMLInputElement>(".zen-newpage-name");
+  expect(name.value).toBe("releases/v0.4.0");
+  expect(name.selectionStart).toBe("releases/".length);
+});
+
+test("without a rule the name stays untitled, and a failing suggestion changes nothing", async () => {
+  const a = open("guides/");
+  await settle();
+  expect(a.q<HTMLInputElement>(".zen-newpage-name").value).toBe("guides/untitled");
+  api.failNext("suggestPageName", new Error("down"));
+  const b = open("guides/");
+  await settle();
+  expect(b.q<HTMLInputElement>(".zen-newpage-name").value).toBe("guides/untitled");
+});
+
+test("a name the user already typed is not replaced by a late suggestion", async () => {
+  api = createFakeApi({ layouts: LAYOUTS, suggestedPageNames: { "releases/": "releases/v0.4.0" } });
+  const { q } = open("releases/");
+  const name = q<HTMLInputElement>(".zen-newpage-name");
+  name.value = "releases/mine";
+  name.dispatchEvent(new Event("input"));
+  await settle();
+  expect(name.value).toBe("releases/mine");
+});
+
+test("the hint says that a dot between digits is part of the name", () => {
+  const { q } = open();
+  expect(q(".zen-newpage-hint").textContent).toContain("v0.2.0");
+});
