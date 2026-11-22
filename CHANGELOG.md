@@ -7,6 +7,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/VERSIONING.md).
 ## [Unreleased]
 
 ### Added
+- Reload button in the sidebar header (and ⌘R in the packaged app): scans the folder again, reloads plugin scripts and styles, and renders the page again in place, keeping the scroll position and any editor draft (#27).
 - Settings › Templates lists the page templates (built-in, yours and this folder's) with their fields and a preview of the page they start, and `zenmd templates list|show|update|--dir` does the same; templates live in `templates/blueprints/` and `templates/pages/` of the settings folder.
 - New Page starts a page from the page template of its folder's path rule (a new page in how-tos/ is a how-to); in a releases folder it suggests the next version, `v0.2.0`, and fills the version and date.
 - The `release` layout: a release page's title is its version (`v{{version}}`), with the date and name under it; a layout can name the field or pattern that titles its pages.
