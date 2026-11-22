@@ -372,6 +372,13 @@ const api: Api = {
   async createPage(name, layout) {
     return String((await call(Zen.CreatePage(name, layout))) ?? "");
   },
+  async glossaryFolders() {
+    return strings(await call(Zen.GlossaryFolders()));
+  },
+  async newTerm(folder, term) {
+    const r = ((await call(Zen.NewTerm(folder, term))) as Raw | null) ?? {};
+    return { path: String(r.path ?? ""), existed: Boolean(r.existed) };
+  },
   async openEditor(path) {
     await call(Zen.OpenEditor(path));
   },

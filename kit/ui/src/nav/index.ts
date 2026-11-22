@@ -53,6 +53,12 @@ export const navFeature: Feature = {
     let focusTimer: ReturnType<typeof setTimeout> | undefined;
     /** The page that was just moved: it gets the focus when the new tree is drawn. */
     let pendingFocus = "";
+    /** The folders that have a glossary index (asked once per folder and tree), for New Term… in the menu. */
+    let glossaries = new Set<string>();
+    const loadGlossaries = () => {
+      if (!editable || !api.glossaryFolders) return;
+      api.glossaryFolders().then((f) => { glossaries = new Set(f); }, () => { glossaries = new Set(); });
+    };
 
     const say = (text: string, failed = false) => {
       clearTimeout(statusTimer);
@@ -95,6 +101,8 @@ export const navFeature: Feature = {
         open: (p) => ctx.navigate(p),
         editor: editable && api.openEditor ? (p) => { api.openEditor(p).catch(fail); } : undefined,
         newPage: editable && ctx.newPage ? (folder) => ctx.newPage!(folder) : undefined,
+        newTerm: editable && ctx.newTerm ? (folder) => ctx.newTerm!(folder) : undefined,
+        glossary: (p) => /(^|\/)(index|readme)\.md$/i.test(p) && glossaries.has(p.includes("/") ? p.slice(0, p.lastIndexOf("/")) : ""),
         move: editable && api.reorderNav ? move : undefined,
         copy: (text) => { void copyText(doc, text).then((ok) => (ok ? say("Copied") : say("Could not copy", true))); },
         reveal: api.revealInFinder ? (p) => { api.revealInFinder!(p).catch(fail); } : undefined,
@@ -145,6 +153,7 @@ export const navFeature: Feature = {
       if (s.workspace !== last.workspace || s.path !== last.path || s.badges !== last.badges) {
         const r = s.workspace?.root ?? null;
         if (r !== root) { root = r; expanded = s.workspace ? loadExpanded(s.workspace) : new Set(); }
+        if (s.workspace !== last.workspace) loadGlossaries();
         drawTree();
       }
       if (s.page !== last.page || s.path !== last.path || s.mode !== last.mode || s.dirty !== last.dirty) drawCrumbs();

@@ -21,6 +21,10 @@
   font: 13px/1.5 var(--font-ui);
 }
 [data-zen-layout="glossary"] .zl-gloss-intro > :first-child { margin-top: var(--space-4); }
+/* New Term…: hidden until the app shows it (it can add terms); an exported site has nothing to edit, so it never shows. */
+[data-zen-layout="glossary"] .zl-gloss-actions { margin: var(--space-4) 0 0; }
+[data-zen-layout="glossary"] .zl-gloss-actions .zen-btn { display: none; text-decoration: none; }
+@media print { [data-zen-layout="glossary"] .zl-gloss-actions { display: none; } }
 /* The letter bar and the filter stay at the top while the list scrolls. */
 [data-zen-layout="glossary"] .zl-gloss-tools {
   position: sticky;

@@ -347,6 +347,19 @@ func (z *Zen) Lint(path, content string) (LintResult, error) {
 // its workspace path; an existing file is never overwritten.
 func (z *Zen) CreatePage(name, layout string) (string, error) { return z.s.CreatePage(name, layout) }
 
+// NewTerm adds a term to a glossary folder (New Term…): <folder>/<slug>.md from
+// the term page template, never over an existing file (the answer says so).
+func (z *Zen) NewTerm(folder, term string) (NewTermResult, error) {
+	if err := requireFeature("editor"); err != nil {
+		return NewTermResult{}, err
+	}
+	return z.s.NewTerm(folder, term)
+}
+
+// GlossaryFolders lists the folders that have a glossary index, so the sidebar
+// can offer New Term… on it.
+func (z *Zen) GlossaryFolders() ([]string, error) { return z.s.GlossaryFolders() }
+
 // Plugins lists the built-in and external plugins for Settings › Plugins.
 func (z *Zen) Plugins() []PluginInfo { return z.s.Plugins() }
 

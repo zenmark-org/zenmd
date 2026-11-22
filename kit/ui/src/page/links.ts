@@ -6,6 +6,13 @@ const SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 const OPENABLE = /^(https?|mailto):/i;
 
 export function handleLinkClick(e: MouseEvent, ctx: Ctx): void {
+  // A glossary page's New Term… button (a layout button, not a link): the host asks for the term.
+  const add = (e.target as Element | null)?.closest?.<HTMLElement>('[data-zen-action="new-term"]');
+  if (add) {
+    e.preventDefault();
+    if (hasFeature(ctx.api, "editor") && ctx.newTerm) ctx.newTerm(add.getAttribute("data-folder") ?? "");
+    return;
+  }
   const a = (e.target as Element | null)?.closest?.("a");
   if (!a) return;
   e.preventDefault();

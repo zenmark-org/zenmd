@@ -46,6 +46,10 @@ func TestTermTitleIsTheHeading(t *testing.T) {
 	if strings.Contains(idx.HTML, "idem") && strings.Contains(idx.HTML, "Elsewhere") {
 		t.Errorf("a page of another folder is listed")
 	}
+	// The New Term… button is in the page, hidden: the app shows it, an exported site never does.
+	if !strings.Contains(idx.HTML, `data-zen-action="new-term" data-folder="g"`) {
+		t.Errorf("no New Term button: %s", idx.HTML)
+	}
 	// The term page shows its H1 once and no warning.
 	p, err := s.Page("g/idem.md")
 	if err != nil || len(p.Warnings) != 0 {
@@ -99,7 +103,7 @@ func TestTermPagesAreHiddenFromTheSidebar(t *testing.T) {
 	}
 	// Still reachable, and the breadcrumb is Glossary > Term.
 	p, err := s.Page("g/zebra.md")
-	if err != nil || len(p.Breadcrumb) == 0 || p.Breadcrumb[0].Path != "g/index.md" && p.Breadcrumb[len(p.Breadcrumb)-1].Path != "g/index.md" {
+	if n := len(p.Breadcrumb); err != nil || n < 2 || p.Breadcrumb[n-2].Path != "g/index.md" || p.Breadcrumb[n-1].Path != "g/zebra.md" {
 		t.Errorf("%v breadcrumb %+v", err, p.Breadcrumb)
 	}
 }
@@ -198,10 +202,10 @@ func TestSessionNewTerm(t *testing.T) {
 	if err := s.Save(r.Path, "---\nlayout: term\n---\n# Yankee\n\nA letter.\n"); err != nil {
 		t.Fatal(err)
 	}
-	idx, _ := s.Page("g/index.md")
-	if !strings.Contains(idx.HTML, ">Yankee<") {
-		t.Errorf("the new term is not in the index: %s", idx.HTML)
-	}
+	waitFor(t, "the new term in the index", func() bool {
+		idx, _ := s.Page("g/index.md")
+		return strings.Contains(idx.HTML, ">Yankee<")
+	})
 	if again, err := s.NewTerm("g", "Yankee"); err != nil || !again.Existed {
 		t.Errorf("%+v %v", again, err)
 	}

@@ -174,6 +174,11 @@ Usage:
   zenmd blueprint list  list the blueprints
   zenmd blueprint new <id> [--from <id>]
                         write a new blueprint into the blueprints folder
+  zenmd glossary add "<Term>" [--folder <folder>] [--definition <text>] [--open]
+                        add a term: <folder>/<slug>.md from the term template
+                        (the folder is found when there is one glossary)
+  zenmd glossary list [folder]
+                        list the terms A to Z with their definitions
   zenmd help            show this help
   zenmd version         show the version
 
@@ -238,6 +243,8 @@ func Run(args []string, cwd string, stdout, stderr io.Writer, launch Launcher, b
 			return runInit(args[i+1:], cwd, stdout, stderr, initer)
 		case flags && first && arg == "blueprint":
 			return runBlueprint(args[i+1:], cwd, stdout, stderr, initer)
+		case flags && first && arg == "glossary":
+			return runGlossary(args[i+1:], cwd, stdout, stderr, launch)
 		case flags && first && arg == "edit":
 			mode = "edit"
 		default:

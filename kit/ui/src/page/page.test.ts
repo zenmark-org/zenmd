@@ -421,7 +421,7 @@ test("a same-page anchor scrolls smoothly, and not when Reduce motion is On", as
   }
 });
 
-const newTermButton = `<button type="button" class="zen-btn" data-zen-action="new-term" data-folder="g" hidden>New Term…</button>`;
+const newTermButton = `<a class="zen-btn" data-zen-action="new-term" data-folder="g">New Term…</a>`;
 
 test("a layout's New Term button is shown with the editor and asks the host for the folder", async () => {
   const api = createFakeApi({ sources: { ...SOURCES } });
@@ -433,8 +433,10 @@ test("a layout's New Term button is shown with the editor and asks the host for 
   env.ctx.store.set({ path: "README.md" });
   mount();
   await tick();
-  const b = article().querySelector<HTMLButtonElement>("[data-zen-action=new-term]")!;
+  const b = article().querySelector<HTMLElement>("[data-zen-action=new-term]")!;
   expect(b.hidden).toBe(false);
+  expect(b.getAttribute("role")).toBe("button");
+  expect(b.tabIndex).toBe(0);
   b.click();
   expect(asked).toHaveBeenCalledWith("g");
 });
@@ -451,7 +453,7 @@ test("without the editor (or a host that can add terms) the New Term button stay
     env.ctx.store.set({ path: "README.md" });
     mount();
     await tick();
-    const b = article().querySelector<HTMLButtonElement>("[data-zen-action=new-term]")!;
+    const b = article().querySelector<HTMLElement>("[data-zen-action=new-term]")!;
     expect(b.hidden).toBe(true);
     b.click();
     expect(asked).not.toHaveBeenCalled();

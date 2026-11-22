@@ -5,6 +5,7 @@
   </header>
   <div class="zl-gloss-intro">{{.Content}}</div>
   {{with .Glossary}}
+  <p class="zl-gloss-actions"><a class="zen-btn" data-zen-action="new-term" data-folder="{{$.Folder}}">New Term…</a></p>
   {{if .Count}}
   <div class="zl-gloss-tools">
     <nav class="zl-gloss-bar" aria-label="Letters">

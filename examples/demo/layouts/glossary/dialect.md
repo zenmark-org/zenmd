@@ -1,8 +1,9 @@
 ---
-title: Dialect
 layout: term
 see: [frontmatter.md, plugin.md]
 ---
+# Dialect
+
 A flavour of markdown. Zenmark reads CommonMark and the extras it ships with, and a folder can turn on others, such as MyST, in its settings.
 
 ## Example

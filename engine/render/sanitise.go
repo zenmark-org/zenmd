@@ -91,7 +91,9 @@ func newLayoutPolicy() *bluemonday.Policy {
 		"p", "h1", "h2", "h3", "h4", "h5", "h6", "img", "blockquote", "table", "td", "th", "tr", "em", "small", "dl", "dt", "dd")
 	p.AllowAttrs("datetime").Matching(regexp.MustCompile(`^[0-9T:+\-. Z]{1,40}$`)).OnElements("time")
 	p.AllowAttrs("aria-label").Matching(regexp.MustCompile(`^[^<>]{1,80}$`)).OnElements("nav", "a", "section", "aside", "div")
-	p.AllowAttrs("data-zen-action").Matching(regexp.MustCompile(`^(edit|print)$`)).OnElements("a")
+	p.AllowAttrs("data-zen-action").Matching(regexp.MustCompile(`^(edit|print|new-term)$`)).OnElements("a")
+	// The folder a glossary page's New Term… adds to (the app reads it; it is never a link).
+	p.AllowAttrs("data-folder").Matching(regexp.MustCompile(`^[^<>"'\\]{0,200}$`)).OnElements("a")
 	return p
 }
 

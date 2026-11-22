@@ -38,6 +38,8 @@ vi.mock("../../bindings/github.com/zenmark-org/zenmd/apps/zenmark/index.js", () 
     PluginStorageKeys: binding("PluginStorageKeys"),
     ReorderNav: binding("ReorderNav"),
     SetNavHidden: binding("SetNavHidden"),
+    NewTerm: binding("NewTerm"),
+    GlossaryFolders: binding("GlossaryFolders"),
     Layouts: binding("Layouts"),
     LayoutTrust: binding("LayoutTrust"),
     LayoutStorageGet: binding("LayoutStorageGet"),
@@ -572,5 +574,16 @@ describe("wails api", () => {
     ]);
     results.ReorderNav = new Error("a.md: permission denied");
     await expect(api.reorderNav("", ["a.md"])).rejects.toThrow("permission denied");
+  });
+
+  it("maps New Term… and the glossary folders", async () => {
+    const api = (await import("./wails")).default;
+    results.NewTerm = { path: "g/slug.md", existed: true };
+    results.GlossaryFolders = ["g", ""];
+    expect(await api.newTerm("g", "Slug")).toEqual({ path: "g/slug.md", existed: true });
+    expect(await api.glossaryFolders()).toEqual(["g", ""]);
+    expect(calls.slice(-2)).toEqual([{ name: "NewTerm", args: ["g", "Slug"] }, { name: "GlossaryFolders", args: [] }]);
+    results.NewTerm = new Error("give the term a name");
+    await expect(api.newTerm("g", " ")).rejects.toThrow("give the term a name");
   });
 });

@@ -28,7 +28,7 @@ func TestBuiltinPageTemplates(t *testing.T) {
 		if p.ID != id || p.Name == "" || p.Description == "" || p.Layout == "" || len(p.Fields) == 0 || strings.TrimSpace(p.Skeleton) == "" {
 			t.Errorf("%s: id, name, description, layout, fields and skeleton are all needed: %+v", e.Name(), p)
 		}
-		if _, ok := p.Fields["title"]; !ok {
+		if _, ok := p.Fields["title"]; !ok && id != "term" { // a term's title is the H1 of its skeleton
 			t.Errorf("%s: no title field", id)
 		}
 	}
@@ -49,5 +49,7 @@ func TestBuiltinPageTemplates(t *testing.T) {
 	}
 	if d, _ := fs.ReadFile(FS, "term.yml"); !strings.Contains(string(d), "layout: term") {
 		t.Error("term must use the term layout")
+	} else if !strings.Contains(string(d), "skeleton: |\n  # {{title}}\n") || strings.Contains(string(d), "title:") {
+		t.Error("a term starts with # {{title}} and has no title in its frontmatter")
 	}
 }

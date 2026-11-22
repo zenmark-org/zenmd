@@ -83,7 +83,7 @@ func TestTechdocsPagesAndRules(t *testing.T) {
 	if g := readFile(t, root, "glossary/index.md"); !strings.Contains(g, "layout: glossary") || !strings.Contains(g, "sort: title") {
 		t.Errorf("glossary index:\n%s", g)
 	}
-	if g := readFile(t, root, "glossary/example-term.md"); !strings.Contains(g, "layout: term") || !strings.Contains(g, "title: Example term") {
+	if g := readFile(t, root, "glossary/example-term.md"); !strings.Contains(g, "layout: term") || strings.Contains(g, "title:") || !strings.Contains(g, "# Example term\n\n") {
 		t.Errorf("example term:\n%s", g)
 	}
 	if o := readFile(t, root, "index.md"); !strings.Contains(o, "Zed is") || !strings.Contains(o, "## Key features") || !strings.Contains(o, "## Where to go next") || !strings.Contains(o, "(releases/index.md)") || !strings.Contains(o, "(presentation.md)") || !strings.Contains(o, "Zed in five slides") {
@@ -161,7 +161,7 @@ func TestTechdocsNewTermAppearsUnderGlossary(t *testing.T) {
 		}
 	}
 	// A term added by hand after creation is listed, A to Z, without any link.
-	if err := os.WriteFile(filepath.Join(root, "glossary", "aardvark.md"), []byte("---\ntitle: Aardvark\nlayout: term\n---\nAn animal.\n"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(root, "glossary", "aardvark.md"), []byte("---\nlayout: term\n---\n# Aardvark\n\nAn animal.\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	var files []string
@@ -206,8 +206,13 @@ func TestTechdocsNewTermAppearsUnderGlossary(t *testing.T) {
 	for _, c := range g.Children {
 		got = append(got, c.Path)
 	}
-	want := []string{"glossary/aardvark.md", "glossary/example-term.md"}
-	if strings.Join(got, ",") != strings.Join(want, ",") {
-		t.Fatalf("glossary children %v, want %v", got, want)
+	// Terms are not in the sidebar (layout: term hides them); the Glossary page lists them.
+	if len(got) != 0 {
+		t.Fatalf("glossary children %v, want none", got)
+	}
+	for _, f := range []string{"glossary/aardvark.md", "glossary/example-term.md"} {
+		if !metas[f].Hidden {
+			t.Errorf("%s is not hidden from the sidebar", f)
+		}
 	}
 }
