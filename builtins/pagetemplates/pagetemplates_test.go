@@ -1,6 +1,7 @@
 package pagetemplates
 
 import (
+	"regexp"
 	"io/fs"
 	"strings"
 	"testing"
@@ -19,7 +20,7 @@ func TestBuiltinPageTemplates(t *testing.T) {
 		have[id] = true
 		data, _ := fs.ReadFile(FS, e.Name())
 		var p struct {
-			ID, Name, Description, Layout, Skeleton string
+			ID, Name, Description, Layout, Skeleton, Version string
 			Fields                                  map[string]any
 		}
 		if err := yaml.Unmarshal(data, &p); err != nil {
@@ -27,6 +28,9 @@ func TestBuiltinPageTemplates(t *testing.T) {
 		}
 		if p.ID != id || p.Name == "" || p.Description == "" || p.Layout == "" || len(p.Fields) == 0 || strings.TrimSpace(p.Skeleton) == "" {
 			t.Errorf("%s: id, name, description, layout, fields and skeleton are all needed: %+v", e.Name(), p)
+		}
+		if !regexp.MustCompile(`^\d+\.\d+\.\d+$`).MatchString(p.Version) {
+			t.Errorf("%s: version %q is not a version such as 1.0.0 (installed copies are updated by it)", id, p.Version)
 		}
 		if _, ok := p.Fields["title"]; !ok {
 			t.Errorf("%s: no title field", id)

@@ -13,10 +13,10 @@ func TestInstall(t *testing.T) {
 	if err := Install(dir, b); err != nil {
 		t.Fatal(err)
 	}
-	if got := walk(t, filepath.Join(dir, "sites")); strings.Join(got, ",") != ".zen-templates.yml,planner/.zenmd.yml,planner/blueprint.yml,techdocs/README.md,techdocs/blueprint.yml" {
+	if got := walk(t, filepath.Join(dir, "blueprints")); strings.Join(got, ",") != ".zen-templates.yml,planner/.zenmd.yml,planner/blueprint.yml,techdocs/README.md,techdocs/blueprint.yml" {
 		t.Fatalf("installed: %v", got)
 	}
-	rec := read(t, dir, "sites/.zen-templates.yml")
+	rec := read(t, dir, "blueprints/.zen-templates.yml")
 	if !strings.Contains(rec, "techdocs: 1.0.0") || !strings.Contains(rec, "planner: 2.0.0") {
 		t.Errorf("record:\n%s", rec)
 	}
@@ -26,14 +26,14 @@ func TestInstall(t *testing.T) {
 	}
 
 	// An installed template is never overwritten, not even by a newer version.
-	if err := os.WriteFile(filepath.Join(dir, "sites", "techdocs", "README.md"), []byte("mine"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "blueprints", "techdocs", "README.md"), []byte("mine"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	b2 := builtinsFS("1.1.0")
 	if err := Install(dir, b2); err != nil {
 		t.Fatal(err)
 	}
-	if read(t, dir, "sites/techdocs/README.md") != "mine" {
+	if read(t, dir, "blueprints/techdocs/README.md") != "mine" {
 		t.Error("overwritten")
 	}
 	// ... but it is listed as having an update.
@@ -47,13 +47,13 @@ func TestInstall(t *testing.T) {
 	}
 
 	// A preset the user deleted is not installed again.
-	if err := os.RemoveAll(filepath.Join(dir, "sites", "planner")); err != nil {
+	if err := os.RemoveAll(filepath.Join(dir, "blueprints", "planner")); err != nil {
 		t.Fatal(err)
 	}
 	if err := Install(dir, b2); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := os.Stat(filepath.Join(dir, "sites", "planner")); err == nil {
+	if _, err := os.Stat(filepath.Join(dir, "blueprints", "planner")); err == nil {
 		t.Error("deleted preset came back")
 	}
 	if list, _ = ListWith(dir, b2); len(list) != 1 {
@@ -62,11 +62,11 @@ func TestInstall(t *testing.T) {
 
 	// A folder the user made with the same name is theirs: not replaced, not recorded.
 	dir2 := t.TempDir()
-	put(t, dir2, map[string]string{"sites/techdocs/template.yml": "id: techdocs\nname: Mine\n", "sites/techdocs/x.md": "x"})
+	put(t, dir2, map[string]string{"blueprints/techdocs/template.yml": "id: techdocs\nname: Mine\n", "blueprints/techdocs/x.md": "x"})
 	if err := Install(dir2, b); err != nil {
 		t.Fatal(err)
 	}
-	if read(t, dir2, "sites/techdocs/x.md") != "x" || strings.Contains(read(t, dir2, "sites/.zen-templates.yml"), "techdocs") {
+	if read(t, dir2, "blueprints/techdocs/x.md") != "x" || strings.Contains(read(t, dir2, "blueprints/.zen-templates.yml"), "techdocs") {
 		t.Error("user's own template touched or recorded")
 	}
 	if l, _ := ListWith(dir2, b); l[1].Builtin || l[1].Update != "" {
@@ -74,11 +74,12 @@ func TestInstall(t *testing.T) {
 	}
 
 	// Update writes the newer built-in next to the copy, once.
-	out, err := Update(dir, b2, "techdocs")
-	if err != nil || out != filepath.Join(dir, "sites", "techdocs.new") {
-		t.Fatalf("update: %q %v", out, err)
+	res, err := Update(dir, b2, "techdocs")
+	out := res.Path
+	if err != nil || out != filepath.Join(dir, "blueprints", "techdocs.new") || res.InPlace {
+		t.Fatalf("update: %+v %v", res, err)
 	}
-	if !strings.Contains(read(t, out, "blueprint.yml"), "1.1.0") || read(t, dir, "sites/techdocs/README.md") != "mine" {
+	if !strings.Contains(read(t, out, "blueprint.yml"), "1.1.0") || read(t, dir, "blueprints/techdocs/README.md") != "mine" {
 		t.Error("update content or user's copy changed")
 	}
 	if l, _ := ListWith(dir, b2); len(l) != 1 || l[0].Update != "" {
@@ -122,5 +123,94 @@ func TestInstallReadOnly(t *testing.T) {
 	t2 := filepath.Join(t.TempDir(), "p")
 	if _, err := Create(list[1], t2, nil); err != nil || read(t, t2, ".zenmd.yml") != "layout: wide\n" {
 		t.Errorf("dotfile: %v", err)
+	}
+}
+
+// Every install records a SHA-256 fingerprint of what it wrote.
+func TestInstallFingerprints(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "templates")
+	if err := Install(dir, builtinsFS("1.0.0")); err != nil {
+		t.Fatal(err)
+	}
+	rec := read(t, dir, "blueprints/.zen-templates.yml")
+	for _, id := range []string{"techdocs", "planner"} {
+		if !strings.Contains(rec, id+": ") || strings.Count(rec, "sha256:") != 2 {
+			t.Errorf("fingerprints for %s in:\n%s", id, rec)
+		}
+	}
+	// The fingerprint is stable: a copy that was not touched still matches it.
+	fp, err := fingerprintDir(filepath.Join(dir, "blueprints", "techdocs"))
+	if err != nil || !strings.Contains(rec, fp) {
+		t.Errorf("fingerprint %q not in record (%v):\n%s", fp, err, rec)
+	}
+}
+
+func TestUpdateInPlaceWhenUntouched(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "templates")
+	if err := Install(dir, builtinsFS("1.0.0")); err != nil {
+		t.Fatal(err)
+	}
+	b2 := builtinsFS("1.1.0")
+	res, err := Update(dir, b2, "techdocs")
+	if err != nil || !res.InPlace || res.Path != filepath.Join(dir, "blueprints", "techdocs") {
+		t.Fatalf("update: %+v %v", res, err)
+	}
+	if !strings.Contains(read(t, dir, "blueprints/techdocs/blueprint.yml"), "1.1.0") {
+		t.Error("the copy was not replaced")
+	}
+	if _, err := os.Stat(filepath.Join(dir, "blueprints", "techdocs.new")); err == nil {
+		t.Error("no .new for an untouched copy")
+	}
+	if l, _ := ListWith(dir, b2); l[0].Update != "" {
+		t.Errorf("still an update: %+v", l[0])
+	}
+	// The new fingerprint is recorded, so the next update is in place again.
+	res, err = Update(dir, builtinsFS("1.2.0"), "techdocs")
+	if err != nil || !res.InPlace {
+		t.Errorf("second update: %+v %v", res, err)
+	}
+	// No leftovers beside the copies.
+	if got := walk(t, filepath.Join(dir, "blueprints")); strings.Join(got, ",") != ".zen-templates.yml,planner/.zenmd.yml,planner/blueprint.yml,techdocs/README.md,techdocs/blueprint.yml" {
+		t.Errorf("files: %v", got)
+	}
+}
+
+func TestUpdateEditedCopyGetsNew(t *testing.T) {
+	// Any change counts: an edited file, a new file or a deleted file.
+	for i, edit := range []func(dir string){
+		func(dir string) { put(t, dir, map[string]string{"blueprints/techdocs/README.md": "mine"}) },
+		func(dir string) { put(t, dir, map[string]string{"blueprints/techdocs/extra.md": "x"}) },
+		func(dir string) { _ = os.Remove(filepath.Join(dir, "blueprints", "techdocs", "README.md")) },
+	} {
+		d := filepath.Join(t.TempDir(), "templates")
+		if err := Install(d, builtinsFS("1.0.0")); err != nil {
+			t.Fatal(err)
+		}
+		edit(d)
+		res, err := Update(d, builtinsFS("1.1.0"), "techdocs")
+		if err != nil || res.InPlace || res.Path != filepath.Join(d, "blueprints", "techdocs.new") {
+			t.Errorf("edit %d: %+v %v", i, res, err)
+		}
+	}
+}
+
+// A record from before fingerprints (the user's existing one) counts as edited: nothing is replaced silently.
+func TestUpdateWithoutFingerprintGetsNew(t *testing.T) {
+	dir := t.TempDir()
+	put(t, dir, map[string]string{
+		"blueprints/techdocs/blueprint.yml": "id: techdocs\nname: Tech docs\nversion: 1.0.0\n",
+		"blueprints/techdocs/README.md":     "# {{title}}\n",
+		"blueprints/.zen-templates.yml":     "installed:\n    techdocs: 1.0.0\n",
+	})
+	res, err := Update(dir, builtinsFS("1.1.0"), "techdocs")
+	if err != nil || res.InPlace || res.Path != filepath.Join(dir, "blueprints", "techdocs.new") {
+		t.Fatalf("update: %+v %v", res, err)
+	}
+	if read(t, dir, "blueprints/techdocs/README.md") != "# {{title}}\n" {
+		t.Error("the copy changed")
+	}
+	// The record keeps no fingerprint it never had.
+	if strings.Contains(read(t, dir, "blueprints/.zen-templates.yml"), "sha256:") {
+		t.Errorf("record:\n%s", read(t, dir, "blueprints/.zen-templates.yml"))
 	}
 }

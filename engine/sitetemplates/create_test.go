@@ -179,12 +179,12 @@ func TestCreateClashes(t *testing.T) {
 		t.Error("target is a file")
 	}
 	// The templates dir itself, and anything inside it, is refused.
-	for _, bad := range []string{dir, filepath.Join(dir, "sites"), filepath.Join(dir, "sites", "demo"), filepath.Join(dir, "sites", "new-one")} {
+	for _, bad := range []string{dir, filepath.Join(dir, "blueprints"), filepath.Join(dir, "blueprints", "demo"), filepath.Join(dir, "blueprints", "new-one")} {
 		if _, err := Create(tp, bad, nil); err == nil || !strings.Contains(err.Error(), "templates folder") {
 			t.Errorf("target %s: %v", bad, err)
 		}
 	}
-	if _, err := os.Stat(filepath.Join(dir, "sites", "new-one")); err == nil {
+	if _, err := os.Stat(filepath.Join(dir, "blueprints", "new-one")); err == nil {
 		t.Error("created inside the templates dir")
 	}
 	// Two template files that end up with the same name are refused.

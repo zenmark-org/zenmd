@@ -50,10 +50,10 @@ func read(t *testing.T, dir, rel string) string {
 
 const basicManifest = "id: demo\nname: Demo\ndescription: A demo\nversion: 1.0.0\n"
 
-// tmpl writes a template folder under <dir>/sites/<folder> and returns it parsed.
+// tmpl writes a template folder under <dir>/blueprints/<folder> and returns it parsed.
 func tmpl(t *testing.T, dir, folder, manifest string, files map[string]string) Template {
 	t.Helper()
-	root := filepath.Join(dir, "sites", folder)
+	root := filepath.Join(dir, "blueprints", folder)
 	all := map[string]string{"blueprint.yml": manifest}
 	for k, v := range files {
 		all[k] = v

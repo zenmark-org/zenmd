@@ -230,7 +230,7 @@ func TestSectionsErrors(t *testing.T) {
 	for name, m := range cases {
 		files := map[string]string{"CONTRIBUTING.md": "x"}
 		dir := t.TempDir()
-		root := filepath.Join(dir, "sites", "docs")
+		root := filepath.Join(dir, "blueprints", "docs")
 		put(t, root, map[string]string{"blueprint.yml": m, "CONTRIBUTING.md": files["CONTRIBUTING.md"]})
 		list, _ := List(dir)
 		if len(list) != 1 {
@@ -248,7 +248,7 @@ func TestSectionsErrors(t *testing.T) {
 
 func TestLegacyTemplateYml(t *testing.T) {
 	dir := t.TempDir()
-	root := filepath.Join(dir, "sites", "old")
+	root := filepath.Join(dir, "blueprints", "old")
 	put(t, root, map[string]string{"template.yml": "id: old\nname: Old\n", "README.md": "# {{title}}\n"})
 	list, _ := List(dir)
 	if len(list) != 1 || list[0].Err != "" || list[0].ID != "old" {
