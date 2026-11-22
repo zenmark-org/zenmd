@@ -278,6 +278,17 @@ A page has one title. A page that has an H1 takes its title from it, and a `titl
   - newest-first sorting already uses `version`.
 - **The releases index:** a landing page whose cards are the releases, newest first. Each card shows the version, the date and the name.
 
+### Release names: `v<version>` (added 2026-11-22)
+
+- **The file name and the title are `v` plus the semver:** `releases/v0.2.0.md`, titled "v0.2.0". In `layout.yml`, a layout's `title:` can be a pattern over its fields; `release` uses `title: "v{{version}}"`.
+- **`version`** is a semver without the `v` (`0.2.0`). A value that isn't semver gets a note under Problems. Zenmark always writes versions quoted (`version: "0.2.0"`), so `1.10` stays `1.10`.
+- **New Page in a folder whose path rule is `release-notes`:**
+  - **The suggested name** is `v` plus the next minor version after the newest release in the folder, such as `v0.2.0`. With no release yet, it's `v0.1.0`.
+  - **The version** comes from the name (`v0.2.0` gives `version: "0.2.0"`), so there is nothing to type twice. The date defaults to today.
+  - **CLI:** `zenmd new page releases/v0.2.0` does the same.
+- **The techdocs first release** is `releases/v0.1.0.md`.
+- **New Page names in general:** `.md` is added unless the name already ends in `.md`. A dot followed only by digits, as in `v0.2.0` or `2026.11`, is part of the name and not an extension. A real other extension, such as `.txt`, is still refused.
+
 ## Making your own blueprint
 
 A blueprint is a folder with a `blueprint.yml`. The easy way to write one is to
