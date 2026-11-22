@@ -369,7 +369,11 @@ func frontmatter(kvs []KV) string {
 	var b strings.Builder
 	b.WriteString("---\n")
 	for _, kv := range kvs {
-		b.WriteString(kv.Key + ": " + kv.Value + "\n")
+		v := kv.Value
+		if kv.Key == "version" && !strings.HasPrefix(v, `"`) && !strings.HasPrefix(v, "'") { // 1.10 stays 1.10
+			v = `"` + strings.ReplaceAll(v, `"`, `\"`) + `"`
+		}
+		b.WriteString(kv.Key + ": " + v + "\n")
 	}
 	b.WriteString("---\n")
 	return b.String()

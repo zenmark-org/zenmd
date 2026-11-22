@@ -356,6 +356,10 @@ func (z *Zen) NewTerm(folder, term string) (NewTermResult, error) {
 	return z.s.NewTerm(folder, term)
 }
 
+// SuggestPageName is the name New Page offers in folder: v<next version> in a release-notes
+// folder, "" elsewhere.
+func (z *Zen) SuggestPageName(folder string) (string, error) { return z.s.SuggestPageName(folder), nil }
+
 // GlossaryFolders lists the folders that have a glossary index, so the sidebar
 // can offer New Term… on it.
 func (z *Zen) GlossaryFolders() ([]string, error) { return z.s.GlossaryFolders() }

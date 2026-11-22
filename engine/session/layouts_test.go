@@ -479,21 +479,21 @@ func TestReleasePagesTitleIsTheVersion(t *testing.T) {
 		}
 	}
 	walk(z.Workspace().Tree)
-	if strings.Join(got, ",") != "0.10.0,0.2.0,0.1.0" {
+	if strings.Join(got, ",") != "v0.10.0,v0.2.0,v0.1.0" {
 		t.Errorf("sidebar titles (newest first) %v", got)
 	}
 	p, err := z.Page("releases/0.2.0.md")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if p.Title != "0.2.0" {
+	if p.Title != "v0.2.0" {
 		t.Errorf("page title %q", p.Title)
 	}
 	idx, err := z.Page("releases/index.md")
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, w := range []string{"<strong>0.10.0</strong>", "<strong>0.2.0</strong>", "2026-02-01", "Second", "<strong>0.1.0</strong>", "First release"} {
+	for _, w := range []string{"<strong>v0.10.0</strong>", "<strong>v0.2.0</strong>", "2026-02-01", "Second", "<strong>v0.1.0</strong>", "First release"} {
 		if !strings.Contains(idx.HTML, w) {
 			t.Errorf("releases index lacks %q:\n%s", w, idx.HTML)
 		}

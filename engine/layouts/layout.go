@@ -56,7 +56,8 @@ type Manifest struct {
 	Template                 string
 	// TitleField names the frontmatter field that titles the pages of this
 	// layout (`title:` in layout.yml), after the H1 and the page's own
-	// title:; "" for none. It is one of Fields.
+	// title:; "" for none. It is one of Fields, or a pattern over them such
+	// as "v{{version}}" (see TitleFields).
 	TitleField string
 	CSS, JS                  []string
 	Fields                   []Field
@@ -267,8 +268,16 @@ func parse(data []byte, folder string, f files, source string) (*Layout, error) 
 		m.Fields = append(m.Fields, Field{Name: n, Type: fd.Type, Description: fd.Description})
 	}
 	if raw.Title != "" {
-		if _, ok := raw.Fields[raw.Title]; !ok {
-			return nil, fmt.Errorf("title: %q is not one of the layout's fields", raw.Title)
+		if !strings.Contains(raw.Title, "{{") {
+			if _, ok := raw.Fields[raw.Title]; !ok {
+				return nil, fmt.Errorf("title: %q is not one of the layout's fields", raw.Title)
+			}
+		} else {
+			for _, f := range TitleFields(raw.Title) {
+				if _, ok := raw.Fields[f]; !ok {
+					return nil, fmt.Errorf("title: %q names %q, which is not one of the layout's fields", raw.Title, f)
+				}
+			}
 		}
 	}
 	names = names[:0]
@@ -421,4 +430,36 @@ func Scan(dir, source string) ([]*Layout, []Invalid) {
 	sort.Slice(found, func(i, j int) bool { return found[i].man.ID < found[j].man.ID })
 	sort.Slice(invalid, func(i, j int) bool { return invalid[i].ID < invalid[j].ID })
 	return found, invalid
+}
+
+var titleFieldRE = regexp.MustCompile(`\{\{([A-Za-z][A-Za-z0-9_-]*)\}\}`)
+
+// TitleFields are the field names a title pattern such as "v{{version}}" uses.
+func TitleFields(pattern string) []string {
+	var out []string
+	for _, m := range titleFieldRE.FindAllStringSubmatch(pattern, -1) {
+		out = append(out, m[1])
+	}
+	return out
+}
+
+// RenderTitle fills a layout's title: pattern from get, which gives a field's
+// text; a bare field name is the field as written. It is "" when a field is
+// missing or empty.
+func RenderTitle(pattern string, get func(field string) string) string {
+	if !strings.Contains(pattern, "{{") {
+		return strings.TrimSpace(get(pattern))
+	}
+	missing := false
+	out := titleFieldRE.ReplaceAllStringFunc(pattern, func(m string) string {
+		v := strings.TrimSpace(get(m[2 : len(m)-2]))
+		if v == "" {
+			missing = true
+		}
+		return v
+	})
+	if missing {
+		return ""
+	}
+	return out
 }

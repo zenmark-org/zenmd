@@ -99,7 +99,7 @@ export function openNewPage(opts: NewPageOptions): NewPageDialog {
   name.spellcheck = false;
   name.value = `${opts.folder}untitled`;
   nameLabel.htmlFor = name.id;
-  const hint = el("p", "zen-newpage-hint", "Inside the open folder; .md is added. Use / for a subfolder.");
+  const hint = el("p", "zen-newpage-hint", "Inside the open folder; .md is added. A dot between digits, as in v0.2.0, is part of the name. Use / for a subfolder.");
   const error = el("p", "zen-newpage-error");
   error.setAttribute("role", "alert");
 
@@ -112,6 +112,15 @@ export function openNewPage(opts: NewPageOptions): NewPageDialog {
   form.append(title, layoutLabel, group, nameLabel, name, hint, error, actions);
   backdrop.append(form);
   doc.body.append(backdrop);
+
+  // A release-notes folder suggests v<next version>, unless the user has already typed.
+  let typed = false;
+  name.addEventListener("input", () => { typed = true; });
+  api.suggestPageName(opts.folder).then((s) => {
+    if (closed || typed || !s) return;
+    name.value = s;
+    name.setSelectionRange(opts.folder.length, s.length);
+  }, () => { /* keep untitled */ });
 
   const before = doc.activeElement as HTMLElement | null;
   name.focus();

@@ -360,14 +360,14 @@ func TestRelease(t *testing.T) {
 	src := "---\nlayout: release\nversion: 0.1.0\ndate: 2026-11-22\nname: First release\n---\n## Added\n\n- A thing\n"
 	p := page(t, nil, src)
 	mustHave(t, p.HTML, `class="zl-release`, "22 November 2026", "First release", "<h2", "Added", "A thing")
-	if n := strings.Count(p.HTML, "0.1.0"); n != 1 {
+	if n := strings.Count(p.HTML, "v0.1.0"); n != 1 {
 		t.Errorf("the version shows %d times, want once:\n%s", n, p.HTML)
 	}
 	if strings.Count(p.HTML, "<h1") != 1 {
 		t.Errorf("want exactly one h1:\n%s", p.HTML)
 	}
-	if p.Title != "0.1.0" {
-		t.Errorf("title %q, want 0.1.0", p.Title)
+	if p.Title != "v0.1.0" {
+		t.Errorf("title %q, want v0.1.0", p.Title)
 	}
 	p = page(t, nil, "---\nlayout: release\nversion: 0.2.0\ndate: 2026-12-01\n---\n## Fixed\n")
 	if strings.Contains(p.HTML, "zl-release-name") {

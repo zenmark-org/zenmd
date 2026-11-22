@@ -1,15 +1,15 @@
 id: release
-version: 1.0.0
+version: 1.1.0
 description: "A release page: the version is the title, with the date and an optional name"
 template: layout.html
 css: [release.css]
-title: version
+title: "v{{version}}"
 fields:
-  version: { type: string, description: "The version, such as 0.1.0. It is the page's title" }
+  version: { type: string, description: "The version without the v, such as 0.1.0. The title is v plus the version" }
   date:    { type: date, description: "Release date, such as 2026-11-22" }
   name:    { type: string, description: "An optional name shown under the version" }
 help:
-  summary: "One release of a product: the version large as the page's heading, the date and the optional name under it, then the text (the Added, Changed and Fixed sections). The page has no H1: its frontmatter version is the title in the sidebar, the breadcrumb, the window title and the cards of a releases index. Frontmatter fields: version, date and name."
+  summary: "One release of a product: the version (v0.1.0) large as the page's heading, the date and the optional name under it, then the text (the Added, Changed and Fixed sections). The page has no H1: its frontmatter version, shown as v<version>, is the title in the sidebar, the breadcrumb, the window title and the cards of a releases index. Frontmatter fields: version, date and name."
   snippets:
     - title: A release
-      markdown: "---\nlayout: release\nversion: 0.1.0\ndate: 2026-11-22\nname: First release\n---\n## Added\n\n- A new thing\n\n## Changed\n\n- A thing that works differently now\n\n## Fixed\n\n- A bug that is gone\n"
+      markdown: "---\nlayout: release\nversion: \"0.1.0\"\ndate: 2026-11-22\nname: First release\n---\n## Added\n\n- A new thing\n\n## Changed\n\n- A thing that works differently now\n\n## Fixed\n\n- A bug that is gone\n"

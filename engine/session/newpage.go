@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -30,12 +31,20 @@ func (s *Session) CreatePage(name, layout string) (r0 string, err error) {
 	if err != nil {
 		return "", err
 	}
+	if layout == "" || layout == "article" { // a folder whose path rule names a page template starts from it
+		if text, ok := s.ruledPageText(rel); ok {
+			return rel, s.create(rel, text)
+		}
+	}
 	text, ok := s.newPageText(layout, titleOf(rel))
 	if !ok {
 		return "", fmt.Errorf("unknown layout %q", layout)
 	}
 	return rel, s.create(rel, text)
 }
+
+// digitsRE is a "dot and digits" ending, which is not an extension.
+var digitsRE = regexp.MustCompile(`^\.[0-9]+$`)
 
 // newPagePath cleans a page name typed by the user into a workspace path.
 func newPagePath(name string) (string, error) {
@@ -48,6 +57,9 @@ func newPagePath(name string) (string, error) {
 		return "", errors.New("the name contains a NUL byte")
 	}
 	ext := strings.ToLower(path.Ext(name))
+	if digitsRE.MatchString(ext) { // v0.2.0 and 2026.11: the dot is part of the name
+		ext = ""
+	}
 	switch ext {
 	case ".md", ".markdown":
 	case "":

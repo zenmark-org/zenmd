@@ -70,6 +70,7 @@ export function warningFix(message: string): string {
   if (/^This folder's settings are in /.test(message)) return "It is renamed the next time a folder setting is saved, or rename it yourself.";
   if (/^unknown layout\b/.test(message)) return "Settings › Layouts, or change layout: in the front matter";
   if (/^title: is ignored because the page has an H1/.test(message)) return "Remove title: from the frontmatter";
+  if (/^version must be a semantic version/.test(message)) return 'Write the version without a v, quoted, such as version: "0.2.0"';
   return "";
 }
 

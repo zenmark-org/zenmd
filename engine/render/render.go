@@ -166,6 +166,9 @@ func (r *Renderer) Render(pagePath string, src []byte) (Page, error) {
 	if n := titleNote(st, meta, doc, body); n != "" {
 		st.warnings = append(st.warnings, n)
 	}
+	if n := r.versionNote(pagePath, meta); n != "" {
+		st.warnings = append(st.warnings, n)
+	}
 
 	// 4+5 render, with fenced plugin blocks and link rewriting
 	var buf bytes.Buffer
@@ -252,13 +255,30 @@ func (r *Renderer) layoutTitle(pagePath string, meta map[string]any) string {
 	if l == nil || l.Manifest().TitleField == "" {
 		return ""
 	}
-	switch v := meta[l.Manifest().TitleField].(type) {
-	case string:
-		return strings.TrimSpace(v)
-	case int, int64, uint64, float64, bool:
-		return fmt.Sprint(v)
+	return layouts.RenderTitle(l.Manifest().TitleField, func(f string) string {
+		switch v := meta[f].(type) {
+		case string:
+			return v
+		case int, int64, uint64, float64, bool:
+			return fmt.Sprint(v)
+		}
+		return ""
+	})
+}
+
+// versionNote is the page warning for a release page whose version is not a
+// semantic version; "" for any other page.
+func (r *Renderer) versionNote(pagePath string, meta map[string]any) string {
+	if r.layouts == nil {
+		return ""
 	}
-	return ""
+	if layouts.Resolve(pagePath, meta, r.cfg.ForPage(meta).Layouts()).Name != "release" || r.layouts.Get("release") == nil {
+		return ""
+	}
+	if v, ok := meta["version"].(string); ok && plugins.ValidSemVer(strings.TrimSpace(v)) {
+		return ""
+	}
+	return "version must be a semantic version such as 0.2.0"
 }
 
 // titleNote is the Problems note for a page that has both an h1 and a title:

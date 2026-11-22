@@ -1,7 +1,7 @@
 id: techdocs
 name: Technical documentation
 description: Overview, getting started, how-tos, explanation, reference, glossary and releases
-version: 2.2.0
+version: 2.3.0
 order: 10
 requires: { layouts: [docs, landing, slides, term, glossary, release], plugins: [codeblock, diagram] }
 ask:
@@ -59,6 +59,6 @@ sections:
     index: { layout: landing, tagline: "What changed, newest first" }
     order: newest-first
     pages:
-      - { file: 0.1.0.md, title: 0.1.0, set: { version: 0.1.0, name: First release } }
+      - { file: v0.1.0.md, title: v0.1.0, set: { version: 0.1.0, name: First release } }
 files: [CONTRIBUTING.md]
 templates: [overview, tutorial, how-to, explanation, reference, term, release-notes]

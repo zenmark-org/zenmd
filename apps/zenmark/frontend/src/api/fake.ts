@@ -7,7 +7,7 @@ type Method = "startup" | "appReady" | "pickFolder" | "cancelOpen" | "closeFolde
   | "siteTemplates" | "pickSiteFolder" | "createSite" | "revealTemplates" | "templatesDir"
   | "pageTemplates" | "updateTemplate" | "revealPageTemplates" | "copyPageTemplate" | "openPageTemplate"
   | "buildOptions" | "buildWebsite" | "cancelBuild" | "saveBuildDefaults" | "pickBuildFolder" | "openBuiltSite" | "revealBuiltSite"
-  | "printPage" | "printSite" | "printWindow" | "exportPdf" | "revealExport" | "printReady" | "printFailed" | "pdfDefaults" | "savePdfDefaults" | "pickPdfFile" | "runPdfExport" | "previewPdf" | "openExport" | "pdfExportFailed" | "page" | "source" | "preview" | "save" | "openExternal" | "openEditor" | "lint" | "pageInfo" | "revealInFinder" | "openConfig" | "createPage" | "newTerm" | "glossaryFolders"
+  | "printPage" | "printSite" | "printWindow" | "exportPdf" | "revealExport" | "printReady" | "printFailed" | "pdfDefaults" | "savePdfDefaults" | "pickPdfFile" | "runPdfExport" | "previewPdf" | "openExport" | "pdfExportFailed" | "page" | "source" | "preview" | "save" | "openExternal" | "openEditor" | "lint" | "pageInfo" | "revealInFinder" | "openConfig" | "createPage" | "suggestPageName" | "newTerm" | "glossaryFolders"
   | "plugins" | "pluginTrust" | "pluginStorageGet" | "pluginStorageSet" | "pluginInvoke" | "pluginStream" | "pluginCancel" | "pluginStorageKeys"
   | "reorderNav" | "setNavHidden" | "dialects" | "setDialect" | "dialectHint" | "dismissDialectHint"
   | "logs" | "layouts" | "layoutTrust" | "layoutStorageGet" | "layoutStorageSet" | "layoutStorageKeys";
@@ -61,6 +61,8 @@ export type FakeOptions = {
   layouts?: LayoutSeed[];
   /** What siteTemplates() lists. Default: the three built-in presets. */
   templates?: SiteTemplate[];
+  /** What suggestPageName(folder) answers by folder ("releases/"); other folders get "". */
+  suggestedPageNames?: Record<string, string>;
   /** What pageTemplates() lists. Default: a few of the built-in page templates, as installed on this Mac. */
   pageTemplates?: PageTemplate[];
 };
@@ -421,6 +423,7 @@ export function createFakeApi(options: FakeOptions = {}): FakeApi {
       sources[path] = `---\ntitle: ${title}\n${layout ? `layout: ${layout}\n` : ""}---\n# ${title}\n`;
       return path;
     }),
+    suggestPageName: (folder) => call("suggestPageName", [folder], () => options.suggestedPageNames?.[folder] ?? ""),
     glossaryFolders: () => call("glossaryFolders", [], () => {
       const out = new Set<string>();
       for (const [p, src] of Object.entries(sources)) {

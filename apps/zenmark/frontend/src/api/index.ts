@@ -205,6 +205,8 @@ export interface Api extends KitHost {
    * path. Rejects when the file exists or the name is not allowed.
    */
   createPage(name: string, layout: PageLayout): Promise<string>;
+  /** The name New Page offers in folder ("releases/"): v<next version> where the folder's path rule is release-notes, "" elsewhere. */
+  suggestPageName(folder: string): Promise<string>;
   /** The folders that have a glossary index, for New Term… in the sidebar menu. */
   glossaryFolders(): Promise<string[]>;
   /** New Term…: <folder>/<slug>.md from the term template ("" is the top level); an existing term is not touched. */

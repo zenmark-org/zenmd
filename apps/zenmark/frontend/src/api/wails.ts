@@ -397,6 +397,9 @@ const api: Api = {
   async createPage(name, layout) {
     return String((await call(Zen.CreatePage(name, layout))) ?? "");
   },
+  async suggestPageName(folder) {
+    return String((await call(Zen.SuggestPageName(folder))) ?? "");
+  },
   async glossaryFolders() {
     return strings(await call(Zen.GlossaryFolders()));
   },

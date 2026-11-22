@@ -195,7 +195,7 @@ func TestSectionsNewestFirstAndSet(t *testing.T) {
 	if strings.Contains(rel, "title:") || strings.Contains(rel, "\n# ") {
 		t.Errorf("a release page has no title: and no H1:\n%s", rel)
 	}
-	for _, w := range []string{"layout: release", "version: 0.1.0", "date: 2026-11-17", "name: First release", "## Added"} {
+	for _, w := range []string{"layout: release", `version: "0.1.0"`, "date: 2026-11-17", "name: First release", "## Added"} {
 		if !strings.Contains(rel, w) {
 			t.Errorf("release lacks %q:\n%s", w, rel)
 		}
