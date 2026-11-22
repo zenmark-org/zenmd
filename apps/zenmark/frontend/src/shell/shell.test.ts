@@ -1458,3 +1458,23 @@ test("⌘R in a production build reloads from the keyboard; with no folder or in
     vi.unstubAllEnvs();
   }
 });
+
+test("Reload asks the host to rescan the folder (api.reload) and falls back to startup() without it", async () => {
+  const api = withWorkspace("README.md");
+  const next = { ...sampleWorkspace(), tree: [{ ...sampleWorkspace().tree[0], title: "Rescanned" }] };
+  const s = reloadBoot(api, []);
+  await s.start();
+  const before = api.callsTo("startup").length;
+  api.reload = async () => next;
+  button("Reload page")!.click();
+  await tick();
+  expect(s.store.get().workspace?.tree[0].title).toBe("Rescanned");
+  expect(api.callsTo("startup")).toHaveLength(before); // reload, not startup
+});
+
+test("the fake api's reload gives the current tree", async () => {
+  const api = withWorkspace("README.md");
+  const ws = await api.reload!();
+  expect(ws?.tree).toEqual(sampleWorkspace().tree);
+  expect(await createFakeApi().reload!()).toBeNull();
+});
