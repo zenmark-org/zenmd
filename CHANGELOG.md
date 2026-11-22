@@ -7,7 +7,9 @@ follows [Semantic Versioning](https://semver.org) (see docs/VERSIONING.md).
 ## [Unreleased]
 
 ### Added
-- Blueprints (formerly site templates): `zenmd init --blueprint <id>`, `zenmd blueprint list` and `zenmd blueprint new <id> [--from <id>]`, File › New from Blueprint… and Settings › Blueprints. A `blueprint.yml` can list `sections:` that zen builds into folders, index pages, a README of links and path rules in `.zenmd.yml`; the built-in Technical documentation blueprint now has an overview, getting started, how-tos, explanation, reference, a glossary and releases, with seven built-in page templates. The old names (`template.yml`, `templates:` in config.yml and in the assembly, `zenmd init site --template`) still work.
+- Blueprints (formerly site templates) are in Zenmark: File › New from Blueprint… (⇧⌘N), Settings › Blueprints, `zenmd init --blueprint <id>`, `zenmd blueprint list` and `zenmd blueprint new <id> [--from <id>]`. A `blueprint.yml` can list `sections:` that Zenmark builds into folders, index pages, links from the home and path rules in `.zenmd.yml`. The built-in Technical documentation blueprint (2.1.0) has an overview home, getting started, how-tos, explanation, reference, a glossary and releases, with seven built-in page templates. The old names (`template.yml`, `templates:` in config.yml and in the assembly, `zenmd init site --template`) still work (#20).
+- The `term` and `glossary` layouts: one file per term, and a glossary index built from them A to Z, with a letter bar and a filter, rebuilt whenever a term changes.
+- The sidebar honours `nav: { children: folder }` (every page of the folder under its index) and `nav.sort` (`title` or `newest-first`).
 - Export is back in Zenmark: File › Export › Website… (⇧⌘B) and PDF… (⇧⌘P), Settings › Export and the Export button, with an Export page in the demo guide (#19).
 - Settings › Export › PDF is a form like the website's (output file, drafts, pages, cover, open when done, Save as folder defaults), saved under export.pdf.
 - An exported website has the app's fixed top bar: a button to hide the sidebar, back and forward, and the breadcrumb.
@@ -33,6 +35,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/VERSIONING.md).
 - Find in page: ⌘F (Edit › Find) opens a find bar in the reader and the editor with a match count, next/previous (⌘G, ⇧⌘G) and a match-case toggle (#4).
 
 ### Changed
+- A folder's home page is `index.md`, with `README.md` as the fallback; blueprints write `index.md`.
 - Exports go to exports/html and exports/pdf/<folder name>.pdf by default, and exports/ is never read as pages.
 - The export settings in .zenmd.yml are under export: (was build:, still read, with a note under Problems).
 - The top bar's icons stay at the right edge when Settings is open, and the sidebar button uses the shared sidebar icon.
