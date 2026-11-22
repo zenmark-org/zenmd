@@ -57,7 +57,7 @@ func Generate(a Assembly, pkg string) ([]byte, error) {
 	imports := []string{
 		modulePath + "/engine/dialects",
 		modulePath + "/builtins/layouts",
-		modulePath + "/builtins/sitetemplates",
+		modulePath + "/builtins/blueprints",
 		modulePath + "/engine/plugins",
 		"enginelayouts " + modulePath + "/engine/layouts",
 		modulePath + "/engine/session",
@@ -105,8 +105,8 @@ func Generate(a Assembly, pkg string) ([]byte, error) {
 	b.WriteString("// assemblyLayouts is the registry of the built-in layouts this app includes\n// (article, the fallback, is always there).\n")
 	fmt.Fprintf(&b, "func assemblyLayouts(version string) *enginelayouts.Registry {\n\treturn layouts.Registry(version, %s)\n}\n\n", listArgs(layoutIDs))
 
-	b.WriteString("// assemblyTemplates holds the built-in site templates this app includes.\n")
-	fmt.Fprintf(&b, "func assemblyTemplates() fs.FS {\n\tf, err := sitetemplates.Sub(%s)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\treturn f\n}\n\n", listArgs(a.Templates))
+	b.WriteString("// assemblyTemplates holds the built-in blueprints this app includes.\n")
+	fmt.Fprintf(&b, "func assemblyTemplates() fs.FS {\n\tf, err := blueprints.Sub(%s)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\treturn f\n}\n\n", listArgs(a.Templates))
 
 	b.WriteString("// assemblyDialects is the registry of the markdown dialects this app includes.\n")
 	b.WriteString("func assemblyDialects() *dialects.Registry {\n\tr, err := dialects.NewRegistry(")

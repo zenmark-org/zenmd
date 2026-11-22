@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -101,9 +102,9 @@ func Builtins(builtins fs.FS) ([]Template, []string) {
 
 // load reads the manifest of a template folder; a problem is put in Err.
 func load(fsys fs.FS, folder string) Template {
-	data, err := fs.ReadFile(fsys, "template.yml")
+	data, err := ReadManifest(fsys, ".")
 	if err != nil {
-		return Template{ID: folder, Name: folder, Err: "template.yml is missing or unreadable"}
+		return Template{ID: folder, Name: folder, Err: "blueprint.yml is missing or unreadable"}
 	}
 	t, err := ParseManifest(data)
 	if err != nil {
@@ -117,7 +118,7 @@ func builtinVersion(builtins fs.FS, id string) string {
 	if builtins == nil {
 		return ""
 	}
-	data, err := fs.ReadFile(builtins, id+"/template.yml")
+	data, err := ReadManifest(builtins, id)
 	if err != nil {
 		return ""
 	}
@@ -156,4 +157,23 @@ func nums(v string) [3]int {
 		out[i] = n
 	}
 	return out
+}
+
+// ManifestFile is the file that describes a blueprint; LegacyManifestFile is
+// its old name (when it was a site template), still read.
+const (
+	ManifestFile       = "blueprint.yml"
+	LegacyManifestFile = "template.yml"
+)
+
+// ReadManifest reads the blueprint.yml of the folder dir in fsys, or the legacy
+// template.yml when there is none.
+func ReadManifest(fsys fs.FS, dir string) ([]byte, error) {
+	data, err := fs.ReadFile(fsys, path.Join(dir, ManifestFile))
+	if err != nil {
+		if d2, err2 := fs.ReadFile(fsys, path.Join(dir, LegacyManifestFile)); err2 == nil {
+			return d2, nil
+		}
+	}
+	return data, err
 }

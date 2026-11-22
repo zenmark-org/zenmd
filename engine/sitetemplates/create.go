@@ -1,6 +1,7 @@
 package sitetemplates
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -52,7 +53,8 @@ func replace(s string, vals map[string]string) string {
 // values works out every placeholder: the built-ins, then each ask key from
 // values (an empty one takes its default, which may use {{folder}}).
 func (t Template) values(given map[string]string, folder string) (map[string]string, error) {
-	out := map[string]string{"date": now().Format("2006-01-02"), "folder": folder, "title": "", "author": ""}
+	today := now().Format("2006-01-02")
+	out := map[string]string{"date": today, "today": today, "folder": folder, "title": "", "author": ""}
 	asked := map[string]bool{}
 	for _, a := range t.Ask {
 		asked[a.Key] = true
@@ -80,9 +82,11 @@ func (t Template) values(given map[string]string, folder string) (map[string]str
 }
 
 type item struct {
-	src  string // slash path in the template
+	src  string // slash path in the template; "" for a generated file
 	dest string // slash path in the target
 	size int64
+	data []byte // a generated file's contents (placeholders already filled)
+	add  string // appended to a copied file (the sections' part of .zenmd.yml)
 }
 
 // plan walks the template and works out what would be written. It refuses
@@ -94,6 +98,11 @@ func (t Template) plan(vals map[string]string) ([]item, error) {
 	}
 	if t.fsys == nil {
 		return nil, fmt.Errorf("template %q has no files", t.ID)
+	}
+	for _, f := range t.Files {
+		if _, err := fs.Stat(t.fsys, f); err != nil {
+			return nil, fmt.Errorf("files: %s is not in the blueprint", f)
+		}
 	}
 	var items []item
 	var total int64
@@ -120,18 +129,13 @@ func (t Template) plan(vals map[string]string) ([]item, error) {
 		if !d.Type().IsRegular() {
 			return fmt.Errorf("%s is not a regular file", p)
 		}
-		if p == "template.yml" {
+		if p == ManifestFile || p == LegacyManifestFile {
 			return nil
 		}
-		dest := replace(p, vals)
-		clean := path.Clean(strings.ReplaceAll(dest, "\\", "/"))
-		if strings.ContainsRune(dest, 0) || path.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, "../") || clean == "." {
-			return fmt.Errorf("%s would be written outside the new folder", p)
+		clean, err := cleanDest(p, replace(p, vals), seen)
+		if err != nil {
+			return err
 		}
-		if other, dup := seen[strings.ToLower(clean)]; dup {
-			return fmt.Errorf("%s and %s would both be written to %s", other, p, clean)
-		}
-		seen[strings.ToLower(clean)] = p
 		info, err := d.Info()
 		if err != nil {
 			return err
@@ -149,7 +153,80 @@ func (t Template) plan(vals map[string]string) ([]item, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// What the sections make: index.md, indexes, pages, page templates and
+	// the sections' part of .zenmd.yml.
+	gens, frag, err := t.generate(vals)
+	if err != nil {
+		return nil, err
+	}
+	for _, g := range gens {
+		clean, err := cleanDest(g.dest, g.dest, seen)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item{dest: clean, size: int64(len(g.data)), data: []byte(g.data)})
+		total += int64(len(g.data))
+	}
+	if frag != "" {
+		found := false
+		for i := range items {
+			if strings.EqualFold(items[i].dest, ".zenmd.yml") && items[i].src != "" {
+				items[i].add, found = frag, true
+			}
+		}
+		if !found {
+			head := "# Settings for this folder. Edit freely: zen reads this file again when it changes.\nversion: 1\n\n"
+			if _, taken := seen[".zenmd.yml"]; taken {
+				return nil, errors.New(".zenmd.yml would be written twice")
+			}
+			seen[".zenmd.yml"] = ".zenmd.yml"
+			items = append(items, item{dest: ".zenmd.yml", data: []byte(head + frag)})
+		}
+	}
+	if len(items) > MaxFiles {
+		return nil, fmt.Errorf("the blueprint has more than %d files", MaxFiles)
+	}
+	if total > MaxBytes {
+		return nil, fmt.Errorf("the blueprint is larger than %d MB", MaxBytes>>20)
+	}
 	return items, nil
+}
+
+// cleanDest checks a destination (slash path) stays inside the new folder and
+// is not written twice; seen maps a lower case path to what wrote it.
+func cleanDest(from, dest string, seen map[string]string) (string, error) {
+	clean := path.Clean(strings.ReplaceAll(dest, "\\", "/"))
+	if strings.ContainsRune(dest, 0) || path.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, "../") || clean == "." {
+		return "", fmt.Errorf("%s would be written outside the new folder", from)
+	}
+	if other, dup := seen[strings.ToLower(clean)]; dup {
+		return "", fmt.Errorf("%s and %s would both be written to %s", other, from, clean)
+	}
+	seen[strings.ToLower(clean)] = from
+	return clean, nil
+}
+
+// addConfig appends the sections' part to a .zenmd.yml of the blueprint: its
+// layout: only when the file has none, and its templates: rules, which the
+// file must not have.
+func addConfig(data, frag string) (string, error) {
+	if regexp.MustCompile(`(?m)^templates:`).MatchString(data) && strings.Contains(frag, "templates:") {
+		return "", errors.New(".zenmd.yml already has templates:; the sections write the path rules")
+	}
+	if regexp.MustCompile(`(?m)^layout:`).MatchString(data) {
+		var keep []string
+		for _, l := range strings.Split(frag, "\n") {
+			if !strings.HasPrefix(l, "layout:") {
+				keep = append(keep, l)
+			}
+		}
+		frag = strings.TrimLeft(strings.Join(keep, "\n"), "\n")
+	}
+	if data != "" && !strings.HasSuffix(data, "\n") {
+		data += "\n"
+	}
+	return data + "\n" + frag, nil
 }
 
 // ignored reports whether the template leaves p out: by its ignore: list
@@ -323,11 +400,17 @@ func within(p, dir string) bool {
 // name is taken with a hard link, which fails when something appeared there
 // meanwhile (nothing is ever replaced). Files are 0644.
 func (t Template) writeFile(it item, full string, vals map[string]string) error {
-	in, err := t.fsys.Open(it.src)
-	if err != nil {
-		return err
+	var in io.Reader
+	if it.src == "" { // generated by the sections
+		in = bytes.NewReader(it.data)
+	} else {
+		f, err := t.fsys.Open(it.src)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		in = f
 	}
-	defer in.Close()
 	tmp, err := os.CreateTemp(filepath.Dir(full), ".zen-new-*")
 	if err != nil {
 		return err
@@ -335,10 +418,16 @@ func (t Template) writeFile(it item, full string, vals map[string]string) error 
 	name := tmp.Name()
 	defer os.Remove(name)
 	var werr error
-	if textExts[strings.ToLower(path.Ext(it.src))] {
+	if it.src != "" && textExts[strings.ToLower(path.Ext(it.src))] && !strings.HasPrefix(it.src, ".zen/templates/") {
 		var data []byte
 		if data, werr = io.ReadAll(io.LimitReader(in, MaxBytes+1)); werr == nil {
-			_, werr = tmp.WriteString(replace(string(data), vals))
+			text := replace(string(data), vals)
+			if it.add != "" {
+				text, werr = addConfig(text, it.add)
+			}
+			if werr == nil {
+				_, werr = tmp.WriteString(text)
+			}
 		}
 	} else {
 		_, werr = io.Copy(tmp, in)

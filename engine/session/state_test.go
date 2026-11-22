@@ -157,7 +157,7 @@ func TestWatchEvents(t *testing.T) {
 	// Content change, tree unchanged: only page:changed.
 	os.WriteFile(filepath.Join(dir, "docs", "deep.md"), []byte("# Deep\n\nMore text.\n"), 0o644)
 	z.handle([]watch.Event{{Path: "docs/deep.md", Kind: watch.Changed}})
-	if !has("page:changed", PageChanged{"docs/deep.md"}) || has("workspace:changed", nil) {
+	if !has("page:changed", PageChanged{Path: "docs/deep.md"}) || has("workspace:changed", nil) {
 		t.Fatalf("change: %v", ev.all())
 	}
 
@@ -165,7 +165,7 @@ func TestWatchEvents(t *testing.T) {
 	ev.reset()
 	os.WriteFile(filepath.Join(dir, "docs", "guide.md"), []byte("# Guide!\n\n[Deep](deep.md)\n"), 0o644)
 	z.handle([]watch.Event{{Path: "docs/guide.md", Kind: watch.Changed}})
-	if !has("workspace:changed", nil) || !has("page:changed", PageChanged{"docs/guide.md"}) {
+	if !has("workspace:changed", nil) || !has("page:changed", PageChanged{Path: "docs/guide.md"}) {
 		t.Fatalf("tree change: %v", names())
 	}
 	for _, e := range ev.all() {
@@ -187,7 +187,7 @@ func TestWatchEvents(t *testing.T) {
 	ev.reset()
 	os.Remove(filepath.Join(dir, "new.md"))
 	z.handle([]watch.Event{{Path: "new.md", Kind: watch.Removed}})
-	if !has("workspace:changed", nil) || !has("page:changed", PageChanged{"new.md"}) {
+	if !has("workspace:changed", nil) || !has("page:changed", PageChanged{Path: "new.md"}) {
 		t.Fatalf("remove: %v", names())
 	}
 
@@ -197,7 +197,7 @@ func TestWatchEvents(t *testing.T) {
 	}
 	ev.reset()
 	z.handle([]watch.Event{{Path: "img/a.png", Kind: watch.Changed}})
-	if !reflect.DeepEqual(ev.all(), []event{{"page:changed", PageChanged{"docs/guide.md"}}}) {
+	if !reflect.DeepEqual(ev.all(), []event{{"page:changed", PageChanged{Path: "docs/guide.md"}}}) {
 		t.Fatalf("asset: %v", ev.all())
 	}
 
@@ -206,7 +206,7 @@ func TestWatchEvents(t *testing.T) {
 	os.WriteFile(filepath.Join(dir, ".zenmd.yml"), []byte("theme: dark\n"), 0o644)
 	old := z.cfg
 	z.handle([]watch.Event{{Path: ".zenmd.yml", Kind: watch.Changed}})
-	if z.cfg == old || !has("page:changed", PageChanged{"docs/guide.md"}) {
+	if z.cfg == old || !has("page:changed", PageChanged{Path: "docs/guide.md"}) {
 		t.Fatalf("config: %v", ev.all())
 	}
 

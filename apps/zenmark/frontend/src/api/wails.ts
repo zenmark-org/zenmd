@@ -491,7 +491,10 @@ const api: Api = {
       });
     }
     if (event === "page:changed") {
-      const deliver = (e: { data: unknown }) => fn({ path: (payload(e.data) as { path?: string } | null)?.path ?? "" });
+      const deliver = (e: { data: unknown }) => {
+        const d = payload(e.data) as { path?: string; dependent?: boolean } | null;
+        fn(d?.dependent === true ? { path: d.path ?? "", dependent: true } : { path: d?.path ?? "" });
+      };
       const offChanged = Events.On("page:changed", deliver);
       const offSaved = Events.On("editor:saved", (e: { data: unknown; sender?: string }) => {
         if (e.sender !== ownName) deliver(e);

@@ -14,6 +14,7 @@ What this build of Zenmark can do, one page each, in the order of the build.
 | [Inspector](inspector.md) | tells you about the page: Page Info and Problems |
 | [Print](printing.md) | prints a page or saves it as a PDF |
 | [Export](export.md) | turns the folder into a website or one PDF |
+| [Blueprints](blueprints.md) | starts a new folder from a ready-made structure |
 | [Developer](developer.md) | adds the Console and Build tabs to the Inspector |
 
 Keyboard keys for all of them are in [Keyboard shortcuts](../intro/shortcuts.md).

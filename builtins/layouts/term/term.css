@@ -1,0 +1,82 @@
+/* term layout: one glossary entry. Tokens only. */
+[data-zen-layout="term"] .zl-term {
+  max-width: 68ch;
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-6) 96px;
+  box-sizing: border-box;
+}
+[data-zen-layout="term"] .zl-term-title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 3rem;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+}
+[data-zen-layout="term"] .zl-term-abbr,
+[data-zen-layout="term"] .zl-term-aliases {
+  margin: var(--space-2) 0 0;
+  color: var(--fg-muted);
+  font: 14px/1.5 var(--font-ui);
+}
+[data-zen-layout="term"] .zl-term-abbr { letter-spacing: .04em; }
+/* The first paragraph is the definition. A leading h1 only repeats the term. */
+[data-zen-layout="term"] .zl-term-text { margin-top: var(--space-5); }
+[data-zen-layout="term"] .zl-term-text > h1:first-child { display: none; }
+[data-zen-layout="term"] .zl-term-text > p:first-child,
+[data-zen-layout="term"] .zl-term-text > h1:first-child + p {
+  margin-top: 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--fg);
+  background: var(--bg-subtle);
+  font-size: 1.15em;
+  line-height: 1.55;
+}
+[data-zen-layout="term"] .zl-term-see {
+  margin-top: var(--space-6);
+  font: 14px/1.5 var(--font-ui);
+}
+[data-zen-layout="term"] .zl-term-see-title {
+  margin: 0 0 var(--space-2);
+  color: var(--fg-muted);
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+[data-zen-layout="term"] .zl-term-see ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); }
+[data-zen-layout="term"] .zl-term-see li { margin: 0; }
+[data-zen-layout="term"] .zl-term-see span { color: var(--fg-muted); }
+[data-zen-layout="term"] .zl-term-pager {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-7);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--rule);
+  font: 13px/1.5 var(--font-ui);
+}
+[data-zen-layout="term"] .zl-term-pager a {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  color: var(--fg);
+  text-decoration: none;
+  cursor: pointer;
+}
+[data-zen-layout="term"] .zl-term-pager a:hover { background: var(--bg-subtle); }
+[data-zen-layout="term"] .zl-term-pager a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+[data-zen-layout="term"] .zl-term-pager small { color: var(--fg-muted); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+[data-zen-layout="term"] .zl-term-pager span { font: 600 15px/1.35 var(--font-body); }
+[data-zen-layout="term"] .zl-term-pager .zl-term-next { text-align: right; margin-left: auto; }
+[data-zen-layout="term"] .zl-term-pager .zl-term-prev:only-child { max-width: 50%; }
+@media (max-width: 700px) {
+  [data-zen-layout="term"] .zl-term { padding: var(--space-5) var(--space-4) 64px; }
+  [data-zen-layout="term"] .zl-term-title { font-size: 2.25rem; }
+}
+@media print {
+  [data-zen-layout="term"] .zl-term { padding: 0; }
+  [data-zen-layout="term"] .zl-term-pager { display: none; }
+}

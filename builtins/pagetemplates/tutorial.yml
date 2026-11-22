@@ -1,0 +1,32 @@
+id: tutorial
+name: Tutorial
+description: "Learn by doing: a guided lesson that always works (Diátaxis)"
+layout: docs
+fields:
+  title: { required: true }
+skeleton: |
+  # {{title}}
+
+  In this tutorial you will … (the goal: what the reader will have at the end).
+  It takes about … minutes and needs no earlier experience.
+
+  ## Before you start
+
+  - What the reader needs, such as a tool or an account
+  - A folder to work in
+
+  ## Step 1: Set up
+
+  Say exactly what to type, and what the reader should see afterwards.
+
+  ## Step 2: Make something small
+
+  Each step makes one change and shows its result. Offer no choices here.
+
+  ## Step 3: Check that it works
+
+  End with a check the reader can run.
+
+  ## What you built
+
+  Say what the reader now has, and where to go next.

@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"path"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/zenmark-org/zenmd/engine/config"
@@ -444,10 +446,21 @@ type layoutSite struct {
 	flat     []NavNode            // the pages in sidebar order
 	pos      map[string]int       // page path -> position in flat
 	children map[string][]NavNode // page path -> pages under it
+	byDir    map[string][]string  // folder -> its markdown pages (hidden ones too), sorted
 }
 
-func newLayoutSite(ws *workspace.Workspace, idx *index.Index, tree []NavNode) *layoutSite {
-	ls := &layoutSite{ws: ws, idx: idx, pos: map[string]int{}, children: map[string][]NavNode{}}
+// maxFolderPages bounds what a layout may read from one folder.
+const maxFolderPages = 2000
+
+func newLayoutSite(ws *workspace.Workspace, idx *index.Index, tree []NavNode, files []string) *layoutSite {
+	ls := &layoutSite{ws: ws, idx: idx, pos: map[string]int{}, children: map[string][]NavNode{}, byDir: map[string][]string{}}
+	for _, f := range files {
+		d := path.Dir(f)
+		ls.byDir[d] = append(ls.byDir[d], f)
+	}
+	for _, fs := range ls.byDir {
+		sort.Strings(fs)
+	}
 	var pagesUnder func(ns []NavNode) []NavNode
 	pagesUnder = func(ns []NavNode) []NavNode { // pages, looking through groups
 		var out []NavNode
@@ -521,6 +534,41 @@ func (ls *layoutSite) Children(path string) []layouts.Child {
 	return out
 }
 
+// Folder reads the markdown pages beside p, not p itself, for layouts that
+// list a folder (the glossary): the title, the frontmatter and the first
+// paragraph of each. It is read when the template asks, so a page that is
+// edited or added is seen on the next render.
+func (ls *layoutSite) Folder(p string) []layouts.FolderPage {
+	if ls == nil {
+		return nil
+	}
+	var out []layouts.FolderPage
+	for _, f := range ls.byDir[path.Dir(p)] {
+		if f == p {
+			continue
+		}
+		if len(out) >= maxFolderPages {
+			break
+		}
+		b, err := ls.ws.Read(f)
+		if err != nil {
+			continue
+		}
+		fm, _, _ := config.SplitFrontmatter(b)
+		if fm == nil {
+			fm = map[string]any{}
+		}
+		title, _ := fm["title"].(string)
+		if title == "" {
+			if i, ok := ls.pos[f]; ok {
+				title = ls.flat[i].Title
+			}
+		}
+		out = append(out, layouts.FolderPage{Title: title, Path: f, Meta: fm, Definition: definition(b)})
+	}
+	return out
+}
+
 var (
 	mdLinkRE = regexp.MustCompile(`!?\[([^\]]*)\]\([^)]*\)`)
 	mdMarkRE = regexp.MustCompile("[*_`~]+")
@@ -569,16 +617,45 @@ func firstParagraph(src []byte) string {
 	return ""
 }
 
-func summarise(text string) string {
+// definition is the plain text of the first paragraph of a page when the text
+// starts with one (a leading h1 is passed over), at most 600 characters; ""
+// otherwise. A term's definition is not skipped to: a page that starts with a
+// list or a heading has none.
+func definition(src []byte) string {
+	_, body, _ := config.SplitFrontmatter(src)
+	lines := strings.Split(string(body), "\n")
+	i := 0
+	for i < len(lines) && strings.TrimSpace(lines[i]) == "" {
+		i++
+	}
+	if i < len(lines) && strings.HasPrefix(strings.TrimSpace(lines[i]), "# ") {
+		i++
+	}
+	rest := strings.Join(lines[i:], "\n")
+	first := strings.TrimSpace(rest)
+	if first == "" {
+		return ""
+	}
+	if first[0] == '#' || first[0] == ':' || first[0] == '<' || first[0] == '|' || first[0] == '>' || first[0] == '`' ||
+		first[0] == '~' || strings.HasPrefix(first, "- ") || strings.HasPrefix(first, "* ") || strings.HasPrefix(first, "+ ") ||
+		strings.HasPrefix(first, "---") || orderedRE.MatchString(first) {
+		return ""
+	}
+	return summariseTo(firstParagraph([]byte(rest)), 600)
+}
+
+func summarise(text string) string { return summariseTo(text, 180) }
+
+func summariseTo(text string, limit int) string {
 	text = mdLinkRE.ReplaceAllString(text, "$1")
 	text = mdMarkRE.ReplaceAllString(text, "")
 	text = strings.Join(strings.Fields(text), " ")
 	r := []rune(text)
-	if len(r) <= 180 {
+	if len(r) <= limit {
 		return text
 	}
-	cut := string(r[:180])
-	if i := strings.LastIndex(cut, " "); i > 100 {
+	cut := string(r[:limit])
+	if i := strings.LastIndex(cut, " "); i > limit*5/9 {
 		cut = cut[:i]
 	}
 	return cut + "…"

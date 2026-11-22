@@ -56,6 +56,8 @@ also matches no folder), `?` one character.
 | `landing` | template, CSS | a folder's home: hero (title, `tagline`, cover) then a card for each page under it | `tagline`, `cover` | `cards` (bool, true) |
 | `wide` | template, CSS | full pane width for tables, diagrams, dashboards | | |
 | `handout` | template, CSS | printable one-pager: a paper sheet on screen, print rules | `date`, `author` | `paper` (`a4` or `letter`) |
+| `term` | template, CSS | one glossary entry: the term, `abbr` and `aliases`, the first paragraph as the definition, See also from `see`, previous and next terms A to Z | `title`, `aliases`, `abbr`, `see`, `tags` | |
+| `glossary` | template, CSS, script | the A to Z index of a folder, built from the pages beside it whose layout is `term`: letter bar, groups, filter, count, and page warnings for duplicates and missing terms or definitions | | |
 | `slides` | CSS, script | one slide at a time (`ratio`, `transition`); unchanged from the old plugin | | `ratio`, `transition` |
 | `course` | CSS, script | steps with saved progress and `:::check` lists (`id`); unchanged from the old plugin | | `id` |
 

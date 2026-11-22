@@ -234,6 +234,16 @@ describe("wails api", () => {
     expect(got).toEqual([[], "a.md", "b.md"]);
   });
 
+  it("page:changed keeps the dependent flag of a page that reads its folder", async () => {
+    const api = (await import("./wails")).default;
+    const got: unknown[] = [];
+    const off = api.on("page:changed", (e) => got.push(e));
+    fire("page:changed", { path: "g/index.md", dependent: true });
+    fire("page:changed", { path: "g/a.md" });
+    off();
+    expect(got).toEqual([{ path: "g/index.md", dependent: true }, { path: "g/a.md" }]);
+  });
+
   it("answers app:before-close: closes when nothing objects", async () => {
     await import("./wails");
     fire("app:before-close");

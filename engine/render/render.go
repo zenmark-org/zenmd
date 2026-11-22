@@ -297,6 +297,9 @@ func (r *Renderer) applyLayout(st *state, pagePath, title string, meta map[strin
 	in := layouts.Input{
 		Title: title, Path: pagePath, Content: out, Frontmatter: meta, Options: choice.Options, Site: r.site,
 		Markdown: st.markdown,
+		LayoutOf: func(p string, m map[string]any) string {
+			return layouts.Resolve(p, m, r.cfg.ForPage(m).Layouts()).Name
+		},
 		Image: func(v string) (string, bool) {
 			if lk := r.resolve(pagePath, v); lk.Kind == "asset" {
 				return wsURL(lk.Path), true

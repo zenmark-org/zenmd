@@ -1,0 +1,78 @@
+/* glossary layout: the A-Z index of a folder of term pages. Tokens and the plugin kit only. */
+[data-zen-layout="glossary"] .zl-gloss {
+  max-width: 80ch;
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-6) 96px;
+  box-sizing: border-box;
+}
+[data-zen-layout="glossary"] .zl-gloss-title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 3rem;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+}
+[data-zen-layout="glossary"] .zl-gloss-count,
+[data-zen-layout="glossary"] .zl-gloss-empty,
+[data-zen-layout="glossary"] .zl-gloss-none {
+  margin: var(--space-2) 0 0;
+  color: var(--fg-muted);
+  font: 13px/1.5 var(--font-ui);
+}
+[data-zen-layout="glossary"] .zl-gloss-intro > :first-child { margin-top: var(--space-4); }
+/* The letter bar and the filter stay at the top while the list scrolls. */
+[data-zen-layout="glossary"] .zl-gloss-tools {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-5);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg);
+}
+[data-zen-layout="glossary"] .zl-gloss-bar { display: flex; flex-wrap: wrap; gap: 2px; flex: 1 1 auto; }
+[data-zen-layout="glossary"] .zl-gloss-letter {
+  min-width: 26px;
+  padding: 2px 0;
+  text-align: center;
+  text-decoration: none;
+  background: transparent;
+}
+[data-zen-layout="glossary"] a.zl-gloss-letter:hover { background: var(--btn-bg); }
+[data-zen-layout="glossary"] .zl-gloss-off { color: var(--fg-muted); opacity: .4; cursor: default; }
+[data-zen-layout="glossary"] .zl-gloss-filter { flex: 0 1 220px; width: auto; min-width: 140px; }
+[data-zen-layout="glossary"] .zl-gloss-head-letter {
+  margin: var(--space-6) 0 var(--space-2);
+  padding: 0 0 var(--space-1);
+  border-bottom: 1px solid var(--rule);
+  font: 600 13px/1.5 var(--font-ui);
+  letter-spacing: .06em;
+  scroll-margin-top: 64px;
+}
+[data-zen-layout="glossary"] .zl-gloss-group[hidden],
+[data-zen-layout="glossary"] .zl-gloss-entry[hidden],
+[data-zen-layout="glossary"] .zl-gloss-none[hidden] { display: none; }
+[data-zen-layout="glossary"] .zl-gloss-list { list-style: none; margin: 0; padding: 0; }
+[data-zen-layout="glossary"] .zl-gloss-entry { margin: 0; padding: var(--space-3) 0; }
+[data-zen-layout="glossary"] .zl-gloss-term { font: 600 17px/1.4 var(--font-body); }
+[data-zen-layout="glossary"] .zl-gloss-abbr,
+[data-zen-layout="glossary"] .zl-gloss-aliases {
+  margin-left: var(--space-2);
+  color: var(--fg-muted);
+  font: 13px/1.4 var(--font-ui);
+}
+[data-zen-layout="glossary"] .zl-gloss-def { margin: var(--space-1) 0 0; }
+@media (max-width: 700px) {
+  [data-zen-layout="glossary"] .zl-gloss { padding: var(--space-5) var(--space-4) 64px; }
+  [data-zen-layout="glossary"] .zl-gloss-title { font-size: 2.25rem; }
+  [data-zen-layout="glossary"] .zl-gloss-filter { flex-basis: 100%; }
+}
+@media print {
+  [data-zen-layout="glossary"] .zl-gloss { padding: 0; }
+  [data-zen-layout="glossary"] .zl-gloss-tools { display: none; }
+}

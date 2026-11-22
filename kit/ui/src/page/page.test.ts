@@ -153,6 +153,21 @@ test("page:changed re-renders the current page in place and keeps scroll", async
   expect(events).toHaveLength(1);
 });
 
+test("page:changed re-renders the unsaved text while an editor draft is shown (a glossary preview follows its terms)", async () => {
+  env.ctx.store.set({ path: "README.md" });
+  mount();
+  await tick();
+  env.api.emit("page:draft", { path: "README.md", content: "# Draft\n\nNew." });
+  await tick();
+  const n = env.api.callsTo("preview").length;
+  env.api.emit("page:changed", { path: "README.md", dependent: true });
+  await tick();
+  expect(env.api.callsTo("preview")).toHaveLength(n + 1);
+  expect(env.api.callsTo("preview").at(-1)?.[1]).toBe("# Draft\n\nNew.");
+  expect(article().querySelector("h1")?.textContent).toBe("Draft");
+  expect(env.api.callsTo("page")).toHaveLength(1); // the file is not shown over the draft
+});
+
 test("warnings bar (a build without the inspector feature) is shown, escaped and dismissible", async () => {
   env = setup(createFakeApi({ sources: { ...SOURCES }, build: { features: ["reader"] } }));
   const real = env.api.page;

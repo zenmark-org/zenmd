@@ -584,3 +584,59 @@ func TestResolveLink(t *testing.T) {
 		}
 	}
 }
+
+func TestHomeIndexMd(t *testing.T) {
+	// index.md is the home; any case
+	w, _ := fixture(t, map[string]string{"index.md": "", "a.md": ""})
+	if got := w.Home(); got != "index.md" {
+		t.Errorf("Home() = %q", got)
+	}
+	w, _ = fixture(t, map[string]string{"Index.MD": ""})
+	if got := w.Home(); got != "Index.MD" {
+		t.Errorf("Home() case = %q", got)
+	}
+	// README.md is the fallback
+	w, _ = fixture(t, map[string]string{"README.md": "", "a.md": ""})
+	if got := w.Home(); got != "README.md" {
+		t.Errorf("Home() fallback = %q", got)
+	}
+	// both: index.md wins, whichever sorts first
+	w, _ = fixture(t, map[string]string{"README.md": "", "index.md": ""})
+	if got := w.Home(); got != "index.md" {
+		t.Errorf("Home() both = %q, want index.md", got)
+	}
+	// a directory named index.md is not a home page
+	w, _ = fixture(t, map[string]string{"index.md/x.md": "", "README.md": ""})
+	if got := w.Home(); got != "README.md" {
+		t.Errorf("Home() index.md dir = %q, want README.md", got)
+	}
+}
+
+func TestResolveLinkFolderPageIndexMd(t *testing.T) {
+	w, _ := fixture(t, map[string]string{
+		"index.md":    "",
+		"a/index.md":  "",
+		"a/b.md":      "",
+		"b/README.md": "",
+		"c/index.md":  "",
+		"c/README.md": "",
+		"d/Index.md":  "",
+		"e/x.md":      "",
+	})
+	tests := []struct{ href, want string }{
+		{"../a/", "a/index.md"},
+		{"../b/", "b/README.md"},
+		{"../c/", "c/index.md"},
+		{"../d/", "d/Index.md"},
+		{"..", "index.md"},
+	}
+	for _, tc := range tests {
+		got := w.ResolveLink("a/b.md", tc.href)
+		if got.Path != tc.want || got.Kind != "internal" {
+			t.Errorf("ResolveLink(%q) = %+v, want %s", tc.href, got, tc.want)
+		}
+	}
+	if got := w.ResolveLink("a/b.md", "../e"); got.Kind != "broken" {
+		t.Errorf("folder with no home: %+v", got)
+	}
+}

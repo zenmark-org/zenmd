@@ -5,6 +5,7 @@ package app
 import (
 	"io/fs"
 
+	"github.com/zenmark-org/zenmd/builtins/blueprints"
 	"github.com/zenmark-org/zenmd/builtins/dialects/myst"
 	"github.com/zenmark-org/zenmd/builtins/layouts"
 	"github.com/zenmark-org/zenmd/builtins/plugins/check"
@@ -13,7 +14,6 @@ import (
 	"github.com/zenmark-org/zenmd/builtins/plugins/quiz"
 	"github.com/zenmark-org/zenmd/builtins/plugins/rating"
 	"github.com/zenmark-org/zenmd/builtins/plugins/sandbox"
-	"github.com/zenmark-org/zenmd/builtins/sitetemplates"
 	"github.com/zenmark-org/zenmd/engine/dialects"
 	enginelayouts "github.com/zenmark-org/zenmd/engine/layouts"
 	"github.com/zenmark-org/zenmd/engine/plugins"
@@ -34,12 +34,12 @@ func assemblyPlugins() *plugins.Registry {
 // assemblyLayouts is the registry of the built-in layouts this app includes
 // (article, the fallback, is always there).
 func assemblyLayouts(version string) *enginelayouts.Registry {
-	return layouts.Registry(version, "article", "docs", "post", "landing", "wide", "handout", "slides", "course")
+	return layouts.Registry(version, "article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "slides", "course")
 }
 
-// assemblyTemplates holds the built-in site templates this app includes.
+// assemblyTemplates holds the built-in blueprints this app includes.
 func assemblyTemplates() fs.FS {
-	f, err := sitetemplates.Sub()
+	f, err := blueprints.Sub("techdocs", "learning", "planner")
 	if err != nil {
 		panic(err)
 	}
@@ -59,10 +59,10 @@ func assemblyDialects() *dialects.Registry {
 // Settings. The add-ons are the ones linked in (build tags), added at run time.
 var assemblyInfo = session.BuildInfo{
 	App:       "zenmark",
-	Features:  []string{"reader", "nav", "inspector", "developer", "find", "editor", "print", "export"},
+	Features:  []string{"reader", "nav", "inspector", "developer", "find", "editor", "print", "export", "newsite"},
 	Plugins:   []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating"},
-	Layouts:   []string{"article", "docs", "post", "landing", "wide", "handout", "slides", "course"},
-	Templates: []string{},
+	Layouts:   []string{"article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "slides", "course"},
+	Templates: []string{"techdocs", "learning", "planner"},
 	Dialects:  []string{"myst"},
 	Theme:     "default",
 }

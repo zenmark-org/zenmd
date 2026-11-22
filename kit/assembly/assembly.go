@@ -7,7 +7,7 @@
 //	addons: [vale]
 //	plugins: all
 //	layouts: [article, docs, course]
-//	templates: [learning]
+//	blueprints: [learning]   # templates: is the old name, still read
 //	dialects: [myst]
 //	theme: default
 //
@@ -32,6 +32,7 @@ type Assembly struct {
 	App                                                     string
 	Features, Addons, Plugins, Layouts, Templates, Dialects []string // Dialects: the markdown dialects (engine/dialects); a missing key means none
 	Theme                                                   string
+	Notices                                                 []string // old names still in use, such as templates: for blueprints:
 }
 
 // Needs is what a layout or a template requires of the assembly.
@@ -91,7 +92,7 @@ func parse(data []byte, cat Catalog) (Assembly, error) {
 		return a, fmt.Errorf("assembly is not valid YAML: %s", strings.TrimPrefix(err.Error(), "yaml: "))
 	}
 	if len(doc.Content) == 0 || doc.Content[0].Kind != yaml.MappingNode {
-		return a, errors.New("assembly must be a mapping with keys app, features, addons, plugins, layouts, templates, dialects and theme")
+		return a, errors.New("assembly must be a mapping with keys app, features, addons, plugins, layouts, blueprints, dialects and theme")
 	}
 	m := doc.Content[0]
 	a.Features = slices.Clone(cat.Features) // a missing features key means all, so an old file never makes an app read-only
@@ -118,12 +119,20 @@ func parse(data []byte, cat Catalog) (Assembly, error) {
 			a.Plugins, err = list(k, v, cat.Plugins)
 		case "layouts":
 			a.Layouts, err = list(k, v, cat.Layouts)
-		case "templates":
+		case "blueprints", "templates": // templates: is the old name, still read
+			if k == "templates" {
+				if seen["blueprints"] {
+					return a, errors.New("templates: is the old name of blueprints:; use only blueprints:")
+				}
+				a.Notices = append(a.Notices, "templates: in the assembly is now blueprints:; rename the key")
+			} else if seen["templates"] {
+				return a, errors.New("templates: is the old name of blueprints:; use only blueprints:")
+			}
 			a.Templates, err = list(k, v, cat.Templates)
 		case "dialects":
 			a.Dialects, err = list(k, v, cat.Dialects)
 		default:
-			err = fmt.Errorf("unknown key %q; known keys: app, features, addons, plugins, layouts, templates, dialects, theme", k)
+			err = fmt.Errorf("unknown key %q; known keys: app, features, addons, plugins, layouts, blueprints, dialects, theme", k)
 		}
 		if err != nil {
 			return Assembly{}, err
@@ -199,7 +208,7 @@ var kinds = []struct{ key, one, many string }{
 	{"addons", "add-on", "add-ons"},
 	{"plugins", "plugin", "plugins"},
 	{"layouts", "layout", "layouts"},
-	{"templates", "template", "templates"},
+	{"blueprints", "blueprint", "blueprints"},
 	{"dialects", "dialect", "dialects"},
 }
 
@@ -245,7 +254,7 @@ func Check(a Assembly, cat Catalog) error {
 		}
 	}
 	if slices.Contains(a.Features, "newsite") && len(a.Templates) == 0 {
-		problems = append(problems, "feature newsite needs at least one template")
+		problems = append(problems, "feature newsite needs at least one blueprint")
 	}
 	if !slices.Contains(a.Features, "reader") {
 		for _, k := range []struct {
@@ -260,7 +269,7 @@ func Check(a Assembly, cat Catalog) error {
 	hasLayout := func(id string) bool { return id == FallbackLayout || slices.Contains(a.Layouts, id) }
 	noLayouts := len(a.Layouts) == 0 && len(a.Templates) > 0
 	if noLayouts {
-		problems = append(problems, "templates are listed but layouts is empty; templates need the layouts they use")
+		problems = append(problems, "blueprints are listed but layouts is empty; blueprints need the layouts they use")
 	}
 	for _, l := range a.Layouts {
 		for _, p := range cat.LayoutNeeds[l].Plugins {
@@ -274,13 +283,13 @@ func Check(a Assembly, cat Catalog) error {
 		if !noLayouts {
 			for _, l := range need.Layouts {
 				if !hasLayout(l) {
-					problems = append(problems, fmt.Sprintf("template %s needs layout %s", t, l))
+					problems = append(problems, fmt.Sprintf("blueprint %s needs layout %s", t, l))
 				}
 			}
 		}
 		for _, p := range need.Plugins {
 			if !slices.Contains(a.Plugins, p) {
-				problems = append(problems, fmt.Sprintf("template %s needs plugin %s", t, p))
+				problems = append(problems, fmt.Sprintf("blueprint %s needs plugin %s", t, p))
 			}
 		}
 	}

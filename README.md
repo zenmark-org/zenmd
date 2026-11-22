@@ -10,7 +10,7 @@ and a folder can become a website, a printed document or a course. macOS first,
 built on [Wails v3](https://v3.wails.io).
 
 Underneath is **zenmd**, the engine (format, rendering, plugins, layouts, build,
-print, templates), with the command line tool `zenmd`. Zenmark is the first app
+print, blueprints), with the command line tool `zenmd`. Zenmark is the first app
 built on it ([docs/ENGINE.md](docs/ENGINE.md)).
 
 Website: [zenmark.org](https://zenmark.org) · Code: [github.com/zenmark-org/zenmd](https://github.com/zenmark-org/zenmd) · Status: alpha, `0.4.0` (see [CHANGELOG.md](CHANGELOG.md)).
@@ -68,14 +68,14 @@ zenmd [folder|file.md]                 # open in the app
 zenmd edit page.md                     # open in the editor
 zenmd export site [folder] [-o dir]    # a static website (portable by default; --hosted for a web server); zenmd build is the same
 zenmd export pdf [folder] [-o file]    # the whole folder as one PDF (macOS); --drafts, --section <page>, --no-cover
-zenmd init site --techdocs [folder]    # start a folder from a template (--learning, --planner)
+zenmd init --blueprint techdocs [folder] # start a folder from a blueprint (learning, planner)
 zenmd version
 ```
 
 ## Layout
 
 ```
-engine/ builtins/ runtime/   zenmd: the engine, its built-in plugins/layouts/templates, the browser runtime (@zenmd/runtime)
+engine/ builtins/ runtime/   zenmd: the engine, its built-in plugins/layouts/blueprints, the browser runtime (@zenmd/runtime)
 kit/desktop  kit/ui          the shared desktop shell: Go (windows, dialogs, print, Run) and TypeScript (@zenmd/kit)
 apps/zenmark               Zenmark itself: menu, the Zen service, its dialogs, and its frontend
 build/                       packaging (macOS, Wails)
@@ -94,7 +94,7 @@ Imports point down: apps, then kit, then engine.
 | [docs/PLAN.md](docs/PLAN.md) | Architecture and the service API between Go and the frontend |
 | [docs/PLUGINS.md](docs/PLUGINS.md) | Writing plugins: Go, external programs, Tengo scripts, page scripts |
 | [docs/LAYOUTS.md](docs/LAYOUTS.md) | Writing layouts: templates, CSS, scripts |
-| [docs/TEMPLATES.md](docs/TEMPLATES.md) | Site templates for `zenmd init` |
+| [docs/TEMPLATES.md](docs/TEMPLATES.md) | Blueprints for `zenmd init` (formerly site templates) |
 | [docs/BUILD.md](docs/BUILD.md) | Static websites and `print.html` |
 | [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | Signing, notarisation, the DMG and the Mac App Store |
 | [docs/VERSIONING.md](docs/VERSIONING.md) | SemVer for the app, the engine, plugins and config |

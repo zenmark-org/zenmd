@@ -185,7 +185,7 @@ export interface Api extends KitHost {
   pluginTrust(id: string, allow: boolean): Promise<void>;
   on(event: "workspace:changed", fn: (w: Workspace) => void): () => void;
   /** Also delivered when another window saved the page ("editor:saved"). */
-  on(event: "page:changed", fn: (e: { path: string }) => void): () => void;
+  on(event: "page:changed", fn: (e: { path: string; dependent?: boolean }) => void): () => void;
   /** The app opened another folder (Finder "Open With", File > Open Folder). */
   on(event: "workspace:opened", fn: (s: Startup) => void): () => void;
   /** Chunks and the end of plugin streams, of every window (call ids are random; see plugins/runtime.ts). */

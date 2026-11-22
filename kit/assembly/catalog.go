@@ -5,8 +5,8 @@ import (
 	"io/fs"
 
 	"github.com/zenmark-org/zenmd/builtins"
+	"github.com/zenmark-org/zenmd/builtins/blueprints"
 	"github.com/zenmark-org/zenmd/builtins/layouts"
-	"github.com/zenmark-org/zenmd/builtins/sitetemplates"
 	enginetemplates "github.com/zenmark-org/zenmd/engine/sitetemplates"
 )
 
@@ -40,7 +40,7 @@ func BuiltinCatalog() (Catalog, error) {
 		Addons:        append([]string(nil), knownAddons...),
 		Plugins:       append([]string(nil), builtins.PluginIDs...),
 		Layouts:       append([]string(nil), layouts.IDs...),
-		Templates:     append([]string(nil), sitetemplates.IDs...),
+		Templates:     append([]string(nil), blueprints.IDs...),
 		Dialects:      append([]string(nil), builtins.DialectIDs...),
 		Themes:        []string{DefaultTheme},
 		LayoutNeeds:   map[string]Needs{},
@@ -53,7 +53,7 @@ func BuiltinCatalog() (Catalog, error) {
 		}
 	}
 	for _, id := range c.Templates {
-		data, err := fs.ReadFile(sitetemplates.FS, id+"/template.yml")
+		data, err := fs.ReadFile(blueprints.FS, id+"/blueprint.yml")
 		if err != nil {
 			return Catalog{}, fmt.Errorf("site template %s: %w", id, err)
 		}

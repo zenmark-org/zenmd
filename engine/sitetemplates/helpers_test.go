@@ -54,7 +54,7 @@ const basicManifest = "id: demo\nname: Demo\ndescription: A demo\nversion: 1.0.0
 func tmpl(t *testing.T, dir, folder, manifest string, files map[string]string) Template {
 	t.Helper()
 	root := filepath.Join(dir, "sites", folder)
-	all := map[string]string{"template.yml": manifest}
+	all := map[string]string{"blueprint.yml": manifest}
 	for k, v := range files {
 		all[k] = v
 	}
@@ -79,10 +79,10 @@ func fixedDate(t *testing.T) {
 // builtinsFS is a fake bundle: techdocs 1.0.0 and planner 2.0.0.
 func builtinsFS(techVersion string) fstest.MapFS {
 	return fstest.MapFS{
-		"techdocs/template.yml": {Data: []byte("id: techdocs\nname: Tech docs\nversion: " + techVersion + "\norder: 10\n")},
-		"techdocs/README.md":    {Data: []byte("# {{title}}\n")},
-		"planner/template.yml":  {Data: []byte("id: planner\nname: Planner\nversion: 2.0.0\norder: 30\n")},
-		"planner/.zenmd.yml":    {Data: []byte("layout: wide\n")},
+		"techdocs/blueprint.yml": {Data: []byte("id: techdocs\nname: Tech docs\nversion: " + techVersion + "\norder: 10\n")},
+		"techdocs/README.md":     {Data: []byte("# {{title}}\n")},
+		"planner/blueprint.yml":  {Data: []byte("id: planner\nname: Planner\nversion: 2.0.0\norder: 30\n")},
+		"planner/.zenmd.yml":     {Data: []byte("layout: wide\n")},
 	}
 }
 

@@ -548,7 +548,7 @@ export const editorFeature: Feature = {
 
     // The file changed on disk.
     const offChanged = api.on("page:changed", (ev) => {
-      if (ev.path !== current) return;
+      if (ev.path !== current || ev.dependent) return; // a dependent change: the file did not change
       if (!dirty) {
         void load(current, true);
         return;

@@ -151,7 +151,7 @@ func TestInitMissingTemplate(t *testing.T) {
 	env := siteEnv{globalPath: filepath.Join(t.TempDir(), "config.yml"), builtins: two}
 	var out, errOut bytes.Buffer
 	err = initSite(env.api(), cli.Init{Dir: filepath.Join(t.TempDir(), "x"), Template: "planner", Values: map[string]string{}}, &out, &errOut)
-	if err == nil || !strings.Contains(err.Error(), `no template "planner"`) || !strings.Contains(err.Error(), "techdocs, learning") {
+	if err == nil || !strings.Contains(err.Error(), `no blueprint "planner"`) || !strings.Contains(err.Error(), "techdocs, learning") {
 		t.Fatalf("error %v", err)
 	}
 	if entries, _ := fs.ReadDir(two, "."); len(entries) != 2 {

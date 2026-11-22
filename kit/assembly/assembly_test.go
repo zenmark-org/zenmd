@@ -55,7 +55,7 @@ func TestLoad(t *testing.T) {
 addons: [vale]
 plugins: [codeblock, quiz, check]
 layouts: [article, docs, landing, course]
-templates: [learning]
+blueprints: [learning]
 theme: default
 `)
 	if err != nil {
@@ -101,7 +101,7 @@ func TestUnknown(t *testing.T) {
 		{"app: x\ncolour: red\n", "unknown key"},
 		{"app: x\nplugins: [nope]\n", "known plugins: codeblock, diagram, check, quiz, sandbox"},
 		{"app: x\nlayouts: [nope]\n", "known layouts: article, docs, landing, course"},
-		{"app: x\ntemplates: [nope]\n", "known templates: techdocs, learning"},
+		{"app: x\ntemplates: [nope]\n", "known blueprints: techdocs, learning"},
 		{"app: x\naddons: [nope]\n", "known add-ons: vale"},
 		{"app: x\nplugins: [\"../x\"]\n", "known plugins"},
 		{"app: x\nplugins: [\"Quiz\"]\n", "known plugins"},
@@ -137,8 +137,8 @@ func TestOrder(t *testing.T) {
 
 func TestDependencies(t *testing.T) {
 	cases := []struct{ name, yml, want string }{
-		{"template needs layout", "app: x\nplugins: [quiz, check]\nlayouts: [landing]\ntemplates: [learning]\n", "template learning needs layout course"},
-		{"template needs plugin", "app: x\nplugins: [codeblock]\nlayouts: [docs, landing, course]\ntemplates: [learning]\n", "template learning needs plugin quiz"},
+		{"template needs layout", "app: x\nplugins: [quiz, check]\nlayouts: [landing]\ntemplates: [learning]\n", "blueprint learning needs layout course"},
+		{"template needs plugin", "app: x\nplugins: [codeblock]\nlayouts: [docs, landing, course]\ntemplates: [learning]\n", "blueprint learning needs plugin quiz"},
 		{"layout needs plugin", "app: x\nlayouts: [course]\n", "layout course needs plugin quiz"},
 		{"templates without layouts", "app: x\nplugins: [codeblock]\ntemplates: [techdocs]\n", "layouts"},
 	}
@@ -150,7 +150,7 @@ func TestDependencies(t *testing.T) {
 	}
 	// Both sides are named in one error, one sentence each.
 	_, err := load(t, "app: x\nlayouts: [course]\ntemplates: [learning]\n")
-	if err == nil || !strings.Contains(err.Error(), "layout course needs plugin quiz") || !strings.Contains(err.Error(), "template learning needs plugin check") {
+	if err == nil || !strings.Contains(err.Error(), "layout course needs plugin quiz") || !strings.Contains(err.Error(), "blueprint learning needs plugin check") {
 		t.Errorf("all problems should be reported: %v", err)
 	}
 
@@ -199,7 +199,7 @@ func TestBuiltinCatalog(t *testing.T) {
 	if !reflect.DeepEqual(c.Plugins, []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating"}) {
 		t.Errorf("plugins %v", c.Plugins)
 	}
-	if !reflect.DeepEqual(c.Layouts, []string{"article", "docs", "post", "landing", "wide", "handout", "slides", "course"}) {
+	if !reflect.DeepEqual(c.Layouts, []string{"article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "slides", "course"}) {
 		t.Errorf("layouts %v", c.Layouts)
 	}
 	if !reflect.DeepEqual(c.Templates, []string{"techdocs", "learning", "planner"}) {
@@ -343,7 +343,7 @@ func TestFeatureNeeds(t *testing.T) {
 	}
 	// newsite needs a template.
 	err := Check(Assembly{App: "x", Features: []string{"newsite"}, Theme: "default"}, testCatalog())
-	if err == nil || !strings.Contains(err.Error(), "feature newsite needs at least one template") {
+	if err == nil || !strings.Contains(err.Error(), "feature newsite needs at least one blueprint") {
 		t.Errorf("newsite without templates: %v", err)
 	}
 	ok := Assembly{App: "x", Features: []string{"newsite"}, Layouts: []string{"docs", "landing"}, Plugins: []string{"codeblock"}, Templates: []string{"techdocs"}, Theme: "default"}
@@ -421,5 +421,25 @@ func TestDialects(t *testing.T) {
 		if _, err := load(t, c.yml); err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("%q: %v, want %q", c.yml, err, c.want)
 		}
+	}
+}
+
+func TestLegacyTemplatesKey(t *testing.T) {
+	a, err := load(t, "app: x\nplugins: [quiz, check]\nlayouts: [landing, course]\ntemplates: [learning]\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(a.Templates, []string{"learning"}) || len(a.Notices) != 1 || !strings.Contains(a.Notices[0], "now blueprints:") {
+		t.Errorf("legacy key: %+v", a)
+	}
+	b, err := load(t, "app: x\nplugins: [quiz, check]\nlayouts: [landing, course]\nblueprints: [learning]\n")
+	if err != nil || len(b.Notices) != 0 || !reflect.DeepEqual(b.Templates, a.Templates) {
+		t.Errorf("blueprints key: %+v %v", b, err)
+	}
+	if _, err := load(t, "app: x\nblueprints: [learning]\ntemplates: [learning]\n"); err == nil || !strings.Contains(err.Error(), "old name") {
+		t.Errorf("both keys: %v", err)
+	}
+	if _, err := load(t, "app: x\ntemplates: [learning]\nblueprints: [learning]\n"); err == nil || !strings.Contains(err.Error(), "old name") {
+		t.Errorf("both keys, other order: %v", err)
 	}
 }

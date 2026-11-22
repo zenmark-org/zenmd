@@ -1,0 +1,10 @@
+# Settings for this site. Edit freely: zen reads this file again when it changes.
+# The page layout and the page template rules (templates:) are added below
+# when the site is made.
+version: 1
+
+plugins:
+  codeblock: true
+  diagram: { theme: neutral }
+
+# zenmd export site (or File › Export › Website) writes the website to exports/html.

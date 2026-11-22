@@ -570,7 +570,7 @@ test("Settings shows the plugins and its sections", async () => {
   await s.start();
   cog().click();
   await tick();
-  expect(Array.from(settingsPage()!.querySelectorAll(".zen-settings-section")).map((b) => b.textContent)).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Templates", "Layouts", "Plugins", "Export", "Developer"]);
+  expect(Array.from(settingsPage()!.querySelectorAll(".zen-settings-section")).map((b) => b.textContent)).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Blueprints", "Layouts", "Plugins", "Export", "Developer"]);
   expect(api.callsTo("plugins")).toHaveLength(0); // a list is read when its section is chosen
 });
 
@@ -597,7 +597,7 @@ test("menu:settings opens Settings", async () => {
   expect(handlers).toHaveLength(0);
 });
 
-// ---- the welcome screen: Start from a template (core/init)
+// ---- the welcome screen: Start from a blueprint (core/init)
 
 type SiteTpl = { id: string; name: string; description: string; version: string; ask: { key: string; label: string; default: string }[]; builtin: boolean; update: string; error: string };
 const siteTpl = (id: string, over: Partial<SiteTpl> = {}): SiteTpl => ({ id, name: `Name ${id}`, description: `About ${id}`, version: "1.0.0", ask: [{ key: "title", label: "Site title", default: "{{folder}}" }], builtin: true, update: "", error: "", ...over });
@@ -630,14 +630,14 @@ test("welcome lists templates: a card for each (six at most), invalid ones left 
   await tick();
   await tick();
   const section = root.querySelector(".zen-welcome-templates")!;
-  expect(section.querySelector("h2")?.textContent).toBe("Start from a template");
+  expect(section.querySelector("h2")?.textContent).toBe("Start from a blueprint");
   const cards = Array.from(section.querySelectorAll<HTMLButtonElement>(".zen-welcome-card"));
   expect(cards.map((c) => c.dataset.template)).toEqual(["a", "b", "c", "d", "e", "f"]);
   expect(cards[0].querySelector(".zen-welcome-card-name")?.textContent).toBe("Name a");
   expect(cards[0].querySelector(".zen-welcome-card-hint")?.textContent).toBe("About a");
   // Open a folder stays first.
   expect(root.querySelector(".zen-welcome .primary")?.textContent).toBe("Open a folder");
-  expect(root.querySelector(".zen-welcome")!.innerHTML.indexOf("Open a folder")).toBeLessThan(root.querySelector(".zen-welcome")!.innerHTML.indexOf("Start from a template"));
+  expect(root.querySelector(".zen-welcome")!.innerHTML.indexOf("Open a folder")).toBeLessThan(root.querySelector(".zen-welcome")!.innerHTML.indexOf("Start from a blueprint"));
   // A card opens the New Site dialog with that template chosen.
   cards[1].click();
   await tick();

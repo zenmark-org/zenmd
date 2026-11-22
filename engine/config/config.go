@@ -50,9 +50,11 @@ type Config struct {
 	dialects []string // markdown.dialects of the folder's .zenmd.yml
 	logo     string   // logo: a folder-relative image path (the folder's, else the global one)
 
-	templates any            // the global templates: key, read by TemplatesDir
-	build     map[string]any // merged export: sections, checked by Build
-	buildErr  error          // an export: key that is not a mapping
+	blueprints    any            // the global blueprints: key, read by BlueprintsDir
+	templates     any            // the old name of blueprints: in the global config (read the same way)
+	templateRules []TemplateRule // the folder's templates: path rules (pattern to page template)
+	build         map[string]any // merged export: sections, checked by Build
+	buildErr      error          // an export: key that is not a mapping
 }
 
 // LayoutRule maps a path pattern (glob: * within a folder, ** across folders)
@@ -463,7 +465,7 @@ func (c *Config) loadFile(path string, global bool) {
 			if v == nil {
 				continue
 			}
-			rules, ok := orderedRules(data, warn)
+			rules, ok := orderedRules(data, "layouts", "a layout such as docs", warn)
 			if !ok {
 				warn("layouts must be a mapping of path patterns to layout names")
 				continue
@@ -486,12 +488,33 @@ func (c *Config) loadFile(path string, global bool) {
 			c.legacyBuild(path, doc, v)
 		case "export":
 			c.mergeBuild(v)
-		case "templates":
+		case "blueprints":
 			if !global {
-				warn("templates can only be set in the global config")
+				warn("blueprints can only be set in the global config")
 				continue
 			}
-			c.templates = v
+			c.blueprints = v
+		case "templates":
+			if global { // the old name of blueprints:
+				if _, both := doc["blueprints"]; both {
+					c.notices = append(c.notices, fmt.Sprintf("templates: in %s is ignored because blueprints: is set", filepath.Base(path)))
+					continue
+				}
+				c.notices = append(c.notices, fmt.Sprintf("templates: in %s is now blueprints:; rename the key", filepath.Base(path)))
+				c.templates = v
+				continue
+			}
+			if v == nil {
+				continue
+			}
+			rules, ok := orderedRules(data, "templates", "a page template such as how-to", warn)
+			if !ok {
+				warn("templates must be a mapping of path patterns to page template ids")
+				continue
+			}
+			for _, r := range rules {
+				c.templateRules = append(c.templateRules, TemplateRule{r.Pattern, r.Name})
+			}
 		case "limits":
 			if !global {
 				warn("limits can only be set in the global config")
@@ -522,14 +545,14 @@ func validLayoutName(n string) bool {
 // orderedRules reads the `layouts` mapping of a config file in file order (a
 // Go map would lose it). Entries whose pattern or name is not valid are left
 // out with a warning. ok is false when the key is not a mapping.
-func orderedRules(data []byte, warn func(string, ...any)) (rules []LayoutRule, ok bool) {
+func orderedRules(data []byte, key, what string, warn func(string, ...any)) (rules []LayoutRule, ok bool) {
 	var doc yaml.Node
 	if yaml.Unmarshal(bytes.TrimPrefix(data, []byte("\xEF\xBB\xBF")), &doc) != nil || len(doc.Content) == 0 {
 		return nil, false
 	}
 	top := doc.Content[0]
 	for i := 0; i+1 < len(top.Content); i += 2 {
-		if top.Content[i].Value != "layouts" {
+		if top.Content[i].Value != key {
 			continue
 		}
 		m := top.Content[i+1]
@@ -539,11 +562,11 @@ func orderedRules(data []byte, warn func(string, ...any)) (rules []LayoutRule, o
 		for j := 0; j+1 < len(m.Content); j += 2 {
 			pattern, val := m.Content[j].Value, m.Content[j+1]
 			if val.Kind != yaml.ScalarNode || val.Tag != "!!str" || !validLayoutName(val.Value) {
-				warn("layouts: %q must name a layout such as docs", pattern)
+				warn("%s: %q must name %s", key, pattern, what)
 				continue
 			}
 			if pattern == "" {
-				warn("layouts: a pattern is empty")
+				warn("%s: a pattern is empty", key)
 				continue
 			}
 			rules = append(rules, LayoutRule{Pattern: pattern, Name: val.Value})

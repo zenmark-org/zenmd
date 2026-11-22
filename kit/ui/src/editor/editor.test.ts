@@ -350,6 +350,17 @@ describe("editor: external change", () => {
     expect(s.api.callsTo("source")).toHaveLength(n);
   });
 
+  it("ignores a dependent change: the file itself did not change", async () => {
+    s = await setup();
+    type(s.ta, "mine");
+    const n = s.api.callsTo("source").length;
+    s.api.emit("page:changed", { path: "README.md", dependent: true });
+    await tick();
+    expect(s.api.callsTo("source")).toHaveLength(n);
+    expect(s.ta.value).toBe("mine");
+    expect(s.slots.main.textContent).not.toContain("changed on disk");
+  });
+
   it("when dirty offers Reload from disk / Keep mine", async () => {
     s = await setup();
     type(s.ta, "mine");

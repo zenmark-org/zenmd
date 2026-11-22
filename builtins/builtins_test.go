@@ -22,7 +22,7 @@ func TestDefaultSets(t *testing.T) {
 	for _, l := range Layouts("test").All() {
 		layouts = append(layouts, l.Manifest().ID)
 	}
-	if want := []string{"article", "docs", "post", "landing", "wide", "handout", "slides", "course"}; !reflect.DeepEqual(layouts, want) {
+	if want := []string{"article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "slides", "course"}; !reflect.DeepEqual(layouts, want) {
 		t.Errorf("layouts = %v, want %v", layouts, want)
 	}
 
@@ -94,7 +94,7 @@ func TestFor(t *testing.T) {
 	if l, _ = LayoutsFor("1", []string{"docs", "article"}); l.All()[0].Manifest().ID != "docs" {
 		t.Error("a listed article keeps its place")
 	}
-	if _, err := LayoutsFor("1", []string{"nope"}); err == nil || !strings.Contains(err.Error(), "article, docs, post, landing, wide, handout, slides, course") {
+	if _, err := LayoutsFor("1", []string{"nope"}); err == nil || !strings.Contains(err.Error(), "article, docs, post, landing, wide, handout, term, glossary, slides, course") {
 		t.Errorf("unknown layout: %v", err)
 	}
 
@@ -113,10 +113,10 @@ func TestFor(t *testing.T) {
 	if !reflect.DeepEqual(names, []string{"planner", "techdocs"}) {
 		t.Errorf("SiteTemplatesFor lists %v", names)
 	}
-	if _, err := fs.Stat(fsys, "planner/template.yml"); err != nil {
+	if _, err := fs.Stat(fsys, "planner/blueprint.yml"); err != nil {
 		t.Error(err)
 	}
-	if _, err := fs.Stat(fsys, "learning/template.yml"); err == nil {
+	if _, err := fs.Stat(fsys, "learning/blueprint.yml"); err == nil {
 		t.Error("learning was not selected")
 	}
 	if _, err := SiteTemplatesFor([]string{"nope"}); err == nil || !strings.Contains(err.Error(), "techdocs, learning, planner") {

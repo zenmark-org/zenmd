@@ -1,0 +1,11 @@
+# Settings for this plan. Edit freely: zen reads this file again when it changes.
+version: 1
+
+layouts:
+  "index.md": landing
+  "roadmap.md": wide
+
+plugins:
+  diagram: { theme: neutral }
+
+# zenmd export site (or File › Export › Website) writes the website to exports/html.

@@ -226,12 +226,14 @@ func (w *Workspace) Entries() int {
 	return w.entries
 }
 
-// Home returns the root README.md (any case), or "".
-func (w *Workspace) Home() string { return w.readme("") }
+// Home returns the root page: index.md (any case), or README.md when there
+// is no index.md, or "".
+func (w *Workspace) Home() string { return w.homeOf("") }
 
-// readme returns the relative path of the README.md directly in the
-// workspace-relative directory dir, or "".
-func (w *Workspace) readme(dir string) string {
+// homeOf returns the relative path of a folder's own page directly in the
+// workspace-relative directory dir: its index.md (any case), else its
+// README.md (any case), or "".
+func (w *Workspace) homeOf(dir string) string {
 	abs, err := w.Resolve(dir)
 	if err != nil {
 		return ""
@@ -240,20 +242,25 @@ func (w *Workspace) readme(dir string) string {
 	if err != nil {
 		return ""
 	}
-	found := ""
-	for _, e := range entries {
-		name := e.Name()
-		if !strings.EqualFold(name, "README.md") || !w.isFile(path.Join(dir, name)) {
-			continue
+	for _, want := range []string{"index.md", "README.md"} {
+		found := ""
+		for _, e := range entries {
+			name := e.Name()
+			if !strings.EqualFold(name, want) || !w.isFile(path.Join(dir, name)) {
+				continue
+			}
+			if name == want {
+				return path.Join(dir, name)
+			}
+			if found == "" {
+				found = path.Join(dir, name)
+			}
 		}
-		if name == "README.md" {
-			return path.Join(dir, name)
-		}
-		if found == "" {
-			found = path.Join(dir, name)
+		if found != "" {
+			return found
 		}
 	}
-	return found
+	return ""
 }
 
 // isFile reports whether rel is a regular file inside the workspace.
@@ -483,8 +490,8 @@ func (w *Workspace) ResolveLink(from, href string) Link {
 	fi, err := os.Stat(abs)
 	switch {
 	case err == nil && fi.IsDir():
-		if readme := w.readme(rel); readme != "" {
-			return Link{Path: readme, Anchor: anchor, Kind: kindInternal}
+		if home := w.homeOf(rel); home != "" {
+			return Link{Path: home, Anchor: anchor, Kind: kindInternal}
 		}
 	case err == nil && fi.Mode().IsRegular():
 		// Classify by the real file, so a symlink cannot change the kind.

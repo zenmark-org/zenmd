@@ -1,6 +1,7 @@
-// Package sitetemplates starts a folder from a ready-made site template: a
-// plain folder with a template.yml and the files to copy. Templates are
-// listed from a templates folder the user can edit, built-in presets are
+// Package sitetemplates starts a folder from a blueprint (formerly a site
+// template): a plain folder with a blueprint.yml (or the legacy template.yml)
+// and the files to copy, and optionally sections that are built into folders.
+// Blueprints are listed from a blueprints folder the user can edit, built-in presets are
 // installed there once, and creating a site never overwrites anything.
 //
 // Placeholders are plain text replacement; nothing in a template is executed.
@@ -21,7 +22,7 @@ import (
 type Ask struct{ Key, Label, Default string }
 
 // Needs says which layouts and plugins (built-in ids) a template's files use:
-// `requires: { layouts: [...], plugins: [...] }` in template.yml. kit/assembly
+// `requires: { layouts: [...], plugins: [...] }` in blueprint.yml. kit/assembly
 // checks an app includes them.
 type Needs struct{ Layouts, Plugins []string }
 
@@ -35,6 +36,16 @@ type Template struct {
 	Builtin                             bool   // installed from zen's presets
 	Update                              string // newer built-in version, "" if none
 	Err                                 string // invalid: why
+
+	Layout        string    // layout: the folder's default layout (written to .zenmd.yml)
+	Home          *Home     // home: the index.md start page; nil without sections
+	Sections      []Section // sections: folders, index pages and path rules built on creation
+	Files         []string  // files: other files copied as they are (all files are copied anyway)
+	PageTemplates []string  // templates: page template ids copied into .zen/templates
+
+	// PageSource is where the built-in page templates are (<id>.yml); the
+	// blueprint's own .zen/templates wins. The session sets it.
+	PageSource fs.FS
 
 	ignore []string // names or paths not copied
 	fsys   fs.FS    // where the files are; set by List and Builtins
@@ -54,19 +65,19 @@ var (
 // reserved names are filled by zen and cannot be asked.
 var reserved = map[string]bool{"date": true, "folder": true}
 
-// ParseManifest reads a template.yml. Unknown keys are an error, so a typo
+// ParseManifest reads a blueprint.yml. Unknown keys are an error, so a typo
 // never goes unnoticed. The result has no Dir or files; List adds them.
 func ParseManifest(data []byte) (Template, error) {
 	var t Template
 	if len(data) > maxManifest {
-		return t, errors.New("template.yml is too large (more than 64 KB)")
+		return t, errors.New("blueprint.yml is too large (more than 64 KB)")
 	}
 	var doc yaml.Node
 	if err := yaml.NewDecoder(bytes.NewReader(bytes.TrimPrefix(data, []byte("\xEF\xBB\xBF")))).Decode(&doc); err != nil {
-		return t, fmt.Errorf("template.yml: %v", err)
+		return t, fmt.Errorf("blueprint.yml: %v", err)
 	}
 	if len(doc.Content) == 0 || doc.Content[0].Kind != yaml.MappingNode {
-		return t, errors.New("template.yml must be a mapping with keys such as id and name")
+		return t, errors.New("blueprint.yml must be a mapping with keys such as id and name")
 	}
 	m := doc.Content[0]
 	seen := map[string]bool{}
@@ -112,24 +123,42 @@ func ParseManifest(data []byte) (Template, error) {
 			}
 		case "requires":
 			t.Requires, err = parseNeeds(v)
+		case "layout":
+			err = str(&t.Layout)
+			if err == nil && t.Layout != "" && !idRE.MatchString(t.Layout) {
+				err = fmt.Errorf("layout %q must be a layout id such as docs", t.Layout)
+			}
+		case "home":
+			t.Home, err = parseHome(v)
+		case "sections":
+			t.Sections, err = parseSections(v)
+		case "files":
+			t.Files, err = parseNames(k, v)
+		case "templates":
+			t.PageTemplates, err = parseNames(k, v)
+			for _, id := range t.PageTemplates {
+				if err == nil && !idRE.MatchString(id) {
+					err = fmt.Errorf("templates: %q must be a page template id such as how-to", id)
+				}
+			}
 		case "ask":
 			t.Ask, err = parseAsk(v)
 		default:
 			err = fmt.Errorf("unknown key %q", k)
 		}
 		if err != nil {
-			return Template{}, fmt.Errorf("template.yml: %v", err)
+			return Template{}, fmt.Errorf("blueprint.yml: %v", err)
 		}
 	}
 	switch {
 	case !seen["id"] || t.ID == "":
-		return Template{}, errors.New("template.yml: id is required (lower case letters, digits and -)")
+		return Template{}, errors.New("blueprint.yml: id is required (lower case letters, digits and -)")
 	case !idRE.MatchString(t.ID):
-		return Template{}, fmt.Errorf("template.yml: id %q must use lower case letters, digits and -, and start with a letter", t.ID)
+		return Template{}, fmt.Errorf("blueprint.yml: id %q must use lower case letters, digits and -, and start with a letter", t.ID)
 	case t.Name == "":
-		return Template{}, errors.New("template.yml: name is required")
+		return Template{}, errors.New("blueprint.yml: name is required")
 	case !versionRE.MatchString(t.Version):
-		return Template{}, fmt.Errorf("template.yml: version %q is not a version such as 1.0.0", t.Version)
+		return Template{}, fmt.Errorf("blueprint.yml: version %q is not a version such as 1.0.0", t.Version)
 	}
 	return t, nil
 }

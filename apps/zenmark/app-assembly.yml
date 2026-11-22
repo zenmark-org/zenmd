@@ -8,10 +8,10 @@
 # panel. Each step of the roadmap adds ids here, checks them in the real app and
 # updates the guide. When `features: all` is back, Zenmark is at parity for 0.7.0.
 app: zenmark
-features: [reader, nav, inspector, developer, find, editor, print, export]
+features: [reader, nav, inspector, developer, find, editor, print, export, newsite]
 addons: []
 plugins: [codeblock, diagram, check, quiz, sandbox, rating]
 layouts: all
-templates: []
+blueprints: all
 dialects: all
 theme: default
