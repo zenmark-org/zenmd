@@ -246,6 +246,38 @@ A page has one title. A page that has an H1 takes its title from it, and a `titl
 4. **The built-ins and demos follow:** the built-in blueprints, page templates, `examples/demo` and `examples/showcase` drop `title:` wherever the page has an H1. Where the two differed, the H1 stays. The goldens change only where a title actually changed, and the review checks each change.
 5. **CLI:** `zenmd check` reports the note too, once the checker exists.
 
+## Release pages: the version is the title (added 2026-11-22)
+
+- **The page:** a release page has no H1. Its frontmatter `version` (and `date`) are the release:
+
+  ```yaml
+  ---
+  layout: release
+  version: 0.1.0
+  date: 2026-11-22
+  name: First release        # optional, shown under the version
+  ---
+  ## Added
+  - …
+  ```
+- **The `release` layout (new built-in):** it shows the version large as the page's heading, with the date and the optional `name` under it, then the text. It uses `.Body`, as every layout that draws its own title.
+- **The title rule gains one step, for every layout:** a layout can name a field to title its pages, as `title: version` in `layout.yml`. The order becomes:
+  1. the first H1;
+  2. frontmatter `title:`;
+  3. the field the layout names (`release` uses `version`), shown as written: "0.1.0";
+  4. the file name.
+
+  The sidebar, the breadcrumb, the window title and the releases index all show the version.
+- **The `release-notes` page template:**
+  - its layout is `release`, with no H1 in its skeleton;
+  - its fields are `version` (semver, required), `date` (required, defaults to today) and `name` (optional);
+  - its skeleton is just the Added, Changed and Fixed sections.
+- **The blueprint and the files:**
+  - the techdocs blueprint's first release is `version: 0.1.0` with `name: First release`;
+  - its file name is the version, `releases/0.1.0.md`, so the folder reads like a changelog;
+  - newest-first sorting already uses `version`.
+- **The releases index:** a landing page whose cards are the releases, newest first. Each card shows the version, the date and the name.
+
 ## Making your own blueprint
 
 A blueprint is a folder with a `blueprint.yml`. The easy way to write one is to
