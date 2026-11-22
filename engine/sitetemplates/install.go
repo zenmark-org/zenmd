@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"os"
 	"path"
 	"path/filepath"
@@ -123,7 +124,9 @@ func builtinIDs(builtins fs.FS) ([]Template, error) {
 }
 
 // Install copies the built-in presets that were never installed into
-// <dir>/blueprints. An installed template is never overwritten and one the user
+// <dir>/blueprints. A copy that is older than its built-in and still matches the
+// fingerprint of its install is updated in place, silently. Any other installed
+// template is never overwritten and one the user
 // deleted is not installed again (the record remembers). A folder the user
 // made with the same name is theirs and is left alone. An error means the
 // folder cannot be written; the presets can then be used from the bundle.
@@ -139,7 +142,19 @@ func Install(dir string, builtins fs.FS) error {
 	rec := readRecord(sites)
 	changed := false
 	for _, t := range list {
-		if _, done := rec.Installed[t.ID]; done {
+		if have, done := rec.Installed[t.ID]; done {
+			// A copy nobody edited follows the built-in; an edited one, one
+			// without a fingerprint and a deleted one are left alone.
+			if want, ok := rec.Fingerprints[t.ID]; ok && newer(t.Version, have) {
+				copyPath := filepath.Join(sites, t.ID)
+				if cur, err := fingerprintDir(copyPath); err == nil && cur == want {
+					if fp, err := fingerprintFS(t.fsys); err == nil && replaceTree(t.fsys, copyPath) == nil {
+						rec.Installed[t.ID], rec.Fingerprints[t.ID] = t.Version, fp
+						slog.Info("blueprint "+t.ID+" updated to "+t.Version+" (your copy was not edited)", "source", "app")
+						changed = true
+					}
+				}
+			}
 			continue
 		}
 		dest := filepath.Join(sites, t.ID)

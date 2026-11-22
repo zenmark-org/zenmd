@@ -350,7 +350,7 @@ func TestInitSite(t *testing.T) {
 		t.Errorf("list with invalid: %q", out)
 	}
 
-	// Updates: a newer built-in is listed, and written next to the copy on request.
+	// Updates: a newer built-in replaces an untouched copy by itself.
 	newer := fstest.MapFS{}
 	for _, id := range []string{"techdocs", "learning", "planner"} {
 		data, _ := fs.ReadFile(siteBuiltins, id+"/blueprint.yml")
@@ -360,12 +360,12 @@ func TestInitSite(t *testing.T) {
 		newer[id+"/blueprint.yml"] = &fstest.MapFile{Data: data}
 	}
 	env.builtins = newer
-	if out, _, _ := run(cli.Init{List: true}); !strings.Contains(out, "[update available: 2.4.0, see zenmd init --update techdocs]") {
-		t.Errorf("update marker: %q", out)
+	// The install pass that listing runs updates the untouched copy by itself.
+	if out, _, _ := run(cli.Init{List: true}); strings.Contains(out, "update available") {
+		t.Errorf("update marker on an untouched copy: %q", out)
 	}
-	out, _, err = run(cli.Init{Update: true, Template: "techdocs"})
-	if err != nil || !strings.Contains(out, "Updated techdocs in place: "+filepath.Join(cfg, "templates", "blueprints", "techdocs")) {
-		t.Errorf("update: %q %v", out, err)
+	if b, _ := os.ReadFile(filepath.Join(cfg, "templates", "blueprints", "techdocs", "blueprint.yml")); !strings.Contains(string(b), "version: 2.4.0") {
+		t.Errorf("untouched copy not updated:\n%s", b)
 	}
 	if _, _, err := run(cli.Init{Update: true, Template: "techdocs"}); err == nil {
 		t.Error("second update accepted")
@@ -732,10 +732,11 @@ func TestUpdateTemplateService(t *testing.T) {
 	pages := filepath.Join(cfg, "templates", "pages")
 	data, _ := os.ReadFile(filepath.Join(pages, "term.yml"))
 	old := strings.Replace(string(data), "version: 1.0.0", "version: 0.9.0", 1)
+	sum := sha256.Sum256([]byte(old))
+	old += "# my edit\n" // edited since the install: the pass leaves it, Update writes term.yml.new
 	if err := os.WriteFile(filepath.Join(pages, "term.yml"), []byte(old), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	sum := sha256.Sum256([]byte(old))
 	rec := "installed:\n    term: 0.9.0\n    how-to: 1.0.0\nfingerprints:\n    term: sha256:" + hex.EncodeToString(sum[:]) + "\n"
 	if err := os.WriteFile(filepath.Join(pages, ".zen-templates.yml"), []byte(rec), 0o644); err != nil {
 		t.Fatal(err)
@@ -747,11 +748,25 @@ func TestUpdateTemplateService(t *testing.T) {
 		}
 	}
 	res, err := z.UpdateTemplate("page", "term")
-	if err != nil || !res.InPlace || res.Path != filepath.Join(pages, "term.yml") {
-		t.Fatalf("in place: %+v %v", res, err)
+	if err != nil || res.InPlace || res.Path != filepath.Join(pages, "term.yml.new") {
+		t.Fatalf("edited: %+v %v", res, err)
 	}
-	if b, _ := os.ReadFile(filepath.Join(pages, "term.yml")); !strings.Contains(string(b), "version: 1.0.0") {
-		t.Error("not replaced")
+	if b, _ := os.ReadFile(filepath.Join(pages, "term.yml")); string(b) != old {
+		t.Error("edited copy replaced")
+	}
+	// An untouched older copy is replaced by the pass itself.
+	old2 := strings.Replace(string(data), "version: 1.0.0", "version: 0.9.0", 1)
+	sum2 := sha256.Sum256([]byte(old2))
+	if err := os.WriteFile(filepath.Join(pages, "how-to.yml"), []byte(old2), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rec2 := "installed:\n    term: 1.0.0\n    how-to: 0.9.0\nfingerprints:\n    how-to: sha256:" + hex.EncodeToString(sum2[:]) + "\n"
+	if err := os.WriteFile(filepath.Join(pages, ".zen-templates.yml"), []byte(rec2), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	_, _ = z.PageTemplates()
+	if b, _ := os.ReadFile(filepath.Join(pages, "how-to.yml")); strings.Contains(string(b), "0.9.0") {
+		t.Error("untouched copy not updated by the pass")
 	}
 }
 

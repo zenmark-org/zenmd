@@ -44,9 +44,13 @@ const message = (err: unknown) => (err instanceof Error ? err.message : String(e
 const today = () => new Date().toISOString().slice(0, 10);
 const baseName = (p: string) => p.replace(/[\\/]+$/, "").split(/[\\/]/).pop() ?? "";
 
-/** An ask default for a folder: {{folder}} and {{date}} are filled in. */
-export function resolveDefault(d: string, folder: string): string {
-  return d.replaceAll("{{folder}}", folder).replaceAll("{{date}}", today());
+/**
+ * An ask default for a folder: {{folder}} and {{date}} are filled in, and so is
+ * {{key}} of an earlier ask, from `values` (its current value).
+ */
+export function resolveDefault(d: string, folder: string, values: Record<string, string> = {}): string {
+  return d.replace(/\{\{([\w-]+)\}\}/g, (m, k: string) =>
+    k === "folder" ? folder : k === "date" ? today() : Object.hasOwn(values, k) ? values[k] : m);
 }
 
 export function openNewSite(opts: NewSiteOptions): NewSiteDialog {
@@ -156,10 +160,13 @@ export function openNewSite(opts: NewSiteOptions): NewSiteDialog {
       input.id = `zen-newsite-${id}-${a.key}`;
       input.autocomplete = "off";
       input.spellcheck = false;
-      input.value = resolveDefault(a.default, folderName());
+      input.value = resolveDefault(a.default, folderName(), valuesBefore(a.key));
       if (a.default.includes("{{folder}}")) input.placeholder = "The folder's name";
       label.htmlFor = input.id;
-      input.addEventListener("input", () => touched.add(a.key));
+      input.addEventListener("input", () => {
+        touched.add(a.key);
+        refreshDefaults();
+      });
       inputs.set(a.key, input);
       row.append(label, input);
       rows.push(row);
@@ -167,11 +174,21 @@ export function openNewSite(opts: NewSiteOptions): NewSiteDialog {
     fields.replaceChildren(...rows);
   }
 
-  /** A folder was chosen: the fields whose default uses the folder's name follow it. */
+  /** The current values of the asks before `key` (what a default may name). */
+  function valuesBefore(key: string): Record<string, string> {
+    const out: Record<string, string> = {};
+    for (const a of chosen?.ask ?? []) {
+      if (a.key === key) break;
+      out[a.key] = inputs.get(a.key)?.value ?? "";
+    }
+    return out;
+  }
+
+  /** The folder or an earlier answer changed: the fields still on their default follow it, in ask order. */
   function refreshDefaults(): void {
     for (const a of chosen?.ask ?? []) {
       const input = inputs.get(a.key);
-      if (input && !touched.has(a.key)) input.value = resolveDefault(a.default, folderName());
+      if (input && !touched.has(a.key)) input.value = resolveDefault(a.default, folderName(), valuesBefore(a.key));
     }
   }
 

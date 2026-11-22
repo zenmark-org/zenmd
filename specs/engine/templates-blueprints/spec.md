@@ -210,9 +210,10 @@ One folder holds both kinds of template, each in a subfolder you can open, read 
    - **Which wins:** a folder's own `.zen/templates/<id>.yml`, then `templates/pages/<id>.yml`, then the built-in one.
 4. **Updates that don't get in the way:**
    - **The fingerprint:** each install also records a SHA-256 fingerprint of what it wrote.
-   - **Untouched copies:** when a built-in is newer and your copy still matches its fingerprint, `zenmd init --update <id>` (and `zenmd templates update <id>`) replaces it in place, with nothing to compare.
-   - **Edited copies:** only these get the `<id>.new` copy next to them, as today.
-   - **The app:** Settings shows "Update available" on the item, with an **Update** button that follows the same rule.
+   - **Untouched copies follow the built-ins:** every time the install pass runs (first use of Settings, New from Blueprint, `zenmd init`, `zenmd templates`, a page-template lookup), a built-in that is newer than a copy that still matches its fingerprint replaces that copy in place, silently. The record gets the new version and fingerprint, and one info line is logged per update. There is nothing to compare and nothing to click.
+   - **Edited copies:** a copy whose fingerprint differs, or one installed before fingerprints, is never touched by the pass. It keeps showing "Update available", and **Update** (or `zenmd init --update <id>`, `zenmd templates update <id>`) writes the `<id>.new` copy next to it, as today.
+   - **Deleted copies:** a deleted copy stays deleted.
+   - **The app:** Settings shows "Update available" on an edited item only, with an **Update** button.
 5. **Seeing them in the app.**
    - **Settings › Blueprints** shows `templates/blueprints/`; **Show in Finder** opens that folder.
    - **Settings › Templates** is new, right after Blueprints, in the Settings frame:

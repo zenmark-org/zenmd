@@ -80,6 +80,11 @@ In `.md`, `.yml`, `.yaml`, `.txt` and `.css` files and in file names,
 replaced with their values. This is plain text replacement: nothing in a
 blueprint runs. Other files are copied as they are.
 
+An `ask:` default may use `{{folder}}`, `{{date}}` and `{{key}}` of any ask
+before it, for example `product: { default: "{{title}}" }`. It follows that
+answer: in the dialog live until you edit the field, in `zenmd init` from the
+given or defaulted value.
+
 Creating a site never overwrites anything. If one file would clash, nothing is
 written and the clashes are listed. A blueprint is limited to 2,000 files and 50 MB.
 

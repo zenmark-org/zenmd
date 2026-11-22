@@ -3,6 +3,7 @@ package sitetemplates
 import (
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"sort"
@@ -224,10 +225,21 @@ func InstallPages(dir string, builtins fs.FS) error {
 		if !ok {
 			continue
 		}
-		if _, done := rec.Installed[id]; done {
+		dest := filepath.Join(pages, id+".yml")
+		if have, done := rec.Installed[id]; done {
+			// A copy nobody edited follows the built-in; an edited one, one
+			// without a fingerprint and a deleted one are left alone.
+			if want, ok := rec.Fingerprints[id]; ok && newer(p.Version, have) {
+				if cur, ok := readPageFile(dest); ok && fingerprintBytes(cur) == want {
+					if atomicfile.Write(dest, data) == nil {
+						rec.Installed[id], rec.Fingerprints[id] = p.Version, fingerprintBytes(data)
+						slog.Info("page template "+id+" updated to "+p.Version+" (your copy was not edited)", "source", "app")
+						changed = true
+					}
+				}
+			}
 			continue
 		}
-		dest := filepath.Join(pages, id+".yml")
 		if _, err := os.Lstat(dest); err == nil {
 			continue // the user's own
 		}

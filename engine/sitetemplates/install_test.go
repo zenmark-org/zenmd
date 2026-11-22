@@ -220,25 +220,33 @@ func TestInstallUpdatesUntouchedBlueprints(t *testing.T) {
 	if err := Install(dir, builtinsFS("1.0.0")); err != nil {
 		t.Fatal(err)
 	}
-	put(t, dir, map[string]string{"blueprints/planner/blueprint.yml": "id: planner\nname: Mine\nversion: 1.0.0\n"})
 	b2 := builtinsFS("1.1.0")
+	// Edited: left alone, "update available" stays.
+	ed := filepath.Join(t.TempDir(), "templates")
+	if err := Install(ed, builtinsFS("1.0.0")); err != nil {
+		t.Fatal(err)
+	}
+	put(t, ed, map[string]string{"blueprints/techdocs/README.md": "mine"})
+	if err := Install(ed, b2); err != nil {
+		t.Fatal(err)
+	}
+	if read(t, ed, "blueprints/techdocs/README.md") != "mine" || !strings.Contains(read(t, ed, "blueprints/techdocs/blueprint.yml"), "1.0.0") {
+		t.Error("edited blueprint changed")
+	}
+	if _, err := os.Stat(filepath.Join(ed, "blueprints", "techdocs.new")); err == nil {
+		t.Error("no .new from the pass")
+	}
+	if l, _ := ListWith(ed, b2); l[0].ID != "techdocs" || l[0].Update != "1.1.0" {
+		t.Errorf("update available: %+v", l[0])
+	}
 	if err := Install(dir, b2); err != nil {
 		t.Fatal(err)
 	}
 	if !strings.Contains(read(t, dir, "blueprints/techdocs/blueprint.yml"), "1.1.0") {
 		t.Error("untouched blueprint not updated")
 	}
-	if read(t, dir, "blueprints/planner/blueprint.yml") != "id: planner\nname: Mine\nversion: 1.0.0\n" {
-		t.Error("edited blueprint changed")
-	}
-	if _, err := os.Stat(filepath.Join(dir, "blueprints", "planner.new")); err == nil {
-		t.Error("no .new from the pass")
-	}
-	l, _ := ListWith(dir, b2)
-	for _, x := range l {
-		if (x.ID == "planner") != (x.Update != "") {
-			t.Errorf("%s update %q", x.ID, x.Update)
-		}
+	if l, _ := ListWith(dir, b2); l[0].Update != "" {
+		t.Errorf("still an update: %+v", l[0])
 	}
 	// Deleted stays deleted; no fingerprint stays untouched.
 	if err := os.RemoveAll(filepath.Join(dir, "blueprints", "techdocs")); err != nil {

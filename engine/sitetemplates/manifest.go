@@ -18,7 +18,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Ask is a value asked when a site is created. Default may hold {{folder}}.
+// Ask is a value asked when a site is created. Default may hold {{folder}}, {{date}} and
+// {{key}} of an ask before it.
 type Ask struct{ Key, Label, Default string }
 
 // Needs says which layouts and plugins (built-in ids) a template's files use:
