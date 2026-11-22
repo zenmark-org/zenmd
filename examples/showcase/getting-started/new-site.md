@@ -54,19 +54,18 @@ files are in the way, and with 2 for a mistake in the command.
 ## Blueprints are folders you can edit
 
 The first time zen lists blueprints, it copies the built-in ones into a
-**blueprints folder**, next to `config.yml`. Edit them, copy them, or add your
-own: every folder in `sites/` with a `blueprint.yml` is a blueprint. Zen never
+**blueprints folder** (`templates/blueprints`), next to `config.yml`. Edit them, copy them, or add your
+own: every folder in `blueprints/` with a `blueprint.yml` is a blueprint. Zen never
 overwrites a blueprint you changed, and does not bring back one you deleted.
 
-To keep the blueprints somewhere else, set the folder in the global
-`config.yml` (a folder's `.zenmd.yml` cannot):
+To keep the templates somewhere else, set the folder in the global
+`config.yml` (a folder's `.zenmd.yml` cannot). It holds `blueprints/` and
+`pages/` (the page templates):
 
 ```yaml
-blueprints:
-  dir: ~/Documents/zen blueprints
+templates:
+  dir: ~/Documents/zen templates
 ```
-
-(The old key `templates:` is still read, and noted.)
 
 A blueprint folder holds a `blueprint.yml` and the files to copy:
 

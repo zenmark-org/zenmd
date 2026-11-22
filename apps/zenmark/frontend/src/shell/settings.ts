@@ -1,7 +1,7 @@
 // The Settings page of Zenmark (ui/settings-layout): the kit's frame (kit/ui shell/settings.ts), where every
 // section has two columns (what you pick on the left, its preview, help and actions on the right), and zen's
 // sections: Appearance, Accessibility (zoom, motion, contrast and the reader's text), Configuration (the two config files), Markdown (the dialects the folder uses), Layouts,
-// Plugins, Blueprints, Export (the website and the PDF, in place) and Developer. What the build contains is in
+// Plugins, Blueprints, Templates (the page templates), Export (the website and the PDF, in place) and Developer. What the build contains is in
 // Zenmark › About. A section whose feature the build leaves out is not there. All text through textContent.
 import { appearanceSection, button, createSettingsFrame, developerSection, el, hasFeature, mountPage, reloadSettings, type DialectInfo, type SettingsItem, type SettingsSection, type SettingsView } from "@zenmd/kit";
 import { accessibilitySection } from "@zenmd/kit/shell/settings";
@@ -10,7 +10,7 @@ import { createBuildForm, type BuildApi } from "./buildsite";
 import { createPdfForm, type PdfApi } from "./pdfform";
 import { createLayoutsSection } from "./layouthelp";
 import { createPluginsSection } from "./pluginhelp";
-import { createTemplatesSection } from "./templateshelp";
+import { createPageTemplatesSection, createTemplatesSection } from "./templateshelp";
 
 export type { SettingsView };
 
@@ -186,6 +186,7 @@ export function createSettingsView(opts: {
   const plugins = createPluginsSection({ api });
   const layouts = createLayoutsSection({ api });
   const templates = createTemplatesSection({ api, newsite: hasFeature(api, "newsite") });
+  const pageTemplates = createPageTemplatesSection({ api, hasWorkspace: opts.hasWorkspace });
 
   // ---- Export: the website (its form, in place) and the PDF (the preview, and the last file)
 
@@ -231,11 +232,12 @@ export function createSettingsView(opts: {
     // Accessibility is in every build; its Reading item is the reader's.
     accessibilitySection(doc, { reader: hasFeature(api, "reader"), setZoom: opts.setZoom }),
     // The sections of a feature the build leaves out are not there at all (kit/shell-features): Markdown, Blueprints,
-    // Layouts and Plugins belong to the reader (Blueprints also to newsite, and lists none without it), Export to
+    // Layouts, Plugins and Templates belong to the reader (Blueprints also to newsite, and lists none without it), Export to
     // export, Developer to developer.
     ...(hasFeature(api, "reader") || hasFeature(api, "newsite") ? [
       ...(hasFeature(api, "reader") ? [reader] : []),
       { id: "blueprints", label: "Blueprints", ...templates },
+      ...(hasFeature(api, "reader") ? [{ id: "templates", label: "Templates", ...pageTemplates }] : []),
       ...(hasFeature(api, "reader") ? [
         { id: "layouts", label: "Layouts", ...layouts },
         { id: "plugins", label: "Plugins", ...plugins },
@@ -251,6 +253,7 @@ export function createSettingsView(opts: {
       plugins.destroy();
       layouts.destroy();
       templates.destroy();
+      pageTemplates.destroy();
       view.destroy();
     },
   };

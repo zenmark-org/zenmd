@@ -1,10 +1,11 @@
 // In-memory Api for development in a browser and for tests: a three-page
 // sample workspace, emit() to simulate Go events, and a record of every call.
 import { FEATURE_IDS, type LogEntry } from "@zenmd/kit";
-import type { AddonInfo, Api, BuildInfo, BuildProgress, Crumb, DialectInfo, Draft, SiteTemplate, LayoutInfo, LintResult, NavNode, OpenProgress, Page, PdfExported, PdfOptions, PluginInfo, PluginStreamEvent, Startup, Workspace } from "./index";
+import type { AddonInfo, Api, BuildInfo, BuildProgress, Crumb, DialectInfo, Draft, SiteTemplate, PageTemplate, TemplateUpdate, LayoutInfo, LintResult, NavNode, OpenProgress, Page, PdfExported, PdfOptions, PluginInfo, PluginStreamEvent, Startup, Workspace } from "./index";
 
 type Method = "startup" | "appReady" | "pickFolder" | "cancelOpen" | "closeFolder"
   | "siteTemplates" | "pickSiteFolder" | "createSite" | "revealTemplates" | "templatesDir"
+  | "pageTemplates" | "updateTemplate" | "revealPageTemplates" | "copyPageTemplate" | "openPageTemplate"
   | "buildOptions" | "buildWebsite" | "cancelBuild" | "saveBuildDefaults" | "pickBuildFolder" | "openBuiltSite" | "revealBuiltSite"
   | "printPage" | "printSite" | "printWindow" | "exportPdf" | "revealExport" | "printReady" | "printFailed" | "pdfDefaults" | "savePdfDefaults" | "pickPdfFile" | "runPdfExport" | "previewPdf" | "openExport" | "pdfExportFailed" | "page" | "source" | "preview" | "save" | "openExternal" | "openEditor" | "lint" | "pageInfo" | "revealInFinder" | "openConfig" | "createPage"
   | "plugins" | "pluginTrust" | "pluginStorageGet" | "pluginStorageSet" | "pluginInvoke" | "pluginStream" | "pluginCancel" | "pluginStorageKeys"
@@ -60,7 +61,33 @@ export type FakeOptions = {
   layouts?: LayoutSeed[];
   /** What siteTemplates() lists. Default: the three built-in presets. */
   templates?: SiteTemplate[];
+  /** What pageTemplates() lists. Default: a few of the built-in page templates, as installed on this Mac. */
+  pageTemplates?: PageTemplate[];
 };
+
+const SAMPLE_PAGE_TEMPLATES: PageTemplate[] = [
+  {
+    id: "how-to", name: "How-to guide", description: "Steps that get the reader to one result (Diátaxis)", version: "1.0.0", layout: "docs", source: "yours", path: "/Users/me/Library/Application Support/zen/templates/pages/how-to.yml",
+    fields: [{ name: "title", type: "string", required: true, default: "" }],
+    outline: [],
+    skeleton: "# {{title}}\n\nOne paragraph that names the task.\n\n## Steps\n\n1. The first step\n2. The second step\n",
+    update: "", error: "", rules: [],
+  },
+  {
+    id: "release-notes", name: "Release notes", description: "What changed in one release: Added, Changed, Fixed", version: "1.0.0", layout: "docs", source: "yours", path: "/Users/me/Library/Application Support/zen/templates/pages/release-notes.yml",
+    fields: [{ name: "title", type: "string", required: true, default: "" }, { name: "version", type: "string", required: true, default: "" }, { name: "date", type: "date", required: true, default: "{{today}}" }],
+    outline: [],
+    skeleton: "# {{title}} {{version}}\n\n## Added\n\n- A new thing\n",
+    update: "", error: "", rules: [],
+  },
+  {
+    id: "term", name: "Glossary term", description: "One term and its definition, one file per term", version: "1.0.0", layout: "term", source: "yours", path: "/Users/me/Library/Application Support/zen/templates/pages/term.yml",
+    fields: [{ name: "title", type: "string", required: true, default: "" }, { name: "aliases", type: "list", required: false, default: "" }],
+    outline: [],
+    skeleton: "The definition in one or two sentences.\n\n## Examples\n\nAn example of the term in use.\n",
+    update: "", error: "", rules: [],
+  },
+];
 
 const SAMPLE_TEMPLATES: SiteTemplate[] = [
   { id: "techdocs", name: "Technical documentation", description: "Tutorials, how-to guides, reference and explanation (Diátaxis)", version: "1.0.0", ask: [{ key: "title", label: "Site title", default: "{{folder}}" }, { key: "author", label: "Author", default: "the team" }], builtin: true, update: "", error: "" },
@@ -117,6 +144,8 @@ export type FakeApi = Api & {
   pluginList: PluginInfo[];
   /** What layouts() lists (copies); layoutTrust() updates the status. Assignable. */
   layoutList: LayoutInfo[];
+  /** What updateTemplate() resolves to. Default: an in-place update. */
+  updateResult: TemplateUpdate;
   /** What pluginInvoke() answers: a JSON value, or a function of the plugin id and the parsed payload. Default null. */
   invokeResult: unknown | ((id: string, payload: unknown, page: string) => unknown);
   /** Shapes every page() and preview() result, e.g. to add plugin wrappers or a layout. */
@@ -283,6 +312,7 @@ export function createFakeApi(options: FakeOptions = {}): FakeApi {
     calls: [],
     pick: options.pick === undefined ? sampleWorkspace() : options.pick,
     confirmExternal: true,
+    updateResult: { path: "/Users/me/Library/Application Support/zen/templates/pages/how-to.yml", inPlace: true },
     exportPath: "/Users/me/Documents/sample-docs.pdf",
     pdfDefaultsValue: { out: "/Users/me/sample-docs/exports/pdf/sample-docs.pdf", drafts: false, cover: true, open: true },
     broadcasts: [],
@@ -327,6 +357,11 @@ export function createFakeApi(options: FakeOptions = {}): FakeApi {
     }),
     revealTemplates: () => call("revealTemplates", [], () => undefined),
     templatesDir: () => call("templatesDir", [], () => "/Users/me/Library/Application Support/zen/templates"),
+    pageTemplates: () => call("pageTemplates", [], () => (options.pageTemplates ?? SAMPLE_PAGE_TEMPLATES).map((t) => ({ ...t, fields: t.fields.map((f) => ({ ...f })), outline: t.outline.map((o) => ({ ...o })), rules: [...t.rules] }))),
+    updateTemplate: (kind, id) => call("updateTemplate", [kind, id], () => ({ ...api.updateResult })),
+    revealPageTemplates: () => call("revealPageTemplates", [], () => undefined),
+    copyPageTemplate: (id) => call("copyPageTemplate", [id], () => `.zen/templates/${id}.yml`),
+    openPageTemplate: (id) => call("openPageTemplate", [id], () => undefined),
     buildOptions: () => call("buildOptions", [], () => ({ out: "/Users/me/sample-docs/exports/html", portable: true, drafts: false, clean: false, print: true, scheme: "auto" })),
     buildWebsite: (o) => call("buildWebsite", [o], () => ({ out: o.out, pages: 3, files: 2, warnings: [], millis: 42, cancelled: false })),
     cancelBuild: () => call("cancelBuild", [], () => undefined),
