@@ -144,6 +144,10 @@ type Init struct {
 	ShowDir       bool
 	New           bool   // zenmd blueprint new <id>: write a blueprint into the blueprints folder
 	From          string // zenmd blueprint new --from <id>: start from this blueprint
+	// Pages is zenmd templates: the page templates instead of the blueprints. With it List, Show
+	// (print the template Template) and Update (bring Template to its newer version) say what to do,
+	// and ShowDir prints the whole templates folder.
+	Pages, Show bool
 }
 
 // Initer does what `zenmd init` asks. It writes its result to stdout and notes
@@ -174,6 +178,13 @@ Usage:
   zenmd blueprint list  list the blueprints
   zenmd blueprint new <id> [--from <id>]
                         write a new blueprint into the blueprints folder
+  zenmd templates list  list the page templates, their source and version
+  zenmd templates show <id>
+                        print a page template's fields, structure, skeleton
+  zenmd templates update <id>
+                        bring a built-in page template to its newer version
+                        (zenmd init --update <id> does it for a blueprint)
+  zenmd templates --dir print the templates folder (blueprints/, pages/)
   zenmd help            show this help
   zenmd version         show the version
 
@@ -185,7 +196,7 @@ Options:
 Init options:
   --blueprint <id>    the blueprint (--template <id>, --<id> work too)
   --title <text>      the site title; --author <text>; --set <key=value>
-  --list              list the blueprints; --update <id>; --dir
+  --list              list the blueprints; --update <id>; --dir (their folder)
 
 ` + optionHelp("Export site options", siteOptions) + `  (also for zenmd build)
   A flag wins over the folder's export: settings, then config.yml.
@@ -238,6 +249,8 @@ func Run(args []string, cwd string, stdout, stderr io.Writer, launch Launcher, b
 			return runInit(args[i+1:], cwd, stdout, stderr, initer)
 		case flags && first && arg == "blueprint":
 			return runBlueprint(args[i+1:], cwd, stdout, stderr, initer)
+		case flags && first && arg == "templates":
+			return runTemplates(args[i+1:], cwd, stdout, stderr, initer)
 		case flags && first && arg == "edit":
 			mode = "edit"
 		default:
@@ -556,6 +569,49 @@ func runBlueprint(args []string, cwd string, stdout, stderr io.Writer, initer In
 	}
 	if initer == nil {
 		return fail(stderr, errors.New("zenmd blueprint is not available in this build"))
+	}
+	if err := initer(in, stdout, stderr); err != nil {
+		return fail(stderr, err)
+	}
+	return 0
+}
+
+// runTemplates parses the arguments after `zenmd templates`: list, show <id>, update <id> or --dir.
+func runTemplates(args []string, cwd string, stdout, stderr io.Writer, initer Initer) int {
+	in := Init{Values: map[string]string{}, Dir: cwd, Pages: true}
+	var rest []string
+	for _, arg := range args {
+		switch {
+		case arg == "-h" || arg == "--help":
+			fmt.Fprint(stdout, usage)
+			return 0
+		case arg == "--dir":
+			in.ShowDir = true
+		case strings.HasPrefix(arg, "-") && arg != "-":
+			return fail(stderr, usageError("unknown option "+arg))
+		default:
+			rest = append(rest, arg)
+		}
+	}
+	switch {
+	case in.ShowDir && len(rest) == 0:
+	case in.ShowDir:
+		return fail(stderr, usageError("zenmd templates --dir takes nothing else"))
+	case len(rest) == 0:
+		return fail(stderr, usageError("zenmd templates what? try: zenmd templates list"))
+	case rest[0] == "list" && len(rest) == 1:
+		in.List = true
+	case (rest[0] == "show" || rest[0] == "update") && len(rest) == 2:
+		in.Show, in.Update, in.Template = rest[0] == "show", rest[0] == "update", rest[1]
+	case rest[0] == "show" || rest[0] == "update":
+		return fail(stderr, usageError("zenmd templates "+rest[0]+" needs one id, for example: zenmd templates "+rest[0]+" how-to"))
+	case rest[0] == "list":
+		return fail(stderr, usageError("zenmd templates list takes nothing else"))
+	default:
+		return fail(stderr, usageError("unknown templates command "+rest[0]+" (list, show, update and --dir are there)"))
+	}
+	if initer == nil {
+		return fail(stderr, errors.New("zenmd templates is not available in this build"))
 	}
 	if err := initer(in, stdout, stderr); err != nil {
 		return fail(stderr, err)

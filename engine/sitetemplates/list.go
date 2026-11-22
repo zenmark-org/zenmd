@@ -10,10 +10,13 @@ import (
 	"strings"
 )
 
-// SitesDir is where the templates are: <templates dir>/sites.
-func SitesDir(dir string) string { return filepath.Join(dir, "sites") }
+// BlueprintsDir is where the blueprints are: <templates dir>/blueprints.
+func BlueprintsDir(dir string) string { return filepath.Join(dir, "blueprints") }
 
-// List returns the templates in <dir>/sites, sorted by order, then name,
+// PagesDir is where the page templates are: <templates dir>/pages.
+func PagesDir(dir string) string { return filepath.Join(dir, "pages") }
+
+// List returns the templates in <dir>/blueprints, sorted by order, then name,
 // then the invalid ones (by folder name). Two templates with the same id:
 // the first in folder-name order wins, and a warning names the other.
 // Folders starting with "." and "<id>.new" update folders are not templates.
@@ -22,7 +25,7 @@ func List(dir string) ([]Template, []string) { return ListWith(dir, nil) }
 // ListWith is List, and also marks the templates installed from builtins that
 // have a newer version in builtins (Template.Update).
 func ListWith(dir string, builtins fs.FS) ([]Template, []string) {
-	sites := SitesDir(dir)
+	sites := BlueprintsDir(dir)
 	entries, err := os.ReadDir(sites)
 	if err != nil {
 		return nil, nil

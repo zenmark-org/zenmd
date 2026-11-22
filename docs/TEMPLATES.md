@@ -15,23 +15,43 @@ zenmd init --update techdocs          # a newer built-in, written next to yours 
 ```
 
 The old spellings still work: `zenmd init site --techdocs`, `--template <id>`,
-the global `templates:` key (noted under Problems), `template.yml` and the
-assembly key `templates:`.
+`template.yml` and the assembly key `templates:`.
 
-## Where blueprints live
+## Where templates live
 
-`<zen config dir>/blueprints/sites/<id>/` (`templates/` is still used when it is
-the only one that exists), next to `config.yml`. Move it in the
-global `config.yml`:
+One folder holds both kinds of template, next to `config.yml`:
 
-```yaml
-blueprints:
-  dir: ~/Documents/zen blueprints
+```
+<zen config dir>/templates/
+  blueprints/   one folder per blueprint (techdocs/, learning/, planner/, your own)
+  pages/        one file per page template (how-to.yml, term.yml, ..., your own)
 ```
 
-The three built-ins are copied there the first time blueprints are listed, so
-you can edit them. zen never overwrites your copy, and a built-in you delete
-stays deleted.
+Move it in the global `config.yml` (a folder's `.zenmd.yml` `templates:` is the
+path rules, a different thing):
+
+```yaml
+templates:
+  dir: ~/Documents/zen templates
+```
+
+`zenmd templates --dir` prints it and `zenmd init --dir` prints `blueprints/`.
+The built-ins are copied there the first time they are listed, so you can edit
+them. Each copy is recorded with its version and a SHA-256 fingerprint in
+`.zen-templates.yml`; zen never installs one again after you delete it.
+
+- **Updates:** `zenmd init --update <id>` (a blueprint) and `zenmd templates
+  update <id>` (a page template) replace a copy you never edited in place. A copy
+  you edited, or one installed before fingerprints, is left alone and the newer
+  one is written beside it as `<id>.new` (`<id>.yml.new` for a page template).
+  Settings › Blueprints and Settings › Templates have the same **Update** button.
+- **Page templates:** `zenmd templates list` and `zenmd templates show <id>`.
+  A folder's `.zen/templates/<id>.yml` wins over `templates/pages/<id>.yml`,
+  which wins over the built-in one.
+- **The old folder:** an earlier build kept blueprints in `templates/sites/`. The
+  first use renames it to `templates/blueprints/` (with its record) and notes it
+  under Problems. It stays where it is when `blueprints/` already exists, when
+  either is a link, or when the templates folder is outside the settings folder.
 
 ## A blueprint
 

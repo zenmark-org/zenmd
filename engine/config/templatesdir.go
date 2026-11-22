@@ -8,38 +8,29 @@ import (
 	"strings"
 )
 
-// BlueprintsDir is where blueprints live (formerly site templates): the
-// global config's
+// TemplatesDir is the folder that holds both kinds of template, blueprints/
+// and pages/: the global config's
 //
-//	blueprints:
-//	  dir: ~/Documents/zen blueprints
+//	templates:
+//	  dir: ~/Documents/zen templates
 //
 // "~" is the home folder and a relative path is relative to configDir, the
-// folder of config.yml. Without the key it is <configDir>/blueprints, or the
-// old <configDir>/templates when only that exists. The old key templates: is
-// read as blueprints: (and noted, see Notices). A folder's .zenmd.yml cannot
-// set it (that is a warning when the file loads). The strings returned are
+// folder of config.yml. Without the key it is <configDir>/templates. In a
+// folder's .zenmd.yml the same key holds the path rules (TemplateRules), a
+// different thing, so a folder cannot set this one. The strings returned are
 // problems with the key; the default is used then.
-func (c *Config) BlueprintsDir(configDir string) (string, []string) {
-	def := filepath.Join(configDir, "blueprints")
-	if _, err := os.Stat(def); err != nil {
-		if old := filepath.Join(configDir, "templates"); isDir(old) {
-			def = old
-		}
-	}
-	key, raw := "blueprints", any(nil)
+func (c *Config) TemplatesDir(configDir string) (string, []string) {
+	def := filepath.Join(configDir, "templates")
+	var raw any
 	if c != nil {
-		raw = c.blueprints
-		if raw == nil && c.templates != nil {
-			key, raw = "templates", c.templates
-		}
+		raw = c.templates
 	}
 	if raw == nil {
 		return def, nil
 	}
 	m, ok := raw.(map[string]any)
 	if !ok {
-		return def, []string{key + " must be a mapping such as { dir: ~/Documents/zen blueprints }"}
+		return def, []string{"templates must be a mapping such as { dir: ~/Documents/zen templates }"}
 	}
 	var warns []string
 	keys := make([]string, 0, len(m))
@@ -50,12 +41,12 @@ func (c *Config) BlueprintsDir(configDir string) (string, []string) {
 	dir := ""
 	for _, k := range keys {
 		if k != "dir" {
-			warns = append(warns, fmt.Sprintf("%s: unknown key %q", key, k))
+			warns = append(warns, fmt.Sprintf("templates: unknown key %q", k))
 			continue
 		}
 		s, ok := m[k].(string)
 		if !ok {
-			warns = append(warns, key+": dir must be a folder path")
+			warns = append(warns, "templates: dir must be a folder path")
 			continue
 		}
 		dir = strings.TrimSpace(s)
@@ -77,8 +68,6 @@ func (c *Config) BlueprintsDir(configDir string) (string, []string) {
 	}
 	return filepath.Clean(dir), nil
 }
-
-func isDir(p string) bool { fi, err := os.Stat(p); return err == nil && fi.IsDir() }
 
 // TemplateRule maps a path pattern to the id of a page template: the folder's
 //

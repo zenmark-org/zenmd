@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import type { LayoutInfo, PluginInfo, SiteTemplate } from "../api";
+import type { LayoutInfo, PageTemplate, PluginInfo, SiteTemplate } from "../api";
 import { createFakeApi, MYST_DIALECT, ZENMARK_BUILD } from "../api/fake";
 import { rememberBuild, type BuildApi } from "./buildsite";
 import { createSettingsView, type SettingsView } from "./settings";
@@ -50,14 +50,32 @@ const TEMPLATES: SiteTemplate[] = [
   { id: "bad", name: "Bad one", description: "", version: "", ask: [], builtin: false, update: "", error: "template.yml: no files <i>x</i>" },
 ];
 
+const PAGES: PageTemplate[] = [
+  {
+    id: "lesson", name: "Lesson <b>plan</b>", description: "A lesson with <i>steps</i>", version: "", layout: "course", source: "folder", path: "/Users/me/site/.zen/templates/lesson.yml",
+    fields: [{ name: "title", type: "string", required: true, default: "" }, { name: "level", type: "string", required: false, default: "beginner" }],
+    outline: [{ depth: 0, text: "heading: level 1, count 1" }, { depth: 0, text: "section: Steps" }, { depth: 1, text: "list: ordered, min-items 2" }, { depth: 0, text: "end" }],
+    skeleton: "# {{title}}\n\n## Steps\n\n1. One\n", update: "", error: "", rules: ["lessons/**", "course/**"],
+  },
+  {
+    id: "how-to", name: "How-to guide", description: "Steps to one result", version: "1.0.0", layout: "docs", source: "yours", path: "/Users/me/Library/Application Support/zen/templates/pages/how-to.yml",
+    fields: [{ name: "title", type: "string", required: true, default: "" }], outline: [], skeleton: "# {{title}}\n\nText\n", update: "1.1.0", error: "", rules: [],
+  },
+  {
+    id: "term", name: "Glossary term", description: "One term", version: "", layout: "term", source: "builtin", path: "",
+    fields: [], outline: [], skeleton: "The definition.\n", update: "", error: "", rules: [],
+  },
+  { id: "broken", name: "broken", description: "", version: "", layout: "", source: "yours", path: "/x/pages/broken.yml", fields: [], outline: [], skeleton: "", update: "", error: "did not find expected <u>key</u>", rules: [] },
+];
+
 type Opts = {
-  hasWorkspace?: boolean; plugins?: PluginInfo[]; layouts?: LayoutInfo[]; templates?: SiteTemplate[];
+  hasWorkspace?: boolean; pageTemplates?: PageTemplate[]; plugins?: PluginInfo[]; layouts?: LayoutInfo[]; templates?: SiteTemplate[];
   features?: string[]; sources?: Record<string, string>; dialects?: DialectInfo[];
   view?: Partial<Parameters<typeof createSettingsView>[0]>;
 };
 function setup(o: Opts = {}) {
   const api = createFakeApi({
-    plugins: o.plugins ?? [], layouts: o.layouts ?? [], templates: o.templates, sources: o.sources,
+    plugins: o.plugins ?? [], layouts: o.layouts ?? [], templates: o.templates, pageTemplates: o.pageTemplates, sources: o.sources,
     ...(o.dialects ? { dialects: o.dialects } : {}),
     ...(o.features ? { build: { features: o.features } } : {}),
   });
@@ -94,18 +112,18 @@ test("section list per build", () => {
     s.destroy();
     return n;
   };
-  expect(list()).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Blueprints", "Layouts", "Plugins", "Export", "Developer"]); // the full build; no This build
+  expect(list()).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Blueprints", "Templates", "Layouts", "Plugins", "Export", "Developer"]); // the full build; no This build
   // the starting shell
-  expect(list(["reader", "nav", "inspector", "developer"])).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Blueprints", "Layouts", "Plugins", "Developer"]);
+  expect(list(["reader", "nav", "inspector", "developer"])).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Blueprints", "Templates", "Layouts", "Plugins", "Developer"]);
   // the bare shell
   expect(list([])).toEqual(["Appearance", "Accessibility"]);
   // a feature brings its section
-  expect(list(["reader", "editor"])).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Blueprints", "Layouts", "Plugins"]);
+  expect(list(["reader", "editor"])).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Blueprints", "Templates", "Layouts", "Plugins"]);
   expect(list(["newsite"])).toEqual(["Appearance", "Accessibility", "Blueprints"]);
   expect(list(["export"])).toEqual(["Appearance", "Accessibility", "Export"]);
   expect(list(["developer"])).toEqual(["Appearance", "Accessibility", "Developer"]);
   expect(list(["editor"])).toEqual(["Configuration", "Appearance", "Accessibility"]);
-  expect(list(["reader"])).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Blueprints", "Layouts", "Plugins"]);
+  expect(list(["reader"])).toEqual(["Configuration", "Appearance", "Accessibility", "Reader", "Blueprints", "Templates", "Layouts", "Plugins"]);
 });
 
 test("blueprints: below Reader in every build with the reader; without New Site it lists none and asks nothing", async () => {
@@ -119,7 +137,7 @@ test("blueprints: below Reader in every build with the reader; without New Site 
 test("every section is two columns, and the arrows of the section list move through the sections", async () => {
   const { s } = setup();
   await settle();
-  for (const id of ["appearance", "accessibility", "config", "reader", "layouts", "plugins", "blueprints", "export", "developer"]) {
+  for (const id of ["appearance", "accessibility", "config", "reader", "layouts", "plugins", "blueprints", "templates", "export", "developer"]) {
     expect(panel(s, id).querySelector(".zen-settings-cols"), id).not.toBeNull();
   }
   expect(s.el.querySelector("h1")!.textContent).toBe("Settings");
@@ -674,6 +692,141 @@ test("blueprints: description, what it asks, the invalid reason as text; Show Bl
   btn(d(), "Show Blueprints Folder").click();
   await settle();
   expect(d().querySelector("[role=status]")!.textContent).toContain("no folder");
+});
+
+test("blueprints: Update available on the item, an Update button that says what it did", async () => {
+  const withUpdate = [{ ...TEMPLATES[0], update: "1.1.0" }, TEMPLATES[1]];
+  const { api, s } = setup({ templates: withUpdate });
+  await go(s, "blueprints");
+  expect(row(s, "blueprints", "techdocs").querySelector(".zen-settings-item-note")!.textContent).toBe("Update available");
+  const d = () => detail(s, "blueprints");
+  expect(d().textContent).toContain("Update available: 1.1.0");
+  btn(d(), "Update").click();
+  await settle();
+  expect(api.callsTo("updateTemplate")).toEqual([["blueprint", "techdocs"]]);
+  expect(d().querySelector("[role=status]")!.textContent).toContain("Updated Technical documentation to 1.1.0");
+  // An edited copy keeps its edits: the new version sits beside it.
+  api.updateResult = { path: "/Users/me/zen/templates/blueprints/techdocs.new", inPlace: false };
+  btn(d(), "Update").click();
+  await settle();
+  expect(d().querySelector("[role=status]")!.textContent).toContain("techdocs.new");
+  expect(d().querySelector("[role=status]")!.textContent).toContain("edits");
+  row(s, "blueprints", "mine").click();
+  expect(btn(d(), "Update")).toBeUndefined();
+  api.failNext("updateTemplate", new Error("locked"));
+  row(s, "blueprints", "techdocs").click();
+  btn(d(), "Update").click();
+  await settle();
+  expect(d().querySelector("[role=status]")!.textContent).toContain("Could not update Technical documentation: locked");
+});
+
+// ---- Templates (page templates): the Settings frame, items left and details right
+
+test("templates: items marked Built-in, Yours or This folder, with Update available; the empty text stands in the left column", async () => {
+  const { s, api } = setup({ pageTemplates: PAGES });
+  await go(s, "templates");
+  expect(api.callsTo("pageTemplates")).toHaveLength(1);
+  expect(rows(s, "templates").map((r) => r.dataset.item)).toEqual(["lesson", "how-to", "term", "broken"]);
+  const note = (id: string) => row(s, "templates", id).querySelector(".zen-settings-item-note")?.textContent ?? null;
+  expect([note("lesson"), note("how-to"), note("term"), note("broken")]).toEqual(["This folder", "Yours · Update available", "Built-in", "Invalid · Yours"]);
+  expect(row(s, "templates", "lesson").querySelector(".zen-settings-item-label")!.textContent).toBe("Lesson <b>plan</b>");
+  const e = setup({ pageTemplates: [] });
+  await go(e.s, "templates");
+  expect(leftCol(e.s, "templates").textContent).toBe("No page templates.");
+  const f = setup({});
+  f.api.failNext("pageTemplates", new Error("down"));
+  await go(f.s, "templates");
+  expect(leftCol(f.s, "templates").textContent).toContain("Could not list page templates: down");
+});
+
+test("templates: the right column has the description, layout, fields, structure, skeleton and rules; all text as text", async () => {
+  const { s, api } = setup({ pageTemplates: PAGES });
+  await go(s, "templates"); // the first item is selected
+  const d = () => detail(s, "templates");
+  expect(d().querySelector("h3")!.textContent).toBe("Lesson <b>plan</b>");
+  expect(d().querySelector("b")).toBeNull();
+  expect(d().querySelector("i")).toBeNull();
+  expect(d().textContent).toContain("A lesson with <i>steps</i>");
+  expect(d().textContent).toContain("This folder");
+  expect(d().textContent).toContain("course"); // the layout
+  const fields = Array.from(d().querySelectorAll(".zen-template-field")).map((r) => r.textContent);
+  expect(fields).toHaveLength(2);
+  expect(fields[0]).toContain("title");
+  expect(fields[0]).toContain("required");
+  expect(fields[1]).toContain("level");
+  expect(fields[1]).toContain("default beginner");
+  const outline = Array.from(d().querySelectorAll(".zen-template-outline li")).map((li) => li.firstChild!.textContent);
+  expect(outline).toEqual(["heading: level 1, count 1", "section: Steps", "list: ordered, min-items 2", "end"]);
+  expect(d().querySelector(".zen-template-outline ul ul, .zen-template-outline li > ul")).not.toBeNull(); // the nested list
+  expect(d().textContent).toContain("lessons/**");
+  expect(d().textContent).toContain("course/**");
+  // The skeleton is rendered through the page's own preview.
+  await settle();
+  expect(api.callsTo("preview")).toHaveLength(1);
+  expect(api.callsTo("preview")[0][1]).toContain("## Steps");
+  expect(d().querySelector(".zen-template-skeleton")).not.toBeNull();
+  // A template with no structure or rules says nothing about them.
+  row(s, "templates", "term").click();
+  expect(d().querySelector(".zen-template-outline")).toBeNull();
+  expect(d().textContent).not.toContain("Structure");
+  expect(d().textContent).not.toContain("Used by");
+  row(s, "templates", "broken").click();
+  expect(d().textContent).toContain("did not find expected <u>key</u>");
+  expect(d().querySelector("u")).toBeNull();
+});
+
+test("templates: the skeleton falls back to monospace text when it cannot be rendered", async () => {
+  const { s, api } = setup({ pageTemplates: [PAGES[1]] });
+  api.failNext("preview", new Error("no"));
+  await go(s, "templates");
+  await settle();
+  const pre = detail(s, "templates").querySelector<HTMLElement>("pre.zen-template-skeleton")!;
+  expect(pre.textContent).toContain("# {{title}}");
+});
+
+test("templates: Show in Finder, Open in Editor, Copy to This Folder, Update", async () => {
+  const { s, api } = setup({ pageTemplates: PAGES });
+  await go(s, "templates", "how-to");
+  const d = () => detail(s, "templates");
+  btn(d(), "Show in Finder").click();
+  await settle();
+  expect(api.callsTo("revealPageTemplates")).toHaveLength(1);
+  btn(d(), "Open in Editor").click();
+  await settle();
+  expect(api.callsTo("openPageTemplate")).toEqual([["how-to"]]);
+  btn(d(), "Copy to This Folder").click();
+  await settle();
+  expect(api.callsTo("copyPageTemplate")).toEqual([["how-to"]]);
+  expect(d().querySelector("[role=status]")!.textContent).toContain(".zen/templates/how-to.yml");
+  expect(d().textContent).toContain("Update available: 1.1.0");
+  btn(d(), "Update").click();
+  await settle();
+  expect(api.callsTo("updateTemplate")).toEqual([["page", "how-to"]]);
+  expect(d().querySelector("[role=status]")!.textContent).toContain("Updated How-to guide to 1.1.0");
+  // The folder's own copy: edit it, and it cannot be copied again. A built-in one has no file to open.
+  row(s, "templates", "lesson").click();
+  expect(btn(d(), "Copy to This Folder")).toBeUndefined();
+  expect(btn(d(), "Open in Editor")).toBeDefined();
+  expect(btn(d(), "Update")).toBeUndefined();
+  row(s, "templates", "term").click();
+  expect(btn(d(), "Open in Editor")).toBeUndefined();
+  expect(btn(d(), "Copy to This Folder")).toBeDefined();
+  api.failNext("copyPageTemplate", new Error("exists"));
+  btn(d(), "Copy to This Folder").click();
+  await settle();
+  expect(d().querySelector("[role=status]")!.textContent).toContain("Could not copy Glossary term: exists");
+});
+
+test("templates: without an open folder there is no Copy to This Folder; without the editor no Open or Copy", async () => {
+  const a = setup({ pageTemplates: PAGES, hasWorkspace: false });
+  await go(a.s, "templates", "term");
+  expect(btn(detail(a.s, "templates"), "Copy to This Folder")).toBeUndefined();
+  expect(btn(detail(a.s, "templates"), "Show in Finder")).toBeDefined();
+  const b = setup({ pageTemplates: PAGES, features: ["reader", "nav"] });
+  await go(b.s, "templates", "how-to");
+  expect(btn(detail(b.s, "templates"), "Open in Editor")).toBeUndefined();
+  expect(btn(detail(b.s, "templates"), "Copy to This Folder")).toBeUndefined();
+  expect(btn(detail(b.s, "templates"), "Show in Finder")).toBeDefined();
 });
 
 // ---- 7: export in place

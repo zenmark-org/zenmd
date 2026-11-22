@@ -1,6 +1,7 @@
 id: release-notes
 name: Release notes
 description: "What changed in one release: Added, Changed, Fixed"
+version: 1.0.0
 layout: docs
 fields:
   title:   { required: true }

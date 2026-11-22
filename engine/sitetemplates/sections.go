@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -271,6 +272,7 @@ func (s Section) check(what string, ids map[string]bool) error {
 // skeleton, its layout and the defaults of its fields. Checking comes later.
 type pageTemplate struct {
 	ID       string    `yaml:"id"`
+	Name     string    `yaml:"name"`
 	Layout   string    `yaml:"layout"`
 	Skeleton string    `yaml:"skeleton"`
 	Fields   yaml.Node `yaml:"fields"`
@@ -296,10 +298,19 @@ func (p pageTemplate) defaults() []field {
 }
 
 // pageTemplateBytes finds a page template: the blueprint's own
-// .zen/templates first, then the built-in ones.
+// .zen/templates first, then templates/pages on this Mac, then the built-in
+// ones.
 func (t Template) pageTemplateBytes(id string) ([]byte, bool) {
+	if id == "" || strings.ContainsAny(id, `/\`) || strings.HasPrefix(id, ".") {
+		return nil, false
+	}
 	if t.fsys != nil {
 		if b, err := fs.ReadFile(t.fsys, ".zen/templates/"+id+".yml"); err == nil {
+			return b, true
+		}
+	}
+	if t.PagesDir != "" {
+		if b, ok := readPageFile(filepath.Join(t.PagesDir, id+".yml")); ok {
 			return b, true
 		}
 	}
@@ -322,7 +333,7 @@ func (t Template) pageTemplateOrNone(id string) (pageTemplate, error) {
 func (t Template) pageTemplate(id string) (pageTemplate, error) {
 	b, ok := t.pageTemplateBytes(id)
 	if !ok {
-		return pageTemplate{}, fmt.Errorf("the page template %q is not available (it is not in the blueprint's .zen/templates or among the built-in ones)", id)
+		return pageTemplate{}, fmt.Errorf("the page template %q is not available (it is not in the blueprint's .zen/templates, in templates/pages or among the built-in ones)", id)
 	}
 	var p pageTemplate
 	if err := yaml.Unmarshal(b, &p); err != nil {

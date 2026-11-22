@@ -47,6 +47,25 @@ export type SiteTemplate = {
   ask: { key: string; label: string; default: string }[];
   builtin: boolean; update: string; error: string;
 };
+/** A page template (Settings › Templates): where it comes from, its fields, structure outline and skeleton. */
+export type PageTemplate = {
+  id: string; name: string; description: string; version: string; layout: string;
+  /** builtin: no copy on this Mac; yours: a file in templates/pages; folder: the open folder's .zen/templates. */
+  source: "builtin" | "yours" | "folder";
+  /** The file, "" for a built-in one. */
+  path: string;
+  fields: { name: string; type: string; required: boolean; default: string }[];
+  /** The structure: of the template, one line each, depth 0 at the top level. */
+  outline: { depth: number; text: string }[];
+  skeleton: string;
+  /** A newer built-in version than the installed copy, "" for none. */
+  update: string;
+  error: string;
+  /** The open folder's path rules (.zenmd.yml templates:) that use it. */
+  rules: string[];
+};
+/** What an update did: path has the new version; inPlace when it replaced an untouched copy, else it is beside an edited one (.new). */
+export type TemplateUpdate = { path: string; inPlace: boolean };
 /** Build Website (ui/static-build). */
 /** The PDF form's options (apps/zenmark exportpdf.go); out is absolute from the app, and the form may send a path relative to the folder. */
 export type PdfOptions = { out: string; drafts: boolean; cover: boolean; open: boolean };
@@ -99,9 +118,20 @@ export interface Api extends KitHost {
   pickSiteFolder(): Promise<string>;
   /** Creates the site in dir (nothing is overwritten) and opens it. */
   createSite(id: string, dir: string, values: Record<string, string>): Promise<Startup>;
+  /** Shows templates/blueprints in Finder. */
   revealTemplates(): Promise<void>;
-  /** The templates folder, "" when there is none. */
+  /** The templates folder (it holds blueprints/ and pages/), "" when there is none. */
   templatesDir(): Promise<string>;
+  // Page templates (Settings › Templates)
+  pageTemplates(): Promise<PageTemplate[]>;
+  /** Brings a newer built-in blueprint or page template to the user's copy: in place when it has no edits, else as <id>.new beside it. */
+  updateTemplate(kind: "blueprint" | "page", id: string): Promise<TemplateUpdate>;
+  /** Shows templates/pages in Finder. */
+  revealPageTemplates(): Promise<void>;
+  /** Writes the template to the open folder's .zen/templates/<id>.yml and returns that path. */
+  copyPageTemplate(id: string): Promise<string>;
+  /** Opens the template's file (in templates/pages or the folder's own) in the editor. */
+  openPageTemplate(id: string): Promise<void>;
   // Build Website (ui/static-build)
   buildOptions(): Promise<BuildOptions>;
   buildWebsite(o: BuildOptions): Promise<BuildResult>;

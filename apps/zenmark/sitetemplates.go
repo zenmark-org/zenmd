@@ -85,8 +85,8 @@ func (z *Zen) CreateSite(id, dir string, values map[string]string) (r0 Startup, 
 	return z.Startup(), nil
 }
 
-// TemplatesDir is the blueprints folder (blueprints.dir in config.yml, or the
-// default next to it), "" when there is none.
+// TemplatesDir is the templates folder (templates.dir in config.yml, or the
+// default next to it), "" when there is none. It holds blueprints/ and pages/.
 func (z *Zen) TemplatesDir() (string, error) {
 	if err := requireFeature("newsite"); err != nil {
 		return "", err
@@ -94,7 +94,7 @@ func (z *Zen) TemplatesDir() (string, error) {
 	return z.s.Templates().Dir(), nil
 }
 
-// RevealTemplates shows the blueprints folder in Finder, creating it (with the
+// RevealTemplates shows the blueprints folder (templates/blueprints) in Finder, creating it (with the
 // built-in presets) when it is not there yet.
 func (z *Zen) RevealTemplates() (err error) {
 	defer z.logCall("RevealTemplates", &err)
@@ -105,10 +105,91 @@ func (z *Zen) RevealTemplates() (err error) {
 	if dir == "" {
 		return errors.New("there is no blueprints folder")
 	}
+	dir = sitetemplates.BlueprintsDir(dir)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
 	return revealInFinder(dir)
+}
+
+// PageTemplates lists the page templates for Settings › Templates: the open folder's own, those in
+// templates/pages and the built-in ones (installing the built-in ones into templates/pages on first use).
+func (z *Zen) PageTemplates() ([]PageTemplate, error) {
+	if err := requireFeature("reader"); err != nil {
+		return nil, err
+	}
+	return z.s.Templates().Pages().Templates, nil
+}
+
+// UpdateTemplate brings a newer built-in template to the user's copy: kind is "blueprint" or "page".
+// An untouched copy is replaced in place; an edited one gets <id>.new (a page template <id>.yml.new) beside it.
+func (z *Zen) UpdateTemplate(kind, id string) (r0 TemplateUpdate, err error) {
+	defer z.logCall("UpdateTemplate", &err)
+	if z.ro {
+		return TemplateUpdate{}, session.ErrReadOnly
+	}
+	var res sitetemplates.UpdateResult
+	switch kind {
+	case "blueprint":
+		if err := requireFeature("newsite"); err != nil {
+			return TemplateUpdate{}, err
+		}
+		res, err = z.s.Templates().Update(id)
+	case "page":
+		if err := requireFeature("reader"); err != nil {
+			return TemplateUpdate{}, err
+		}
+		res, err = z.s.Templates().UpdatePage(id)
+	default:
+		return TemplateUpdate{}, errors.New("kind must be blueprint or page")
+	}
+	return TemplateUpdate{Path: res.Path, InPlace: res.InPlace}, err
+}
+
+// RevealPageTemplates shows the page templates folder (templates/pages) in Finder.
+func (z *Zen) RevealPageTemplates() (err error) {
+	defer z.logCall("RevealPageTemplates", &err)
+	if err := requireFeature("reader"); err != nil {
+		return err
+	}
+	dir := z.s.Templates().PagesDir()
+	if dir == "" {
+		return errors.New("there is no templates folder")
+	}
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	return revealInFinder(dir)
+}
+
+// CopyPageTemplate writes page template id to the open folder's .zen/templates/<id>.yml to edit
+// there, and returns that path. An existing file is never replaced.
+func (z *Zen) CopyPageTemplate(id string) (r0 string, err error) {
+	defer z.logCall("CopyPageTemplate", &err)
+	if err := requireFeature("editor"); err != nil {
+		return "", err
+	}
+	return z.s.Templates().CopyPage(id)
+}
+
+// OpenPageTemplate opens the file of page template id (the copy in templates/pages, or the open
+// folder's own) in the editor.
+func (z *Zen) OpenPageTemplate(id string) (err error) {
+	defer z.logCall("OpenPageTemplate", &err)
+	if err := requireFeature("editor"); err != nil {
+		return err
+	}
+	if z.ro {
+		return session.ErrReadOnly
+	}
+	file, err := z.s.Templates().PagePath(id)
+	if err != nil {
+		return err
+	}
+	if err := openFile(file); err != nil {
+		return errors.New("could not open " + filepath.Base(file))
+	}
+	return nil
 }
 
 // InitSite is `zenmd init` and `zenmd blueprint`: it lists blueprints, makes one, writes a newer built-in beside
@@ -121,12 +202,20 @@ func InitSite(i cli.Init, stdout, stderr io.Writer) error {
 }
 
 func initSite(tpls session.TemplatesAPI, i cli.Init, stdout, stderr io.Writer) error {
+	defer func() { // what happened to the templates folder (the sites move) is told once
+		for _, n := range tpls.Notes() {
+			fmt.Fprintln(stderr, "zenmd: "+n)
+		}
+	}()
+	if i.Pages {
+		return initPages(tpls, i, stdout, stderr)
+	}
 	if i.ShowDir {
 		dir, _ := tpls.Folder()
 		if dir == "" {
 			return errors.New("there is no blueprints folder")
 		}
-		fmt.Fprintln(stdout, dir)
+		fmt.Fprintln(stdout, sitetemplates.BlueprintsDir(dir))
 		return nil
 	}
 	if i.New {
@@ -138,11 +227,11 @@ func initSite(tpls session.TemplatesAPI, i cli.Init, stdout, stderr io.Writer) e
 		return nil
 	}
 	if i.Update {
-		out, err := tpls.Update(i.Template)
+		res, err := tpls.Update(i.Template)
 		if err != nil {
 			return err
 		}
-		fmt.Fprintf(stdout, "Wrote the newer %s to %s. Compare it with your copy, keep what you like, then delete it.\n", i.Template, out)
+		fmt.Fprintln(stdout, updateSummary(i.Template, res))
 		return nil
 	}
 
@@ -231,4 +320,136 @@ func shellQuote(s string) string {
 		return s
 	}
 	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
+}
+
+// updateSummary says what an update did.
+func updateSummary(id string, res sitetemplates.UpdateResult) string {
+	if res.InPlace {
+		return fmt.Sprintf("Updated %s in place: %s. It had no edits of yours.", id, res.Path)
+	}
+	return fmt.Sprintf("Wrote the newer %s to %s. Your copy has edits, so it was left as it is: compare the two, keep what you like, then delete the new one.", id, res.Path)
+}
+
+// initPages is zenmd templates: the page templates (list, show, update) and the templates folder (--dir).
+func initPages(tpls session.TemplatesAPI, i cli.Init, stdout, stderr io.Writer) error {
+	if i.ShowDir {
+		dir, _ := tpls.Folder()
+		if dir == "" {
+			return errors.New("there is no templates folder")
+		}
+		fmt.Fprintln(stdout, dir)
+		return nil
+	}
+	if i.Update {
+		res, err := tpls.UpdatePage(i.Template)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(stdout, updateSummary(i.Template, res))
+		return nil
+	}
+	l := tpls.PagesIn(i.Dir) // the folder zenmd is run in: its own .zen/templates show too
+	for _, w := range l.Warnings {
+		fmt.Fprintln(stderr, "zenmd: "+w)
+	}
+	if l.Note != "" {
+		fmt.Fprintln(stderr, "zenmd: "+l.Note)
+	}
+	if i.List {
+		width := 0
+		for _, p := range l.Templates {
+			width = max(width, len(p.ID))
+		}
+		for _, p := range l.Templates {
+			if p.Error != "" {
+				fmt.Fprintf(stdout, "%-*s  (invalid: %s)  %s\n", width, p.ID, p.Error, p.Path)
+				continue
+			}
+			line := fmt.Sprintf("%-*s  %-9s", width, p.ID, sourceLabel(p.Source))
+			if p.Version != "" {
+				line += "  " + p.Version
+			}
+			line += "  " + p.Name
+			if p.Update != "" {
+				line += fmt.Sprintf("  [update available: %s, see zenmd templates update %s]", p.Update, p.ID)
+			}
+			fmt.Fprintln(stdout, strings.TrimRight(line, " "))
+		}
+		if len(l.Templates) == 0 {
+			fmt.Fprintln(stdout, "No page templates.")
+		}
+		return nil
+	}
+	for _, p := range l.Templates {
+		if p.ID != i.Template {
+			continue
+		}
+		if p.Error != "" {
+			return fmt.Errorf("page template %s is not valid: %s", p.ID, p.Error)
+		}
+		showPage(stdout, p)
+		return nil
+	}
+	var ids []string
+	for _, p := range l.Templates {
+		ids = append(ids, p.ID)
+	}
+	return cli.UsageError(fmt.Sprintf("there is no page template %q (page templates: %s)", i.Template, strings.Join(ids, ", ")))
+}
+
+func sourceLabel(src string) string {
+	switch src {
+	case sitetemplates.SourceFolder:
+		return "this folder"
+	case sitetemplates.SourceYours:
+		return "yours"
+	}
+	return "built-in"
+}
+
+func showPage(w io.Writer, p PageTemplate) {
+	fmt.Fprintf(w, "%s: %s\n", p.ID, p.Name)
+	if p.Description != "" {
+		fmt.Fprintln(w, p.Description)
+	}
+	from := sourceLabel(p.Source)
+	if p.Path != "" {
+		from += ", " + p.Path
+	}
+	meta := "Layout: " + p.Layout + "\nFrom: " + from
+	if p.Version != "" {
+		meta += "\nVersion: " + p.Version
+	}
+	fmt.Fprintln(w, meta)
+	if len(p.Rules) > 0 {
+		fmt.Fprintln(w, "Rules here: "+strings.Join(p.Rules, ", "))
+	}
+	fmt.Fprintln(w, "\nFields")
+	if len(p.Fields) == 0 {
+		fmt.Fprintln(w, "  (none)")
+	}
+	width := 0
+	for _, f := range p.Fields {
+		width = max(width, len(f.Name))
+	}
+	for _, f := range p.Fields {
+		line := fmt.Sprintf("  %-*s  %-7s", width, f.Name, f.Type)
+		if f.Required {
+			line += "  required"
+		}
+		if f.Default != "" {
+			line += "  default " + f.Default
+		}
+		fmt.Fprintln(w, strings.TrimRight(line, " "))
+	}
+	if len(p.Outline) > 0 {
+		fmt.Fprintln(w, "\nStructure")
+		for _, o := range p.Outline {
+			fmt.Fprintln(w, "  "+strings.Repeat("  ", o.Depth)+"- "+o.Text)
+		}
+	}
+	fmt.Fprintln(w, "\nSkeleton")
+	for _, line := range strings.Split(strings.TrimRight(p.Skeleton, "\n"), "\n") {
+		fmt.Fprintln(w, strings.TrimRight("  "+line, " "))
+	}
 }

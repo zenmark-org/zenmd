@@ -13,7 +13,7 @@ func TestList(t *testing.T) {
 	if got, warns := List(dir); len(got) != 0 || len(warns) != 0 {
 		t.Errorf("empty: %v %v", got, warns)
 	}
-	sites := filepath.Join(dir, "sites")
+	sites := filepath.Join(dir, "blueprints")
 	put(t, sites, map[string]string{
 		"b-folder/template.yml":  "id: beta\nname: Beta\norder: 20\n",
 		"a-folder/template.yml":  "id: alpha\nname: Alpha\norder: 20\ndescription: First by name\n",
