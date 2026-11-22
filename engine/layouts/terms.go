@@ -190,9 +190,10 @@ func (d *Data) terms(self bool) []Term {
 	return out
 }
 
-// termFrom makes the Term of a page. The title is the page's H1 (what the
-// caller reads from the text); a title: in the frontmatter is used when there
-// is none, and the file name when there is neither.
+// termFrom makes the Term of a page. The title is the page's title by the one
+// rule (render.TitleOf: the H1, else title:, else the file name) that the
+// caller read. Called with no title (a unit's input), it follows the same order:
+// title: in the frontmatter, then the file name.
 func termFrom(p, title string, meta map[string]any, def string) Term {
 	if title = strings.TrimSpace(title); title == "" {
 		if s, ok := meta["title"].(string); ok {

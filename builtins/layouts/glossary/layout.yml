@@ -8,4 +8,4 @@ help:
   summary: "The index of a glossary, for glossary/index.md. It is built from the term pages beside it (pages whose layout is term), so the file holds only its frontmatter and an optional intro. It shows the count, a letter bar (A to Z and #) that stays on top while scrolling, the terms in alphabetical order grouped by letter, each with its abbreviation, aliases and definition, a filter field. Arrow keys move along the bar. Esc clears the filter. The app adds New Term…"
   snippets:
     - title: A glossary index
-      markdown: "---\ntitle: Glossary\nlayout: glossary\n---\nThe words this guide uses.\n"
+      markdown: "---\nlayout: glossary\n---\n# Glossary\n\nThe words this guide uses.\n"

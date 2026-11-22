@@ -1,6 +1,3 @@
----
-title: Other syntaxes
----
 # Other syntaxes
 
 Markdown written for another tool can render in zen without being rewritten.

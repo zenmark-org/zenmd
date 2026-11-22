@@ -1,5 +1,4 @@
 ---
-title: The wide layout
 layout: wide
 ---
 # The wide layout

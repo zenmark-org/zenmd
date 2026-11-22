@@ -163,6 +163,9 @@ func (r *Renderer) Render(pagePath string, src []byte) (Page, error) {
 	doc := md.Parser().Parse(text.NewReader(body))
 
 	title := pageTitle(st, meta, doc, body, pagePath)
+	if n := titleNote(st, meta, doc, body); n != "" {
+		st.warnings = append(st.warnings, n)
+	}
 
 	// 4+5 render, with fenced plugin blocks and link rewriting
 	var buf bytes.Buffer
@@ -219,19 +222,36 @@ func (r *Renderer) Render(pagePath string, src []byte) (Page, error) {
 	}, nil
 }
 
-// pageTitle is the frontmatter title, else the first h1, else the file name.
+// pageTitle is the one rule for a page's title: the first h1 (plain text);
+// else the frontmatter title:, which only a page without an h1 uses; else the
+// file name.
 func pageTitle(st *state, meta map[string]any, doc ast.Node, body []byte, pagePath string) string {
-	title := ""
+	if t := st.plain(firstH1(doc, body)); t != "" {
+		return t
+	}
 	if t, ok := meta["title"].(string); ok && strings.TrimSpace(t) != "" {
-		title = strings.TrimSpace(t)
-	} else {
-		title = st.plain(firstH1(doc, body))
+		return strings.TrimSpace(t)
 	}
-	if title == "" {
-		base := path.Base(pagePath)
-		title = strings.TrimSuffix(base, path.Ext(base))
+	base := path.Base(pagePath)
+	return strings.TrimSuffix(base, path.Ext(base))
+}
+
+// titleNote is the Problems note for a page that has both an h1 and a title:
+// in its frontmatter; "" when it has not. A title: equal to the h1 gets the
+// same note worded as a suggestion (the inspector reads the ending).
+func titleNote(st *state, meta map[string]any, doc ast.Node, body []byte) string {
+	t, ok := meta["title"].(string)
+	if !ok || strings.TrimSpace(t) == "" {
+		return ""
 	}
-	return title
+	h1 := st.plain(firstH1(doc, body))
+	if h1 == "" {
+		return ""
+	}
+	if strings.TrimSpace(t) == h1 {
+		return "title: is ignored because the page has an H1, and it says the same"
+	}
+	return fmt.Sprintf("title: is ignored because the page has an H1 (%q)", h1)
 }
 
 // PluginSet returns the plugins enabled for the page whose source (with its
@@ -254,6 +274,13 @@ func (r *Renderer) Title(pagePath string, src []byte) string {
 	body = st.replaceInlines(body)
 	doc := newMarkdown().Parser().Parse(text.NewReader(body))
 	return pageTitle(st, meta, doc, body, pagePath)
+}
+
+// TitleOf is the title of the page at pagePath with source src by the same
+// rule as Render and Title, for callers with no renderer (the glossary
+// commands): the first h1, else the frontmatter title:, else the file name.
+func TitleOf(pagePath string, src []byte) string {
+	return New(nil, nil, nil).Title(pagePath, src)
 }
 
 // laidOut is the page after its layout.

@@ -1,6 +1,3 @@
----
-title: Features
----
 # Features
 
 What this build of Zenmark can do, one page each, in the order of the build.

@@ -1,6 +1,3 @@
----
-title: Blueprints
----
 # Blueprints
 
 A **blueprint** is a ready-made folder to start from: its sections, their

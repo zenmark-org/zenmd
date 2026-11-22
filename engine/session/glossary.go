@@ -16,6 +16,7 @@ import (
 	"github.com/zenmark-org/zenmd/engine/config"
 	"github.com/zenmark-org/zenmd/engine/index"
 	"github.com/zenmark-org/zenmd/engine/layouts"
+	"github.com/zenmark-org/zenmd/engine/render"
 	"github.com/zenmark-org/zenmd/engine/workspace"
 )
 
@@ -118,13 +119,8 @@ func (g *GlossaryFiles) List(folder string) ([]TermEntry, error) {
 		if err != nil || g.layoutOf(f, fm) != "term" {
 			continue
 		}
-		title := headingOf(body)
-		if title == "" {
-			title, _ = fm["title"].(string)
-		}
-		if title = strings.TrimSpace(title); title == "" {
-			title = strings.TrimSuffix(path.Base(f), path.Ext(f))
-		}
+		raw, _ := g.ws.Read(f)
+		title := render.TitleOf(f, raw)
 		out = append(out, TermEntry{Title: title, Path: f, Definition: definition(body)})
 	}
 	sort.SliceStable(out, func(i, j int) bool {

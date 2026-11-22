@@ -89,7 +89,7 @@ func TestTechdocsPagesAndRules(t *testing.T) {
 	if o := readFile(t, root, "index.md"); !strings.Contains(o, "Zed is") || !strings.Contains(o, "## Key features") || !strings.Contains(o, "## Where to go next") || !strings.Contains(o, "(releases/index.md)") || !strings.Contains(o, "(presentation.md)") || !strings.Contains(o, "Zed in five slides") {
 		t.Errorf("home:\n%s", o)
 	}
-	if p := readFile(t, root, "presentation.md"); !strings.Contains(p, "layout: slides") || !strings.Contains(p, "title: Zed in five slides") {
+	if p := readFile(t, root, "presentation.md"); !strings.Contains(p, "layout: slides") || !strings.Contains(p, "# Zed in five slides") || strings.Contains(p, "title:") {
 		t.Errorf("presentation:\n%s", p)
 	}
 	matches, _ := filepath.Glob(filepath.Join(root, "releases", "*-first-release.md"))

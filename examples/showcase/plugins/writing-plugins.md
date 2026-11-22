@@ -1,5 +1,4 @@
 ---
-title: Writing your own plugin
 nav:
   title: Writing plugins
   parent: plugins/index.md

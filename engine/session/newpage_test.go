@@ -112,7 +112,10 @@ func TestCreatePageWritesNoTitleWithAnH1(t *testing.T) {
 		}
 		b, _ := os.ReadFile(filepath.Join(dir, filepath.FromSlash(rel)))
 		s := string(b)
-		if !strings.Contains(s, "\n# Tt ") && !strings.Contains(s, "\n# Tt\n") && !strings.Contains(s, "\n# Tt-") {
+		if !strings.Contains(s, "\n# Tt") && !strings.HasPrefix(s, "# Tt") {
+			if layout == "landing" { // shows its own title and its skeleton has no H1: it keeps title:
+				continue
+			}
 			t.Errorf("%q: no H1:\n%s", layout, s)
 		}
 		if strings.Contains(strings.SplitN(s, "\n---\n", 2)[0], "\ntitle:") || strings.HasPrefix(s, "---\ntitle:") {

@@ -1,6 +1,3 @@
----
-title: Export
----
 # Export
 
 Export turns the open folder into something you can share: a **website** of

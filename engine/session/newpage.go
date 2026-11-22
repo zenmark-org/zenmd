@@ -103,7 +103,7 @@ func (s *Session) newPageText(layout, title string) (string, bool) {
 	if sn := l.Manifest().Help.Snippets; len(sn) > 0 {
 		return snippetPage(sn[0].Markdown, title), true
 	}
-	return "---\ntitle: " + yamlString(title) + "\nlayout: " + layout + "\n---\n# " + title + "\n\n", true
+	return "---\nlayout: " + layout + "\n---\n# " + title + "\n\n", true
 }
 
 // snippetPage turns a help snippet into a new page: its frontmatter gets the
@@ -124,18 +124,26 @@ func snippetPage(md, title string) string {
 			kept = append(kept, l)
 		}
 	}
-	kept = append([]string{"title: " + yamlString(title)}, kept...)
 	lines := strings.Split(rest, "\n")
+	hasH1 := false
 	for i, l := range lines {
 		if strings.TrimSpace(l) == "" {
 			continue
 		}
 		if strings.HasPrefix(l, "# ") {
 			lines[i] = "# " + title
+			hasH1 = true
 		}
 		break
 	}
-	return "---\n" + strings.Join(kept, "\n") + "\n---\n" + strings.Join(lines, "\n")
+	text := strings.Join(lines, "\n")
+	if !hasH1 { // no H1 to be the title (a landing page shows its own): keep title:
+		kept = append([]string{"title: " + yamlString(title)}, kept...)
+	}
+	if len(kept) == 0 {
+		return text
+	}
+	return "---\n" + strings.Join(kept, "\n") + "\n---\n" + text
 }
 
 // pageTemplate is the starting text of a new page (a plain page, or the
@@ -143,17 +151,17 @@ func snippetPage(md, title string) string {
 func pageTemplate(layout, title string) string {
 	switch layout {
 	case "slides":
-		return "---\ntitle: " + yamlString(title) + "\nlayout: slides\nlayoutOptions: { ratio: \"16:9\" }\n---\n" +
+		return "---\nlayout: slides\nlayoutOptions: { ratio: \"16:9\" }\n---\n" +
 			"# " + title + "\n\nA subtitle or your name.\n\n---\n\n" +
 			"## First point\n\n- One idea per slide\n- Separate slides with a line of three dashes\n\nNote: Speaker notes start with \"Note:\" and stay hidden.\n\n---\n\n" +
 			"## Thank you\n\nPress F for full page, O for the overview.\n"
 	case "course":
-		return "---\ntitle: " + yamlString(title) + "\nlayout: course\nlayoutOptions: { id: " + yamlString(courseID(title)) + " }\n---\n" +
+		return "---\nlayout: course\nlayoutOptions: { id: " + yamlString(courseID(title)) + " }\n---\n" +
 			"# " + title + "\n\nWhat this course teaches, in one or two sentences.\n\n" +
 			"## First step\n\nExplain the step.\n\n:::check\n- [ ] I did the first step\n:::\n\n" +
 			"## Second step\n\nEach `##` heading starts a step.\n"
 	default:
-		return "---\ntitle: " + yamlString(title) + "\n---\n# " + title + "\n\n"
+		return "# " + title + "\n\n"
 	}
 }
 

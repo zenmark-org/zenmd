@@ -1,6 +1,3 @@
----
-title: Markdown
----
 # Markdown
 
 CommonMark and GitHub Flavored Markdown (GFM) are the default: they are always on

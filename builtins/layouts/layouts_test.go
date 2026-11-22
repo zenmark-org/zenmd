@@ -170,7 +170,7 @@ func TestDocs(t *testing.T) {
 
 func TestPost(t *testing.T) {
 	p, err := renderer(t, site{next: &core.Link{Title: "Newer", Path: "n.md"}}, nil).Render("blog/p.md", []byte(
-		"---\ntitle: Hello\nlayout: post\ndate: 2026-11-17\nauthor: Ada\ntags: [a, b]\n---\n# Hello\n\n"+strings.Repeat("word ", 450)+"\n"))
+		"---\nlayout: post\ndate: 2026-11-17\nauthor: Ada\ntags: [a, b]\n---\n# Hello\n\n"+strings.Repeat("word ", 450)+"\n"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,7 +182,7 @@ func TestPost(t *testing.T) {
 	if strings.Contains(p.HTML, "zl-post-cover") {
 		t.Error("cover without a cover field")
 	}
-	p, _ = renderer(t, nil, nil).Render("blog/p.md", []byte("---\ntitle: T\nlayout: { name: post, reading: false }\ncover: https://example.com/c.png\n---\n# T\n"))
+	p, _ = renderer(t, nil, nil).Render("blog/p.md", []byte("---\nlayout: { name: post, reading: false }\ncover: https://example.com/c.png\n---\n# T\n"))
 	if strings.Contains(p.HTML, "min read") || !strings.Contains(p.HTML, `<img class="zl-post-cover" src="https://example.com/c.png"`) {
 		t.Errorf("reading/cover: %s", p.HTML)
 	}
@@ -208,9 +208,9 @@ func TestWide(t *testing.T) {
 }
 
 func TestHandout(t *testing.T) {
-	p := page(t, nil, "---\ntitle: Sheet\nlayout: handout\ndate: 2026-03-04\nauthor: Ada\n---\n# Sheet\n\ntext\n")
+	p := page(t, nil, "---\nlayout: handout\ndate: 2026-03-04\nauthor: Ada\n---\n# Sheet\n\ntext\n")
 	mustHave(t, p.HTML, `class="zl-handout zl-paper-a4"`, `class="zl-sheet-head"`, "4 March 2026", "Ada", `class="zl-sheet-foot"`, "<span>Sheet</span>")
-	p = page(t, nil, "---\ntitle: Sheet\nlayout: { name: handout, paper: letter }\n---\n# Sheet\n")
+	p = page(t, nil, "---\nlayout: { name: handout, paper: letter }\n---\n# Sheet\n")
 	mustHave(t, p.HTML, "zl-paper-letter")
 }
 

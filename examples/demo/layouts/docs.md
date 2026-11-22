@@ -1,5 +1,4 @@
 ---
-title: The docs layout
 layout: docs
 ---
 # The docs layout

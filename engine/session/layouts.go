@@ -13,6 +13,7 @@ import (
 	"github.com/zenmark-org/zenmd/engine/config"
 	"github.com/zenmark-org/zenmd/engine/extplugins"
 	"github.com/zenmark-org/zenmd/engine/index"
+	"github.com/zenmark-org/zenmd/engine/render"
 	"github.com/zenmark-org/zenmd/engine/layouts"
 	"github.com/zenmark-org/zenmd/engine/plugins"
 	"github.com/zenmark-org/zenmd/engine/workspace"
@@ -558,31 +559,10 @@ func (ls *layoutSite) Folder(p string) []layouts.FolderPage {
 		if fm == nil {
 			fm = map[string]any{}
 		}
-		// The term is the page's H1; a title: in the frontmatter is read when there is none.
-		_, body, _ := config.SplitFrontmatter(b)
-		title := headingOf(body)
-		if title == "" {
-			title, _ = fm["title"].(string)
-		}
-		out = append(out, layouts.FolderPage{Title: title, Path: f, Meta: fm, Definition: definition(b)})
+		// The title is the one rule: the page's H1, else title:, else the file name.
+		out = append(out, layouts.FolderPage{Title: render.TitleOf(f, b), Path: f, Meta: fm, Definition: definition(b)})
 	}
 	return out
-}
-
-// headingOf is the plain text of the first line of body when it is an H1
-// ("# Idempotent"), "" otherwise.
-func headingOf(body []byte) string {
-	for _, line := range strings.Split(string(body), "\n") {
-		t := strings.TrimSpace(line)
-		if t == "" {
-			continue
-		}
-		if !strings.HasPrefix(t, "# ") {
-			return ""
-		}
-		return summariseTo(strings.TrimRight(strings.TrimPrefix(t, "# "), "# "), 200)
-	}
-	return ""
 }
 
 var (

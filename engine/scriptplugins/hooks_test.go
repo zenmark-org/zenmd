@@ -87,7 +87,7 @@ if hook == "block" {
 
 func TestPageTitleIsAvailable(t *testing.T) {
 	s := newSite(t)
-	s.file("docs/a.md", "---\ntitle: The A page\n---\n# Heading\n")
+	s.file("docs/a.md", "---\ntitle: The A page\n---\nNo heading here.\n")
 	s.file("docs/b.md", "# From heading\n")
 	p := s.plugin("t", `plugin := {version: "1.0.0", blocks: ["x"]}
 if hook == "block" { out = page.path + "|" + page.title }`)

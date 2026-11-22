@@ -1,5 +1,4 @@
 ---
-title: The wide layout
 layout: wide
 nav:
   parent: layouts/index.md

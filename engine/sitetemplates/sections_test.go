@@ -99,7 +99,7 @@ func TestSectionsBuildFolders(t *testing.T) {
 func TestSectionsHomeLinksInOrder(t *testing.T) {
 	target, _ := buildSections(t, sectionsManifest, nil)
 	home := read(t, target, "index.md")
-	if !strings.Contains(home, "title: My Docs") || !strings.Contains(home, "# My Docs") || !strings.Contains(home, "Zed is a thing.") {
+	if strings.Contains(home, "title:") || !strings.Contains(home, "# My Docs") || !strings.Contains(home, "Zed is a thing.") {
 		t.Errorf("home title and overview:\n%s", home)
 	}
 	order := []string{"[Getting started](getting-started/index.md)", "[How-tos](how-tos/index.md)", "[About us](about.md)", "[Releases](releases/index.md)", "[Zed in five slides](pitch.md)"}
@@ -132,7 +132,7 @@ func TestSectionsIndexPages(t *testing.T) {
 		}
 	}
 	// The file section is one page.
-	if a := read(t, target, "about.md"); !strings.Contains(a, "title: About us") || !strings.Contains(a, "# About us") {
+	if a := read(t, target, "about.md"); strings.Contains(a, "title:") || !strings.Contains(a, "# About us") {
 		t.Errorf("file section:\n%s", a)
 	}
 }
@@ -167,7 +167,7 @@ func TestSectionsStartingPages(t *testing.T) {
 	target, _ := buildSections(t, sectionsManifest, nil)
 	// Written from the section template's skeleton, placeholders filled.
 	in := read(t, target, "getting-started/installation.md")
-	for _, w := range []string{"title: Installation", "# Installation", "By Ana for Zed on 2026-11-17.", "## Steps"} {
+	for _, w := range []string{"# Installation", "By Ana for Zed on 2026-11-17.", "## Steps"} {
 		if !strings.Contains(in, w) {
 			t.Errorf("installation lacks %q:\n%s", w, in)
 		}
@@ -177,7 +177,7 @@ func TestSectionsStartingPages(t *testing.T) {
 	}
 	// A page with its own layout keeps it and skips the section's template.
 	pitch := read(t, target, "pitch.md")
-	if !strings.Contains(pitch, "title: Zed in five slides") || !strings.Contains(pitch, "layout: slides") || !strings.Contains(pitch, "template: false") {
+	if !strings.Contains(pitch, "# Zed in five slides") || strings.Contains(pitch, "title:") || !strings.Contains(pitch, "layout: slides") || !strings.Contains(pitch, "template: false") {
 		t.Errorf("slides page:\n%s", pitch)
 	}
 	if strings.Contains(pitch, "Zed is a thing") || !strings.Contains(pitch, "\n---\n") {
@@ -192,7 +192,7 @@ func TestSectionsNewestFirstAndSet(t *testing.T) {
 		t.Errorf("releases index:\n%s", idx)
 	}
 	rel := read(t, target, "releases/2026-11-17-first.md")
-	for _, w := range []string{"title: First release", "version: 0.1.0", "date: 2026-11-17", "# First release 0.1.0", "## Added"} {
+	for _, w := range []string{"version: 0.1.0", "date: 2026-11-17", "# First release 0.1.0", "## Added"} {
 		if !strings.Contains(rel, w) {
 			t.Errorf("release lacks %q:\n%s", w, rel)
 		}

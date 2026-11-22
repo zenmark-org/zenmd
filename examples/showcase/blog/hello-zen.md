@@ -1,5 +1,4 @@
 ---
-title: Hello, zen
 date: 2026-11-10
 author: Ada
 tags: [welcome, notes]

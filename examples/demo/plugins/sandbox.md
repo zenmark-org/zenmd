@@ -1,6 +1,3 @@
----
-title: Sandbox
----
 # Sandbox
 
 A `sandbox` block runs its code inside a container, from the page. The block

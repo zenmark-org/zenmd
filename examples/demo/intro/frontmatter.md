@@ -1,5 +1,4 @@
 ---
-title: Frontmatter
 slug: frontmatter
 nav:
   title: Frontmatter

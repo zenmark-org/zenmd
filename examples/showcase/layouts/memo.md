@@ -1,5 +1,4 @@
 ---
-title: A memo
 layout: memo
 to: The whole team
 from: Ada

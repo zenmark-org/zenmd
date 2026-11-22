@@ -1,5 +1,4 @@
 ---
-title: The post layout
 layout: post
 date: 2026-11-17
 author: The zen team

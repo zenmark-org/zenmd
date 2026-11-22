@@ -1,6 +1,3 @@
----
-title: All settings
----
 # All settings
 
 ## config.yml and .zenmd.yml

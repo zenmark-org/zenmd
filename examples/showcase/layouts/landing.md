@@ -1,5 +1,4 @@
 ---
-title: The landing layout
 layout: docs
 nav:
   parent: layouts/index.md

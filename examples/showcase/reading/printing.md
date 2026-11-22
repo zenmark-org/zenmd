@@ -1,5 +1,4 @@
 ---
-title: Printing
 slug: printing
 nav:
   title: Printing

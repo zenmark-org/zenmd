@@ -1,5 +1,4 @@
 ---
-title: Your first path
 layoutOptions: { id: first-path }
 ---
 # Your first path

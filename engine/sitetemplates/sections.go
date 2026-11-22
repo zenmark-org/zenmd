@@ -363,6 +363,9 @@ func scalar(s string) string {
 
 // frontmatter writes a --- block of fields.
 func frontmatter(kvs []KV) string {
+	if len(kvs) == 0 {
+		return ""
+	}
 	var b strings.Builder
 	b.WriteString("---\n")
 	for _, kv := range kvs {
@@ -475,7 +478,7 @@ func (t Template) generate(vals map[string]string) ([]generated, string, error) 
 			hpages, htemplate = t.Home.Pages, t.Home.Template
 		}
 		title := replace(ht, vals)
-		fm := []KV{{"title", scalar(title)}}
+		var fm []KV // the H1 of the page is its title: no title: here
 		var text string
 		if htemplate != "" { // the home has the page template's structure: the overview
 			b, kvs, layout, err := body(htemplate, "", "", title, nil)
@@ -499,13 +502,13 @@ func (t Template) generate(vals map[string]string) ([]generated, string, error) 
 			}
 			var content string
 			if p.Layout != "" {
-				pfm := []KV{{"title", scalar(ptitle)}, {"layout", scalar(p.Layout)}, {"template", "false"}}
+				pfm := []KV{{"layout", scalar(p.Layout)}, {"template", "false"}}
 				for _, kv := range set {
 					pfm = append(pfm, KV{kv.Key, scalar(kv.Value)})
 				}
 				content = frontmatter(pfm) + layoutBody(p.Layout, ptitle)
 			} else {
-				content = frontmatter(append([]KV{{"title", scalar(ptitle)}}, set...)) + "# " + ptitle + "\n"
+				content = frontmatter(append([]KV(nil), set...)) + "# " + ptitle + "\n"
 			}
 			out = append(out, generated{dest: replace(p.File, vals), data: content})
 		}
@@ -531,7 +534,7 @@ func (t Template) generate(vals map[string]string) ([]generated, string, error) 
 		}
 		folder := replace(s.Folder, vals)
 		// The index page.
-		idx := []KV{{"title", scalar(stitle)}}
+		var idx []KV
 		var text string
 		switch {
 		case s.Index.Template != "":
@@ -590,7 +593,7 @@ func (t Template) generate(vals map[string]string) ([]generated, string, error) 
 			}
 			var content string
 			if p.Layout != "" { // its own layout: no skeleton, and it follows no template
-				fm := []KV{{"title", scalar(ptitle)}, {"layout", scalar(p.Layout)}, {"template", "false"}}
+				fm := []KV{{"layout", scalar(p.Layout)}, {"template", "false"}}
 				for _, kv := range set {
 					fm = append(fm, KV{kv.Key, scalar(kv.Value)})
 				}
@@ -633,7 +636,7 @@ func (t Template) generate(vals map[string]string) ([]generated, string, error) 
 
 // sectionPage writes one page from a page template (or a bare one without).
 func (t Template) sectionPage(tmplID, dir, title string, set []KV, body func(id, dir, skip, title string, set []KV) (string, []KV, string, error)) (string, error) {
-	fm := []KV{{"title", scalar(title)}}
+	var fm []KV // the H1 is the title: no title: next to it
 	if tmplID == "" {
 		for _, kv := range set {
 			fm = append(fm, KV{kv.Key, scalar(kv.Value)})
@@ -643,9 +646,6 @@ func (t Template) sectionPage(tmplID, dir, title string, set []KV, body func(id,
 	b, kvs, layout, err := body(tmplID, dir, "", title, set)
 	if err != nil {
 		return "", err
-	}
-	if layout == "term" {
-		fm = nil // the H1 of the skeleton is the term; there is no title: in the frontmatter
 	}
 	if layout != "" && layout != t.Layout {
 		fm = append(fm, KV{"layout", layout})

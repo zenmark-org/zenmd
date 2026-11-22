@@ -1,5 +1,4 @@
 ---
-title: The docs layout
 layout: docs
 nav:
   parent: layouts/index.md

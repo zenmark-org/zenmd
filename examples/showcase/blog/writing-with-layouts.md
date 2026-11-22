@@ -1,5 +1,4 @@
 ---
-title: Writing with layouts
 date: 2026-11-17
 author: Ada
 tags: [layouts, writing]
