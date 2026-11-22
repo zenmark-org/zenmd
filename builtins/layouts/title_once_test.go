@@ -12,11 +12,11 @@ import (
 // The page's title is its H1 (spec engine/templates-blueprints, "Titles").
 func TestTitleShownOnce(t *testing.T) {
 	ownH1 := regexp.MustCompile(`<h1[^>]*>\s*\{\{\s*\.(Title|TermTitle)\s*\}\}`)
-	files, _ := fs.Glob(files, "*/layout.html")
-	if len(files) == 0 {
+	paths, _ := fs.Glob(files, "*/layout.html")
+	if len(paths) == 0 {
 		t.Fatal("no layout templates found")
 	}
-	for _, f := range files {
+	for _, f := range paths {
 		b, _ := fs.ReadFile(files, f)
 		src := string(b)
 		if ownH1.MatchString(src) && strings.Contains(src, "{{.Content}}") {
