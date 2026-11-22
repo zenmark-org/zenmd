@@ -4,6 +4,7 @@ import type { AddonInfo, Page } from "../host";
 import { alert } from "../lint/test-util";
 import { INSPECTOR_MARK, type ProblemTarget } from "./events";
 import { createInspector, type Inspector } from "./index";
+import { warningProblems } from "./problems";
 
 const VALE: AddonInfo = { id: "vale", name: "Vale linting", summary: "Spelling and style checks." };
 const page = (): Page => ({
@@ -354,4 +355,18 @@ test("config notice: the folder's old settings file is a warning with a Fix line
   const j = warned([".zen.yml is ignored because .zenmd.yml exists."]);
   select1(j, 0);
   expect(detail(j, "fix")).toBeUndefined();
+});
+
+test("title note: a title: next to an H1 is a warning, and the same text is a suggestion, both with the Fix", () => {
+  const DIFF = 'title: is ignored because the page has an H1 ("The H1")';
+  const SAME = "title: is ignored because the page has an H1, and it says the same";
+  const i = warned([DIFF, SAME]);
+  select1(i, 0);
+  expect(detail(i, "message")).toBe(DIFF);
+  expect(detail(i, "fix")).toBe("Remove title: from the frontmatter");
+  select1(i, 1);
+  expect(detail(i, "fix")).toBe("Remove title: from the frontmatter");
+  const sev = (m: string) => warningProblems([m])[0].severity;
+  expect(sev(DIFF)).toBe("warning");
+  expect(sev(SAME)).toBe("suggestion");
 });
