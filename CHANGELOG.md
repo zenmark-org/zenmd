@@ -39,6 +39,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/VERSIONING.md).
 - Find in page: ⌘F (Edit › Find) opens a find bar in the reader and the editor with a match count, next/previous (⌘G, ⇧⌘G) and a match-case toggle (#4).
 
 ### Changed
+- The Technical documentation blueprint (2.4.0) no longer makes `presentation.md` slides; the home page is the overview.
 - A page's title is its first H1; frontmatter `title:` is used only when there is none, and a page with both gets a note under Problems. Layouts that draw the title themselves no longer show the page's H1 a second time.
 - The blueprints folder moves from `templates/sites` to `templates/blueprints`; installed copies you have not edited follow the built-in ones by themselves.
 - New Page accepts names with version dots, such as `releases/v0.2.0`.

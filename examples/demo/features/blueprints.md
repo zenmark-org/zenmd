@@ -18,7 +18,6 @@ A fresh folder from this blueprint looks like this:
 ```text
 index.md                  the home page: what the product is and who it's
                           for, key features, and a link to each section
-presentation.md           the same, as slides
 getting-started/          Installation, Your first steps
 how-tos/                  one page per task
 explanation/              how it works, and why

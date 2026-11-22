@@ -99,7 +99,7 @@ home:                        # index.md: links each section, in order
   title: "{{title}}"
   template: overview         # optional: the home has this page template's structure
   pages:                     # optional: extra root pages, linked from the home
-    - { file: presentation.md, title: "{{product}} in five slides", layout: slides }
+    - { file: faq.md, title: "Questions and answers" }
 sections:
   - id: releases
     title: Releases

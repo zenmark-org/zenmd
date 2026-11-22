@@ -179,7 +179,7 @@ The structures are built in, and each one is small, so a page that follows no te
 - **The home page** is `index.md` at the root, which is what blueprints write. `README.md` is still read as the home where there is no `index.md`, so existing folders don't change. When both exist, `index.md` wins, and Page Info says which one is the home.
 - **Every folder works the same way:** a folder's own `index.md` is its page in the sidebar, with `README.md` as the fallback.
 - **The exported site** writes the home as `index.html`, as today.
-- **Blueprints:** `home:` writes `index.md`, and `home.template` gives it the overview structure. So the overview **is** the home page. There is no separate Overview section and no `overview/` folder. The home holds the summary and key features, then "Where to go next" with one link to each section in order, and those links make the sidebar order. A blueprint may still ship extra root pages, such as `presentation.md` with the slides layout, linked from the home.
+- **Blueprints:** `home:` writes `index.md`, and `home.template` gives it the overview structure. So the overview **is** the home page. There is no separate Overview section and no `overview/` folder. The home holds the summary and key features, then "Where to go next" with one link to each section in order, and those links make the sidebar order. A blueprint may still ship extra root pages, such as an FAQ page, linked from the home (techdocs ships none).
 
 ## Where templates live on this Mac (added 2026-11-22)
 
@@ -315,8 +315,6 @@ layout: docs                           # the folder's default layout (.zenmd.yml
 home:                                  # index.md: the home page, which is the overview
   title: "{{title}}"
   template: overview                   # its "Where to go next" links each section in order ({{sections}})
-  pages:                               # extra root pages, linked from the home after the sections
-    - { file: presentation.md, title: "{{product}} in five slides", layout: slides }
 sections:                              # in sidebar order; each one is a folder with an index.md
   - id: getting-started
     title: Getting started
@@ -395,7 +393,7 @@ A blueprint can still be a plain folder with files, as today. `sections:` is opt
 
 | Section | Folder | Its pages follow | Starts with | The template asks for |
 |---|---|---|---|---|
-| Home (the overview) | `index.md` | `overview` | `index.md`, plus `presentation.md` (slides) at the root | a title; a one-paragraph summary of what the product is and who it's for; "Key features" (a list); "Where to go next" with a link to every section (filled in by the blueprint). Other pages in the folder may use any layout, such as slides for a pitch |
+| Home (the overview) | `index.md` | `overview` | `index.md` | a title; a one-paragraph summary of what the product is and who it's for; "Key features" (a list); "Where to go next" with a link to every section (filled in by the blueprint). Other pages in the folder may use any layout, such as slides for a pitch |
 | Getting started | `getting-started/` | `tutorial` | Installation; Your first steps | a goal paragraph; "Before you start" (a list of what's needed); numbered steps (H2s or an ordered list); "What you built"; at most 2,000 words |
 | How-tos | `how-tos/` | `how-to` | Do one task | a summary that names the task; "Steps" with an ordered list; optional "Troubleshooting"; no section called "Background" or "Why" (a suggestion to move it to Explanation) |
 | Explanation | `explanation/` | `explanation` | How it works | a summary; at least two H2 sections; no numbered steps at the top level (a suggestion to move them to a how-to); diagrams welcome |
@@ -527,7 +525,7 @@ The Problems kind `structure` uses `ProblemTarget` with `{ kind: "structure", li
 | 7 | Built-in blueprints start clean under `zenmd check` | `builtins/blueprints` tests |
 | 8 | The New Page picker writes the skeleton and fields; a path rule preselects | `newpage.test.ts` |
 | 9 | `sections:` builds the folders, index pages, README links in order, path rules, `.zen/templates`; a `file:` section is one page; `newest-first` | `builtins/blueprints` and `engine/blueprints` tests |
-| 10 | techdocs: a fresh folder has the `index.md` home (the overview) with `presentation.md`, then the six sections in this order, and passes `zenmd check` | `builtins/blueprints/techdocs_test.go` |
+| 10 | techdocs: a fresh folder has the `index.md` home (the overview), then the six sections in this order, and passes `zenmd check` | `builtins/blueprints/techdocs_test.go` |
 | 12 | The glossary index lists the folder's term pages A–Z, with letters, groups, entries and the filter; ignores non-term pages | `builtins/layouts/glossary` tests, `runtime` test for the bar and filter |
 | 13 | Editing, adding or deleting a term re-renders an open glossary index, including the editor preview | `engine/session` watch test, `kit/ui` page test |
 | 14 | The term layout: definition, aliases, see-also, previous and next; its structure checks | `builtins/layouts/term` tests |

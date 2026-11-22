@@ -68,10 +68,13 @@ func TestTechdocsHasSixSectionsInOrder(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(root, "README.md")); err == nil {
 		t.Error("README.md written; the home is index.md")
 	}
+	if _, err := os.Stat(filepath.Join(root, "presentation.md")); err == nil {
+		t.Error("presentation.md written; techdocs has no slides")
+	}
 	if _, err := os.Stat(filepath.Join(root, "overview")); err == nil {
 		t.Error("overview/ folder written; the overview is the home")
 	}
-	for _, f := range []string{"presentation.md", "getting-started/installation.md", "getting-started/first-steps.md", "how-tos/example-task.md", "explanation/architecture.md", "reference/configuration.md", "glossary/example-term.md", "CONTRIBUTING.md"} {
+	for _, f := range []string{"getting-started/installation.md", "getting-started/first-steps.md", "how-tos/example-task.md", "explanation/architecture.md", "reference/configuration.md", "glossary/example-term.md", "CONTRIBUTING.md"} {
 		if _, err := os.Stat(filepath.Join(root, f)); err != nil {
 			t.Errorf("missing %s", f)
 		}
@@ -86,11 +89,8 @@ func TestTechdocsPagesAndRules(t *testing.T) {
 	if g := readFile(t, root, "glossary/example-term.md"); !strings.Contains(g, "layout: term") || strings.Contains(g, "title:") || !strings.Contains(g, "# Example term\n\n") {
 		t.Errorf("example term:\n%s", g)
 	}
-	if o := readFile(t, root, "index.md"); !strings.Contains(o, "Zed is") || !strings.Contains(o, "## Key features") || !strings.Contains(o, "## Where to go next") || !strings.Contains(o, "(releases/index.md)") || !strings.Contains(o, "(presentation.md)") || !strings.Contains(o, "Zed in five slides") {
+	if o := readFile(t, root, "index.md"); !strings.Contains(o, "Zed is") || !strings.Contains(o, "## Key features") || !strings.Contains(o, "## Where to go next") || !strings.Contains(o, "(releases/index.md)") || strings.Contains(o, "presentation.md") || strings.Contains(o, "slides") {
 		t.Errorf("home:\n%s", o)
-	}
-	if p := readFile(t, root, "presentation.md"); !strings.Contains(p, "layout: slides") || !strings.Contains(p, "# Zed in five slides") || strings.Contains(p, "title:") {
-		t.Errorf("presentation:\n%s", p)
 	}
 	rel := readFile(t, root, "releases/v0.1.0.md")
 	for _, w := range []string{"layout: release", `version: "0.1.0"`, "date: ", "name: First release", "## Added", "## Changed", "## Fixed"} {

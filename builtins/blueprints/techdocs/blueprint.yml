@@ -1,9 +1,9 @@
 id: techdocs
 name: Technical documentation
 description: Overview, getting started, how-tos, explanation, reference, glossary and releases
-version: 2.3.0
+version: 2.4.0
 order: 10
-requires: { layouts: [docs, landing, slides, term, glossary, release], plugins: [codeblock, diagram] }
+requires: { layouts: [docs, landing, term, glossary, release], plugins: [codeblock, diagram] }
 ask:
   title: { label: Site title, default: "{{folder}}" }
   author: { label: Author, default: "the team" }
@@ -13,8 +13,6 @@ layout: docs
 home:
   title: "{{title}}"
   template: overview
-  pages:
-    - { file: presentation.md, title: "{{product}} in five slides", layout: slides }
 sections:
   - id: getting-started
     title: Getting started
