@@ -32,7 +32,7 @@ func TestBuiltinPageTemplates(t *testing.T) {
 		if !regexp.MustCompile(`^\d+\.\d+\.\d+$`).MatchString(p.Version) {
 			t.Errorf("%s: version %q is not a version such as 1.0.0 (installed copies are updated by it)", id, p.Version)
 		}
-		if _, ok := p.Fields["title"]; !ok && id != "term" { // a term's title is the H1 of its skeleton
+		if _, ok := p.Fields["title"]; !ok && id != "term" && id != "release-notes" { // a term's title is the H1 of its skeleton, a release's is its version
 			t.Errorf("%s: no title field", id)
 		}
 	}

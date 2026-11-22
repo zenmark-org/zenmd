@@ -1,15 +1,13 @@
 id: release-notes
 name: Release notes
-description: "What changed in one release: Added, Changed, Fixed"
-version: 1.0.0
-layout: docs
+description: "What changed in one release: Added, Changed, Fixed. The version is the title"
+version: 1.1.0
+layout: release
 fields:
-  title:   { required: true }
-  version: { type: string, required: true }                       # semver, such as 1.2.0
+  version: { type: string, required: true }                       # semver, such as 1.2.0; the page's title
   date:    { type: date, required: true, default: "{{today}}" }
+  name:    { type: string }                                       # optional, shown under the version
 skeleton: |
-  # {{title}} {{version}}
-
   ## Added
 
   - A new thing

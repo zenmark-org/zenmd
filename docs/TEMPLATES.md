@@ -102,7 +102,7 @@ sections:
     template: release-notes  # path rule in .zenmd.yml: "releases/**": release-notes
     order: newest-first      # nav: { sort: newest-first } on the index
     pages:                   # starting pages, from the page template's skeleton
-      - { file: "{{today}}-first.md", title: First release, set: { version: 0.1.0 } }
+      - { file: 0.1.0.md, title: 0.1.0, set: { version: 0.1.0, name: First release } }
   - id: about
     title: About
     file: about.md           # a file section: one page
@@ -113,6 +113,7 @@ files: [CONTRIBUTING.md]     # other files, copied as they are
 - A folder's home is its `index.md` (any case), with `README.md` as the fallback when there is none; `index.md` wins when both exist. This holds for the root and for every folder. Blueprints write `index.md`.
 - `index: { layout: landing, tagline: "..." }`, `{ template: overview }` or `{ layout: glossary }` change the index page.
 - A starting page with its own `layout:` keeps it and follows no template.
+- The `release-notes` page template is a release page: layout `release`, the fields `version` (required), `date` (required, today by default) and `name` (optional), and a skeleton of just Added, Changed and Fixed. It has no `title` and no H1: the version is the page's title (see `title:` in docs/LAYOUTS.md), and the file is named after it, `releases/0.1.0.md`. The releases index shows each release as a card with its version, date and name.
 - In skeletons and titles: `{{title}}`, `{{author}}`, `{{today}}`, any `ask:` key and the `set:` fields. `{{sections}}` in a template is a link to every section.
 - The built-in page templates are in `builtins/pagetemplates/`. A blueprint's own `.zen/templates/<id>.yml` wins.
 - `nav.sort` is written and accepted in frontmatter, but the sidebar does not sort by it yet. Checking pages against their template comes later.

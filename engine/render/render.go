@@ -224,7 +224,8 @@ func (r *Renderer) Render(pagePath string, src []byte) (Page, error) {
 
 // pageTitle is the one rule for a page's title: the first h1 (plain text);
 // else the frontmatter title:, which only a page without an h1 uses; else the
-// file name.
+// field the page's layout names with title: in its layout.yml (a release's
+// version), as written; else the file name.
 func pageTitle(st *state, meta map[string]any, doc ast.Node, body []byte, pagePath string) string {
 	if t := st.plain(firstH1(doc, body)); t != "" {
 		return t
@@ -232,8 +233,32 @@ func pageTitle(st *state, meta map[string]any, doc ast.Node, body []byte, pagePa
 	if t, ok := meta["title"].(string); ok && strings.TrimSpace(t) != "" {
 		return strings.TrimSpace(t)
 	}
+	if t := st.r.layoutTitle(pagePath, meta); t != "" {
+		return t
+	}
 	base := path.Base(pagePath)
 	return strings.TrimSuffix(base, path.Ext(base))
+}
+
+// layoutTitle is the value of the field the page's layout (resolved as
+// Render does) names to title its pages; "" when the layout names none or the
+// page does not have the field.
+func (r *Renderer) layoutTitle(pagePath string, meta map[string]any) string {
+	if r.layouts == nil {
+		return ""
+	}
+	choice := layouts.Resolve(pagePath, meta, r.cfg.ForPage(meta).Layouts())
+	l := r.layouts.Get(choice.Name)
+	if l == nil || l.Manifest().TitleField == "" {
+		return ""
+	}
+	switch v := meta[l.Manifest().TitleField].(type) {
+	case string:
+		return strings.TrimSpace(v)
+	case int, int64, uint64, float64, bool:
+		return fmt.Sprint(v)
+	}
+	return ""
 }
 
 // titleNote is the Problems note for a page that has both an h1 and a title:
@@ -278,7 +303,9 @@ func (r *Renderer) Title(pagePath string, src []byte) string {
 
 // TitleOf is the title of the page at pagePath with source src by the same
 // rule as Render and Title, for callers with no renderer (the glossary
-// commands): the first h1, else the frontmatter title:, else the file name.
+// commands): the first h1, else the frontmatter title:, else the file name. It
+// knows no layouts, so it does not take a layout's title: field; callers that
+// have a renderer use Renderer.Title.
 func TitleOf(pagePath string, src []byte) string {
 	return New(nil, nil, nil).Title(pagePath, src)
 }

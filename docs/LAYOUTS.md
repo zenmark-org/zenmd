@@ -58,6 +58,7 @@ also matches no folder), `?` one character.
 | `handout` | template, CSS | printable one-pager: a paper sheet on screen, print rules | `date`, `author` | `paper` (`a4` or `letter`) |
 | `term` | template, CSS | one glossary entry: the term, `abbr` and `aliases`, the first paragraph as the definition, See also from `see`, previous and next terms A to Z | `title`, `aliases`, `abbr`, `see`, `tags` | |
 | `glossary` | template, CSS, script | the A to Z index of a folder, built from the pages beside it whose layout is `term`: letter bar, groups, filter, count, and page warnings for duplicates and missing terms or definitions | | |
+| `release` | template, CSS | one release of a product: the `version` large as the heading, the `date` and the optional `name` under it, then the text. The page has no H1; the version is its title | `version`, `date`, `name` | |
 | `slides` | CSS, script | one slide at a time (`ratio`, `transition`); unchanged from the old plugin | | `ratio`, `transition` |
 | `course` | CSS, script | steps with saved progress and `:::check` lists (`id`); unchanged from the old plugin | | `id` |
 
@@ -85,6 +86,7 @@ id: post                     # [a-z][a-z0-9-]*, must equal the folder name
 version: 0.1.0               # SemVer
 description: Blog post with cover, date and author
 template: layout.html        # optional: the page structure
+# title: version            # optional: a field that titles pages with no H1 and no title: (see below)
 css: [post.css]              # optional
 js: [post.js]                # optional: export default { mount(root, ctx) }
 fields:                      # frontmatter the template reads
@@ -109,6 +111,8 @@ problem and never used):
 - every file named in `template`, `css` and `js` must be a plain relative file
   of the folder (no `..`, no absolute path, no `.DS_Store`, a symlink only when
   it stays inside); the template is at most 256 KB;
+- `title:` names one of the layout's `fields`; a `title:` that names none is
+  refused;
 - field types: `string`, `text`, `int`, `bool`, `date`, `image`, `list`; names
   start with a lower-case letter and use letters, digits, `_` and `-`;
 - option types: `string`, `bool`, `int`, `map`, `list` with a default of that
@@ -118,6 +122,29 @@ problem and never used):
   starting text of **File › New Page** for that layout.
 - the folder has at most 500 files and 20 MB, like a plugin folder, and a
   `.zen/layouts` folder is hashed the same way.
+
+### `title:` and the title of a page
+
+A page has one title, by one rule used everywhere (sidebar, breadcrumb, window
+title, cards, exports, search, newest-first order): the first H1; else the
+frontmatter `title:`; else the field its layout names with `title:` in
+`layout.yml`, shown as written; else the file name. The `release` layout says
+`title: version`, so a release page needs no H1: its `version` is its title
+("0.1.0") in the sidebar, the breadcrumb, the window title and the releases
+index, whose cards show the version, the date and the name, newest first. A
+layout that draws the title itself uses `.Body` (not `.Content`) so it shows
+once.
+
+```yaml
+---
+layout: release
+version: 0.1.0
+date: 2026-11-22
+name: First release        # optional
+---
+## Added
+- …
+```
 
 ### Options
 

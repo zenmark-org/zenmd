@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/zenmark-org/zenmd/engine/config"
 	"github.com/zenmark-org/zenmd/engine/extplugins"
@@ -448,13 +449,14 @@ type layoutSite struct {
 	pos      map[string]int       // page path -> position in flat
 	children map[string][]NavNode // page path -> pages under it
 	byDir    map[string][]string  // folder -> its markdown pages (hidden ones too), sorted
+	title    func(path string, src []byte) string // the one title rule, with the layouts of the folder
 }
 
 // maxFolderPages bounds what a layout may read from one folder.
 const maxFolderPages = 2000
 
-func newLayoutSite(ws *workspace.Workspace, idx *index.Index, tree []NavNode, files []string) *layoutSite {
-	ls := &layoutSite{ws: ws, idx: idx, pos: map[string]int{}, children: map[string][]NavNode{}, byDir: map[string][]string{}}
+func newLayoutSite(ws *workspace.Workspace, idx *index.Index, tree []NavNode, files []string, title func(string, []byte) string) *layoutSite {
+	ls := &layoutSite{ws: ws, idx: idx, pos: map[string]int{}, children: map[string][]NavNode{}, byDir: map[string][]string{}, title: title}
 	for _, f := range files {
 		d := path.Dir(f)
 		ls.byDir[d] = append(ls.byDir[d], f)
@@ -529,6 +531,9 @@ func (ls *layoutSite) Children(path string) []layouts.Child {
 		c := layouts.Child{Title: n.Title, Path: n.Path}
 		if b, err := ls.ws.Read(n.Path); err == nil {
 			c.Summary = firstParagraph(b)
+			if rs := releaseSummary(b); rs != "" {
+				c.Summary = rs
+			}
 		}
 		out = append(out, c)
 	}
@@ -559,8 +564,12 @@ func (ls *layoutSite) Folder(p string) []layouts.FolderPage {
 		if fm == nil {
 			fm = map[string]any{}
 		}
-		// The title is the one rule: the page's H1, else title:, else the file name.
-		out = append(out, layouts.FolderPage{Title: render.TitleOf(f, b), Path: f, Meta: fm, Definition: definition(b)})
+		// The title is the one rule: the page's H1, else title:, else the layout's title field, else the file name.
+		title := render.TitleOf(f, b)
+		if ls.title != nil {
+			title = ls.title(f, b)
+		}
+		out = append(out, layouts.FolderPage{Title: title, Path: f, Meta: fm, Definition: definition(b)})
 	}
 	return out
 }
@@ -655,4 +664,27 @@ func summariseTo(text string, limit int) string {
 		cut = cut[:i]
 	}
 	return cut + "…"
+}
+
+// releaseSummary is the card line of a release page (a page whose frontmatter
+// has a version): its date and its name, such as "2026-11-22 · First release".
+// "" for any other page, which shows its first paragraph.
+func releaseSummary(src []byte) string {
+	fm, _, _ := config.SplitFrontmatter(src)
+	if _, ok := fm["version"]; !ok {
+		return ""
+	}
+	var parts []string
+	switch d := fm["date"].(type) {
+	case time.Time:
+		parts = append(parts, d.Format("2006-01-02"))
+	case string:
+		if d = strings.TrimSpace(d); d != "" {
+			parts = append(parts, d)
+		}
+	}
+	if n, ok := fm["name"].(string); ok && strings.TrimSpace(n) != "" {
+		parts = append(parts, strings.TrimSpace(n))
+	}
+	return strings.Join(parts, " \u00b7 ")
 }

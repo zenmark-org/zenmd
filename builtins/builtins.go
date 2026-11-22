@@ -48,7 +48,7 @@ func Plugins() *plugins.Registry {
 }
 
 // Layouts returns a registry with the built-in layouts: article, docs, post,
-// landing, wide, handout, term, glossary, slides and course. version is the ?v= of their
+// landing, wide, handout, term, glossary, release, slides and course. version is the ?v= of their
 // asset URLs (the app version).
 func Layouts(version string) *enginelayouts.Registry {
 	return layouts.Registry(version)

@@ -74,7 +74,7 @@ const SAMPLE_PAGE_TEMPLATES: PageTemplate[] = [
     update: "", error: "", rules: [],
   },
   {
-    id: "release-notes", name: "Release notes", description: "What changed in one release: Added, Changed, Fixed", version: "1.0.0", layout: "docs", source: "yours", path: "/Users/me/Library/Application Support/zen/templates/pages/release-notes.yml",
+    id: "release-notes", name: "Release notes", description: "What changed in one release: Added, Changed, Fixed", version: "1.1.0", layout: "release", source: "yours", path: "/Users/me/Library/Application Support/zen/templates/pages/release-notes.yml",
     fields: [{ name: "title", type: "string", required: true, default: "" }, { name: "version", type: "string", required: true, default: "" }, { name: "date", type: "date", required: true, default: "{{today}}" }],
     outline: [],
     skeleton: "# {{title}} {{version}}\n\n## Added\n\n- A new thing\n",
@@ -99,7 +99,7 @@ const SAMPLE_TEMPLATES: SiteTemplate[] = [
 export const ZENMARK_BUILD: BuildInfo = {
   app: "zenmark", features: [...FEATURE_IDS], addons: [],
   plugins: ["codeblock", "diagram", "check", "quiz", "sandbox"],
-  layouts: ["article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "slides", "course"],
+  layouts: ["article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "release", "slides", "course"],
   templates: ["techdocs", "learning", "planner"],
   dialects: ["myst"],
   theme: "default",

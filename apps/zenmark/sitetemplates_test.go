@@ -355,12 +355,12 @@ func TestInitSite(t *testing.T) {
 	for _, id := range []string{"techdocs", "learning", "planner"} {
 		data, _ := fs.ReadFile(siteBuiltins, id+"/blueprint.yml")
 		if id == "techdocs" {
-			data = []byte(strings.Replace(string(data), "version: 2.1.0", "version: 2.2.0", 1))
+			data = []byte(strings.Replace(string(data), "version: 2.2.0", "version: 2.3.0", 1))
 		}
 		newer[id+"/blueprint.yml"] = &fstest.MapFile{Data: data}
 	}
 	env.builtins = newer
-	if out, _, _ := run(cli.Init{List: true}); !strings.Contains(out, "[update available: 2.2.0, see zenmd init --update techdocs]") {
+	if out, _, _ := run(cli.Init{List: true}); !strings.Contains(out, "[update available: 2.3.0, see zenmd init --update techdocs]") {
 		t.Errorf("update marker: %q", out)
 	}
 	out, _, err = run(cli.Init{Update: true, Template: "techdocs"})
@@ -374,7 +374,7 @@ func TestInitSite(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(cfg, "templates", "blueprints", "techdocs", "mine.md"), []byte("mine"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	newer["techdocs/blueprint.yml"] = &fstest.MapFile{Data: []byte(strings.Replace(string(newer["techdocs/blueprint.yml"].Data), "version: 2.2.0", "version: 2.3.0", 1))}
+	newer["techdocs/blueprint.yml"] = &fstest.MapFile{Data: []byte(strings.Replace(string(newer["techdocs/blueprint.yml"].Data), "version: 2.3.0", "version: 2.4.0", 1))}
 	out, _, err = run(cli.Init{Update: true, Template: "techdocs"})
 	if err != nil || !strings.Contains(out, filepath.Join(cfg, "templates", "blueprints", "techdocs.new")) || !strings.Contains(out, "has edits") {
 		t.Errorf("update of an edited copy: %q %v", out, err)
@@ -389,7 +389,7 @@ func presetFiles(id, date string) []string {
 			".zen/templates/term.yml", ".zen/templates/tutorial.yml", ".zenmd.yml", "CONTRIBUTING.md", "index.md", "presentation.md",
 			"explanation/architecture.md", "explanation/index.md", "getting-started/first-steps.md", "getting-started/index.md", "getting-started/installation.md",
 			"glossary/example-term.md", "glossary/index.md", "how-tos/example-task.md", "how-tos/index.md",
-			"reference/configuration.md", "reference/index.md", "releases/" + date + "-first-release.md", "releases/index.md"},
+			"reference/configuration.md", "reference/index.md", "releases/0.1.0.md", "releases/index.md"},
 		"learning": {".zenmd.yml", "index.md", "authoring.md", "glossary.md", "paths/first-path/index.md"},
 		"planner": {".zenmd.yml", "index.md", "decisions/0001-record-decisions.md", "decisions/template.md", "ideas.md", "meetings/template.md", "roadmap.md",
 			"weeks/" + date + ".md"},

@@ -453,7 +453,7 @@ func (s *Session) reindexLocked() bool {
 	changed := s.idx == nil || !s.idx.Equal(idx)
 	s.idx = idx
 	s.tree = navNodes(idx.Tree())
-	s.site = newLayoutSite(s.ws, idx, s.tree, files)
+	s.site = newLayoutSite(s.ws, idx, s.tree, files, s.r.Title)
 	s.r = s.r.WithLayouts(s.lreg, s.site)
 	return changed
 }
