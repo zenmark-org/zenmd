@@ -18,6 +18,8 @@ export type LayoutHandlers = {
   onSettings?(anchor: HTMLButtonElement): void;
   /** The × in the sidebar header: Close Folder (the shell asks the editor windows first). */
   onClose?(): void;
+  /** The Reload button in the sidebar header (⌘R in production builds): fetch the tree and render the page again. */
+  onReload?(): void;
   /** The Export button in the sidebar footer: Settings › Export. */
   onExport?(): void;
   /**
@@ -195,8 +197,10 @@ export function createLayout(handlers: LayoutHandlers = {}): Layout {
   const head = el("div", "zen-sidebar-head");
   const logoSlot = el("span", "zen-sidebar-logo-slot");
   const title = el("span", "zen-sidebar-title");
-  const close = button("Close folder", () => handlers.onClose?.(), { className: "ghost zen-sidebar-close", text: "×", title: "Close Folder ⇧⌘W" });
-  head.append(logoSlot, title, close);
+  const reload = button("Reload page", () => handlers.onReload?.(), { className: "ghost zen-sidebar-btn", text: "", title: "Reload Page ⌘R" });
+  reload.append(icon(doc, "reload"));
+  const close = button("Close folder", () => handlers.onClose?.(), { className: "ghost zen-sidebar-btn zen-sidebar-close", text: "×", title: "Close Folder ⇧⌘W" });
+  head.append(logoSlot, title, reload, close);
   const showMark = () => logoSlot.replaceChildren(logo("zen-sidebar-mark"));
   showMark();
 

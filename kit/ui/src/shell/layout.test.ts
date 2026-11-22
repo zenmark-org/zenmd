@@ -211,14 +211,14 @@ test("identity: the header has the logo, the title and a close button, inside th
   expect(nav.firstElementChild).toBe(head(l));
   expect(nav.contains(head(l))).toBe(true);
   // The Zenmark mark until the folder gives a logo; no title yet.
-  expect(head(l).querySelector("svg")).not.toBeNull();
+  expect(head(l).querySelector(".zen-sidebar-logo-slot svg")).not.toBeNull();
   expect(head(l).querySelector("img")).toBeNull();
 
   l.setIdentity({ logo: "/_ws/img/logo.svg", title: "My Course" });
   const img = head(l).querySelector<HTMLImageElement>("img.zen-sidebar-logo")!;
   expect(img.getAttribute("src")).toBe("/_ws/img/logo.svg");
   expect(img.getAttribute("alt")).toBe("");
-  expect(head(l).querySelector("svg")).toBeNull();
+  expect(head(l).querySelector(".zen-sidebar-logo-slot svg")).toBeNull();
   const title = head(l).querySelector<HTMLElement>(".zen-sidebar-title")!;
   expect(title.textContent).toBe("My Course");
   expect(title.title).toBe("My Course");
@@ -226,7 +226,7 @@ test("identity: the header has the logo, the title and a close button, inside th
   // Switching folders replaces both; no logo goes back to the mark.
   l.setIdentity({ logo: "", title: "Other" });
   expect(head(l).querySelector("img")).toBeNull();
-  expect(head(l).querySelector("svg")).not.toBeNull();
+  expect(head(l).querySelector(".zen-sidebar-logo-slot svg")).not.toBeNull();
   expect(head(l).querySelectorAll(".zen-sidebar-title")).toHaveLength(1);
   expect(head(l).querySelector(".zen-sidebar-title")!.textContent).toBe("Other");
   l.destroy();
@@ -250,7 +250,7 @@ test("logo is an img: a logo that is an SVG with a script is never put inline", 
   const img = head(l).querySelector<HTMLImageElement>("img")!;
   expect(img.hasAttribute("onerror")).toBe(false);
   expect(img.getAttribute("src")).toBe('/_ws/evil.svg" onerror="alert(1)');
-  expect(head(l).querySelectorAll("svg")).toHaveLength(0); // no inline svg of the folder
+  expect(head(l).querySelectorAll(".zen-sidebar-logo-slot svg")).toHaveLength(0); // no inline svg of the folder
   l.destroy();
 });
 

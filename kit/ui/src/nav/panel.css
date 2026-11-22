@@ -1,4 +1,4 @@
-/* The sidebar's header (logo, title, close) and the Navigation row of Settings (ui/nav-panel).
+/* The sidebar's header (logo, title, Reload, close) and the Navigation row of Settings (ui/nav-panel).
    Tokens only (docs/UI.md). The separators are the frame's own rules: 1px --rule. */
 
 .zen-sidebar-head {
@@ -40,7 +40,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.zen-sidebar-close {
+/* The header's buttons (Reload, ×): one ghost style, size and muted colour. */
+.zen-sidebar-btn {
   flex: none;
   width: 28px;
   height: 28px;
@@ -48,11 +49,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
   line-height: 1;
   color: var(--fg-muted);
 }
-.zen-sidebar-close:hover { color: var(--fg); }
+.zen-sidebar-btn:hover { color: var(--fg); }
+.zen-sidebar-close { font-size: 18px; }
 
 /* The sidebar on the right: the frame is mirrored, so the order of the elements (and of the tab key) stays. */
 .zen-frame[data-nav-side="right"] { flex-direction: row-reverse; }

@@ -347,6 +347,26 @@ export function createShell(root: HTMLElement, { api, features, search, random =
     syncHistoryButtons();
     if (inside) layout?.el.querySelector<HTMLElement>(".zen-settings-button")?.focus();
   }
+  /**
+   * The Reload button of the sidebar (and ⌘R in production builds): the folder's tree again, so the sidebar shows files
+   * added, renamed or removed, then the reader drops the plugin scripts and styles and renders the page again in place.
+   */
+  async function reload(): Promise<void> {
+    if (kind.kind !== "main" || !layout) return;
+    const root = store.get().workspace?.root;
+    try {
+      const s = await api.startup();
+      const ws = s.workspace;
+      if (!destroyed && layout && ws && ws.root === root && store.get().workspace?.root === root) {
+        store.set({ workspace: ws });
+        layout.setIdentity(identity(ws));
+      }
+    } catch (err) {
+      console.error("zen: reloading the folder failed", err);
+    }
+    if (destroyed || !layout) return;
+    (unmountMain as ((() => void) & { reload?(): void }) | null)?.reload?.();
+  }
   /** The Export button of the sidebar (⇧⌘B): Settings › Export. */
   function openExport(): void {
     if (kind.kind !== "main" || !has("export")) return;
@@ -367,7 +387,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
 
     layout = createLayout({
       onBack: back, onForward: forward, onOpenFolder: () => void openFolder(), onSettings: () => toggleSettings(),
-      onClose: () => void closeFolder(), onExport: () => openExport(),
+      onClose: () => void closeFolder(), onExport: () => openExport(), onReload: () => void reload(),
       // Another button of the view group was turned on (the Inspector, in the top bar): Settings closes, so the two never overlap.
       onCloseView: (v) => { if (v === "settings") closeSettings(); },
     });
@@ -623,6 +643,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
     }
     if (reloadKey(e) && import.meta.env.PROD) {
       e.preventDefault();
+      if (kind.kind === "main" && layout && !e.repeat) void reload();
       return;
     }
     if (kind.kind !== "main") return; // an editor window has no folder or history
