@@ -254,10 +254,30 @@ test("logo is an img: a logo that is an SVG with a script is never put inline", 
   l.destroy();
 });
 
+test("the header reads logo, title, Reload, ×; Reload is a ghost icon button that asks the shell", () => {
+  let reloaded = 0;
+  const l = createLayout({ onReload: () => { reloaded++; } });
+  const kids = Array.from(head(l).children);
+  expect(kids.map((k) => k.className.split(" ")[0])).toEqual(["zen-sidebar-logo-slot", "zen-sidebar-title", "ghost", "ghost"]);
+  const [reload, close] = kids.slice(2) as HTMLButtonElement[];
+  expect(reload.getAttribute("aria-label")).toBe("Reload page");
+  expect(reload.title).toBe("Reload Page ⌘R");
+  expect(reload.querySelector("svg.zen-icon")).not.toBeNull();
+  expect(close.getAttribute("aria-label")).toBe("Close folder");
+  // one shared header-button class; Close keeps its own
+  expect(reload.classList.contains("zen-sidebar-btn")).toBe(true);
+  expect(close.classList.contains("zen-sidebar-btn")).toBe(true);
+  expect(close.classList.contains("zen-sidebar-close")).toBe(true);
+  expect(reload.tabIndex).toBe(0);
+  reload.click();
+  expect(reloaded).toBe(1);
+  l.destroy();
+});
+
 test("the close button is Close folder, with its shortcut in the tooltip, and asks the shell", () => {
   let closed = 0;
   const l = createLayout({ onClose: () => { closed++; } });
-  const x = head(l).querySelector<HTMLButtonElement>("button")!;
+  const x = head(l).querySelector<HTMLButtonElement>(".zen-sidebar-close")!;
   expect(x.getAttribute("aria-label")).toBe("Close folder");
   expect(x.title).toBe("Close Folder ⇧⌘W");
   expect(x.classList.contains("ghost")).toBe(true);

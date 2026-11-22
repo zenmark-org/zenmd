@@ -460,3 +460,31 @@ test("without the editor (or a host that can add terms) the New Term button stay
     unmountPage();
   }
 });
+
+test("reload() renders the shown page again and keeps the scroll position", async () => {
+  env.ctx.store.set({ path: "README.md" });
+  const un = pageFeature.mount(env.slots, env.ctx) as (() => void) & { reload?(): void };
+  await tick();
+  expect(typeof un.reload).toBe("function");
+  env.slots.main.scrollTop = 120;
+  const before = env.api.callsTo("page").length;
+  un.reload!();
+  await tick();
+  expect(env.api.callsTo("page").length).toBe(before + 1);
+  expect(env.slots.main.scrollTop).toBe(120);
+  un();
+});
+
+test("reload() renders an unsaved editor draft again, never the file", async () => {
+  env.ctx.store.set({ path: "README.md" });
+  const un = pageFeature.mount(env.slots, env.ctx) as (() => void) & { reload?(): void };
+  await tick();
+  env.api.emit("page:draft", { path: "README.md", content: "# Draft\n\nNew." });
+  await tick();
+  const before = env.api.callsTo("page").length;
+  un.reload!();
+  await tick();
+  expect(env.api.callsTo("page").length).toBe(before); // the file is not read again
+  expect(env.slots.main.textContent).toContain("Draft");
+  un();
+});

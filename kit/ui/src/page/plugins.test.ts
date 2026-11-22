@@ -314,3 +314,20 @@ test("a layout page links its stylesheet from /_layouts/", async () => {
   await settle();
   expect(document.head.querySelector("link[data-zen-asset^='/_layouts/post/']")).not.toBeNull();
 });
+
+test("reload() drops and loads the plugin scripts and styles again, as plugins:changed does", async () => {
+  const id = fresh();
+  withBlock(id);
+  env.ctx.store.set({ path: "README.md" });
+  mount();
+  const log: string[] = [];
+  register(id, { mount(el) { log.push("mount v1"); el.textContent = "v1"; return () => log.push("clean v1"); } });
+  await settle();
+  version = "bbbbbbbbbbbb";
+  register(id, { mount(el) { log.push("mount v2"); el.textContent = "v2"; } });
+  (unmount as unknown as { reload(): void }).reload();
+  await settle();
+  expect(log).toEqual(["mount v1", "clean v1", "mount v2"]);
+  expect(imported).toEqual([urlOf(id, "aaaaaaaaaaaa"), urlOf(id, "bbbbbbbbbbbb")]);
+  expect(Array.from(document.head.querySelectorAll("link"), (l) => l.getAttribute("href"))).toEqual([`/_plugins/${id}/${id}.css?v=bbbbbbbbbbbb`]);
+});
