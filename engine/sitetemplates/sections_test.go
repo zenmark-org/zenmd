@@ -27,14 +27,10 @@ ask:
 layout: docs
 home:
   title: "{{title}}"
+  template: overview
+  pages:
+    - { file: pitch.md, title: "{{product}} in five slides", layout: slides }
 sections:
-  - id: overview
-    title: Overview
-    folder: overview
-    template: overview
-    index: { template: overview }
-    pages:
-      - { file: pitch.md, title: "{{product}} in five slides", layout: slides }
   - id: getting-started
     title: Getting started
     folder: getting-started
@@ -82,8 +78,7 @@ func TestSectionsBuildFolders(t *testing.T) {
 	target, _ := buildSections(t, sectionsManifest, nil)
 	got := strings.Join(walk(t, target), "\n")
 	for _, want := range []string{
-		"README.md", "CONTRIBUTING.md", ".zenmd.yml",
-		"overview/index.md", "overview/pitch.md",
+		"index.md", "CONTRIBUTING.md", ".zenmd.yml", "pitch.md",
 		"getting-started/index.md", "getting-started/installation.md",
 		"how-tos/index.md", "about.md",
 		"releases/index.md", "releases/2026-11-17-first.md",
@@ -93,6 +88,9 @@ func TestSectionsBuildFolders(t *testing.T) {
 			t.Errorf("missing %s in:\n%s", want, got)
 		}
 	}
+	if strings.Contains(got, "README.md") || strings.Contains(got, "overview/") {
+		t.Errorf("README.md or overview/ written:\n%s", got)
+	}
 	if strings.Contains(got, "blueprint.yml") || strings.Contains(got, "template.yml") {
 		t.Error("the manifest was copied")
 	}
@@ -100,11 +98,11 @@ func TestSectionsBuildFolders(t *testing.T) {
 
 func TestSectionsHomeLinksInOrder(t *testing.T) {
 	target, _ := buildSections(t, sectionsManifest, nil)
-	home := read(t, target, "README.md")
-	if !strings.Contains(home, "title: My Docs") || !strings.Contains(home, "# My Docs") {
-		t.Errorf("home title:\n%s", home)
+	home := read(t, target, "index.md")
+	if !strings.Contains(home, "title: My Docs") || !strings.Contains(home, "# My Docs") || !strings.Contains(home, "Zed is a thing.") {
+		t.Errorf("home title and overview:\n%s", home)
 	}
-	order := []string{"[Overview](overview/index.md)", "[Getting started](getting-started/index.md)", "[How-tos](how-tos/index.md)", "[About us](about.md)", "[Releases](releases/index.md)"}
+	order := []string{"[Getting started](getting-started/index.md)", "[How-tos](how-tos/index.md)", "[About us](about.md)", "[Releases](releases/index.md)", "[Zed in five slides](pitch.md)"}
 	last := -1
 	for _, l := range order {
 		i := strings.Index(home, l)
@@ -126,15 +124,12 @@ func TestSectionsIndexPages(t *testing.T) {
 	if h := read(t, target, "how-tos/index.md"); !strings.Contains(h, "layout: landing") || !strings.Contains(h, "# How-tos") {
 		t.Errorf("default index:\n%s", h)
 	}
-	// An index from a page template: the skeleton, with a link to every section filled in.
-	ov := read(t, target, "overview/index.md")
-	for _, w := range []string{"# Overview", "Zed is a thing.", "[Getting started](../getting-started/index.md)", "[Releases](../releases/index.md)"} {
+	// The home is the overview: the skeleton, with a link to every section filled in.
+	ov := read(t, target, "index.md")
+	for _, w := range []string{"# My Docs", "Zed is a thing.", "[Getting started](getting-started/index.md)", "[Releases](releases/index.md)"} {
 		if !strings.Contains(ov, w) {
-			t.Errorf("overview index lacks %q:\n%s", w, ov)
+			t.Errorf("home lacks %q:\n%s", w, ov)
 		}
-	}
-	if strings.Contains(ov, "[Overview]") {
-		t.Errorf("the overview links to itself:\n%s", ov)
 	}
 	// The file section is one page.
 	if a := read(t, target, "about.md"); !strings.Contains(a, "title: About us") || !strings.Contains(a, "# About us") {
@@ -145,14 +140,14 @@ func TestSectionsIndexPages(t *testing.T) {
 func TestSectionsPathRulesAndConfig(t *testing.T) {
 	target, _ := buildSections(t, sectionsManifest, nil)
 	cfg := read(t, target, ".zenmd.yml")
-	for _, w := range []string{"layout: docs", "templates:", `"overview/**": overview`, `"getting-started/**": tutorial`, `"how-tos/**": how-to`, `"releases/**": release-notes`} {
+	for _, w := range []string{"layout: docs", "templates:", `"getting-started/**": tutorial`, `"how-tos/**": how-to`, `"releases/**": release-notes`} {
 		if !strings.Contains(cfg, w) {
 			t.Errorf(".zenmd.yml lacks %q:\n%s", w, cfg)
 		}
 	}
 	// The generated file must load without warnings (templates: is a known key in a folder file).
 	// (checked in engine/config; here the order of rules follows the sections)
-	if strings.Index(cfg, "overview/**") > strings.Index(cfg, "releases/**") {
+	if strings.Index(cfg, "getting-started/**") > strings.Index(cfg, "releases/**") {
 		t.Error("rules out of section order")
 	}
 }
@@ -181,7 +176,7 @@ func TestSectionsStartingPages(t *testing.T) {
 		t.Errorf("placeholder left:\n%s", in)
 	}
 	// A page with its own layout keeps it and skips the section's template.
-	pitch := read(t, target, "overview/pitch.md")
+	pitch := read(t, target, "pitch.md")
 	if !strings.Contains(pitch, "title: Zed in five slides") || !strings.Contains(pitch, "layout: slides") || !strings.Contains(pitch, "template: false") {
 		t.Errorf("slides page:\n%s", pitch)
 	}

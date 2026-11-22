@@ -48,24 +48,30 @@ func readFile(t *testing.T, root, rel string) string {
 	return string(b)
 }
 
-func TestTechdocsHasSevenSectionsInOrder(t *testing.T) {
+func TestTechdocsHasSixSectionsInOrder(t *testing.T) {
 	root := fresh(t, "techdocs")
-	want := []string{"overview", "getting-started", "how-tos", "explanation", "reference", "glossary", "releases"}
-	home := readFile(t, root, "README.md")
+	want := []string{"getting-started", "how-tos", "explanation", "reference", "glossary", "releases"}
+	home := readFile(t, root, "index.md")
 	links := regexp.MustCompile(`\]\(([a-z-]+)/index\.md\)`).FindAllStringSubmatch(home, -1)
 	var got []string
 	for _, m := range links {
 		got = append(got, m[1])
 	}
 	if strings.Join(got, ",") != strings.Join(want, ",") {
-		t.Errorf("README links %v, want %v:\n%s", got, want, home)
+		t.Errorf("home links %v, want %v:\n%s", got, want, home)
 	}
 	for _, s := range want {
 		if _, err := os.Stat(filepath.Join(root, s, "index.md")); err != nil {
 			t.Errorf("%s has no index.md", s)
 		}
 	}
-	for _, f := range []string{"overview/presentation.md", "getting-started/installation.md", "getting-started/first-steps.md", "how-tos/example-task.md", "explanation/architecture.md", "reference/configuration.md", "glossary/example-term.md", "CONTRIBUTING.md"} {
+	if _, err := os.Stat(filepath.Join(root, "README.md")); err == nil {
+		t.Error("README.md written; the home is index.md")
+	}
+	if _, err := os.Stat(filepath.Join(root, "overview")); err == nil {
+		t.Error("overview/ folder written; the overview is the home")
+	}
+	for _, f := range []string{"presentation.md", "getting-started/installation.md", "getting-started/first-steps.md", "how-tos/example-task.md", "explanation/architecture.md", "reference/configuration.md", "glossary/example-term.md", "CONTRIBUTING.md"} {
 		if _, err := os.Stat(filepath.Join(root, f)); err != nil {
 			t.Errorf("missing %s", f)
 		}
@@ -80,10 +86,10 @@ func TestTechdocsPagesAndRules(t *testing.T) {
 	if g := readFile(t, root, "glossary/example-term.md"); !strings.Contains(g, "layout: term") || !strings.Contains(g, "title: Example term") {
 		t.Errorf("example term:\n%s", g)
 	}
-	if o := readFile(t, root, "overview/index.md"); !strings.Contains(o, "Zed is") || !strings.Contains(o, "(../releases/index.md)") {
-		t.Errorf("overview index:\n%s", o)
+	if o := readFile(t, root, "index.md"); !strings.Contains(o, "Zed is") || !strings.Contains(o, "## Key features") || !strings.Contains(o, "## Where to go next") || !strings.Contains(o, "(releases/index.md)") || !strings.Contains(o, "(presentation.md)") || !strings.Contains(o, "Zed in five slides") {
+		t.Errorf("home:\n%s", o)
 	}
-	if p := readFile(t, root, "overview/presentation.md"); !strings.Contains(p, "layout: slides") || !strings.Contains(p, "title: Zed in five slides") {
+	if p := readFile(t, root, "presentation.md"); !strings.Contains(p, "layout: slides") || !strings.Contains(p, "title: Zed in five slides") {
 		t.Errorf("presentation:\n%s", p)
 	}
 	matches, _ := filepath.Glob(filepath.Join(root, "releases", "*-first-release.md"))
@@ -106,7 +112,7 @@ func TestTechdocsPagesAndRules(t *testing.T) {
 	for _, r := range cfg.TemplateRules() {
 		rules = append(rules, r.Pattern+"="+r.Name)
 	}
-	wantRules := "overview/**=overview,getting-started/**=tutorial,how-tos/**=how-to,explanation/**=explanation,reference/**=reference,glossary/**=term,releases/**=release-notes"
+	wantRules := "getting-started/**=tutorial,how-tos/**=how-to,explanation/**=explanation,reference/**=reference,glossary/**=term,releases/**=release-notes"
 	if strings.Join(rules, ",") != wantRules {
 		t.Errorf("rules %v", rules)
 	}
@@ -138,8 +144,8 @@ func TestTechdocsPagesAndRules(t *testing.T) {
 func TestBuiltinBlueprintsBuild(t *testing.T) {
 	for _, id := range blueprints.IDs {
 		root := fresh(t, id)
-		if _, err := os.Stat(filepath.Join(root, "README.md")); err != nil {
-			t.Errorf("%s: no README.md", id)
+		if _, err := os.Stat(filepath.Join(root, "index.md")); err != nil {
+			t.Errorf("%s: no index.md", id)
 		}
 		if w := config.Load("", root).Warnings(); len(w) != 0 {
 			t.Errorf("%s: config warnings %v", id, w)
@@ -181,7 +187,7 @@ func TestTechdocsNewTermAppearsUnderGlossary(t *testing.T) {
 	titleOf := func(p string) string {
 		return strings.TrimSuffix(filepath.Base(p), ".md")
 	}
-	ix := index.BuildWithMeta(files, "README.md", func(string) []string { return nil }, titleOf, func(p string) index.Meta { return metas[p] })
+	ix := index.BuildWithMeta(files, "index.md", func(string) []string { return nil }, titleOf, func(p string) index.Meta { return metas[p] })
 	var g *index.Node
 	var walk func(ns []index.Node)
 	walk = func(ns []index.Node) {

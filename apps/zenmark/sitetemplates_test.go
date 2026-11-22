@@ -151,17 +151,17 @@ func TestCreateSite(t *testing.T) {
 		t.Errorf("templates folder: %v", err)
 	}
 
-	// A folder with spaces and unicode; the result is the new workspace, starting at its README.
+	// A folder with spaces and unicode; the result is the new workspace, starting at its home page.
 	target := filepath.Join(t.TempDir(), "Dokümente ✨")
 	st, err := z.CreateSite("techdocs", target, map[string]string{"title": "Käse", "author": "Ana", "extra": "x"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if st.Workspace == nil || sameDir(st.Workspace.Root, target) == false || st.Page != "README.md" || st.Mode != "read" {
+	if st.Workspace == nil || sameDir(st.Workspace.Root, target) == false || st.Page != "index.md" || st.Mode != "read" {
 		t.Fatalf("startup: %+v", st)
 	}
-	if src, err := z.Source("README.md"); err != nil || !strings.Contains(src, "# Käse") {
-		t.Errorf("README: %v %q", err, src)
+	if src, err := z.Source("index.md"); err != nil || !strings.Contains(src, "# Käse") {
+		t.Errorf("home: %v %q", err, src)
 	}
 	// The same folder again: every file clashes, nothing changes, the workspace stays.
 	if _, err := z.CreateSite("techdocs", target, nil); err == nil || !strings.Contains(err.Error(), "already exist") {
@@ -208,7 +208,7 @@ func TestCreateSiteClosesEditors(t *testing.T) {
 	if res.err == nil || !strings.Contains(res.err.Error(), "nothing was created") || !strings.Contains(res.err.Error(), "unsaved") {
 		t.Fatalf("cancelled: %+v", res)
 	}
-	if _, err := os.Stat(filepath.Join(target, "README.md")); err == nil {
+	if _, err := os.Stat(filepath.Join(target, "index.md")); err == nil {
 		t.Error("the site was written although an editor kept its changes")
 	}
 	if z.Startup().Workspace.Name == filepath.Base(target) {
@@ -223,7 +223,7 @@ func TestCreateSiteClosesEditors(t *testing.T) {
 	waitAsked(t, r, 3)
 	r.m.Reply("editor:b.md", desktop.ReplyClose)
 	res = <-done
-	if res.err != nil || res.st.Workspace == nil || !sameDir(res.st.Workspace.Root, target2) || res.st.Page != "README.md" || r.m.EditorCount() != 0 {
+	if res.err != nil || res.st.Workspace == nil || !sameDir(res.st.Workspace.Root, target2) || res.st.Page != "index.md" || r.m.EditorCount() != 0 {
 		t.Fatalf("closed: %+v editors %d", res, r.m.EditorCount())
 	}
 }
@@ -309,11 +309,11 @@ func TestInitSite(t *testing.T) {
 	t.Cleanup(func() { os.RemoveAll(target) })
 	rel := filepath.Base(target)
 	out, _, err = run(cli.Init{Dir: target, Template: "techdocs", Values: map[string]string{"title": "T"}})
-	if err != nil || out != "Created 25 files in "+rel+" (Technical documentation). Open it with: zenmd "+rel+"\n" {
+	if err != nil || out != "Created 24 files in "+rel+" (Technical documentation). Open it with: zenmd "+rel+"\n" {
 		t.Fatalf("create: %q %v", out, err)
 	}
 	// A clash is an error that lists the files; nothing is overwritten.
-	if _, _, err := run(cli.Init{Dir: target, Template: "techdocs"}); err == nil || !errors.Is(err, sitetemplates.ErrClash) || !strings.Contains(err.Error(), "README.md") {
+	if _, _, err := run(cli.Init{Dir: target, Template: "techdocs"}); err == nil || !errors.Is(err, sitetemplates.ErrClash) || !strings.Contains(err.Error(), "index.md") {
 		t.Errorf("clash: %v", err)
 	}
 	// A folder with a space is quoted in the hint, and one outside the current folder is shown in full.
@@ -373,12 +373,12 @@ func TestInitSite(t *testing.T) {
 func presetFiles(id, date string) []string {
 	files := map[string][]string{
 		"techdocs": {".zen/templates/explanation.yml", ".zen/templates/how-to.yml", ".zen/templates/overview.yml", ".zen/templates/reference.yml", ".zen/templates/release-notes.yml",
-			".zen/templates/term.yml", ".zen/templates/tutorial.yml", ".zenmd.yml", "CONTRIBUTING.md", "README.md",
+			".zen/templates/term.yml", ".zen/templates/tutorial.yml", ".zenmd.yml", "CONTRIBUTING.md", "index.md", "presentation.md",
 			"explanation/architecture.md", "explanation/index.md", "getting-started/first-steps.md", "getting-started/index.md", "getting-started/installation.md",
-			"glossary/example-term.md", "glossary/index.md", "how-tos/example-task.md", "how-tos/index.md", "overview/index.md", "overview/presentation.md",
+			"glossary/example-term.md", "glossary/index.md", "how-tos/example-task.md", "how-tos/index.md",
 			"reference/configuration.md", "reference/index.md", "releases/" + date + "-first-release.md", "releases/index.md"},
-		"learning": {".zenmd.yml", "README.md", "authoring.md", "glossary.md", "paths/first-path/index.md"},
-		"planner": {".zenmd.yml", "README.md", "decisions/0001-record-decisions.md", "decisions/template.md", "ideas.md", "meetings/template.md", "roadmap.md",
+		"learning": {".zenmd.yml", "index.md", "authoring.md", "glossary.md", "paths/first-path/index.md"},
+		"planner": {".zenmd.yml", "index.md", "decisions/0001-record-decisions.md", "decisions/template.md", "ideas.md", "meetings/template.md", "roadmap.md",
 			"weeks/" + date + ".md"},
 	}[id]
 	sort.Strings(files)
@@ -401,9 +401,9 @@ func ignoreMissingLayouts(ws []string) []string {
 func TestPresets(t *testing.T) {
 	date := time.Now().Format("2006-01-02")
 	layoutsWant := map[string]map[string]string{
-		"techdocs": {"README.md": "docs", "getting-started/index.md": "landing", "getting-started/installation.md": "docs", "overview/presentation.md": "slides", "CONTRIBUTING.md": "docs", "explanation/architecture.md": "docs"},
-		"learning": {"README.md": "landing", "paths/first-path/index.md": "course", "glossary.md": "article", "authoring.md": "article"},
-		"planner":  {"README.md": "landing", "roadmap.md": "wide", "weeks/" + date + ".md": "article", "decisions/0001-record-decisions.md": "article"},
+		"techdocs": {"index.md": "docs", "getting-started/index.md": "landing", "getting-started/installation.md": "docs", "presentation.md": "slides", "CONTRIBUTING.md": "docs", "explanation/architecture.md": "docs"},
+		"learning": {"index.md": "landing", "paths/first-path/index.md": "course", "glossary.md": "article", "authoring.md": "article"},
+		"planner":  {"index.md": "landing", "roadmap.md": "wide", "weeks/" + date + ".md": "article", "decisions/0001-record-decisions.md": "article"},
 	}
 	cards := map[string]int{"techdocs": -1, "learning": 3, "planner": 5}
 	for _, id := range []string{"techdocs", "learning", "planner"} {
@@ -441,8 +441,8 @@ func TestPresets(t *testing.T) {
 				}
 				return nil
 			})
-			if b, _ := os.ReadFile(filepath.Join(target, "README.md")); !strings.Contains(string(b), "# Acme Docs") {
-				t.Errorf("README does not use the title: %s", b)
+			if b, _ := os.ReadFile(filepath.Join(target, "index.md")); !strings.Contains(string(b), "# Acme Docs") {
+				t.Errorf("home does not use the title: %s", b)
 			}
 
 			// It opens, and every page renders with no warning and no broken link.
@@ -483,7 +483,7 @@ func TestPresets(t *testing.T) {
 					t.Errorf("%s: layout %q, want %q", p, pg.Layout.Name, want)
 				}
 			}
-			home, _ := z.Page("README.md")
+			home, _ := z.Page("index.md")
 			if n := strings.Count(home.HTML, `class="zl-card"`); cards[id] >= 0 && n != cards[id] {
 				t.Errorf("home has %d cards, want %d", n, cards[id])
 			}
