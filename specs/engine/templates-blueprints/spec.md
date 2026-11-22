@@ -181,6 +181,56 @@ The structures are built in, and each one is small, so a page that follows no te
 - **The exported site** writes the home as `index.html`, as today.
 - **Blueprints:** `home:` writes `index.md`, and `home.template` gives it the overview structure. So the overview **is** the home page. There is no separate Overview section and no `overview/` folder. The home holds the summary and key features, then "Where to go next" with one link to each section in order, and those links make the sidebar order. A blueprint may still ship extra root pages, such as `presentation.md` with the slides layout, linked from the home.
 
+## Where templates live on this Mac (added 2026-11-22)
+
+One folder holds both kinds of template, each in a subfolder you can open, read and edit:
+
+```
+~/Library/Application Support/zen/templates/
+  blueprints/        one folder per blueprint (techdocs/, learning/, planner/, your own)
+    .zen-templates.yml
+  pages/             one file per page template (how-to.yml, term.yml, …, your own)
+    .zen-templates.yml
+```
+
+1. **The folder.**
+   - The global `config.yml` key `templates: { dir: … }` names this templates folder. The default is `<config folder>/templates`.
+   - The global `blueprints:` key, added while building #20 and never released, is removed.
+   - A folder's `.zenmd.yml` `templates:` is unchanged: it holds the path rules, a different key in a different file.
+2. **Moving the old folder:**
+   - **When it moves:** on first use, an existing `templates/sites/` is renamed to `templates/blueprints/`, with its `.zen-templates.yml`.
+   - **When it doesn't:**
+     - a `blueprints/` folder already exists; then `sites/` is ignored and noted;
+     - either folder is a symlink;
+     - the folder is outside the config folder.
+   - **The notice:** the move shows once under Problems, as "templates/sites is now templates/blueprints".
+3. **Page templates on this Mac.**
+   - **Installed:** the built-in page templates are installed into `pages/` as editable copies, the same way blueprints are: installed once, recorded in `pages/.zen-templates.yml` with their version, and not installed again after you delete one.
+   - **Your own:** a file you add there is a page template too.
+   - **Which wins:** a folder's own `.zen/templates/<id>.yml`, then `templates/pages/<id>.yml`, then the built-in one.
+4. **Updates that don't get in the way:**
+   - **The fingerprint:** each install also records a SHA-256 fingerprint of what it wrote.
+   - **Untouched copies:** when a built-in is newer and your copy still matches its fingerprint, `zenmd init --update <id>` (and `zenmd templates update <id>`) replaces it in place, with nothing to compare.
+   - **Edited copies:** only these get the `<id>.new` copy next to them, as today.
+   - **The app:** Settings shows "Update available" on the item, with an **Update** button that follows the same rule.
+5. **Seeing them in the app.**
+   - **Settings › Blueprints** shows `templates/blueprints/`; **Show in Finder** opens that folder.
+   - **Settings › Templates** is new, right after Blueprints, in the Settings frame:
+     - **The left column** lists the page templates, marked Built-in, Yours (in `templates/pages/`) or This folder (`.zen/templates/`).
+     - **The right column** shows the selected template:
+       - its description and layout;
+       - a table of its fields (name, type, required, default);
+       - an outline of its `structure:`, when it has one;
+       - its skeleton, shown as a rendered preview;
+       - the path rules of the open folder that use it.
+     - **Actions:** **Show in Finder** for `templates/pages/`, **Open in Editor** for an installed or folder copy, and **Copy to This Folder** to write it to `.zen/templates/`.
+6. **CLI first.**
+   - `zenmd templates list` lists the page templates, with where each comes from and its version.
+   - `zenmd templates show <id>` prints the fields, the structure outline and the skeleton.
+   - `zenmd templates update <id>`.
+   - `zenmd templates --dir` prints the templates folder.
+   - `zenmd blueprint list` and `zenmd init --dir` read `templates/blueprints/`.
+
 ## Making your own blueprint
 
 A blueprint is a folder with a `blueprint.yml`. The easy way to write one is to
@@ -277,7 +327,7 @@ A blueprint can still be a plain folder with files, as today. `sections:` is opt
 | Check one | `zenmd blueprint check <id>` builds it into a temporary folder and runs `zenmd check` on it | the blueprint's preview shows the result |
 | List them | `zenmd blueprint list` | Settings › Blueprints |
 
-- **Where they live:** the blueprints folder is the global `blueprints:` path (today `templates:`), by default `~/Library/Application Support/zen/blueprints`. A folder blueprint with the same id as a built-in one replaces it in the list, and the list says so.
+- **Where they live:** `templates/blueprints/` in the templates folder (see "Where templates live on this Mac"). A blueprint there with the same id as a built-in one replaces it in the list, and the list says so.
 - **Adding a section later:** `zenmd blueprint add-section <folder> --title "Tutorials" --template tutorial` does it on a folder that's already in use. It makes the folder and its index, adds the README link and the path rule, and changes nothing else. The app has the same as **Add Section…** in the sidebar's menu on the home page.
 
 ## The built-in blueprint: Technical documentation
