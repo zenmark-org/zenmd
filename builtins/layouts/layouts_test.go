@@ -53,7 +53,7 @@ func TestBuiltInsLoad(t *testing.T) {
 	has("slides", false, true)
 	has("course", false, true)
 	has("glossary", true, true)
-	for _, id := range []string{"docs", "post", "landing", "wide", "handout", "term"} {
+	for _, id := range []string{"docs", "post", "landing", "wide", "handout", "term", "release"} {
 		has(id, true, false)
 	}
 }
@@ -351,5 +351,26 @@ func TestGlossaryProblemsAreWarnings(t *testing.T) {
 		if !strings.Contains(all, want) {
 			t.Errorf("no warning %q in %s", want, all)
 		}
+	}
+}
+
+// The release layout: the version is the page's heading, once, with the date
+// and the optional name under it; the page has no H1 (title: version).
+func TestRelease(t *testing.T) {
+	src := "---\nlayout: release\nversion: 0.1.0\ndate: 2026-11-22\nname: First release\n---\n## Added\n\n- A thing\n"
+	p := page(t, nil, src)
+	mustHave(t, p.HTML, `class="zl-release`, "22 November 2026", "First release", "<h2", "Added", "A thing")
+	if n := strings.Count(p.HTML, "0.1.0"); n != 1 {
+		t.Errorf("the version shows %d times, want once:\n%s", n, p.HTML)
+	}
+	if strings.Count(p.HTML, "<h1") != 1 {
+		t.Errorf("want exactly one h1:\n%s", p.HTML)
+	}
+	if p.Title != "0.1.0" {
+		t.Errorf("title %q, want 0.1.0", p.Title)
+	}
+	p = page(t, nil, "---\nlayout: release\nversion: 0.2.0\ndate: 2026-12-01\n---\n## Fixed\n")
+	if strings.Contains(p.HTML, "zl-release-name") {
+		t.Errorf("no name, no name line:\n%s", p.HTML)
 	}
 }

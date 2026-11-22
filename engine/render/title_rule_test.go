@@ -69,3 +69,33 @@ func TestNoTitleNoteWithoutBoth(t *testing.T) {
 		}
 	}
 }
+
+// Step 3 of the title rule: the field the page's layout names with title: in
+// its layout.yml, shown as written. H1 and frontmatter title: come first, the
+// file name last.
+func TestTitleRuleLayoutField(t *testing.T) {
+	rel := layoutFS(t, "release", "id: release\nversion: 1.0.0\ntitle: version\ntemplate: layout.html\nfields:\n  version: { type: string }\n", map[string]string{"layout.html": "<div>{{.Body}}</div>"})
+	plain := layoutFS(t, "plain", "id: plain\nversion: 1.0.0\ntemplate: layout.html\nfields:\n  version: { type: string }\n", map[string]string{"layout.html": "<div>{{.Body}}</div>"})
+	r := layoutRenderer(t, nil, rel, plain)
+	cases := []struct{ name, path, src, want string }{
+		{"h1 wins", "r/a.md", "---\nlayout: release\nversion: 0.1.0\n---\n# Big\n", "Big"},
+		{"title: wins over the field", "r/a.md", "---\nlayout: release\nversion: 0.1.0\ntitle: Named\n---\n## Added\n", "Named"},
+		{"the field", "r/a.md", "---\nlayout: release\nversion: 0.1.0\n---\n## Added\n", "0.1.0"},
+		{"a number as written", "r/a.md", "---\nlayout: release\nversion: 2\n---\n## Added\n", "2"},
+		{"field missing: file name", "r/a.md", "---\nlayout: release\n---\n## Added\n", "a"},
+		{"layout names no field: file name", "r/b.md", "---\nlayout: plain\nversion: 0.1.0\n---\n## Added\n", "b"},
+		{"no layout: file name", "r/c.md", "---\nversion: 0.1.0\n---\n## Added\n", "c"},
+	}
+	for _, c := range cases {
+		p, err := r.Render(c.path, []byte(c.src))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if p.Title != c.want {
+			t.Errorf("%s: Render title %q, want %q", c.name, p.Title, c.want)
+		}
+		if got := r.Title(c.path, []byte(c.src)); got != c.want {
+			t.Errorf("%s: Title %q, want %q", c.name, got, c.want)
+		}
+	}
+}

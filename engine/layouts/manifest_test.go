@@ -225,3 +225,17 @@ func TestRegistry(t *testing.T) {
 		t.Error("asset version")
 	}
 }
+
+func TestManifestTitleField(t *testing.T) {
+	ok := mustLoad(t, "rel", map[string]string{"layout.yml": "id: rel\nversion: 1.0.0\ntitle: version\ncss: [a.css]\nfields:\n  version: { type: string }\n", "a.css": ""})
+	if ok.Manifest().TitleField != "version" {
+		t.Errorf("TitleField %q", ok.Manifest().TitleField)
+	}
+	none := mustLoad(t, "none", map[string]string{"layout.yml": "id: none\nversion: 1.0.0\ncss: [a.css]\n", "a.css": ""})
+	if none.Manifest().TitleField != "" {
+		t.Errorf("TitleField %q", none.Manifest().TitleField)
+	}
+	if _, err := Load(write(t, "bad", map[string]string{"layout.yml": "id: bad\nversion: 1.0.0\ntitle: nope\ncss: [a.css]\n", "a.css": ""}), SourceFolder); err == nil || !strings.Contains(err.Error(), "title") {
+		t.Errorf("a title: that names no field must be refused, got %v", err)
+	}
+}

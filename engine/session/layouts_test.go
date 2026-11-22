@@ -445,3 +445,60 @@ func TestBuiltinLayoutHelpRenders(t *testing.T) {
 		}
 	}
 }
+
+func releaseFiles() map[string]string {
+	rel := func(v, d, n string) string {
+		s := "---\nlayout: release\nversion: " + v + "\ndate: " + d + "\n"
+		if n != "" {
+			s += "name: " + n + "\n"
+		}
+		return s + "---\n## Added\n\n- A thing\n"
+	}
+	return map[string]string{
+		"README.md":          "# Docs\n\n[Releases](releases/index.md)\n",
+		"releases/index.md":  "---\nlayout: landing\nnav: { children: folder, sort: newest-first }\n---\n# Releases\n",
+		"releases/0.2.0.md":  rel("0.2.0", "2026-02-01", "Second"),
+		"releases/0.10.0.md": rel("0.10.0", "2026-03-01", ""),
+		"releases/0.1.0.md":  rel("0.1.0", "2026-01-01", "First release"),
+	}
+}
+
+// A release page's title is its version (the layout's title: field), in the
+// sidebar newest first, in the page and on the releases index's cards, which
+// show the date and the name.
+func TestReleasePagesTitleIsTheVersion(t *testing.T) {
+	z, _, _ := openWith(t, pluginTree(t, releaseFiles()), t.TempDir(), true)
+	var got []string
+	var walk func(ns []NavNode)
+	walk = func(ns []NavNode) {
+		for _, n := range ns {
+			if strings.HasPrefix(n.Path, "releases/") && n.Path != "releases/index.md" {
+				got = append(got, n.Title)
+			}
+			walk(n.Children)
+		}
+	}
+	walk(z.Workspace().Tree)
+	if strings.Join(got, ",") != "0.10.0,0.2.0,0.1.0" {
+		t.Errorf("sidebar titles (newest first) %v", got)
+	}
+	p, err := z.Page("releases/0.2.0.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p.Title != "0.2.0" {
+		t.Errorf("page title %q", p.Title)
+	}
+	idx, err := z.Page("releases/index.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, w := range []string{"<strong>0.10.0</strong>", "<strong>0.2.0</strong>", "2026-02-01", "Second", "<strong>0.1.0</strong>", "First release"} {
+		if !strings.Contains(idx.HTML, w) {
+			t.Errorf("releases index lacks %q:\n%s", w, idx.HTML)
+		}
+	}
+	if strings.Index(idx.HTML, "0.10.0") > strings.Index(idx.HTML, "0.2.0") || strings.Index(idx.HTML, "0.2.0") > strings.Index(idx.HTML, "0.1.0<") {
+		t.Errorf("cards are not newest first:\n%s", idx.HTML)
+	}
+}

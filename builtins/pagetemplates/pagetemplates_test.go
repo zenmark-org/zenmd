@@ -57,3 +57,21 @@ func TestBuiltinPageTemplates(t *testing.T) {
 		t.Error("a term starts with # {{title}} and has no title in its frontmatter")
 	}
 }
+
+// The release-notes page template: the release layout, no title and no H1 (the
+// version is the title); version and date are required, name is optional.
+func TestReleaseNotesTemplate(t *testing.T) {
+	data, _ := fs.ReadFile(FS, "release-notes.yml")
+	src := string(data)
+	for _, w := range []string{"layout: release", "version: { type: string, required: true }", "date:", "required: true", "name:", "skeleton: |\n  ## Added\n"} {
+		if !strings.Contains(src, w) {
+			t.Errorf("release-notes lacks %q", w)
+		}
+	}
+	if strings.Contains(src, "# {{title}}") || strings.Contains(src, "\n  title:") || strings.Contains(src, "version: 1.0.0\nlayout") {
+		t.Errorf("release-notes has a title or an H1 or the old version:\n%s", src)
+	}
+	if !strings.Contains(src, "\nversion: 1.1.0\n") {
+		t.Errorf("release-notes version must be bumped to 1.1.0 (installed copies get the update):\n%s", src)
+	}
+}

@@ -92,13 +92,17 @@ func TestTechdocsPagesAndRules(t *testing.T) {
 	if p := readFile(t, root, "presentation.md"); !strings.Contains(p, "layout: slides") || !strings.Contains(p, "# Zed in five slides") || strings.Contains(p, "title:") {
 		t.Errorf("presentation:\n%s", p)
 	}
-	matches, _ := filepath.Glob(filepath.Join(root, "releases", "*-first-release.md"))
-	if len(matches) != 1 || !regexp.MustCompile(`^\d{4}-\d{2}-\d{2}-first-release\.md$`).MatchString(filepath.Base(matches[0])) {
-		t.Fatalf("first release: %v", matches)
+	rel := readFile(t, root, "releases/0.1.0.md")
+	for _, w := range []string{"layout: release", "version: 0.1.0", "date: ", "name: First release", "## Added", "## Changed", "## Fixed"} {
+		if !strings.Contains(rel, w) {
+			t.Errorf("first release lacks %q:\n%s", w, rel)
+		}
 	}
-	rel, _ := os.ReadFile(matches[0])
-	if !strings.Contains(string(rel), "version: 0.1.0") || !strings.Contains(string(rel), "date: ") {
-		t.Errorf("first release:\n%s", rel)
+	if strings.Contains(rel, "title:") || strings.Contains(rel, "\n# ") {
+		t.Errorf("a release has no title: and no H1; the version is the title:\n%s", rel)
+	}
+	if m, _ := filepath.Glob(filepath.Join(root, "releases", "*-first-release.md")); len(m) != 0 {
+		t.Errorf("old release file name: %v", m)
 	}
 	if r := readFile(t, root, "releases/index.md"); !strings.Contains(r, "sort: newest-first") {
 		t.Errorf("releases index:\n%s", r)

@@ -13,7 +13,7 @@ func pageTemplates() fstest.MapFS {
 		"tutorial.yml":      {Data: []byte("id: tutorial\nname: Tutorial\ndescription: Learn by doing\nlayout: docs\nfields:\n  title: { required: true }\nskeleton: |\n  # {{title}}\n\n  By {{author}} for {{product}} on {{today}}.\n\n  ## Steps\n\n  1. First\n")},
 		"how-to.yml":        {Data: []byte("id: how-to\nname: How-to\nlayout: docs\nfields:\n  title: { required: true }\nskeleton: |\n  # {{title}}\n\n  Steps.\n")},
 		"overview.yml":      {Data: []byte("id: overview\nname: Overview\nlayout: docs\nfields:\n  title: { required: true }\nskeleton: |\n  # {{title}}\n\n  {{product}} is a thing.\n\n  ## Where to go next\n\n  {{sections}}\n")},
-		"release-notes.yml": {Data: []byte("id: release-notes\nname: Release notes\nlayout: docs\nfields:\n  version: { required: true }\n  date: { type: date, required: true, default: \"{{today}}\" }\nskeleton: |\n  # {{title}} {{version}}\n\n  ## Added\n\n  - Everything\n")},
+		"release-notes.yml": {Data: []byte("id: release-notes\nname: Release notes\nlayout: release\nfields:\n  version: { required: true }\n  date: { type: date, required: true, default: \"{{today}}\" }\n  name: {}\nskeleton: |\n  ## Added\n\n  - Everything\n")},
 	}
 }
 
@@ -50,7 +50,7 @@ sections:
     folder: releases
     template: release-notes
     order: newest-first
-    pages: [ { file: "{{today}}-first.md", title: "First release", set: { version: 0.1.0 } } ]
+    pages: [ { file: "0.1.0.md", title: "First release", set: { version: 0.1.0, name: First release } } ]
 files: [CONTRIBUTING.md]
 templates: [overview, tutorial, how-to, release-notes]
 `
@@ -81,7 +81,7 @@ func TestSectionsBuildFolders(t *testing.T) {
 		"index.md", "CONTRIBUTING.md", ".zenmd.yml", "pitch.md",
 		"getting-started/index.md", "getting-started/installation.md",
 		"how-tos/index.md", "about.md",
-		"releases/index.md", "releases/2026-11-17-first.md",
+		"releases/index.md", "releases/0.1.0.md",
 		".zen/templates/overview.yml", ".zen/templates/tutorial.yml", ".zen/templates/how-to.yml", ".zen/templates/release-notes.yml",
 	} {
 		if !strings.Contains("\n"+got+"\n", "\n"+want+"\n") {
@@ -191,8 +191,11 @@ func TestSectionsNewestFirstAndSet(t *testing.T) {
 	if !strings.Contains(idx, "nav:") || !strings.Contains(idx, "sort: newest-first") {
 		t.Errorf("releases index:\n%s", idx)
 	}
-	rel := read(t, target, "releases/2026-11-17-first.md")
-	for _, w := range []string{"version: 0.1.0", "date: 2026-11-17", "# First release 0.1.0", "## Added"} {
+	rel := read(t, target, "releases/0.1.0.md")
+	if strings.Contains(rel, "title:") || strings.Contains(rel, "\n# ") {
+		t.Errorf("a release page has no title: and no H1:\n%s", rel)
+	}
+	for _, w := range []string{"layout: release", "version: 0.1.0", "date: 2026-11-17", "name: First release", "## Added"} {
 		if !strings.Contains(rel, w) {
 			t.Errorf("release lacks %q:\n%s", w, rel)
 		}
