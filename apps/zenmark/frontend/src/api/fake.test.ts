@@ -348,3 +348,13 @@ test("the fake api's default website output is exports/html", async () => {
   const o = await createFakeApi().buildOptions();
   expect(o.out).toBe("/Users/me/sample-docs/exports/html");
 });
+
+test("newTerm writes <folder>/<slug>.md from the term template and says when it exists", async () => {
+  const api = createFakeApi({ sources: { "g/index.md": "---\nlayout: glossary\n---\n", "README.md": "# Home\n" } });
+  expect(await api.glossaryFolders()).toEqual(["g"]);
+  expect(await api.newTerm("g", "Front matter")).toEqual({ path: "g/front-matter.md", existed: false });
+  expect(await api.source("g/front-matter.md")).toMatch(/^---\nlayout: term\n---\n# Front matter\n\n/);
+  expect(await api.newTerm("g", "front  matter")).toEqual({ path: "g/front-matter.md", existed: true });
+  await expect(api.newTerm("g", "???")).rejects.toThrow();
+  expect(await api.newTerm("", "Top")).toEqual({ path: "top.md", existed: false });
+});
