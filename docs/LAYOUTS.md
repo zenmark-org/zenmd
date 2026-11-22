@@ -86,7 +86,7 @@ id: post                     # [a-z][a-z0-9-]*, must equal the folder name
 version: 0.1.0               # SemVer
 description: Blog post with cover, date and author
 template: layout.html        # optional: the page structure
-# title: version            # optional: a field that titles pages with no H1 and no title: (see below)
+# title: "v{{version}}"      # optional: a field, or a pattern over fields, that titles pages with no H1 and no title: (see below)
 css: [post.css]              # optional
 js: [post.js]                # optional: export default { mount(root, ctx) }
 fields:                      # frontmatter the template reads
@@ -111,8 +111,9 @@ problem and never used):
 - every file named in `template`, `css` and `js` must be a plain relative file
   of the folder (no `..`, no absolute path, no `.DS_Store`, a symlink only when
   it stays inside); the template is at most 256 KB;
-- `title:` names one of the layout's `fields`; a `title:` that names none is
-  refused;
+- `title:` names one of the layout's `fields`, or is a pattern such as
+  `"v{{version}}"` whose `{{…}}` are its fields; one that names an unknown
+  field is refused;
 - field types: `string`, `text`, `int`, `bool`, `date`, `image`, `list`; names
   start with a lower-case letter and use letters, digits, `_` and `-`;
 - option types: `string`, `bool`, `int`, `map`, `list` with a default of that
@@ -127,10 +128,10 @@ problem and never used):
 
 A page has one title, by one rule used everywhere (sidebar, breadcrumb, window
 title, cards, exports, search, newest-first order): the first H1; else the
-frontmatter `title:`; else the field its layout names with `title:` in
-`layout.yml`, shown as written; else the file name. The `release` layout says
-`title: version`, so a release page needs no H1: its `version` is its title
-("0.1.0") in the sidebar, the breadcrumb, the window title and the releases
+frontmatter `title:`; else the field (or pattern) its layout names with
+`title:` in `layout.yml`; else the file name. The `release` layout says
+`title: "v{{version}}"`, so a release page needs no H1: `version: "0.1.0"`
+makes its title "v0.1.0" in the sidebar, the breadcrumb, the window title and the releases
 index, whose cards show the version, the date and the name, newest first. A
 layout that draws the title itself uses `.Body` (not `.Content`) so it shows
 once.
