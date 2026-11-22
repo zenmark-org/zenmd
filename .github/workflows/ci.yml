@@ -1,9 +1,15 @@
 name: ci
 
+# Runs only before a release, not on every push to main: on release branches
+# (release/*, the hotfix line), when the release workflow calls it for a v* tag
+# (it must pass before the DMG is built), and by hand from the Actions tab.
 on:
   push:
-    branches: [main, master]
+    branches: ['release/**']
   pull_request:
+    branches: ['release/**']
+  workflow_call:
+  workflow_dispatch:
 
 jobs:
   test:

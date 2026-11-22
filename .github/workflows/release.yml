@@ -30,7 +30,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # The tests (ci.yml) pass first; ci no longer runs on main.
+  test:
+    uses: ./.github/workflows/ci.yml
+
   dmg:
+    needs: test
     runs-on: macos-15
     timeout-minutes: 60
     env:
