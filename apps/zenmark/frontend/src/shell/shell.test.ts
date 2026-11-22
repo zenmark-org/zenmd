@@ -1412,7 +1412,7 @@ test("Reload in the sidebar header: fetches the tree again and has the reader re
   const r = button("Reload page")!;
   expect(r.title).toBe("Reload Page ⌘R");
   expect(sidebar().querySelector(".zen-sidebar-head")!.contains(r)).toBe(true);
-  api.startup = async () => ({ workspace: next, page: "README.md", mode: "read" });
+  api.reload = async () => next;
   r.click();
   await tick();
   expect(s.store.get().workspace?.tree[0].title).toBe("Renamed");
@@ -1424,7 +1424,7 @@ test("Reload still renders the page when the tree cannot be fetched", async () =
   const seen: string[] = [];
   const s = reloadBoot(api, seen);
   await s.start();
-  api.startup = async () => { throw new Error("gone"); };
+  api.reload = async () => { throw new Error("gone"); };
   const err = vi.spyOn(console, "error").mockImplementation(() => {});
   button("Reload page")!.click();
   await tick();

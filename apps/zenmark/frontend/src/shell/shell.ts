@@ -355,8 +355,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
     if (kind.kind !== "main" || !layout) return;
     const root = store.get().workspace?.root;
     try {
-      const s = await api.startup();
-      const ws = s.workspace;
+      const ws = api.reload ? await api.reload() : (await api.startup()).workspace;
       if (!destroyed && layout && ws && ws.root === root && store.get().workspace?.root === root) {
         store.set({ workspace: ws });
         layout.setIdentity(identity(ws));

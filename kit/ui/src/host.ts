@@ -128,6 +128,8 @@ export interface KitHost extends RuntimeHost {
    */
   glossaryFolders?(): Promise<string[]>;
   newTerm?(folder: string, term: string): Promise<NewTermResult>;
+  /** Reload (the sidebar button): the folder is scanned again, so files the watcher missed show up; the fresh workspace, null with no folder open. */
+  reload?(): Promise<Workspace | null>;
   /** Also delivered when another window saved the page ("editor:saved"). */
   on(event: "page:changed", fn: (e: { path: string; dependent?: boolean }) => void): () => void;
   /** Another window's unsaved text for a page (see draft); content null = draft gone. */
