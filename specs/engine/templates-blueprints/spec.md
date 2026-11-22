@@ -174,6 +174,13 @@ The structures are built in, and each one is small, so a page that follows no te
    - `learning`: lesson, with course pages;
    - `planner`: meeting, adr and release-notes.
 
+## A folder's home: `index.md` (changed 2026-11-22, after the first try-out)
+
+- **The home page** is `index.md` at the root, which is what blueprints write. `README.md` is still read as the home where there is no `index.md`, so existing folders don't change. When both exist, `index.md` wins, and Page Info says which one is the home.
+- **Every folder works the same way:** a folder's own `index.md` is its page in the sidebar, with `README.md` as the fallback.
+- **The exported site** writes the home as `index.html`, as today.
+- **Blueprints:** `home:` writes `index.md`, and `home.template` gives it the overview structure. So the overview **is** the home page. There is no separate Overview section and no `overview/` folder. The home holds the summary and key features, then "Where to go next" with one link to each section in order, and those links make the sidebar order. A blueprint may still ship extra root pages, such as `presentation.md` with the slides layout, linked from the home.
+
 ## Making your own blueprint
 
 A blueprint is a folder with a `blueprint.yml`. The easy way to write one is to
