@@ -66,6 +66,23 @@ function hideEditLinks(root: HTMLElement): void {
   }
 }
 
+/**
+ * A layout's New Term… link (data-zen-action="new-term") is hidden by the layout's own style: only an app
+ * with the editor and a host that can add terms shows it, as a button. An exported site never does.
+ */
+function showNewTermButtons(root: HTMLElement, can: boolean): void {
+  for (const b of Array.from(root.querySelectorAll<HTMLElement>('[data-zen-action="new-term"]'))) {
+    b.hidden = !can;
+    b.style.display = can ? "inline-block" : "none";
+    if (!can) continue;
+    b.setAttribute("role", "button");
+    b.tabIndex = 0;
+    b.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); b.click(); }
+    });
+  }
+}
+
 /** The Inspector of a build without the inspector feature: nothing to show, nothing to ask for. */
 function inertInspector(doc: Document): Inspector {
   const noop = () => {};
@@ -238,6 +255,7 @@ export const pageFeature: Feature = {
       rendered = { path: page.path, title: page.title };
       mountPage(article, page);
       if (!editable) hideEditLinks(article);
+      showNewTermButtons(article, editable && !!ctx.newTerm);
       void plugins.mountAll(article, page.assets);
       find.refresh();
     }

@@ -13,7 +13,7 @@ func pageTemplates() fstest.MapFS {
 		"tutorial.yml":      {Data: []byte("id: tutorial\nname: Tutorial\ndescription: Learn by doing\nlayout: docs\nfields:\n  title: { required: true }\nskeleton: |\n  # {{title}}\n\n  By {{author}} for {{product}} on {{today}}.\n\n  ## Steps\n\n  1. First\n")},
 		"how-to.yml":        {Data: []byte("id: how-to\nname: How-to\nlayout: docs\nfields:\n  title: { required: true }\nskeleton: |\n  # {{title}}\n\n  Steps.\n")},
 		"overview.yml":      {Data: []byte("id: overview\nname: Overview\nlayout: docs\nfields:\n  title: { required: true }\nskeleton: |\n  # {{title}}\n\n  {{product}} is a thing.\n\n  ## Where to go next\n\n  {{sections}}\n")},
-		"release-notes.yml": {Data: []byte("id: release-notes\nname: Release notes\nlayout: docs\nfields:\n  version: { required: true }\n  date: { type: date, required: true, default: \"{{today}}\" }\nskeleton: |\n  # {{title}} {{version}}\n\n  ## Added\n\n  - Everything\n")},
+		"release-notes.yml": {Data: []byte("id: release-notes\nname: Release notes\nlayout: release\nfields:\n  version: { required: true }\n  date: { type: date, required: true, default: \"{{today}}\" }\n  name: {}\nskeleton: |\n  ## Added\n\n  - Everything\n")},
 	}
 }
 
@@ -50,7 +50,7 @@ sections:
     folder: releases
     template: release-notes
     order: newest-first
-    pages: [ { file: "{{today}}-first.md", title: "First release", set: { version: 0.1.0 } } ]
+    pages: [ { file: "0.1.0.md", title: "First release", set: { version: 0.1.0, name: First release } } ]
 files: [CONTRIBUTING.md]
 templates: [overview, tutorial, how-to, release-notes]
 `
@@ -81,7 +81,7 @@ func TestSectionsBuildFolders(t *testing.T) {
 		"index.md", "CONTRIBUTING.md", ".zenmd.yml", "pitch.md",
 		"getting-started/index.md", "getting-started/installation.md",
 		"how-tos/index.md", "about.md",
-		"releases/index.md", "releases/2026-11-17-first.md",
+		"releases/index.md", "releases/0.1.0.md",
 		".zen/templates/overview.yml", ".zen/templates/tutorial.yml", ".zen/templates/how-to.yml", ".zen/templates/release-notes.yml",
 	} {
 		if !strings.Contains("\n"+got+"\n", "\n"+want+"\n") {
@@ -99,7 +99,7 @@ func TestSectionsBuildFolders(t *testing.T) {
 func TestSectionsHomeLinksInOrder(t *testing.T) {
 	target, _ := buildSections(t, sectionsManifest, nil)
 	home := read(t, target, "index.md")
-	if !strings.Contains(home, "title: My Docs") || !strings.Contains(home, "# My Docs") || !strings.Contains(home, "Zed is a thing.") {
+	if strings.Contains(home, "title:") || !strings.Contains(home, "# My Docs") || !strings.Contains(home, "Zed is a thing.") {
 		t.Errorf("home title and overview:\n%s", home)
 	}
 	order := []string{"[Getting started](getting-started/index.md)", "[How-tos](how-tos/index.md)", "[About us](about.md)", "[Releases](releases/index.md)", "[Zed in five slides](pitch.md)"}
@@ -132,7 +132,7 @@ func TestSectionsIndexPages(t *testing.T) {
 		}
 	}
 	// The file section is one page.
-	if a := read(t, target, "about.md"); !strings.Contains(a, "title: About us") || !strings.Contains(a, "# About us") {
+	if a := read(t, target, "about.md"); strings.Contains(a, "title:") || !strings.Contains(a, "# About us") {
 		t.Errorf("file section:\n%s", a)
 	}
 }
@@ -167,7 +167,7 @@ func TestSectionsStartingPages(t *testing.T) {
 	target, _ := buildSections(t, sectionsManifest, nil)
 	// Written from the section template's skeleton, placeholders filled.
 	in := read(t, target, "getting-started/installation.md")
-	for _, w := range []string{"title: Installation", "# Installation", "By Ana for Zed on 2026-11-17.", "## Steps"} {
+	for _, w := range []string{"# Installation", "By Ana for Zed on 2026-11-17.", "## Steps"} {
 		if !strings.Contains(in, w) {
 			t.Errorf("installation lacks %q:\n%s", w, in)
 		}
@@ -177,7 +177,7 @@ func TestSectionsStartingPages(t *testing.T) {
 	}
 	// A page with its own layout keeps it and skips the section's template.
 	pitch := read(t, target, "pitch.md")
-	if !strings.Contains(pitch, "title: Zed in five slides") || !strings.Contains(pitch, "layout: slides") || !strings.Contains(pitch, "template: false") {
+	if !strings.Contains(pitch, "# Zed in five slides") || strings.Contains(pitch, "title:") || !strings.Contains(pitch, "layout: slides") || !strings.Contains(pitch, "template: false") {
 		t.Errorf("slides page:\n%s", pitch)
 	}
 	if strings.Contains(pitch, "Zed is a thing") || !strings.Contains(pitch, "\n---\n") {
@@ -191,8 +191,11 @@ func TestSectionsNewestFirstAndSet(t *testing.T) {
 	if !strings.Contains(idx, "nav:") || !strings.Contains(idx, "sort: newest-first") {
 		t.Errorf("releases index:\n%s", idx)
 	}
-	rel := read(t, target, "releases/2026-11-17-first.md")
-	for _, w := range []string{"title: First release", "version: 0.1.0", "date: 2026-11-17", "# First release 0.1.0", "## Added"} {
+	rel := read(t, target, "releases/0.1.0.md")
+	if strings.Contains(rel, "title:") || strings.Contains(rel, "\n# ") {
+		t.Errorf("a release page has no title: and no H1:\n%s", rel)
+	}
+	for _, w := range []string{"layout: release", `version: "0.1.0"`, "date: 2026-11-17", "name: First release", "## Added"} {
 		if !strings.Contains(rel, w) {
 			t.Errorf("release lacks %q:\n%s", w, rel)
 		}
@@ -230,7 +233,7 @@ func TestSectionsErrors(t *testing.T) {
 	for name, m := range cases {
 		files := map[string]string{"CONTRIBUTING.md": "x"}
 		dir := t.TempDir()
-		root := filepath.Join(dir, "sites", "docs")
+		root := filepath.Join(dir, "blueprints", "docs")
 		put(t, root, map[string]string{"blueprint.yml": m, "CONTRIBUTING.md": files["CONTRIBUTING.md"]})
 		list, _ := List(dir)
 		if len(list) != 1 {
@@ -248,7 +251,7 @@ func TestSectionsErrors(t *testing.T) {
 
 func TestLegacyTemplateYml(t *testing.T) {
 	dir := t.TempDir()
-	root := filepath.Join(dir, "sites", "old")
+	root := filepath.Join(dir, "blueprints", "old")
 	put(t, root, map[string]string{"template.yml": "id: old\nname: Old\n", "README.md": "# {{title}}\n"})
 	list, _ := List(dir)
 	if len(list) != 1 || list[0].Err != "" || list[0].ID != "old" {

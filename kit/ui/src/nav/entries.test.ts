@@ -86,3 +86,16 @@ test("a folder group: New Page Here, Copy Path, Reveal; the Other pages group ha
   expect(e.newPage).toHaveBeenCalledWith("notes/");
   expect(menuEntries(tree[1], env())).toEqual([]);
 });
+
+test("a glossary index has New Term…, which runs with its folder; other pages do not", () => {
+  const gl = p("Glossary", "g/index.md", [p("Zebra", "g/zebra.md")]);
+  const e = env({ newTerm: vi.fn(), glossary: (path: string) => path === "g/index.md" });
+  const es = menuEntries(gl, e);
+  expect(labels(es)).toContain("New Term…");
+  find(es, "New Term…").run();
+  expect(e.newTerm).toHaveBeenCalledWith("g");
+  expect(labels(menuEntries(tree[0].children[0], e))).not.toContain("New Term…");
+  // not offered by a host without it (a read-only app has no newTerm)
+  expect(labels(menuEntries(gl, env({ newTerm: undefined, glossary: () => true })))).not.toContain("New Term…");
+  expect(labels(menuEntries(gl, env()))).not.toContain("New Term…");
+});

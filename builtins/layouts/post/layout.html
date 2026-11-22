@@ -8,7 +8,7 @@
       {{if .Option "reading"}}<span>{{.ReadingTime}} min read</span>{{end}}
     </p>
   </header>
-  <div class="zl-post-text">{{.Content}}</div>
+  <div class="zl-post-text">{{.Body}}</div>
   {{with .Field "tags"}}<ul class="zl-post-tags">{{range .}}<li>{{.}}</li>{{end}}</ul>{{end}}
   {{if or .Prev .Next}}
   <nav class="zl-post-pager" aria-label="Previous and next posts">

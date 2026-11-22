@@ -1,5 +1,4 @@
 ---
-title: Zen in five slides
 layout: slides
 layoutOptions: { ratio: "16:9", transition: fade }
 nav:

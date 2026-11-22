@@ -147,3 +147,24 @@ test("the menu closes when the workspace is replaced under it", async () => {
   shell.destroy();
   expect(menu()).toBeNull();
 });
+
+test("the Glossary page's menu has New Term…, which opens the dialog for its folder; other pages do not", async () => {
+  api = createFakeApi({
+    startup: { workspace: { root: "/docs", name: "docs", home: "README.md", tree: [p("Home", "README.md", [p("Glossary", "g/index.md"), p("Alpha", "guides/alpha.md")])] }, page: "README.md", mode: "read" },
+    sources: { "README.md": "# Home", "g/index.md": "---\nlayout: glossary\n---\n", "guides/alpha.md": "# Alpha" },
+  });
+  shell = createShell(root, { api, features: [navFeature, stub("reader"), stub("editor")] });
+  await shell.start();
+  await settle();
+  rightClick("guides/alpha.md");
+  expect(labels()).not.toContain("New Term…");
+  document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+  rightClick("g/index.md");
+  expect(labels()).toContain("New Term…");
+  choose("New Term…");
+  document.querySelector<HTMLInputElement>(".zen-newpage-name")!.value = "Idempotent";
+  document.querySelector<HTMLFormElement>(".zen-newpage")!.requestSubmit();
+  await settle();
+  expect(api.callsTo("newTerm")).toEqual([["g", "Idempotent"]]);
+  expect(api.callsTo("openEditor")).toEqual([["g/idempotent.md"]]);
+});

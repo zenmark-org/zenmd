@@ -1,5 +1,4 @@
 ---
-title: Learn by doing
 layout: course
 layoutOptions: { id: getting-started }
 ---

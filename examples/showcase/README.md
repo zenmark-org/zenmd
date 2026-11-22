@@ -1,6 +1,3 @@
----
-title: Zenmark user guide
----
 # Zenmark user guide
 
 **Zenmark** turns a folder of markdown into a small site you can read, edit and

@@ -379,8 +379,12 @@ func ParseMeta(frontmatter map[string]any) (m Meta, slug string, warnings []stri
 		}
 	}
 	m.Date, m.Version = textOf(frontmatter["date"]), textOf(frontmatter["version"])
-	if l, _ := frontmatter["layout"].(string); l == "glossary" {
-		m.Children, m.Sort = "folder", "title" // what the glossary layout implies; nav can override
+	// What a layout implies for the sidebar; the page's nav: can override each.
+	switch l, _ := frontmatter["layout"].(string); l {
+	case "glossary":
+		m.Children, m.Sort = "folder", "title"
+	case "term":
+		m.Hidden = true // the Glossary page lists the terms; the sidebar shows only it
 	}
 	v, ok := frontmatter["nav"]
 	if !ok || v == nil {

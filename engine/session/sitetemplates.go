@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"path/filepath"
 	"sort"
 	"strings"
 
-	"github.com/zenmark-org/zenmd/builtins"
 	"github.com/zenmark-org/zenmd/engine/config"
 	"github.com/zenmark-org/zenmd/engine/sitetemplates"
 )
@@ -30,10 +30,13 @@ type SiteTemplate struct {
 }
 
 // siteEnv is what the templates need from outside: the global config file
-// (its folder holds the templates folder) and the built-in presets.
+// (its folder holds the templates folder), the built-in blueprints and page
+// templates, and where to report what happened to the folder (note, may be nil).
 type siteEnv struct {
 	globalPath string
 	builtins   fs.FS
+	pages      fs.FS
+	note       func(string)
 }
 
 // TemplateListing is the result of listing the templates.
@@ -45,12 +48,19 @@ type TemplateListing struct {
 }
 
 // dir is the templates folder: <config folder>/templates, or the global
-// config's templates: dir. "" without a settings folder.
+// config's templates: dir. "" without a settings folder. The first use moves
+// an old templates/sites to templates/blueprints (sitetemplates.MigrateSites)
+// and reports it.
 func (e siteEnv) dir() (string, []string) {
 	if e.globalPath == "" {
 		return "", nil
 	}
-	return config.Load(e.globalPath, "").BlueprintsDir(filepath.Dir(e.globalPath))
+	cfgDir := filepath.Dir(e.globalPath)
+	dir, warns := config.Load(e.globalPath, "").TemplatesDir(cfgDir)
+	if n := sitetemplates.MigrateSites(dir, cfgDir); n != "" && e.note != nil {
+		e.note(n)
+	}
+	return dir, warns
 }
 
 // list installs the presets that are not there yet, and lists the templates.
@@ -59,7 +69,10 @@ func (e siteEnv) dir() (string, []string) {
 func (e siteEnv) list() TemplateListing {
 	l := e.list0()
 	for i := range l.Templates {
-		l.Templates[i].PageSource = builtins.PageTemplates()
+		l.Templates[i].PageSource = e.pages
+		if l.Dir != "" {
+			l.Templates[i].PagesDir = sitetemplates.PagesDir(l.Dir)
+		}
 	}
 	return l
 }
@@ -73,6 +86,7 @@ func (e siteEnv) list0() TemplateListing {
 		return out
 	}
 	err := sitetemplates.Install(dir, e.builtins)
+	_ = sitetemplates.InstallPages(dir, e.pages) // the page templates work from zen itself when this fails
 	ts, lw := sitetemplates.ListWith(dir, e.builtins)
 	out.Templates, out.Warnings = ts, append(out.Warnings, lw...)
 	if err != nil {
@@ -111,14 +125,55 @@ func (e siteEnv) find(id string) (sitetemplates.Template, TemplateListing, bool)
 	return sitetemplates.Template{}, l, false
 }
 
-// TemplatesAPI is the session's site templates: list them, plan and create a
-// site from one, and write a newer built-in beside the user's copy.
-type TemplatesAPI struct{ env siteEnv }
+// TemplatesAPI is the session's templates: list the blueprints and the page
+// templates, plan and create a site from a blueprint, and bring a newer
+// built-in one to the user's copy.
+type TemplatesAPI struct {
+	env siteEnv
+	s   *Session
+}
 
-// Templates returns the site templates of this session: the templates folder
-// next to its config file and the built-in presets.
+// Templates returns the templates of this session: the templates folder
+// next to its config file (blueprints/ and pages/) and the built-in ones.
 func (s *Session) Templates() TemplatesAPI {
-	return TemplatesAPI{siteEnv{globalPath: s.globalPath, builtins: s.presets}}
+	return TemplatesAPI{env: siteEnv{globalPath: s.globalPath, builtins: s.presets, pages: s.pagePre, note: s.noteTemplates}, s: s}
+}
+
+// noteTemplates reports what happened to the templates folder (the sites move):
+// it shows under Problems on every page for the rest of the session, and goes
+// to the log once.
+func (s *Session) noteTemplates(n string) {
+	s.mu.Lock()
+	for _, have := range s.tmplNotes {
+		if have == n {
+			s.mu.Unlock()
+			return
+		}
+	}
+	s.tmplNotes = append(s.tmplNotes, n)
+	s.mu.Unlock()
+	logApp(slog.LevelWarn, n, "source", "templates")
+}
+
+// Notes are what happened to the templates folder in this session, such as the move of an old
+// templates/sites (Problems shows the same).
+func (t TemplatesAPI) Notes() []string {
+	if t.s == nil {
+		return nil
+	}
+	t.s.mu.Lock()
+	defer t.s.mu.Unlock()
+	return append([]string(nil), t.s.tmplNotes...)
+}
+
+// templateContext is the open folder's root and its templates: path rules, "" and none without a folder.
+func (s *Session) templateContext() (string, []config.TemplateRule) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.ws == nil {
+		return "", nil
+	}
+	return s.ws.Root(), s.cfg.TemplateRules()
 }
 
 // List lists the site templates for the New Site dialog and the welcome
@@ -161,12 +216,12 @@ func (t TemplatesAPI) New(id, from string) (string, error) {
 	return sitetemplates.New(dir, t.env.builtins, id, from)
 }
 
-// Update writes the newer built-in template id beside the user's copy and
-// returns where it wrote it.
-func (t TemplatesAPI) Update(id string) (string, error) {
+// Update brings the newer built-in blueprint id to the user's copy: in place
+// when the copy was never edited, else beside it as <id>.new.
+func (t TemplatesAPI) Update(id string) (sitetemplates.UpdateResult, error) {
 	dir, _ := t.env.dir()
 	if dir == "" {
-		return "", errors.New("there is no blueprints folder")
+		return sitetemplates.UpdateResult{}, errors.New("there is no blueprints folder")
 	}
 	t.env.list() // install what is missing, so there is a record
 	return sitetemplates.Update(dir, t.env.builtins, id)

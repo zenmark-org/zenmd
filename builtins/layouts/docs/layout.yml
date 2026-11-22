@@ -10,7 +10,7 @@ help:
   summary: "A documentation page: the text in a reading column, an On this page rail (the second and third level headings) on the right, and Previous and Next links at the end that follow the sidebar order, with an Edit this page link. Options: toc and edit, both true by default."
   snippets:
     - title: A documentation page
-      markdown: "---\ntitle: Install\nlayout: docs\n---\n# Install\n\nIntro.\n\n## Download\n\nText.\n\n## Check\n\nMore text.\n"
+      markdown: "---\nlayout: docs\n---\n# Install\n\nIntro.\n\n## Download\n\nText.\n\n## Check\n\nMore text.\n"
     - title: Every page of a folder (in .zenmd.yml)
       markdown: "layout: docs\n"
     - title: Without the rail

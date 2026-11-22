@@ -2,6 +2,7 @@ package layouts
 
 import (
 	"fmt"
+	"html/template"
 	"path"
 	"sort"
 	"strings"
@@ -136,7 +137,7 @@ func (d *Data) TermPage() *TermPage {
 	if d.termPage != nil {
 		return d.termPage
 	}
-	self := termFrom(d.Path, d.Title, d.frontmatter, definitionOfHTML(string(d.Content)))
+	self := termFrom(d.Path, d.TermTitle(), d.frontmatter, definitionOfHTML(string(d.Content)))
 	terms := append(d.terms(true), self)
 	sortTerms(terms)
 	tp := &TermPage{}
@@ -189,9 +190,15 @@ func (d *Data) terms(self bool) []Term {
 	return out
 }
 
+// termFrom makes the Term of a page. The title is the page's title by the one
+// rule (render.TitleOf: the H1, else title:, else the file name) that the
+// caller read. Called with no title (a unit's input), it follows the same order:
+// title: in the frontmatter, then the file name.
 func termFrom(p, title string, meta map[string]any, def string) Term {
-	if s, ok := meta["title"].(string); ok && strings.TrimSpace(s) != "" {
-		title = strings.TrimSpace(s)
+	if title = strings.TrimSpace(title); title == "" {
+		if s, ok := meta["title"].(string); ok {
+			title = strings.TrimSpace(s)
+		}
 	}
 	if title == "" {
 		title = strings.TrimSuffix(path.Base(p), path.Ext(p))
@@ -322,4 +329,59 @@ func (d *Data) warnf(format string, args ...any) {
 	if d.warn != nil {
 		d.warn(fmt.Sprintf(format, args...))
 	}
+}
+
+// TermTitle is the term a page names: its H1 when the text starts with one,
+// else the page's title (the title: of an older file, or its file name).
+func (d *Data) TermTitle() string {
+	if h := leadingH1(string(d.Content)); h != "" {
+		return h
+	}
+	return d.Title
+}
+
+// TermBody is the page's text without its leading H1, which TermTitle shows
+// as the big term. It is Body; the name stays for the term layout.
+func (d *Data) TermBody() template.HTML { return d.Body() }
+
+// Body is the page's text without its leading H1. A layout that draws the
+// page's title itself (landing, post, glossary, term) inserts Body, not
+// Content, so the title shows once: the page's title is its H1.
+func (d *Data) Body() template.HTML {
+	c := string(d.Content)
+	t := strings.TrimLeft(c, " \t\r\n")
+	if !strings.HasPrefix(t, "<h1") {
+		return d.Content
+	}
+	end := strings.Index(t, "</h1>")
+	if end < 0 {
+		return d.Content
+	}
+	return template.HTML(strings.TrimLeft(t[end+len("</h1>"):], "\r\n"))
+}
+
+// leadingH1 is the plain text of the h1 a rendered page starts with.
+func leadingH1(src string) string {
+	t := strings.TrimLeft(src, " \t\r\n")
+	if !strings.HasPrefix(t, "<h1") {
+		return ""
+	}
+	end := strings.Index(t, "</h1>")
+	if end < 0 {
+		return ""
+	}
+	nodes, err := html.ParseFragment(strings.NewReader(t[:end+len("</h1>")]), &html.Node{Type: html.ElementNode, Data: "div", DataAtom: atom.Div})
+	if err != nil || len(nodes) == 0 {
+		return ""
+	}
+	return strings.Join(strings.Fields(nodeText(nodes[0])), " ")
+}
+
+// Folder is the folder of the page being laid out, "" for the top level (the
+// New Term button asks for it).
+func (d *Data) Folder() string {
+	if dir := path.Dir(d.Path); dir != "." {
+		return dir
+	}
+	return ""
 }

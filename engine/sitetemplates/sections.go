@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -271,6 +272,7 @@ func (s Section) check(what string, ids map[string]bool) error {
 // skeleton, its layout and the defaults of its fields. Checking comes later.
 type pageTemplate struct {
 	ID       string    `yaml:"id"`
+	Name     string    `yaml:"name"`
 	Layout   string    `yaml:"layout"`
 	Skeleton string    `yaml:"skeleton"`
 	Fields   yaml.Node `yaml:"fields"`
@@ -296,10 +298,19 @@ func (p pageTemplate) defaults() []field {
 }
 
 // pageTemplateBytes finds a page template: the blueprint's own
-// .zen/templates first, then the built-in ones.
+// .zen/templates first, then templates/pages on this Mac, then the built-in
+// ones.
 func (t Template) pageTemplateBytes(id string) ([]byte, bool) {
+	if id == "" || strings.ContainsAny(id, `/\`) || strings.HasPrefix(id, ".") {
+		return nil, false
+	}
 	if t.fsys != nil {
 		if b, err := fs.ReadFile(t.fsys, ".zen/templates/"+id+".yml"); err == nil {
+			return b, true
+		}
+	}
+	if t.PagesDir != "" {
+		if b, ok := readPageFile(filepath.Join(t.PagesDir, id+".yml")); ok {
 			return b, true
 		}
 	}
@@ -322,7 +333,7 @@ func (t Template) pageTemplateOrNone(id string) (pageTemplate, error) {
 func (t Template) pageTemplate(id string) (pageTemplate, error) {
 	b, ok := t.pageTemplateBytes(id)
 	if !ok {
-		return pageTemplate{}, fmt.Errorf("the page template %q is not available (it is not in the blueprint's .zen/templates or among the built-in ones)", id)
+		return pageTemplate{}, fmt.Errorf("the page template %q is not available (it is not in the blueprint's .zen/templates, in templates/pages or among the built-in ones)", id)
 	}
 	var p pageTemplate
 	if err := yaml.Unmarshal(b, &p); err != nil {
@@ -352,10 +363,17 @@ func scalar(s string) string {
 
 // frontmatter writes a --- block of fields.
 func frontmatter(kvs []KV) string {
+	if len(kvs) == 0 {
+		return ""
+	}
 	var b strings.Builder
 	b.WriteString("---\n")
 	for _, kv := range kvs {
-		b.WriteString(kv.Key + ": " + kv.Value + "\n")
+		v := kv.Value
+		if kv.Key == "version" && !strings.HasPrefix(v, `"`) && !strings.HasPrefix(v, "'") { // 1.10 stays 1.10
+			v = `"` + strings.ReplaceAll(v, `"`, `\"`) + `"`
+		}
+		b.WriteString(kv.Key + ": " + v + "\n")
 	}
 	b.WriteString("---\n")
 	return b.String()
@@ -464,7 +482,7 @@ func (t Template) generate(vals map[string]string) ([]generated, string, error) 
 			hpages, htemplate = t.Home.Pages, t.Home.Template
 		}
 		title := replace(ht, vals)
-		fm := []KV{{"title", scalar(title)}}
+		var fm []KV // the H1 of the page is its title: no title: here
 		var text string
 		if htemplate != "" { // the home has the page template's structure: the overview
 			b, kvs, layout, err := body(htemplate, "", "", title, nil)
@@ -488,13 +506,13 @@ func (t Template) generate(vals map[string]string) ([]generated, string, error) 
 			}
 			var content string
 			if p.Layout != "" {
-				pfm := []KV{{"title", scalar(ptitle)}, {"layout", scalar(p.Layout)}, {"template", "false"}}
+				pfm := []KV{{"layout", scalar(p.Layout)}, {"template", "false"}}
 				for _, kv := range set {
 					pfm = append(pfm, KV{kv.Key, scalar(kv.Value)})
 				}
 				content = frontmatter(pfm) + layoutBody(p.Layout, ptitle)
 			} else {
-				content = frontmatter(append([]KV{{"title", scalar(ptitle)}}, set...)) + "# " + ptitle + "\n"
+				content = frontmatter(append([]KV(nil), set...)) + "# " + ptitle + "\n"
 			}
 			out = append(out, generated{dest: replace(p.File, vals), data: content})
 		}
@@ -520,7 +538,7 @@ func (t Template) generate(vals map[string]string) ([]generated, string, error) 
 		}
 		folder := replace(s.Folder, vals)
 		// The index page.
-		idx := []KV{{"title", scalar(stitle)}}
+		var idx []KV
 		var text string
 		switch {
 		case s.Index.Template != "":
@@ -579,7 +597,7 @@ func (t Template) generate(vals map[string]string) ([]generated, string, error) 
 			}
 			var content string
 			if p.Layout != "" { // its own layout: no skeleton, and it follows no template
-				fm := []KV{{"title", scalar(ptitle)}, {"layout", scalar(p.Layout)}, {"template", "false"}}
+				fm := []KV{{"layout", scalar(p.Layout)}, {"template", "false"}}
 				for _, kv := range set {
 					fm = append(fm, KV{kv.Key, scalar(kv.Value)})
 				}
@@ -622,7 +640,7 @@ func (t Template) generate(vals map[string]string) ([]generated, string, error) 
 
 // sectionPage writes one page from a page template (or a bare one without).
 func (t Template) sectionPage(tmplID, dir, title string, set []KV, body func(id, dir, skip, title string, set []KV) (string, []KV, string, error)) (string, error) {
-	fm := []KV{{"title", scalar(title)}}
+	var fm []KV // the H1 is the title: no title: next to it
 	if tmplID == "" {
 		for _, kv := range set {
 			fm = append(fm, KV{kv.Key, scalar(kv.Value)})

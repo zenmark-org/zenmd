@@ -1,5 +1,4 @@
 ---
-title: Frontmatter
 slug: frontmatter
 nav:
   title: Frontmatter
@@ -13,7 +12,6 @@ lines. It is not shown on the page. This page starts with:
 
 ```yaml
 ---
-title: Frontmatter
 slug: frontmatter
 nav:
   title: Frontmatter
@@ -27,8 +25,11 @@ The Inspector's Page Info tab lists the keys a page has, see
 
 ## Title
 
-`title:` names the page in the window title. Without it Zenmark uses the first
-`# heading`, then the file name.
+A page's title is its first `# heading`. It names the page in the window
+title, the sidebar and the breadcrumb. `title:` is only for a page with no
+heading, such as a slides deck. A page that has both gets a note under
+Problems, because the heading wins. To show a shorter label in the sidebar
+only, use `nav: { title: … }`, as this page does.
 
 ## Navigation
 

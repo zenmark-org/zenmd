@@ -1,5 +1,4 @@
 ---
-title: Writing your own layout
 slug: writing-layouts
 nav:
   parent: layouts/index.md

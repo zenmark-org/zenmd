@@ -1,5 +1,4 @@
 ---
-title: The handout layout
 layout: handout
 date: 2026-11-17
 author: The Zenmark team

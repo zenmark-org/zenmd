@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 )
@@ -43,11 +44,11 @@ func scrubRoot(root, text string) string {
 
 // logRendered logs a page render at debug, and each warning the page got at warn
 // (the config notice has its own entry).
-func logRendered(root string, p Page, took time.Duration, notice string) {
+func logRendered(root string, p Page, took time.Duration, notice string, logged ...string) {
 	logApp(slog.LevelDebug, "page rendered", "path", p.Path, "ms", took.Milliseconds())
 	for _, w := range p.Warnings {
-		if w == notice {
-			continue // logged once, when the folder opened
+		if w == notice || slices.Contains(logged, w) {
+			continue // logged once, when the folder opened or the templates folder was used
 		}
 		logApp(slog.LevelWarn, "render warning", "path", p.Path, "warning", scrubRoot(root, w))
 	}

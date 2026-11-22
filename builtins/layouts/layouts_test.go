@@ -53,7 +53,7 @@ func TestBuiltInsLoad(t *testing.T) {
 	has("slides", false, true)
 	has("course", false, true)
 	has("glossary", true, true)
-	for _, id := range []string{"docs", "post", "landing", "wide", "handout", "term"} {
+	for _, id := range []string{"docs", "post", "landing", "wide", "handout", "term", "release"} {
 		has(id, true, false)
 	}
 }
@@ -170,7 +170,7 @@ func TestDocs(t *testing.T) {
 
 func TestPost(t *testing.T) {
 	p, err := renderer(t, site{next: &core.Link{Title: "Newer", Path: "n.md"}}, nil).Render("blog/p.md", []byte(
-		"---\ntitle: Hello\nlayout: post\ndate: 2026-11-17\nauthor: Ada\ntags: [a, b]\n---\n# Hello\n\n"+strings.Repeat("word ", 450)+"\n"))
+		"---\nlayout: post\ndate: 2026-11-17\nauthor: Ada\ntags: [a, b]\n---\n# Hello\n\n"+strings.Repeat("word ", 450)+"\n"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,7 +182,7 @@ func TestPost(t *testing.T) {
 	if strings.Contains(p.HTML, "zl-post-cover") {
 		t.Error("cover without a cover field")
 	}
-	p, _ = renderer(t, nil, nil).Render("blog/p.md", []byte("---\ntitle: T\nlayout: { name: post, reading: false }\ncover: https://example.com/c.png\n---\n# T\n"))
+	p, _ = renderer(t, nil, nil).Render("blog/p.md", []byte("---\nlayout: { name: post, reading: false }\ncover: https://example.com/c.png\n---\n# T\n"))
 	if strings.Contains(p.HTML, "min read") || !strings.Contains(p.HTML, `<img class="zl-post-cover" src="https://example.com/c.png"`) {
 		t.Errorf("reading/cover: %s", p.HTML)
 	}
@@ -208,9 +208,9 @@ func TestWide(t *testing.T) {
 }
 
 func TestHandout(t *testing.T) {
-	p := page(t, nil, "---\ntitle: Sheet\nlayout: handout\ndate: 2026-03-04\nauthor: Ada\n---\n# Sheet\n\ntext\n")
+	p := page(t, nil, "---\nlayout: handout\ndate: 2026-03-04\nauthor: Ada\n---\n# Sheet\n\ntext\n")
 	mustHave(t, p.HTML, `class="zl-handout zl-paper-a4"`, `class="zl-sheet-head"`, "4 March 2026", "Ada", `class="zl-sheet-foot"`, "<span>Sheet</span>")
-	p = page(t, nil, "---\ntitle: Sheet\nlayout: { name: handout, paper: letter }\n---\n# Sheet\n")
+	p = page(t, nil, "---\nlayout: { name: handout, paper: letter }\n---\n# Sheet\n")
 	mustHave(t, p.HTML, "zl-paper-letter")
 }
 
@@ -351,5 +351,26 @@ func TestGlossaryProblemsAreWarnings(t *testing.T) {
 		if !strings.Contains(all, want) {
 			t.Errorf("no warning %q in %s", want, all)
 		}
+	}
+}
+
+// The release layout: the version is the page's heading, once, with the date
+// and the optional name under it; the page has no H1 (title: version).
+func TestRelease(t *testing.T) {
+	src := "---\nlayout: release\nversion: 0.1.0\ndate: 2026-11-22\nname: First release\n---\n## Added\n\n- A thing\n"
+	p := page(t, nil, src)
+	mustHave(t, p.HTML, `class="zl-release`, "22 November 2026", "First release", "<h2", "Added", "A thing")
+	if n := strings.Count(p.HTML, "v0.1.0"); n != 1 {
+		t.Errorf("the version shows %d times, want once:\n%s", n, p.HTML)
+	}
+	if strings.Count(p.HTML, "<h1") != 1 {
+		t.Errorf("want exactly one h1:\n%s", p.HTML)
+	}
+	if p.Title != "v0.1.0" {
+		t.Errorf("title %q, want v0.1.0", p.Title)
+	}
+	p = page(t, nil, "---\nlayout: release\nversion: 0.2.0\ndate: 2026-12-01\n---\n## Fixed\n")
+	if strings.Contains(p.HTML, "zl-release-name") {
+		t.Errorf("no name, no name line:\n%s", p.HTML)
 	}
 }

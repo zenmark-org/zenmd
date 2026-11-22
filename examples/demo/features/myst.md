@@ -1,6 +1,3 @@
----
-title: MyST
----
 # MyST
 
 Markdown written for another tool can render in Zenmark without being

@@ -83,22 +83,32 @@ func TestTechdocsPagesAndRules(t *testing.T) {
 	if g := readFile(t, root, "glossary/index.md"); !strings.Contains(g, "layout: glossary") || !strings.Contains(g, "sort: title") {
 		t.Errorf("glossary index:\n%s", g)
 	}
-	if g := readFile(t, root, "glossary/example-term.md"); !strings.Contains(g, "layout: term") || !strings.Contains(g, "title: Example term") {
+	if g := readFile(t, root, "glossary/example-term.md"); !strings.Contains(g, "layout: term") || strings.Contains(g, "title:") || !strings.Contains(g, "# Example term\n\n") {
 		t.Errorf("example term:\n%s", g)
 	}
 	if o := readFile(t, root, "index.md"); !strings.Contains(o, "Zed is") || !strings.Contains(o, "## Key features") || !strings.Contains(o, "## Where to go next") || !strings.Contains(o, "(releases/index.md)") || !strings.Contains(o, "(presentation.md)") || !strings.Contains(o, "Zed in five slides") {
 		t.Errorf("home:\n%s", o)
 	}
-	if p := readFile(t, root, "presentation.md"); !strings.Contains(p, "layout: slides") || !strings.Contains(p, "title: Zed in five slides") {
+	if p := readFile(t, root, "presentation.md"); !strings.Contains(p, "layout: slides") || !strings.Contains(p, "# Zed in five slides") || strings.Contains(p, "title:") {
 		t.Errorf("presentation:\n%s", p)
 	}
-	matches, _ := filepath.Glob(filepath.Join(root, "releases", "*-first-release.md"))
-	if len(matches) != 1 || !regexp.MustCompile(`^\d{4}-\d{2}-\d{2}-first-release\.md$`).MatchString(filepath.Base(matches[0])) {
-		t.Fatalf("first release: %v", matches)
+	rel := readFile(t, root, "releases/v0.1.0.md")
+	for _, w := range []string{"layout: release", `version: "0.1.0"`, "date: ", "name: First release", "## Added", "## Changed", "## Fixed"} {
+		if !strings.Contains(rel, w) {
+			t.Errorf("first release lacks %q:\n%s", w, rel)
+		}
 	}
-	rel, _ := os.ReadFile(matches[0])
-	if !strings.Contains(string(rel), "version: 0.1.0") || !strings.Contains(string(rel), "date: ") {
-		t.Errorf("first release:\n%s", rel)
+	if strings.Contains(rel, "title:") || strings.Contains(rel, "\n# ") {
+		t.Errorf("a release has no title: and no H1; the version is the title:\n%s", rel)
+	}
+	if _, err := os.Stat(filepath.Join(root, "releases", "0.1.0.md")); err == nil {
+		t.Error("the release file is v0.1.0.md, not 0.1.0.md")
+	}
+	if m, _ := filepath.Glob(filepath.Join(root, "releases", "*-first-release.md")); len(m) != 0 {
+		t.Errorf("old release file name: %v", m)
+	}
+	if r := readFile(t, root, "releases/index.md"); !strings.Contains(r, "[v0.1.0](v0.1.0.md)") {
+		t.Errorf("the releases index links the release as v0.1.0:\n%s", r)
 	}
 	if r := readFile(t, root, "releases/index.md"); !strings.Contains(r, "sort: newest-first") {
 		t.Errorf("releases index:\n%s", r)
@@ -161,7 +171,7 @@ func TestTechdocsNewTermAppearsUnderGlossary(t *testing.T) {
 		}
 	}
 	// A term added by hand after creation is listed, A to Z, without any link.
-	if err := os.WriteFile(filepath.Join(root, "glossary", "aardvark.md"), []byte("---\ntitle: Aardvark\nlayout: term\n---\nAn animal.\n"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(root, "glossary", "aardvark.md"), []byte("---\nlayout: term\n---\n# Aardvark\n\nAn animal.\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	var files []string
@@ -206,8 +216,13 @@ func TestTechdocsNewTermAppearsUnderGlossary(t *testing.T) {
 	for _, c := range g.Children {
 		got = append(got, c.Path)
 	}
-	want := []string{"glossary/aardvark.md", "glossary/example-term.md"}
-	if strings.Join(got, ",") != strings.Join(want, ",") {
-		t.Fatalf("glossary children %v, want %v", got, want)
+	// Terms are not in the sidebar (layout: term hides them); the Glossary page lists them.
+	if len(got) != 0 {
+		t.Fatalf("glossary children %v, want none", got)
+	}
+	for _, f := range []string{"glossary/aardvark.md", "glossary/example-term.md"} {
+		if !metas[f].Hidden {
+			t.Errorf("%s is not hidden from the sidebar", f)
+		}
 	}
 }

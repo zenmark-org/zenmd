@@ -1,5 +1,4 @@
 ---
-title: Frontmatter
 slug: frontmatter
 nav:
   title: Frontmatter
@@ -13,7 +12,6 @@ lines. It is not shown on the page. This page starts with:
 
 ```yaml
 ---
-title: Frontmatter
 slug: frontmatter
 nav:
   title: Frontmatter
@@ -24,8 +22,9 @@ plugins:
 
 ## Title
 
-`title:` names the page in the window title. Without it zen uses the first
-`# heading`, then the file name.
+A page's title is its first `# heading`. `title:` is only for a page with no
+heading, such as a slides deck; a page that has both gets a note under
+Problems. Use `nav: { title: … }` for a shorter label in the sidebar only.
 
 ## Navigation
 

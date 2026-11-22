@@ -33,6 +33,9 @@ type (
 	PDFOptions        = session.PDFOptions
 	PDFRun            = session.PDFRun
 	SiteTemplate      = session.SiteTemplate
+	PageTemplate      = session.PageTemplateInfo
+	TemplateUpdate    = session.TemplateUpdate
+	NewTermResult     = session.NewTermResult
 )
 
 // Event names the session emits, and the errors of an open.

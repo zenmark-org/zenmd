@@ -1,6 +1,7 @@
 id: overview
 name: Overview
 description: "What the product is, who it is for, its key features and where to go next"
+version: 1.0.0
 layout: docs
 fields:
   title: { required: true }

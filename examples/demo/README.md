@@ -1,6 +1,3 @@
----
-title: Zenmark guide
----
 # Zenmark guide
 
 **Zenmark** turns a folder of markdown into a small site you read on your Mac.

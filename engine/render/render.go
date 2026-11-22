@@ -163,6 +163,12 @@ func (r *Renderer) Render(pagePath string, src []byte) (Page, error) {
 	doc := md.Parser().Parse(text.NewReader(body))
 
 	title := pageTitle(st, meta, doc, body, pagePath)
+	if n := titleNote(st, meta, doc, body); n != "" {
+		st.warnings = append(st.warnings, n)
+	}
+	if n := r.versionNote(pagePath, meta); n != "" {
+		st.warnings = append(st.warnings, n)
+	}
 
 	// 4+5 render, with fenced plugin blocks and link rewriting
 	var buf bytes.Buffer
@@ -219,19 +225,78 @@ func (r *Renderer) Render(pagePath string, src []byte) (Page, error) {
 	}, nil
 }
 
-// pageTitle is the frontmatter title, else the first h1, else the file name.
+// pageTitle is the one rule for a page's title: the first h1 (plain text);
+// else the frontmatter title:, which only a page without an h1 uses; else the
+// field the page's layout names with title: in its layout.yml (a release's
+// version), as written; else the file name.
 func pageTitle(st *state, meta map[string]any, doc ast.Node, body []byte, pagePath string) string {
-	title := ""
+	if t := st.plain(firstH1(doc, body)); t != "" {
+		return t
+	}
 	if t, ok := meta["title"].(string); ok && strings.TrimSpace(t) != "" {
-		title = strings.TrimSpace(t)
-	} else {
-		title = st.plain(firstH1(doc, body))
+		return strings.TrimSpace(t)
 	}
-	if title == "" {
-		base := path.Base(pagePath)
-		title = strings.TrimSuffix(base, path.Ext(base))
+	if t := st.r.layoutTitle(pagePath, meta); t != "" {
+		return t
 	}
-	return title
+	base := path.Base(pagePath)
+	return strings.TrimSuffix(base, path.Ext(base))
+}
+
+// layoutTitle is the value of the field the page's layout (resolved as
+// Render does) names to title its pages; "" when the layout names none or the
+// page does not have the field.
+func (r *Renderer) layoutTitle(pagePath string, meta map[string]any) string {
+	if r.layouts == nil {
+		return ""
+	}
+	choice := layouts.Resolve(pagePath, meta, r.cfg.ForPage(meta).Layouts())
+	l := r.layouts.Get(choice.Name)
+	if l == nil || l.Manifest().TitleField == "" {
+		return ""
+	}
+	return layouts.RenderTitle(l.Manifest().TitleField, func(f string) string {
+		switch v := meta[f].(type) {
+		case string:
+			return v
+		case int, int64, uint64, float64, bool:
+			return fmt.Sprint(v)
+		}
+		return ""
+	})
+}
+
+// versionNote is the page warning for a release page whose version is not a
+// semantic version; "" for any other page.
+func (r *Renderer) versionNote(pagePath string, meta map[string]any) string {
+	if r.layouts == nil {
+		return ""
+	}
+	if layouts.Resolve(pagePath, meta, r.cfg.ForPage(meta).Layouts()).Name != "release" || r.layouts.Get("release") == nil {
+		return ""
+	}
+	if v, ok := meta["version"].(string); ok && plugins.ValidSemVer(strings.TrimSpace(v)) {
+		return ""
+	}
+	return "version must be a semantic version such as 0.2.0"
+}
+
+// titleNote is the Problems note for a page that has both an h1 and a title:
+// in its frontmatter; "" when it has not. A title: equal to the h1 gets the
+// same note worded as a suggestion (the inspector reads the ending).
+func titleNote(st *state, meta map[string]any, doc ast.Node, body []byte) string {
+	t, ok := meta["title"].(string)
+	if !ok || strings.TrimSpace(t) == "" {
+		return ""
+	}
+	h1 := st.plain(firstH1(doc, body))
+	if h1 == "" {
+		return ""
+	}
+	if strings.TrimSpace(t) == h1 {
+		return "title: is ignored because the page has an H1, and it says the same"
+	}
+	return fmt.Sprintf("title: is ignored because the page has an H1 (%q)", h1)
 }
 
 // PluginSet returns the plugins enabled for the page whose source (with its
@@ -254,6 +319,15 @@ func (r *Renderer) Title(pagePath string, src []byte) string {
 	body = st.replaceInlines(body)
 	doc := newMarkdown().Parser().Parse(text.NewReader(body))
 	return pageTitle(st, meta, doc, body, pagePath)
+}
+
+// TitleOf is the title of the page at pagePath with source src by the same
+// rule as Render and Title, for callers with no renderer (the glossary
+// commands): the first h1, else the frontmatter title:, else the file name. It
+// knows no layouts, so it does not take a layout's title: field; callers that
+// have a renderer use Renderer.Title.
+func TitleOf(pagePath string, src []byte) string {
+	return New(nil, nil, nil).Title(pagePath, src)
 }
 
 // laidOut is the page after its layout.

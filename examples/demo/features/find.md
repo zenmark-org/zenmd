@@ -1,6 +1,3 @@
----
-title: Find in a page
----
 # Find in a page
 
 Press <kbd>⌘F</kbd>, click the magnifying glass in the top bar, or choose

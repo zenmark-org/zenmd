@@ -1,6 +1,3 @@
----
-title: Quizzes
----
 # Quizzes
 
 Write a quiz in markdown and Zenmark turns it into a form. The answers stay out of

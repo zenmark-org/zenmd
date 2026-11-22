@@ -1,6 +1,3 @@
----
-title: Developer
----
 # Developer
 
 The Developer tools are two more tabs of the [Inspector](inspector.md), off

@@ -1,0 +1,32 @@
+/* release layout: the version as the heading, the date and name under it. Tokens only. */
+[data-zen-layout="release"] .zl-release {
+  max-width: 68ch;
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-6) 96px;
+  box-sizing: border-box;
+}
+[data-zen-layout="release"] .zl-release-head {
+  margin: 0 0 var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--rule);
+}
+[data-zen-layout="release"] .zl-release-head h1 {
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  border: 0;
+  font-size: 2.5rem;
+  line-height: 1.15;
+}
+[data-zen-layout="release"] .zl-release-meta {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  color: var(--fg-muted);
+  font: 13px/1.5 var(--font-ui);
+}
+[data-zen-layout="release"] .zl-release-meta > * + *::before { content: "\00b7"; margin: 0 var(--space-2); }
+[data-zen-layout="release"] .zl-release-text > :first-child { margin-top: 0; }
+@media (max-width: 600px) {
+  [data-zen-layout="release"] .zl-release { padding: var(--space-5) var(--space-4) 64px; }
+  [data-zen-layout="release"] .zl-release-head h1 { font-size: 2rem; }
+}

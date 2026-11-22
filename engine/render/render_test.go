@@ -123,7 +123,7 @@ func plain() *Renderer { return New(plugins.NewRegistry(), config.Default(), fak
 func TestTitleAndFrontmatter(t *testing.T) {
 	r := plain()
 	p := render(t, r, "---\ntitle: From FM\ntags: [a]\n---\n# Heading\n")
-	if p.Title != "From FM" {
+	if p.Title != "Heading" {
 		t.Errorf("title %q", p.Title)
 	}
 	if p.Frontmatter["title"] != "From FM" {

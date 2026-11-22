@@ -1,6 +1,3 @@
----
-title: Edit a page
----
 # Edit a page
 
 Press the pencil in the top bar or <kbd>⌘E</kbd> on a page. The page opens in its own editor

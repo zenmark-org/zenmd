@@ -1,6 +1,3 @@
----
-title: The .zenmd.yml reference
----
 # The .zenmd.yml reference
 
 The keys that do something in this version of Zenmark. The same keys work in

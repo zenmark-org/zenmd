@@ -226,7 +226,7 @@ if hook == "block" {
     out = zen.escape(r)
 }`)
 	got := mustBlock(t, p, "x", "", nil)
-	for _, want := range []string{"README.md=Home;", "docs/a.md=The A page;", "docs/b.md=Page B;"} {
+	for _, want := range []string{"README.md=Home;", "docs/a.md=A heading;", "docs/b.md=Page B;"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("pages lack %q: %s", want, got)
 		}

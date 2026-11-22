@@ -1,0 +1,8 @@
+<article class="zl-release">
+  <header class="zl-release-head">
+    <h1>{{.Title}}</h1>
+    {{with .Field "date"}}<p class="zl-release-meta"><time datetime="{{.Format "2006-01-02"}}">{{date .}}</time>{{with $.Field "name"}}<span class="zl-release-name">{{.}}</span>{{end}}</p>
+    {{else}}{{with .Field "name"}}<p class="zl-release-meta"><span class="zl-release-name">{{.}}</span></p>{{end}}{{end}}
+  </header>
+  <div class="zl-release-text">{{.Body}}</div>
+</article>

@@ -1,6 +1,3 @@
----
-title: Reader
----
 # Reader
 
 The reader is the main view of Zenmark: it shows one page of the folder at a

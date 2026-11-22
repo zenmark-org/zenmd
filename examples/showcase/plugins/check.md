@@ -1,6 +1,3 @@
----
-title: Checklists
----
 # Checklists
 
 A `check` block holds a checklist. On its own it's a plain list of boxes to

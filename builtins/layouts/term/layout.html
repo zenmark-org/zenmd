@@ -1,10 +1,10 @@
 <article class="zl-term">
   <header class="zl-term-head">
-    <h1 class="zl-term-title">{{.Title}}</h1>
+    <h1 class="zl-term-title">{{.TermTitle}}</h1>
     {{with .Field "abbr"}}<p class="zl-term-abbr">{{.}}</p>{{end}}
     {{with .Field "aliases"}}<p class="zl-term-aliases">Also: {{join . ", "}}</p>{{end}}
   </header>
-  <div class="zl-term-text">{{.Content}}</div>
+  <div class="zl-term-text">{{.TermBody}}</div>
   {{with .TermPage}}
   {{with .See}}
   <section class="zl-term-see" aria-label="See also">

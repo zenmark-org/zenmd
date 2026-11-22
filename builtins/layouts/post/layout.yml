@@ -14,6 +14,6 @@ help:
   summary: "A blog post or a note: an optional cover image, the title, a line with the date, the author and the reading time, the text, the tags, and Previous and Next links in the sidebar order. Frontmatter fields: date, author, cover (an image of the folder) and tags. Option: reading (false hides the reading time)."
   snippets:
     - title: A post
-      markdown: "---\ntitle: My first post\nlayout: post\ndate: 2026-11-17\nauthor: Ada\ntags: [notes, zen]\n---\n# My first post\n\nThe text of the post.\n"
+      markdown: "---\nlayout: post\ndate: 2026-11-17\nauthor: Ada\ntags: [notes, zen]\n---\n# My first post\n\nThe text of the post.\n"
     - title: With a cover image
-      markdown: "---\ntitle: A post with a cover\nlayout: post\ndate: 2026-11-17\ncover: images/cover.png\n---\n# A post with a cover\n\nThe text.\n"
+      markdown: "---\nlayout: post\ndate: 2026-11-17\ncover: images/cover.png\n---\n# A post with a cover\n\nThe text.\n"

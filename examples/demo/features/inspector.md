@@ -1,6 +1,3 @@
----
-title: Inspector
----
 # The Inspector
 
 The **Inspector** is a panel under the page that tells you about the page you

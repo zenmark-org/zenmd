@@ -210,9 +210,10 @@ One folder holds both kinds of template, each in a subfolder you can open, read 
    - **Which wins:** a folder's own `.zen/templates/<id>.yml`, then `templates/pages/<id>.yml`, then the built-in one.
 4. **Updates that don't get in the way:**
    - **The fingerprint:** each install also records a SHA-256 fingerprint of what it wrote.
-   - **Untouched copies:** when a built-in is newer and your copy still matches its fingerprint, `zenmd init --update <id>` (and `zenmd templates update <id>`) replaces it in place, with nothing to compare.
-   - **Edited copies:** only these get the `<id>.new` copy next to them, as today.
-   - **The app:** Settings shows "Update available" on the item, with an **Update** button that follows the same rule.
+   - **Untouched copies follow the built-ins:** every time the install pass runs (first use of Settings, New from Blueprint, `zenmd init`, `zenmd templates`, a page-template lookup), a built-in that is newer than a copy that still matches its fingerprint replaces that copy in place, silently. The record gets the new version and fingerprint, and one info line is logged per update. There is nothing to compare and nothing to click.
+   - **Edited copies:** a copy whose fingerprint differs, or one installed before fingerprints, is never touched by the pass. It keeps showing "Update available", and **Update** (or `zenmd init --update <id>`, `zenmd templates update <id>`) writes the `<id>.new` copy next to it, as today.
+   - **Deleted copies:** a deleted copy stays deleted.
+   - **The app:** Settings shows "Update available" on an edited item only, with an **Update** button.
 5. **Seeing them in the app.**
    - **Settings › Blueprints** shows `templates/blueprints/`; **Show in Finder** opens that folder.
    - **Settings › Templates** is new, right after Blueprints, in the Settings frame:
@@ -230,6 +231,64 @@ One folder holds both kinds of template, each in a subfolder you can open, read 
    - `zenmd templates update <id>`.
    - `zenmd templates --dir` prints the templates folder.
    - `zenmd blueprint list` and `zenmd init --dir` read `templates/blueprints/`.
+
+## Titles: the H1 wins (added 2026-11-22)
+
+A page has one title. A page that has an H1 takes its title from it, and a `title:` in its frontmatter is not used.
+
+1. **The rule, everywhere.** One function in `engine/render` (`pageTitle`, used by `Title`) decides a page's title:
+   - **the first H1**, as plain text;
+   - **frontmatter `title:`**, only when there is no H1. Pages that set their title only in frontmatter, such as slides decks and pages without a heading, keep working.
+   - **the file name**, when there is neither.
+
+   The sidebar, the breadcrumb, the window title, the glossary, landing cards, exports and search all use this one function.
+2. **Both, and different:** the page shows a note under Problems, "title: is ignored because the page has an H1 (…)", with the Fix "Remove title: from the frontmatter". A `title:` equal to the H1 gets the same note as a suggestion. A label shown only in the sidebar belongs in `nav: { title: … }`, which still overrides the sidebar text and is not affected.
+3. **Writers never write both.** Blueprint sections and their index pages, a blueprint's starting pages, New Page, New Term, page templates and `zenmd new page` write the H1 from the title, with no `title:` in the frontmatter. The only exception is a page whose layout shows the title itself and whose skeleton has no H1, such as slides. Page template skeletons start with `# {{title}}`, and the glossary index is `# Glossary` with `layout: glossary` and its `nav`.
+4. **The built-ins and demos follow:** the built-in blueprints, page templates, `examples/demo` and `examples/showcase` drop `title:` wherever the page has an H1. Where the two differed, the H1 stays. The goldens change only where a title actually changed, and the review checks each change.
+5. **CLI:** `zenmd check` reports the note too, once the checker exists.
+
+## Release pages: the version is the title (added 2026-11-22)
+
+- **The page:** a release page has no H1. Its frontmatter `version` (and `date`) are the release:
+
+  ```yaml
+  ---
+  layout: release
+  version: 0.1.0
+  date: 2026-11-22
+  name: First release        # optional, shown under the version
+  ---
+  ## Added
+  - …
+  ```
+- **The `release` layout (new built-in):** it shows the version large as the page's heading, with the date and the optional `name` under it, then the text. It uses `.Body`, as every layout that draws its own title.
+- **The title rule gains one step, for every layout:** a layout can name a field to title its pages, as `title: version` in `layout.yml`. The order becomes:
+  1. the first H1;
+  2. frontmatter `title:`;
+  3. the field the layout names (`release` uses `version`), shown as written: "0.1.0";
+  4. the file name.
+
+  The sidebar, the breadcrumb, the window title and the releases index all show the version.
+- **The `release-notes` page template:**
+  - its layout is `release`, with no H1 in its skeleton;
+  - its fields are `version` (semver, required), `date` (required, defaults to today) and `name` (optional);
+  - its skeleton is just the Added, Changed and Fixed sections.
+- **The blueprint and the files:**
+  - the techdocs blueprint's first release is `version: 0.1.0` with `name: First release`;
+  - its file name is the version, `releases/0.1.0.md`, so the folder reads like a changelog;
+  - newest-first sorting already uses `version`.
+- **The releases index:** a landing page whose cards are the releases, newest first. Each card shows the version, the date and the name.
+
+### Release names: `v<version>` (added 2026-11-22)
+
+- **The file name and the title are `v` plus the semver:** `releases/v0.2.0.md`, titled "v0.2.0". In `layout.yml`, a layout's `title:` can be a pattern over its fields; `release` uses `title: "v{{version}}"`.
+- **`version`** is a semver without the `v` (`0.2.0`). A value that isn't semver gets a note under Problems. Zenmark always writes versions quoted (`version: "0.2.0"`), so `1.10` stays `1.10`.
+- **New Page in a folder whose path rule is `release-notes`:**
+  - **The suggested name** is `v` plus the next minor version after the newest release in the folder, such as `v0.2.0`. With no release yet, it's `v0.1.0`.
+  - **The version** comes from the name (`v0.2.0` gives `version: "0.2.0"`), so there is nothing to type twice. The date defaults to today.
+  - **CLI:** `zenmd new page releases/v0.2.0` does the same.
+- **The techdocs first release** is `releases/v0.1.0.md`.
+- **New Page names in general:** `.md` is added unless the name already ends in `.md`. A dot followed only by digits, as in `v0.2.0` or `2026.11`, is part of the name and not an extension. A real other extension, such as `.txt`, is still refused.
 
 ## Making your own blueprint
 

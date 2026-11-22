@@ -177,6 +177,8 @@ type Session struct {
 	version    string           // asset versioning of the built-ins
 	runtime    fs.FS            // the browser runtime for Build and Print
 	presets    fs.FS            // the built-in site templates
+	pagePre    fs.FS            // the built-in page templates
+	tmplNotes  []string         // what happened to the templates folder, shown under Problems on every page (guarded by mu)
 	now        func() time.Time // the clock of the print cover's date
 	buildMu    sync.Mutex
 	building   *runningBuild // the build in progress (buildui.go), guarded by buildMu
@@ -227,18 +229,19 @@ type Session struct {
 
 // Options configures a Session; every field is optional.
 type Options struct {
-	GlobalPath string             // config.yml; "" for none
-	ConfigDir  string             // trust, plugin data, user plugins/layouts, templates; default: the folder of GlobalPath
-	Registry   *plugins.Registry  // built-in plugins; nil = the default set
-	Layouts    *layouts.Registry  // built-in layouts; nil = the default set
-	Dialects   *dialects.Registry // markdown dialects the build has; the folder's .zenmd.yml turns them on; nil = the default set
-	Events     Events             // may be nil
-	Prompter   Prompter           // may be nil: never asks
-	Runtime    fs.FS              // the browser runtime (zen.js, zen.css) for Build and Print; nil = the embedded runtime package
-	Presets    fs.FS              // the built-in site templates; nil = the default set
-	Watch      bool               // live reload: watch the open folder
-	ReadOnly   bool               // refuse every write to the folder and the settings files (ErrReadOnly); reading and exporting still work
-	Version    string             // asset versioning of the built-ins; "" = "dev"
+	GlobalPath  string             // config.yml; "" for none
+	ConfigDir   string             // trust, plugin data, user plugins/layouts, templates; default: the folder of GlobalPath
+	Registry    *plugins.Registry  // built-in plugins; nil = the default set
+	Layouts     *layouts.Registry  // built-in layouts; nil = the default set
+	Dialects    *dialects.Registry // markdown dialects the build has; the folder's .zenmd.yml turns them on; nil = the default set
+	Events      Events             // may be nil
+	Prompter    Prompter           // may be nil: never asks
+	Runtime     fs.FS              // the browser runtime (zen.js, zen.css) for Build and Print; nil = the embedded runtime package
+	Presets     fs.FS              // the built-in site templates; nil = the default set
+	PagePresets fs.FS              // the built-in page templates; nil = the default set
+	Watch       bool               // live reload: watch the open folder
+	ReadOnly    bool               // refuse every write to the folder and the settings files (ErrReadOnly); reading and exporting still work
+	Version     string             // asset versioning of the built-ins; "" = "dev"
 }
 
 // New creates a session with no folder open. Call Close when done.
@@ -266,6 +269,10 @@ func New(o Options) *Session {
 	if presets == nil {
 		presets = builtins.SiteTemplates()
 	}
+	pagePre := o.PagePresets
+	if pagePre == nil {
+		pagePre = builtins.PageTemplates()
+	}
 	dbase := o.Dialects
 	if dbase == nil {
 		dbase = builtins.Dialects()
@@ -275,7 +282,7 @@ func New(o Options) *Session {
 		base: reg, reg: reg, lbase: lbase, lreg: lbase, dbase: dbase,
 		globalPath: o.GlobalPath, configDir: configDir,
 		events: o.Events, prompter: o.Prompter,
-		version: version, runtime: o.Runtime, presets: presets, now: time.Now,
+		version: version, runtime: o.Runtime, presets: presets, pagePre: pagePre, now: time.Now,
 		trust: extplugins.LoadTrust(""), life: life, stop: stop,
 		noWatch: !o.Watch, readOnly: o.ReadOnly,
 	}
@@ -446,7 +453,7 @@ func (s *Session) reindexLocked() bool {
 	changed := s.idx == nil || !s.idx.Equal(idx)
 	s.idx = idx
 	s.tree = navNodes(idx.Tree())
-	s.site = newLayoutSite(s.ws, idx, s.tree, files)
+	s.site = newLayoutSite(s.ws, idx, s.tree, files, s.r.Title)
 	s.r = s.r.WithLayouts(s.lreg, s.site)
 	return changed
 }
@@ -592,12 +599,13 @@ func (s *Session) Current() string {
 // renderSnap is what a render needs from the state, taken under the lock so
 // the backends of external plugins run without holding it.
 type renderSnap struct {
-	r        *render.Renderer
-	root     string
-	extWarns []string
-	navWarn  []string
-	idxWarn  []string
-	crumbs   []Crumb
+	r         *render.Renderer
+	root      string
+	extWarns  []string
+	tmplWarns []string
+	navWarn   []string
+	idxWarn   []string
+	crumbs    []Crumb
 }
 
 func (s *Session) snapLocked(path string) renderSnap {
@@ -605,6 +613,7 @@ func (s *Session) snapLocked(path string) renderSnap {
 	if s.ext != nil {
 		sn.extWarns = append(sn.extWarns, s.ext.warns...)
 	}
+	sn.tmplWarns = append(sn.tmplWarns, s.tmplNotes...)
 	sn.navWarn = append(sn.navWarn, s.navWarn[strings.ToLower(path)]...)
 	sn.idxWarn = s.idx.Warnings(path)
 	sn.crumbs = []Crumb{}
@@ -639,6 +648,7 @@ func (sn renderSnap) render(path string, src []byte) (Page, error) {
 		p.Assets.JS = []string{}
 	}
 	p.Warnings = append(p.Warnings, sn.extWarns...)
+	p.Warnings = append(p.Warnings, sn.tmplWarns...)
 	_, _, navWarn := index.ParseMeta(p.Frontmatter)
 	p.Warnings = append(p.Warnings, navWarn...)
 	p.Warnings = append(p.Warnings, sn.navWarn...)
@@ -673,7 +683,7 @@ func (s *Session) Page(path string) (r0 Page, err error) {
 	start := time.Now()
 	p, err := sn.render(path, src) // backends run here, not under the lock
 	if err == nil {
-		logRendered(sn.root, p, time.Since(start), s.ConfigNotice())
+		logRendered(sn.root, p, time.Since(start), s.ConfigNotice(), sn.tmplWarns...)
 		s.mu.Lock()
 		if s.ws == ws {
 			s.current = path

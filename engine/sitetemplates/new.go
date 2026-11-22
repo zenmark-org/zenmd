@@ -60,7 +60,7 @@ templates: [tutorial]
 
 var newIDRE = regexp.MustCompile(`^[a-z][a-z0-9-]{0,63}$`)
 
-// New starts a blueprint in the blueprints folder dir: <dir>/sites/<id> with a
+// New starts a blueprint in the blueprints folder dir: <dir>/blueprints/<id> with a
 // commented blueprint.yml, or, with from (a blueprint of the folder or of
 // builtins), a copy of that one under the new id. It never overwrites and
 // returns the new folder.
@@ -71,7 +71,7 @@ func New(dir string, builtins fs.FS, id, from string) (string, error) {
 	if dir == "" {
 		return "", errors.New("there is no blueprints folder")
 	}
-	sites := SitesDir(dir)
+	sites := BlueprintsDir(dir)
 	dest := filepath.Join(sites, id)
 	if _, err := os.Lstat(dest); err == nil {
 		return "", fmt.Errorf("%s already exists in the blueprints folder", id)

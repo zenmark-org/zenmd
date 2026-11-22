@@ -11,6 +11,9 @@ export type EntryEnv = {
   open(path: string): void;
   editor?(path: string): void;
   newPage?(folder: string): void;
+  /** New Term… on a glossary index; with `glossary`, which says whether a page is one. */
+  newTerm?(folder: string): void;
+  glossary?(path: string): boolean;
   /** Move the page one place among its siblings. */
   move?(path: string, delta: -1 | 1): void;
   copy?(text: string): void;
@@ -36,6 +39,7 @@ export function menuEntries(node: NavNode, env: EntryEnv): MenuEntry[] {
     );
     add(
       !!env.newPage && { label: "New Page Here…", run: () => env.newPage!(folderOf(node)) },
+      !!env.newTerm && !!env.glossary?.(at) && { label: "New Term…", run: () => env.newTerm!(folderOf(node).replace(/\/$/, "")) },
       !!env.move && { label: "Move Up", run: () => env.move!(at, -1), disabled: !sib || i <= 0 },
       !!env.move && { label: "Move Down", run: () => env.move!(at, 1), disabled: !sib || i < 0 || i >= sib.pages.length - 1 },
     );

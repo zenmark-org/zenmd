@@ -1,6 +1,3 @@
----
-title: Settings
----
 # Settings
 
 Click the **cog** at the bottom of the sidebar (Export is next to it), or press <kbd>⌘,</kbd>. The

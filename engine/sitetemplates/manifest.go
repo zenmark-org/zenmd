@@ -18,7 +18,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Ask is a value asked when a site is created. Default may hold {{folder}}.
+// Ask is a value asked when a site is created. Default may hold {{folder}}, {{date}} and
+// {{key}} of an ask before it.
 type Ask struct{ Key, Label, Default string }
 
 // Needs says which layouts and plugins (built-in ids) a template's files use:
@@ -46,6 +47,9 @@ type Template struct {
 	// PageSource is where the built-in page templates are (<id>.yml); the
 	// blueprint's own .zen/templates wins. The session sets it.
 	PageSource fs.FS
+	// PagesDir is templates/pages on this Mac: its copies come after the
+	// blueprint's own and before the built-in ones. "" for none.
+	PagesDir string
 
 	ignore []string // names or paths not copied
 	fsys   fs.FS    // where the files are; set by List and Builtins

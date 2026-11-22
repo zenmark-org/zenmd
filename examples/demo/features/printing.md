@@ -1,6 +1,3 @@
----
-title: Print a page
----
 # Print a page
 
 The printer in the top bar, **File › Print Page…** or <kbd>⌘P</kbd> prints the page you are reading

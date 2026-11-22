@@ -1,6 +1,3 @@
----
-title: Ratings
----
 # Ratings
 
 A `rating` block asks one question and you pick 1 to 5 stars. Your rating is kept

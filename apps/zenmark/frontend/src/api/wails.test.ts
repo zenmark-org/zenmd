@@ -38,6 +38,8 @@ vi.mock("../../bindings/github.com/zenmark-org/zenmd/apps/zenmark/index.js", () 
     PluginStorageKeys: binding("PluginStorageKeys"),
     ReorderNav: binding("ReorderNav"),
     SetNavHidden: binding("SetNavHidden"),
+    NewTerm: binding("NewTerm"),
+    GlossaryFolders: binding("GlossaryFolders"),
     Layouts: binding("Layouts"),
     LayoutTrust: binding("LayoutTrust"),
     LayoutStorageGet: binding("LayoutStorageGet"),
@@ -48,6 +50,11 @@ vi.mock("../../bindings/github.com/zenmark-org/zenmd/apps/zenmark/index.js", () 
     SetDialect: binding("SetDialect"),
     DialectHint: binding("DialectHint"),
     DismissDialectHint: binding("DismissDialectHint"),
+    PageTemplates: binding("PageTemplates"),
+    UpdateTemplate: binding("UpdateTemplate"),
+    RevealPageTemplates: binding("RevealPageTemplates"),
+    CopyPageTemplate: binding("CopyPageTemplate"),
+    OpenPageTemplate: binding("OpenPageTemplate"),
   },
 }));
 
@@ -131,6 +138,31 @@ describe("wails api", () => {
     expect((await api.startup()).build?.features).toEqual(["reader", "nav", "find", "editor", "inspector", "print", "export", "newsite", "developer"]);
     results.Startup = { workspace: null, page: "", mode: "read", build: { app: "bare", features: [], plugins: [], layouts: [], templates: [], theme: "default" } };
     expect((await api.startup()).build?.features).toEqual([]);
+  });
+
+  it("maps the page template calls", async () => {
+    const api = (await import("./wails")).default;
+    results.PageTemplates = [
+      { id: "how-to", name: "How-to", description: "d", version: "1.0.0", layout: "docs", source: "yours", path: "/p/how-to.yml", fields: [{ name: "title", type: "string", required: true, default: "", extra: 1 }], outline: [{ depth: 1, text: "list: ordered" }], skeleton: "# x", update: "1.1.0", error: "", rules: ["a/**", 3], extra: 1 },
+      { id: "x", source: "weird" }, null,
+    ];
+    expect(await api.pageTemplates()).toEqual([
+      { id: "how-to", name: "How-to", description: "d", version: "1.0.0", layout: "docs", source: "yours", path: "/p/how-to.yml", fields: [{ name: "title", type: "string", required: true, default: "" }], outline: [{ depth: 1, text: "list: ordered" }], skeleton: "# x", update: "1.1.0", error: "", rules: ["a/**", "3"] },
+      { id: "x", name: "", description: "", version: "", layout: "", source: "builtin", path: "", fields: [], outline: [], skeleton: "", update: "", error: "", rules: [] },
+      { id: "", name: "", description: "", version: "", layout: "", source: "builtin", path: "", fields: [], outline: [], skeleton: "", update: "", error: "", rules: [] },
+    ]);
+    results.PageTemplates = null;
+    expect(await api.pageTemplates()).toEqual([]);
+    results.UpdateTemplate = { path: "/p/how-to.yml", inPlace: true, extra: 1 };
+    expect(await api.updateTemplate("page", "how-to")).toEqual({ path: "/p/how-to.yml", inPlace: true });
+    results.UpdateTemplate = undefined;
+    expect(await api.updateTemplate("blueprint", "techdocs")).toEqual({ path: "", inPlace: false });
+    results.CopyPageTemplate = ".zen/templates/how-to.yml";
+    expect(await api.copyPageTemplate("how-to")).toBe(".zen/templates/how-to.yml");
+    await api.revealPageTemplates();
+    await api.openPageTemplate("how-to");
+    expect(calls.map((c) => c.name)).toEqual(["PageTemplates", "PageTemplates", "UpdateTemplate", "UpdateTemplate", "CopyPageTemplate", "RevealPageTemplates", "OpenPageTemplate"]);
+    expect(calls[2].args).toEqual(["page", "how-to"]);
   });
 
   it("maps the dialect calls and keeps only well-formed dialects", async () => {
@@ -572,5 +604,16 @@ describe("wails api", () => {
     ]);
     results.ReorderNav = new Error("a.md: permission denied");
     await expect(api.reorderNav("", ["a.md"])).rejects.toThrow("permission denied");
+  });
+
+  it("maps New Term… and the glossary folders", async () => {
+    const api = (await import("./wails")).default;
+    results.NewTerm = { path: "g/slug.md", existed: true };
+    results.GlossaryFolders = ["g", ""];
+    expect(await api.newTerm("g", "Slug")).toEqual({ path: "g/slug.md", existed: true });
+    expect(await api.glossaryFolders()).toEqual(["g", ""]);
+    expect(calls.slice(-2)).toEqual([{ name: "NewTerm", args: ["g", "Slug"] }, { name: "GlossaryFolders", args: [] }]);
+    results.NewTerm = new Error("give the term a name");
+    await expect(api.newTerm("g", " ")).rejects.toThrow("give the term a name");
   });
 });

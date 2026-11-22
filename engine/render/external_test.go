@@ -309,7 +309,10 @@ func TestTitleRunsNoBackends(t *testing.T) {
 	if blocks != 0 || ext != 0 {
 		t.Fatalf("Title ran hooks: blocks=%d external=%d", blocks, ext)
 	}
-	if got := r.Title("dir/page.md", []byte("---\ntitle: From meta\n---\n# H\n")); got != "From meta" {
+	if got := r.Title("dir/page.md", []byte("---\ntitle: From meta\n---\n# H\n")); got != "H" {
+		t.Fatalf("the H1 wins over title:, got %q", got)
+	}
+	if got := r.Title("dir/page.md", []byte("---\ntitle: From meta\n---\nno heading\n")); got != "From meta" {
 		t.Fatalf("frontmatter title %q", got)
 	}
 	if got := r.Title("dir/page.md", []byte("no heading\n")); got != "page" {

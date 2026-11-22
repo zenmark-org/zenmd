@@ -389,3 +389,32 @@ test("menu event: with a folder open at startup", async () => {
   expect(document.querySelector(".zen-newsite")).toBeNull();
   expect(shell!.store.get().workspace?.root).toBe("/sample-docs");
 });
+
+test("a default that names an earlier answer follows it until the field is edited; no literal placeholder is shown", async () => {
+  const ask = [
+    { key: "title", label: "Site title", default: "{{folder}}" },
+    { key: "product", label: "Product name", default: "{{title}}" },
+    { key: "tagline", label: "Tagline", default: "{{product}} rocks" },
+  ];
+  const api = rig([tpl("techdocs", { ask })]);
+  const o = open(api);
+  await settle();
+  const noBraces = () => { for (const k of ["title", "product", "tagline"]) expect(o.field(k).value).not.toContain("{{"); };
+  noBraces();
+  expect(o.field("product").value).toBe("");
+  o.btn("Choose folder…").click();
+  await settle();
+  expect(o.field("title").value).toBe("Acme Docs");
+  expect(o.field("product").value).toBe("Acme Docs");
+  expect(o.field("tagline").value).toBe("Acme Docs rocks");
+  const type = (k: string, v: string) => { o.field(k).value = v; o.field(k).dispatchEvent(new Event("input", { bubbles: true })); };
+  type("title", "Acme");
+  expect(o.field("product").value).toBe("Acme");
+  expect(o.field("tagline").value).toBe("Acme rocks");
+  type("product", "Zed");
+  expect(o.field("tagline").value).toBe("Zed rocks");
+  type("title", "Other");
+  expect(o.field("product").value).toBe("Zed"); // edited: kept
+  expect(o.field("tagline").value).toBe("Zed rocks");
+  noBraces();
+});

@@ -1,5 +1,4 @@
 ---
-title: The landing layout
 layout: docs
 ---
 # The landing layout

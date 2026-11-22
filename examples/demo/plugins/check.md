@@ -1,6 +1,3 @@
----
-title: Checklists
----
 # Checklists
 
 A `check` block holds a checklist. On an ordinary page the boxes show what the

@@ -51,7 +51,7 @@ func replace(s string, vals map[string]string) string {
 }
 
 // values works out every placeholder: the built-ins, then each ask key from
-// values (an empty one takes its default, which may use {{folder}}).
+// values (an empty one takes its default, which may use {{folder}} and {{key}} of an earlier ask).
 func (t Template) values(given map[string]string, folder string) (map[string]string, error) {
 	today := now().Format("2006-01-02")
 	out := map[string]string{"date": today, "today": today, "folder": folder, "title": "", "author": ""}
@@ -62,21 +62,40 @@ func (t Template) values(given map[string]string, folder string) (map[string]str
 	if !asked["title"] {
 		out["title"] = folder
 	}
-	for _, a := range t.Ask {
-		out[a.Key] = replace(a.Default, out)
-	}
-	for k, v := range given {
-		if k == "title" || k == "author" || asked[k] {
-			if strings.ContainsRune(v, 0) {
-				return nil, fmt.Errorf("the value of %s contains a NUL byte", k)
-			}
-			if len(v) > 4096 {
-				return nil, fmt.Errorf("the value of %s is too long", k)
-			}
-			if v != "" {
-				out[k] = v
-			}
+	given1 := func(k string) (string, error) {
+		v := given[k]
+		if strings.ContainsRune(v, 0) {
+			return "", fmt.Errorf("the value of %s contains a NUL byte", k)
 		}
+		if len(v) > 4096 {
+			return "", fmt.Errorf("the value of %s is too long", k)
+		}
+		return v, nil
+	}
+	if !asked["title"] {
+		v, err := given1("title")
+		if err != nil {
+			return nil, err
+		}
+		if v != "" {
+			out["title"] = v
+		}
+	}
+	if v, err := given1("author"); err != nil {
+		return nil, err
+	} else if v != "" && !asked["author"] {
+		out["author"] = v
+	}
+	// In ask order, so a default may use {{key}} of any ask before it.
+	for _, a := range t.Ask {
+		v, err := given1(a.Key)
+		if err != nil {
+			return nil, err
+		}
+		if v == "" {
+			v = replace(a.Default, out)
+		}
+		out[a.Key] = v
 	}
 	return out, nil
 }
@@ -370,8 +389,8 @@ func (t Template) insideTemplates(abs string) bool {
 	if t.Dir == "" {
 		return false
 	}
-	tdir := filepath.Dir(t.Dir) // .../sites
-	if filepath.Base(tdir) == "sites" {
+	tdir := filepath.Dir(t.Dir) // .../blueprints
+	if filepath.Base(tdir) == "blueprints" {
 		tdir = filepath.Dir(tdir)
 	}
 	return within(real(abs), real(tdir))

@@ -260,6 +260,31 @@ const api: Api = {
   async templatesDir() {
     return String((await call(Zen.TemplatesDir())) ?? "");
   },
+  async pageTemplates() {
+    const list = ((await call(Zen.PageTemplates())) ?? []) as Raw[];
+    return list.map((t) => ({
+      id: String(t?.id ?? ""), name: String(t?.name ?? ""), description: String(t?.description ?? ""), version: String(t?.version ?? ""), layout: String(t?.layout ?? ""),
+      source: (t?.source === "folder" || t?.source === "yours" ? t.source : "builtin") as "builtin" | "yours" | "folder",
+      path: String(t?.path ?? ""),
+      fields: (Array.isArray(t?.fields) ? t.fields : []).map((f: Raw) => ({ name: String(f?.name ?? ""), type: String(f?.type ?? ""), required: f?.required === true, default: String(f?.default ?? "") })),
+      outline: (Array.isArray(t?.outline) ? t.outline : []).map((o: Raw) => ({ depth: Number(o?.depth ?? 0), text: String(o?.text ?? "") })),
+      skeleton: String(t?.skeleton ?? ""), update: String(t?.update ?? ""), error: String(t?.error ?? ""),
+      rules: (Array.isArray(t?.rules) ? t.rules : []).map(String),
+    }));
+  },
+  async updateTemplate(kind, id) {
+    const r = (await call(Zen.UpdateTemplate(kind, id))) as Raw;
+    return { path: String(r?.path ?? ""), inPlace: r?.inPlace === true };
+  },
+  async revealPageTemplates() {
+    await call(Zen.RevealPageTemplates());
+  },
+  async copyPageTemplate(id) {
+    return String((await call(Zen.CopyPageTemplate(id))) ?? "");
+  },
+  async openPageTemplate(id) {
+    await call(Zen.OpenPageTemplate(id));
+  },
   async buildOptions() {
     return buildOptions((await call(Zen.BuildOptions())) as Raw);
   },
@@ -371,6 +396,16 @@ const api: Api = {
   },
   async createPage(name, layout) {
     return String((await call(Zen.CreatePage(name, layout))) ?? "");
+  },
+  async suggestPageName(folder) {
+    return String((await call(Zen.SuggestPageName(folder))) ?? "");
+  },
+  async glossaryFolders() {
+    return strings(await call(Zen.GlossaryFolders()));
+  },
+  async newTerm(folder, term) {
+    const r = ((await call(Zen.NewTerm(folder, term))) as Raw | null) ?? {};
+    return { path: String(r.path ?? ""), existed: Boolean(r.existed) };
   },
   async openEditor(path) {
     await call(Zen.OpenEditor(path));

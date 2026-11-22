@@ -17,10 +17,10 @@ func TestCreatePage(t *testing.T) {
 	z, _, _, _ := newTestZen(t, dir, "", "")
 
 	cases := []struct{ name, layout, want, has string }{
-		{"ideas", "", "ideas.md", "---\ntitle: Ideas\n---\n# Ideas\n"},
+		{"ideas", "", "ideas.md", "# Ideas\n"},
 		{"talks/my-first_deck", "slides", "talks/my-first_deck.md", "layout: slides"},
 		{" docs/Learn Go.markdown ", "course", "docs/Learn Go.markdown", "layoutOptions: { id: learn-go }"},
-		{"/notes/q: and a", "", "notes/q: and a.md", "title: \"Q: and a\""},
+		{"/notes/q: and a", "", "notes/q: and a.md", "# Q: and a"},
 	}
 	for _, c := range cases {
 		got, err := z.CreatePage(c.name, c.layout)
@@ -98,6 +98,28 @@ func TestCreatePageTemplatesRender(t *testing.T) {
 		}
 		if err != nil || pg.Layout.Name != want || len(pg.Warnings) != 0 {
 			t.Errorf("%q: layout %+v, warnings %v, err %v", layout, pg.Layout, pg.Warnings, err)
+		}
+	}
+}
+
+func TestCreatePageWritesNoTitleWithAnH1(t *testing.T) {
+	dir := tree(t, docs)
+	z, _, _, _ := newTestZen(t, dir, "", "")
+	for _, layout := range []string{"", "slides", "course", "docs", "post", "landing", "wide", "handout", "term", "glossary"} {
+		rel, err := z.CreatePage("tt-"+layout, layout)
+		if err != nil {
+			t.Fatal(err)
+		}
+		b, _ := os.ReadFile(filepath.Join(dir, filepath.FromSlash(rel)))
+		s := string(b)
+		if !strings.Contains(s, "\n# Tt") && !strings.HasPrefix(s, "# Tt") {
+			if layout == "landing" { // shows its own title and its skeleton has no H1: it keeps title:
+				continue
+			}
+			t.Errorf("%q: no H1:\n%s", layout, s)
+		}
+		if strings.Contains(strings.SplitN(s, "\n---\n", 2)[0], "\ntitle:") || strings.HasPrefix(s, "---\ntitle:") {
+			t.Errorf("%q: has a title: next to its H1:\n%s", layout, s)
 		}
 	}
 }

@@ -1,5 +1,4 @@
 ---
-title: Getting started with zen
 layout: course
 layoutOptions: { id: getting-started }
 nav:

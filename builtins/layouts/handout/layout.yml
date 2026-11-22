@@ -12,6 +12,6 @@ help:
   summary: "A printable one-pager: on screen the page sits on a white sheet (A4 or Letter) with a header and a footer showing the title and date; File, Print prints just the sheet at the right size. Frontmatter fields: date and author. Option: paper (a4 or letter)."
   snippets:
     - title: A handout
-      markdown: "---\ntitle: Workshop handout\nlayout: handout\ndate: 2026-11-17\nauthor: Ada\n---\n# Workshop handout\n\n## Steps\n\n1. Open the folder\n2. Read the first page\n"
+      markdown: "---\nlayout: handout\ndate: 2026-11-17\nauthor: Ada\n---\n# Workshop handout\n\n## Steps\n\n1. Open the folder\n2. Read the first page\n"
     - title: US Letter paper
-      markdown: "---\ntitle: Handout\nlayout: { name: handout, paper: letter }\n---\n# Handout\n\nText.\n"
+      markdown: "---\nlayout: { name: handout, paper: letter }\n---\n# Handout\n\nText.\n"
