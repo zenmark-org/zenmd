@@ -235,6 +235,9 @@ const api: Api = {
   async cancelOpen() {
     await call(Zen.CancelOpen());
   },
+  async reload() {
+    return workspace((await call(Zen.Reload())) as Raw);
+  },
   async closeFolder() {
     const r = (await call(Zen.CloseFolder())) as unknown;
     return Array.isArray(r) ? Boolean(r[0]) : Boolean(r);

@@ -93,6 +93,9 @@ function inertInspector(doc: Document): Inspector {
   };
 }
 
+/** What the reader's mount returns: the unmount, with a `reload` entry that renders the page again (the sidebar's Reload and ⌘R). */
+export type Reloadable = (() => void) & { reload?(): void };
+
 export const pageFeature: Feature = {
   id: "reader",
   mount(slots, ctx: Ctx) {
@@ -409,7 +412,15 @@ export const pageFeature: Feature = {
     onState();
     void showDialectHint();
 
-    return () => {
+    /** Reload (sidebar button, ⌘R): drop the plugin scripts and styles, then render the page again in place (an editor's draft stays on screen). */
+    function reload(): void {
+      plugins.reset();
+      if (shownPath === null || shownPath !== ctx.store.get().path) return;
+      if (draft !== null) void showDraft(shownPath, draft);
+      else void load(true);
+    }
+
+    const unmount = () => {
       gone = true;
       seq++;
       zoom.destroy();
@@ -435,5 +446,6 @@ export const pageFeature: Feature = {
       printButton.remove();
       inspector.destroy();
     };
+    return Object.assign(unmount, { reload });
   },
 };

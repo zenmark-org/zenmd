@@ -1390,3 +1390,91 @@ test("read-only: no New Term", async () => {
   await s.start();
   expect(offered).toBe(false);
 });
+
+// Reload (sidebar header, and ⌘R in production builds): tree again, then the reader's reload entry.
+function reloadable(log2: string[]): Feature {
+  return {
+    id: "reader",
+    mount(slots: Slots) {
+      slots.main.append(document.createElement("p"));
+      return Object.assign(() => {}, { reload: () => { log2.push("reload"); } });
+    },
+  };
+}
+const reloadBoot = (api: FakeApi, log2: string[]) => boot(api, [recorder("nav"), reloadable(log2), recorder("editor")]);
+
+test("Reload in the sidebar header: fetches the tree again and has the reader render the page again", async () => {
+  const api = withWorkspace("README.md");
+  const next = { ...sampleWorkspace(), tree: [{ ...sampleWorkspace().tree[0], title: "Renamed" }] };
+  const seen: string[] = [];
+  const s = reloadBoot(api, seen);
+  await s.start();
+  const r = button("Reload page")!;
+  expect(r.title).toBe("Reload Page ⌘R");
+  expect(sidebar().querySelector(".zen-sidebar-head")!.contains(r)).toBe(true);
+  api.reload = async () => next;
+  r.click();
+  await tick();
+  expect(s.store.get().workspace?.tree[0].title).toBe("Renamed");
+  expect(seen).toEqual(["reload"]);
+});
+
+test("Reload still renders the page when the tree cannot be fetched", async () => {
+  const api = withWorkspace("README.md");
+  const seen: string[] = [];
+  const s = reloadBoot(api, seen);
+  await s.start();
+  api.reload = async () => { throw new Error("gone"); };
+  const err = vi.spyOn(console, "error").mockImplementation(() => {});
+  button("Reload page")!.click();
+  await tick();
+  err.mockRestore();
+  expect(seen).toEqual(["reload"]);
+});
+
+test("⌘R in a production build reloads from the keyboard; with no folder or in an editor window it does nothing", async () => {
+  vi.stubEnv("PROD", true);
+  try {
+    const api = withWorkspace("README.md");
+    const seen: string[] = [];
+    const s = reloadBoot(api, seen);
+    await s.start();
+    const e = new KeyboardEvent("keydown", { key: "r", metaKey: true, bubbles: true, cancelable: true });
+    document.dispatchEvent(e);
+    await tick();
+    expect(e.defaultPrevented).toBe(true);
+    expect(seen).toEqual(["reload"]);
+    s.destroy();
+    shell = undefined;
+
+    const home = createFakeApi();
+    const s2 = boot(home);
+    await s2.start();
+    expect(button("Reload page")).toBeUndefined();
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "r", metaKey: true, bubbles: true, cancelable: true }));
+    await tick();
+    expect(home.callsTo("startup")).toHaveLength(1); // only the start itself
+  } finally {
+    vi.unstubAllEnvs();
+  }
+});
+
+test("Reload asks the host to rescan the folder (api.reload) and falls back to startup() without it", async () => {
+  const api = withWorkspace("README.md");
+  const next = { ...sampleWorkspace(), tree: [{ ...sampleWorkspace().tree[0], title: "Rescanned" }] };
+  const s = reloadBoot(api, []);
+  await s.start();
+  const before = api.callsTo("startup").length;
+  api.reload = async () => next;
+  button("Reload page")!.click();
+  await tick();
+  expect(s.store.get().workspace?.tree[0].title).toBe("Rescanned");
+  expect(api.callsTo("startup")).toHaveLength(before); // reload, not startup
+});
+
+test("the fake api's reload gives the current tree", async () => {
+  const api = withWorkspace("README.md");
+  const ws = await api.reload!();
+  expect(ws?.tree).toEqual(sampleWorkspace().tree);
+  expect(await createFakeApi().reload!()).toBeNull();
+});

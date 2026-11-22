@@ -11,3 +11,10 @@ test("panel.css: tokens only, the right side is mirrored, motion respects the se
   expect(css).toMatch(/\.zen-sidebar-logo\s*\{[^}]*height:\s*24px/);
   expect(css).toMatch(/text-overflow:\s*ellipsis/);
 });
+
+test("panel.css: Reload and × share one header-button class (same size and muted colour); × keeps its own class", () => {
+  const css = readFileSync(new URL("./panel.css", import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  expect(css).toMatch(/\.zen-sidebar-btn\s*\{[^}]*width:\s*28px[^}]*height:\s*28px[^}]*color:\s*var\(--fg-muted\)/);
+  expect(css).toMatch(/\.zen-sidebar-btn:hover\s*\{[^}]*color:\s*var\(--fg\)/);
+  expect(css).toMatch(/\.zen-sidebar-close\s*\{[^}]*font-size:\s*18px/);
+});

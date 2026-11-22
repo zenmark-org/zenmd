@@ -15,7 +15,7 @@ var serviceMethods = []string{
 	"NewTerm", "OpenBuiltSite", "OpenConfig", "OpenEditor", "OpenExternal", "Page", "PageInfo", "PickBuildFolder",
 	"PickFolder", "PickSiteFolder", "PluginCancel", "PluginInvoke", "PluginStorageGet",
 	"PluginStorageKeys", "PluginStorageSet", "PluginStream", "PluginTrust", "Plugins", "Preview",
-	"PrintPage", "PrintSite", "PrintWindow", "ReorderNav", "RevealBuiltSite", "RevealExport", "RevealInFinder", "RevealTemplates", "Save", "SaveBuildDefaults", "SetDialect",
+	"PrintPage", "PrintSite", "PrintWindow", "Reload", "ReorderNav", "RevealBuiltSite", "RevealExport", "RevealInFinder", "RevealTemplates", "Save", "SaveBuildDefaults", "SetDialect",
 	"SetNavHidden", "SiteTemplates", "Source", "Startup", "SuggestPageName", "TemplatesDir",
 	"CopyPageTemplate", "OpenPageTemplate", "PageTemplates", "RevealPageTemplates", "UpdateTemplate",
 }

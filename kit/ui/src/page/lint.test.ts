@@ -166,3 +166,13 @@ test("no lint without the vale add-on: no calls, no marks, no badge", async () =
   expect(api.callsTo("lint")).toEqual([]);
   expect(article().querySelector("mark")).toBeNull();
 });
+
+test("reload() checks the page for Problems again", async () => {
+  env.ctx.store.set({ path: "README.md" });
+  unmount = pageFeature.mount(env.slots, env.ctx);
+  await settle();
+  const n = api.callsTo("lint").length;
+  (unmount as unknown as { reload(): void }).reload();
+  await settle();
+  expect(api.callsTo("lint").length).toBe(n + 1);
+});
