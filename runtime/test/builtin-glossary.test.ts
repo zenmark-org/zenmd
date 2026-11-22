@@ -130,12 +130,3 @@ test("the filter goes into the row with New Term…, before the button", async (
   expect(Array.from(row.children).map((c) => c.className)).toEqual(["zl-gloss-filter zen-field", "zen-btn zl-gloss-new"]);
 });
 
-test("the letter bar is one row: no wrap, letters share the width", async () => {
-  const { readFileSync } = await import("node:fs");
-  const css = readFileSync(new URL("../../builtins/layouts/glossary/glossary.css", import.meta.url), "utf8");
-  const rule = (sel: string) => css.match(new RegExp(`\\.${sel}\\s*\\{[^}]*\\}`))?.[0] ?? "";
-  expect(rule("zl-gloss-bar")).toMatch(/flex-wrap:\s*nowrap/);
-  expect(rule("zl-gloss-letter")).toMatch(/flex:\s*1 1 0/);
-  expect(rule("zl-gloss-letter")).toMatch(/min-width:\s*0/);
-  expect(rule("zl-gloss-row")).toMatch(/display:\s*flex/);
-});

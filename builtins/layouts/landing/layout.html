@@ -4,7 +4,7 @@
     <h1>{{.Title}}</h1>
     {{with .Field "tagline"}}<p class="zl-tagline">{{.}}</p>{{end}}
   </header>
-  <div class="zl-landing-text">{{.Content}}</div>
+  <div class="zl-landing-text">{{.Body}}</div>
   {{if .Option "cards"}}{{with .Children}}
   <section class="zl-cards" aria-label="Pages">
     <ul>

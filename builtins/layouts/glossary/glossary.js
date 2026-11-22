@@ -48,7 +48,10 @@ export default {
     input.placeholder = "Filter terms";
     input.setAttribute("aria-label", "Filter terms");
     input.autocomplete = "off";
-    tools.appendChild(input);
+    // In the row with New Term…, before it; a page without the row (an older template) gets it under the bar.
+    const row = tools.querySelector(".zl-gloss-row");
+    if (row) row.insertBefore(input, row.firstChild);
+    else tools.appendChild(input);
 
     const countEl = host.querySelector(".zl-gloss-count");
     if (countEl) { countEl.setAttribute("role", "status"); countEl.setAttribute("aria-live", "polite"); }

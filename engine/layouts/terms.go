@@ -341,8 +341,13 @@ func (d *Data) TermTitle() string {
 }
 
 // TermBody is the page's text without its leading H1, which TermTitle shows
-// as the big term.
-func (d *Data) TermBody() template.HTML {
+// as the big term. It is Body; the name stays for the term layout.
+func (d *Data) TermBody() template.HTML { return d.Body() }
+
+// Body is the page's text without its leading H1. A layout that draws the
+// page's title itself (landing, post, glossary, term) inserts Body, not
+// Content, so the title shows once: the page's title is its H1.
+func (d *Data) Body() template.HTML {
 	c := string(d.Content)
 	t := strings.TrimLeft(c, " \t\r\n")
 	if !strings.HasPrefix(t, "<h1") {

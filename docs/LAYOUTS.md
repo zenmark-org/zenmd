@@ -140,6 +140,7 @@ fails to run puts a warning on the page and `article` is used.
 | Data | Is |
 |---|---|
 | `.Content` | the rendered page body (HTML) |
+| `.Body` | the page body without its leading H1: use it when the layout draws the title itself (`<h1>{{.Title}}</h1>`), so the title shows once |
 | `.Title`, `.Path` | the page title, and its workspace-relative path |
 | `.Breadcrumb` | `[]` of `{Title, Path}`, from the sidebar |
 | `.TOC` | `[]` of `{Level, ID, Text}`: the h2 to h4 headings that have an id |
