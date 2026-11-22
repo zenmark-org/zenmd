@@ -231,6 +231,21 @@ One folder holds both kinds of template, each in a subfolder you can open, read 
    - `zenmd templates --dir` prints the templates folder.
    - `zenmd blueprint list` and `zenmd init --dir` read `templates/blueprints/`.
 
+## Titles: the H1 wins (added 2026-11-22)
+
+A page has one title. A page that has an H1 takes its title from it, and a `title:` in its frontmatter is not used.
+
+1. **The rule, everywhere.** One function in `engine/render` (`pageTitle`, used by `Title`) decides a page's title:
+   - **the first H1**, as plain text;
+   - **frontmatter `title:`**, only when there is no H1. Pages that set their title only in frontmatter, such as slides decks and pages without a heading, keep working.
+   - **the file name**, when there is neither.
+
+   The sidebar, the breadcrumb, the window title, the glossary, landing cards, exports and search all use this one function.
+2. **Both, and different:** the page shows a note under Problems, "title: is ignored because the page has an H1 (…)", with the Fix "Remove title: from the frontmatter". A `title:` equal to the H1 gets the same note as a suggestion. A label shown only in the sidebar belongs in `nav: { title: … }`, which still overrides the sidebar text and is not affected.
+3. **Writers never write both.** Blueprint sections and their index pages, a blueprint's starting pages, New Page, New Term, page templates and `zenmd new page` write the H1 from the title, with no `title:` in the frontmatter. The only exception is a page whose layout shows the title itself and whose skeleton has no H1, such as slides. Page template skeletons start with `# {{title}}`, and the glossary index is `# Glossary` with `layout: glossary` and its `nav`.
+4. **The built-ins and demos follow:** the built-in blueprints, page templates, `examples/demo` and `examples/showcase` drop `title:` wherever the page has an H1. Where the two differed, the H1 stays. The goldens change only where a title actually changed, and the review checks each change.
+5. **CLI:** `zenmd check` reports the note too, once the checker exists.
+
 ## Making your own blueprint
 
 A blueprint is a folder with a `blueprint.yml`. The easy way to write one is to
