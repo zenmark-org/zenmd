@@ -154,7 +154,7 @@ func (t Template) plan(vals map[string]string) ([]item, error) {
 		return nil, err
 	}
 
-	// What the sections make: README.md, indexes, pages, page templates and
+	// What the sections make: index.md, indexes, pages, page templates and
 	// the sections' part of .zenmd.yml.
 	gens, frag, err := t.generate(vals)
 	if err != nil {

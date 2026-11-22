@@ -3,7 +3,7 @@ version: 1
 
 # Every page under paths/ is a course: one step at a time, with saved progress.
 layouts:
-  "README.md": landing
+  "index.md": landing
   "paths/**": course
 
 plugins:

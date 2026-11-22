@@ -2,7 +2,7 @@
 version: 1
 
 layouts:
-  "README.md": landing
+  "index.md": landing
   "roadmap.md": wide
 
 plugins:

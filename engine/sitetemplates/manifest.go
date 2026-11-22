@@ -38,7 +38,7 @@ type Template struct {
 	Err                                 string // invalid: why
 
 	Layout        string    // layout: the folder's default layout (written to .zenmd.yml)
-	Home          *Home     // home: the README.md start page; nil without sections
+	Home          *Home     // home: the index.md start page; nil without sections
 	Sections      []Section // sections: folders, index pages and path rules built on creation
 	Files         []string  // files: other files copied as they are (all files are copied anyway)
 	PageTemplates []string  // templates: page template ids copied into .zen/templates

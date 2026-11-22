@@ -12,14 +12,10 @@ ignore: [".DS_Store"]
 layout: docs
 home:
   title: "{{title}}"
+  template: overview
+  pages:
+    - { file: presentation.md, title: "{{product}} in five slides", layout: slides }
 sections:
-  - id: overview
-    title: Overview
-    folder: overview
-    template: overview
-    index: { template: overview }
-    pages:
-      - { file: presentation.md, title: "{{product}} in five slides", layout: slides }
   - id: getting-started
     title: Getting started
     folder: getting-started

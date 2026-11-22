@@ -38,7 +38,7 @@ stays deleted.
 ```
 my-blueprint/
   blueprint.yml
-  README.md
+  index.md
   guides/{{date}}-first.md
   .zenmd.yml
 ```
@@ -70,7 +70,11 @@ them:
 
 ```yaml
 layout: docs                 # .zenmd.yml layout:
-home: { title: "{{title}}" } # README.md: links each section, in order
+home:                        # index.md: links each section, in order
+  title: "{{title}}"
+  template: overview         # optional: the home has this page template's structure
+  pages:                     # optional: extra root pages, linked from the home
+    - { file: presentation.md, title: "{{product}} in five slides", layout: slides }
 sections:
   - id: releases
     title: Releases
@@ -86,6 +90,7 @@ templates: [release-notes]   # page templates copied into .zen/templates
 files: [CONTRIBUTING.md]     # other files, copied as they are
 ```
 
+- A folder's home is its `index.md` (any case), with `README.md` as the fallback when there is none; `index.md` wins when both exist. This holds for the root and for every folder. Blueprints write `index.md`.
 - `index: { layout: landing, tagline: "..." }`, `{ template: overview }` or `{ layout: glossary }` change the index page.
 - A starting page with its own `layout:` keeps it and follows no template.
 - In skeletons and titles: `{{title}}`, `{{author}}`, `{{today}}`, any `ask:` key and the `set:` fields. `{{sections}}` in a template is a link to every section.

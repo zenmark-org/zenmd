@@ -5,7 +5,7 @@ import type { PluginStreamEvent, RuntimeHost } from "@zenmd/runtime";
 
 export type NavNode = { title: string; path: string; kind: "page" | "group"; children: NavNode[] };
 export type Workspace = {
-  root: string; name: string; home: string; tree: NavNode[]; // home: "" or "README.md"
+  root: string; name: string; home: string; tree: NavNode[]; // home: "" or "index.md" / "README.md"
   /** The folder's settings file in use: ".zenmd.yml", or the old name while only that file exists. */
   configFile?: string;
 };

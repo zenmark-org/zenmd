@@ -10,7 +10,7 @@ questions (the title, the author) and pick an empty folder.
 
 | Blueprint | Gives you |
 |---|---|
-| Technical documentation | Overview, Getting started, How-tos, Explanation, Reference, Glossary and Releases |
+| Technical documentation | An overview home page, Getting started, How-tos, Explanation, Reference, Glossary and Releases |
 | Learning path | courses with steps, quizzes and checklists, and a glossary |
 | Planner | a roadmap, meeting notes and decisions |
 
@@ -19,10 +19,9 @@ questions (the title, the author) and pick an empty folder.
 A fresh folder from this blueprint looks like this:
 
 ```text
-README.md                 the start page: one link to each section
-overview/
-  index.md                what the product is and who it's for
-  presentation.md         the same, as slides
+index.md                  the home page: what the product is and who it's
+                          for, key features, and a link to each section
+presentation.md           the same, as slides
 getting-started/          Installation, Your first steps
 how-tos/                  one page per task
 explanation/              how it works, and why

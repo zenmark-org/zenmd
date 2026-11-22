@@ -11,9 +11,14 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Home is the README.md start page: a short contents page that links each
-// section in order (the sidebar is built from links).
-type Home struct{ Title string }
+// Home is the index.md start page: a short contents page that links each
+// section in order (the sidebar is built from links). With a Template it has
+// that page template's structure (the overview), and Pages are extra root
+// pages, such as a slides deck, linked from it.
+type Home struct {
+	Title, Template string
+	Pages           []Page
+}
 
 // Section is one part of a blueprint: a folder with an index page (or one
 // file), the page template its pages follow, and its starting pages.
@@ -71,13 +76,31 @@ func parseHome(v *yaml.Node) (*Home, error) {
 	}
 	for i := 0; i+1 < len(v.Content); i += 2 {
 		k, x := v.Content[i].Value, v.Content[i+1]
-		if k != "title" {
-			return nil, fmt.Errorf("home: unknown key %q", k)
+		var err error
+		switch k {
+		case "title":
+			if x.Kind != yaml.ScalarNode {
+				return nil, errors.New("home: title must be text")
+			}
+			h.Title = x.Value
+		case "template":
+			if h.Template, err = text("home template", x); err == nil && !idRE.MatchString(h.Template) {
+				err = errors.New("home: template must be a page template id such as overview")
+			}
+		case "pages":
+			if h.Pages, err = parsePages("home", x); err == nil {
+				for _, p := range h.Pages {
+					if !safeRel(strings.ReplaceAll(strings.ReplaceAll(p.File, "{{", ""), "}}", "")) || !strings.HasSuffix(p.File, ".md") {
+						err = fmt.Errorf("home: page %q must be a .md file name", p.File)
+					}
+				}
+			}
+		default:
+			err = fmt.Errorf("home: unknown key %q", k)
 		}
-		if x.Kind != yaml.ScalarNode {
-			return nil, errors.New("home: title must be text")
+		if err != nil {
+			return nil, err
 		}
-		h.Title = x.Value
 	}
 	return h, nil
 }
@@ -389,7 +412,7 @@ func relTo(dir, target string) string {
 // generated is a file the sections write.
 type generated struct{ dest, data, extra string }
 
-// generate works out the files the sections make: README.md, each section's
+// generate works out the files the sections make: index.md, each section's
 // index and pages, the page templates and the .zenmd.yml fragment. vals are
 // the values of the site (title, author, ...).
 func (t Template) generate(vals map[string]string) ([]generated, string, error) {
@@ -433,13 +456,49 @@ func (t Template) generate(vals map[string]string) ([]generated, string, error) 
 	}
 
 	if len(t.Sections) > 0 {
-		ht := "{{title}}"
-		if t.Home != nil && t.Home.Title != "" {
-			ht = t.Home.Title
+		ht, hpages, htemplate := "{{title}}", []Page(nil), ""
+		if t.Home != nil {
+			if t.Home.Title != "" {
+				ht = t.Home.Title
+			}
+			hpages, htemplate = t.Home.Pages, t.Home.Template
 		}
 		title := replace(ht, vals)
-		out = append(out, generated{dest: "README.md", data: frontmatter([]KV{{"title", scalar(title)}}) +
-			"# " + title + "\n\n" + "Start here. Each section below has its own folder.\n\n" + sectionLinks(t.Sections, "", "") + t.fileLinks() + "\n"})
+		fm := []KV{{"title", scalar(title)}}
+		var text string
+		if htemplate != "" { // the home has the page template's structure: the overview
+			b, kvs, layout, err := body(htemplate, "", "", title, nil)
+			if err != nil {
+				return nil, "", fmt.Errorf("home: %w", err)
+			}
+			if layout != "" && layout != t.Layout {
+				fm = append(fm, KV{"layout", layout})
+			}
+			fm = append(fm, kvs...)
+			text = strings.TrimRight(b, "\n")
+		} else {
+			text = "# " + title + "\n\nStart here. Each section below has its own folder.\n\n" + sectionLinks(t.Sections, "", "")
+		}
+		for _, p := range hpages { // extra root pages, linked after the sections
+			ptitle := replace(p.Title, vals)
+			text += fmt.Sprintf("\n- [%s](%s)", ptitle, replace(p.File, vals))
+			set := make([]KV, 0, len(p.Set))
+			for _, kv := range p.Set {
+				set = append(set, KV{kv.Key, replace(kv.Value, vals)})
+			}
+			var content string
+			if p.Layout != "" {
+				pfm := []KV{{"title", scalar(ptitle)}, {"layout", scalar(p.Layout)}, {"template", "false"}}
+				for _, kv := range set {
+					pfm = append(pfm, KV{kv.Key, scalar(kv.Value)})
+				}
+				content = frontmatter(pfm) + layoutBody(p.Layout, ptitle)
+			} else {
+				content = frontmatter(append([]KV{{"title", scalar(ptitle)}}, set...)) + "# " + ptitle + "\n"
+			}
+			out = append(out, generated{dest: replace(p.File, vals), data: content})
+		}
+		out = append(out, generated{dest: "index.md", data: frontmatter(fm) + text + t.fileLinks() + "\n"})
 	}
 	for _, s := range t.Sections {
 		for _, id := range []string{s.Template, s.Index.Template} {

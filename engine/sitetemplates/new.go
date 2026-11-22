@@ -30,7 +30,7 @@ ask:
 
 layout: docs                   # the folder's default layout (.zenmd.yml layout:)
 
-# README.md: the start page. It links each section below, in order, which is
+# index.md: the start page. It links each section below, in order, which is
 # also their order in the sidebar.
 home:
   title: "{{title}}"
