@@ -7,6 +7,10 @@ follows [Semantic Versioning](https://semver.org) (see docs/VERSIONING.md).
 ## [Unreleased]
 
 ### Added
+- Settings › Templates lists the page templates (built-in, yours and this folder's) with their fields and a preview of the page they start, and `zenmd templates list|show|update|--dir` does the same; templates live in `templates/blueprints/` and `templates/pages/` of the settings folder.
+- New Page starts a page from the page template of its folder's path rule (a new page in how-tos/ is a how-to); in a releases folder it suggests the next version, `v0.2.0`, and fills the version and date.
+- The `release` layout: a release page's title is its version (`v{{version}}`), with the date and name under it; a layout can name the field or pattern that titles its pages.
+- Glossary: New Term… (next to the filter, and in the sidebar menu) and `zenmd glossary add|list`; term pages take their title from their H1 and stay out of the sidebar.
 - Blueprints (formerly site templates) are in Zenmark: File › New from Blueprint… (⇧⌘N), Settings › Blueprints, `zenmd init --blueprint <id>`, `zenmd blueprint list` and `zenmd blueprint new <id> [--from <id>]`. A `blueprint.yml` can list `sections:` that Zenmark builds into folders, index pages, links from the home and path rules in `.zenmd.yml`. The built-in Technical documentation blueprint (2.1.0) has an overview home, getting started, how-tos, explanation, reference, a glossary and releases, with seven built-in page templates. The old names (`template.yml`, `templates:` in config.yml and in the assembly, `zenmd init site --template`) still work (#20).
 - The `term` and `glossary` layouts: one file per term, and a glossary index built from them A to Z, with a letter bar and a filter, rebuilt whenever a term changes.
 - The sidebar honours `nav: { children: folder }` (every page of the folder under its index) and `nav.sort` (`title` or `newest-first`).
@@ -35,6 +39,9 @@ follows [Semantic Versioning](https://semver.org) (see docs/VERSIONING.md).
 - Find in page: ⌘F (Edit › Find) opens a find bar in the reader and the editor with a match count, next/previous (⌘G, ⇧⌘G) and a match-case toggle (#4).
 
 ### Changed
+- A page's title is its first H1; frontmatter `title:` is used only when there is none, and a page with both gets a note under Problems. Layouts that draw the title themselves no longer show the page's H1 a second time.
+- The blueprints folder moves from `templates/sites` to `templates/blueprints`; installed copies you have not edited follow the built-in ones by themselves.
+- New Page accepts names with version dots, such as `releases/v0.2.0`.
 - A folder's home page is `index.md`, with `README.md` as the fallback; blueprints write `index.md`.
 - Exports go to exports/html and exports/pdf/<folder name>.pdf by default, and exports/ is never read as pages.
 - The export settings in .zenmd.yml are under export: (was build:, still read, with a note under Problems).
