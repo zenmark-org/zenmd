@@ -1,7 +1,7 @@
 id: techdocs
 name: Technical documentation
 description: Overview, getting started, how-tos, explanation, reference, glossary and releases
-version: 2.0.0
+version: 2.1.0
 order: 10
 requires: { layouts: [docs, landing, slides, term, glossary], plugins: [codeblock, diagram] }
 ask:

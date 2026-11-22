@@ -352,12 +352,12 @@ func TestInitSite(t *testing.T) {
 	for _, id := range []string{"techdocs", "learning", "planner"} {
 		data, _ := fs.ReadFile(siteBuiltins, id+"/blueprint.yml")
 		if id == "techdocs" {
-			data = []byte(strings.Replace(string(data), "version: 2.0.0", "version: 2.1.0", 1))
+			data = []byte(strings.Replace(string(data), "version: 2.1.0", "version: 2.2.0", 1))
 		}
 		newer[id+"/blueprint.yml"] = &fstest.MapFile{Data: data}
 	}
 	env.builtins = newer
-	if out, _, _ := run(cli.Init{List: true}); !strings.Contains(out, "[update available: 2.1.0, see zenmd init --update techdocs]") {
+	if out, _, _ := run(cli.Init{List: true}); !strings.Contains(out, "[update available: 2.2.0, see zenmd init --update techdocs]") {
 		t.Errorf("update marker: %q", out)
 	}
 	out, _, err = run(cli.Init{Update: true, Template: "techdocs"})
