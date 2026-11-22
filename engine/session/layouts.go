@@ -558,15 +558,31 @@ func (ls *layoutSite) Folder(p string) []layouts.FolderPage {
 		if fm == nil {
 			fm = map[string]any{}
 		}
-		title, _ := fm["title"].(string)
+		// The term is the page's H1; a title: in the frontmatter is read when there is none.
+		_, body, _ := config.SplitFrontmatter(b)
+		title := headingOf(body)
 		if title == "" {
-			if i, ok := ls.pos[f]; ok {
-				title = ls.flat[i].Title
-			}
+			title, _ = fm["title"].(string)
 		}
 		out = append(out, layouts.FolderPage{Title: title, Path: f, Meta: fm, Definition: definition(b)})
 	}
 	return out
+}
+
+// headingOf is the plain text of the first line of body when it is an H1
+// ("# Idempotent"), "" otherwise.
+func headingOf(body []byte) string {
+	for _, line := range strings.Split(string(body), "\n") {
+		t := strings.TrimSpace(line)
+		if t == "" {
+			continue
+		}
+		if !strings.HasPrefix(t, "# ") {
+			return ""
+		}
+		return summariseTo(strings.TrimRight(strings.TrimPrefix(t, "# "), "# "), 200)
+	}
+	return ""
 }
 
 var (

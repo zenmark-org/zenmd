@@ -305,7 +305,7 @@ func TestDemoFolder(t *testing.T) {
 		"features/reader.md":        "features/markdown.md,features/myst.md",
 		"plugins/index.md":          "plugins/codeblock.md,plugins/diagram.md,plugins/check.md,plugins/quiz.md,plugins/sandbox.md,plugins/rating.md",
 		"layouts/index.md":          "layouts/article.md,layouts/docs.md,layouts/post.md,layouts/landing.md,layouts/wide.md,layouts/handout.md,layouts/slides.md,layouts/course.md,layouts/glossary/index.md",
-		"layouts/glossary/index.md": "layouts/glossary/dialect.md,layouts/glossary/frontmatter.md,layouts/glossary/layout.md,layouts/glossary/plugin.md,layouts/glossary/slug.md",
+		"layouts/glossary/index.md": "", // the terms are not in the sidebar: layout: term hides them
 		"configuration/settings.md": "configuration/reference.md",
 	}
 	var check func([]NavNode)
@@ -344,7 +344,7 @@ func TestDemoFolder(t *testing.T) {
 	}
 
 	files, _ := z.ws.Files()
-	if len(files) != len(all)+1 { // every page but the hidden one is in the sidebar
+	if len(files) != len(all)+1+5 { // every page but the hidden one and the five glossary terms is in the sidebar
 		t.Errorf("%d pages, %d in the sidebar", len(files), len(all))
 	}
 	for _, p := range files {

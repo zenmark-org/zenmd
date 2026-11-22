@@ -1,6 +1,6 @@
 // The typed client for the Go services. Types and the Api interface mirror
 // docs/PLAN.md "Service API" exactly; UI features import only from here.
-import type { AddonInfo, Alert, BuildInfo, DialectInfo, Draft, KitHost, LayoutSource, LintResult, OpenProgress, Page, PageInfo, PluginStreamEvent, Workspace as KitWorkspace } from "@zenmd/kit";
+import type { NewTermResult, AddonInfo, Alert, BuildInfo, DialectInfo, Draft, KitHost, LayoutSource, LintResult, OpenProgress, Page, PageInfo, PluginStreamEvent, Workspace as KitWorkspace } from "@zenmd/kit";
 import { createFakeApi, sampleWorkspace, type FakeOptions } from "./fake";
 import { inApp, wailsReady } from "./detect";
 
@@ -205,6 +205,10 @@ export interface Api extends KitHost {
    * path. Rejects when the file exists or the name is not allowed.
    */
   createPage(name: string, layout: PageLayout): Promise<string>;
+  /** The folders that have a glossary index, for New Term… in the sidebar menu. */
+  glossaryFolders(): Promise<string[]>;
+  /** New Term…: <folder>/<slug>.md from the term template ("" is the top level); an existing term is not touched. */
+  newTerm(folder: string, term: string): Promise<NewTermResult>;
   /** Every built-in and external plugin, for Settings › Plugins (ui/plugins). */
   plugins(): Promise<PluginInfo[]>;
   /** Every built-in and external layout, for Settings › Layouts and File › New Page (core/layouts). */

@@ -1357,3 +1357,36 @@ test("Settings and the Inspector never show at once: opening one closes the othe
   expect(settingsPage()).not.toBeNull();
   expect(closed).toBe(1);
 });
+
+test("New Term… (from the glossary page or its sidebar menu) asks for the term, creates it, shows it and opens the editor", async () => {
+  const api = createFakeApi({
+    startup: { workspace: sampleWorkspace(), page: "README.md", mode: "read" },
+    sources: { "README.md": "# Home\n", "g/index.md": "---\nlayout: glossary\n---\n" },
+  });
+  let newTerm: Ctx["newTerm"];
+  const probe: Feature = { id: "nav", mount(_s: Slots, ctx: Ctx) { newTerm = ctx.newTerm; return () => {}; } };
+  const s = boot(api, [probe, recorder("reader"), recorder("editor")]);
+  await s.start();
+  expect(newTerm).toBeDefined();
+  newTerm!("g");
+  newTerm!("g"); // already open: not a second one
+  expect(document.querySelectorAll(".zen-newpage-backdrop")).toHaveLength(1);
+  document.querySelector<HTMLInputElement>(".zen-newpage-name")!.value = "Idempotent";
+  document.querySelector<HTMLFormElement>(".zen-newpage")!.requestSubmit();
+  for (let i = 0; i < 5; i++) await tick();
+  expect(api.callsTo("newTerm")).toEqual([["g", "Idempotent"]]);
+  expect(s.store.get().path).toBe("g/idempotent.md");
+  expect(api.callsTo("openEditor")).toEqual([["g/idempotent.md"]]);
+  expect(document.querySelector(".zen-newpage-backdrop")).toBeNull();
+});
+
+test("read-only: no New Term", async () => {
+  const api = createFakeApi({
+    startup: { workspace: sampleWorkspace(), page: "guides/install.md", mode: "read" }, build: { features: without("editor") },
+  });
+  let offered: boolean | undefined;
+  const probe: Feature = { id: "nav", mount(_s: Slots, ctx: Ctx) { offered = !!ctx.newTerm; return () => {}; } };
+  const s = boot(api, [probe, recorder("reader"), recorder("editor")]);
+  await s.start();
+  expect(offered).toBe(false);
+});

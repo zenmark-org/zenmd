@@ -4,13 +4,13 @@ description: A glossary term with its definition, see-also links and neighbours
 template: layout.html
 css: [term.css]
 fields:
-  title:   { type: string, description: The term }
+  title:   { type: string, description: "The term, only for a page with no H1 (the H1 is the term)" }
   aliases: { type: list, description: Other spellings of the term }
   abbr:    { type: string, description: "An abbreviation, shown after the term" }
   see:     { type: list, description: "Related terms, as links to term pages of the same folder" }
   tags:    { type: list, description: Optional grouping }
 help:
-  summary: "One entry of a glossary: the term large, its abbreviation and aliases, the definition (the first paragraph) set apart, the rest of the text, See also links from see:, and links to the terms before and after it in alphabetical order. The first paragraph is the definition, at most 60 words. Frontmatter: title, aliases, abbr, see, tags."
+  summary: "One entry of a glossary: the term (the page's H1) large, its abbreviation and aliases, the definition (the first paragraph) set apart, the rest of the text, See also links from see:, and links to the terms before and after it in alphabetical order. The first paragraph is the definition, at most 60 words. Frontmatter: aliases, abbr, see, tags (and title, for a page with no H1). Terms are hidden from the sidebar; the Glossary page lists them."
   snippets:
     - title: A term
-      markdown: "---\ntitle: Idempotent\nlayout: term\naliases: [idempotence]\n---\nAn operation is idempotent when doing it twice has the same effect as doing it once.\n\n## Examples\n\nSetting a value is idempotent. Adding one to it is not.\n"
+      markdown: "---\nlayout: term\naliases: [idempotence]\n---\n# Idempotent\n\nAn operation is idempotent when doing it twice has the same effect as doing it once.\n\n## Examples\n\nSetting a value is idempotent. Adding one to it is not.\n"

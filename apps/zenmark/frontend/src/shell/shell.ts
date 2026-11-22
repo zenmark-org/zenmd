@@ -18,6 +18,7 @@ import intro3 from "../assets/intro/intro-3.jpg?no-inline";
 import { registerBuildSite } from "./buildsite";
 import { installPagePrint } from "@zenmd/runtime/print/page";
 import { openNewPage, type NewPageDialog } from "./newpage";
+import { openNewTerm, type NewTermDialog } from "./newterm";
 import { openNewSite, type NewSiteDialog, type SiteApi, type SiteTemplate } from "./newsite";
 import { createSettingsView, type SettingsView } from "./settings";
 
@@ -152,6 +153,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
   const ctx: Ctx = {
     api, store, navigate, brand: BRAND,
     get newPage() { return hasFeature(api, "editor") ? (folder: string) => showNewPage(folder) : undefined; },
+    get newTerm() { return hasFeature(api, "editor") ? (folder: string) => showNewTerm(folder) : undefined; },
   };
 
   function navigate(path: string, anchor = ""): void {
@@ -228,6 +230,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
     settings = null;
     homeSettings = false;
     newPage?.close();
+    newTerm?.close();
     layout?.destroy();
     layout = null;
     editorTitle = null;
@@ -246,6 +249,20 @@ export function createShell(root: HTMLElement, { api, features, search, random =
         void api.openEditor(created).catch((err) => console.error("zen: opening the editor failed", err));
       },
       onClose: () => { newPage = null; },
+    });
+  }
+
+  let newTerm: NewTermDialog | null = null;
+  /** New Term… (the glossary page's button, the sidebar menu): ask for the term, then open the new page in the editor. */
+  function showNewTerm(folder: string): void {
+    if (kind.kind !== "main" || !layout || newTerm || !hasFeature(api, "editor")) return;
+    newTerm = openNewTerm({
+      api, doc, folder,
+      onCreated: (path) => {
+        navigate(path);
+        void api.openEditor(path).catch((err) => console.error("zen: opening the editor failed", err));
+      },
+      onClose: () => { newTerm = null; },
     });
   }
 

@@ -32,7 +32,7 @@ func TestBuiltinPageTemplates(t *testing.T) {
 		if !regexp.MustCompile(`^\d+\.\d+\.\d+$`).MatchString(p.Version) {
 			t.Errorf("%s: version %q is not a version such as 1.0.0 (installed copies are updated by it)", id, p.Version)
 		}
-		if _, ok := p.Fields["title"]; !ok {
+		if _, ok := p.Fields["title"]; !ok && id != "term" { // a term's title is the H1 of its skeleton
 			t.Errorf("%s: no title field", id)
 		}
 	}
@@ -53,5 +53,7 @@ func TestBuiltinPageTemplates(t *testing.T) {
 	}
 	if d, _ := fs.ReadFile(FS, "term.yml"); !strings.Contains(string(d), "layout: term") {
 		t.Error("term must use the term layout")
+	} else if !strings.Contains(string(d), "skeleton: |\n  # {{title}}\n") || strings.Contains(string(d), "title:") {
+		t.Error("a term starts with # {{title}} and has no title in its frontmatter")
 	}
 }

@@ -420,3 +420,43 @@ test("a same-page anchor scrolls smoothly, and not when Reduce motion is On", as
     delete document.documentElement.dataset.reduceMotion;
   }
 });
+
+const newTermButton = `<a class="zen-btn" data-zen-action="new-term" data-folder="g">New Term…</a>`;
+
+test("a layout's New Term button is shown with the editor and asks the host for the folder", async () => {
+  const api = createFakeApi({ sources: { ...SOURCES } });
+  const page = api.page.bind(api);
+  api.page = async (path: string) => ({ ...(await page(path)), html: newTermButton });
+  env = setup(api);
+  const asked = vi.fn();
+  env.ctx.newTerm = asked;
+  env.ctx.store.set({ path: "README.md" });
+  mount();
+  await tick();
+  const b = article().querySelector<HTMLElement>("[data-zen-action=new-term]")!;
+  expect(b.hidden).toBe(false);
+  expect(b.getAttribute("role")).toBe("button");
+  expect(b.tabIndex).toBe(0);
+  b.click();
+  expect(asked).toHaveBeenCalledWith("g");
+});
+
+test("without the editor (or a host that can add terms) the New Term button stays hidden and does nothing", async () => {
+  for (const readOnly of [true, false]) {
+    document.body.replaceChildren();
+    const api = createFakeApi({ sources: { ...SOURCES }, build: readOnly ? { features: ZENMARK_BUILD.features.filter((f) => f !== "editor") } : undefined });
+    const page = api.page.bind(api);
+    api.page = async (path: string) => ({ ...(await page(path)), html: newTermButton });
+    env = setup(api);
+    const asked = vi.fn();
+    if (readOnly) env.ctx.newTerm = asked; // the host would, but the build is read-only
+    env.ctx.store.set({ path: "README.md" });
+    mount();
+    await tick();
+    const b = article().querySelector<HTMLElement>("[data-zen-action=new-term]")!;
+    expect(b.hidden).toBe(true);
+    b.click();
+    expect(asked).not.toHaveBeenCalled();
+    unmountPage();
+  }
+});

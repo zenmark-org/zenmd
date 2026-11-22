@@ -7,7 +7,7 @@ type Method = "startup" | "appReady" | "pickFolder" | "cancelOpen" | "closeFolde
   | "siteTemplates" | "pickSiteFolder" | "createSite" | "revealTemplates" | "templatesDir"
   | "pageTemplates" | "updateTemplate" | "revealPageTemplates" | "copyPageTemplate" | "openPageTemplate"
   | "buildOptions" | "buildWebsite" | "cancelBuild" | "saveBuildDefaults" | "pickBuildFolder" | "openBuiltSite" | "revealBuiltSite"
-  | "printPage" | "printSite" | "printWindow" | "exportPdf" | "revealExport" | "printReady" | "printFailed" | "pdfDefaults" | "savePdfDefaults" | "pickPdfFile" | "runPdfExport" | "previewPdf" | "openExport" | "pdfExportFailed" | "page" | "source" | "preview" | "save" | "openExternal" | "openEditor" | "lint" | "pageInfo" | "revealInFinder" | "openConfig" | "createPage"
+  | "printPage" | "printSite" | "printWindow" | "exportPdf" | "revealExport" | "printReady" | "printFailed" | "pdfDefaults" | "savePdfDefaults" | "pickPdfFile" | "runPdfExport" | "previewPdf" | "openExport" | "pdfExportFailed" | "page" | "source" | "preview" | "save" | "openExternal" | "openEditor" | "lint" | "pageInfo" | "revealInFinder" | "openConfig" | "createPage" | "newTerm" | "glossaryFolders"
   | "plugins" | "pluginTrust" | "pluginStorageGet" | "pluginStorageSet" | "pluginInvoke" | "pluginStream" | "pluginCancel" | "pluginStorageKeys"
   | "reorderNav" | "setNavHidden" | "dialects" | "setDialect" | "dialectHint" | "dismissDialectHint"
   | "logs" | "layouts" | "layoutTrust" | "layoutStorageGet" | "layoutStorageSet" | "layoutStorageKeys";
@@ -420,6 +420,25 @@ export function createFakeApi(options: FakeOptions = {}): FakeApi {
       const title = path.split("/").pop()!.replace(/\.[^.]+$/, "").replace(/[-_]/g, " ");
       sources[path] = `---\ntitle: ${title}\n${layout ? `layout: ${layout}\n` : ""}---\n# ${title}\n`;
       return path;
+    }),
+    glossaryFolders: () => call("glossaryFolders", [], () => {
+      const out = new Set<string>();
+      for (const [p, src] of Object.entries(sources)) {
+        if (/^(index|readme)\.md$/i.test(p.split("/").pop()!) && /^---\n(?:[^]*?\n)?layout: glossary\s*\n/.test(src)) out.add(p.includes("/") ? p.slice(0, p.lastIndexOf("/")) : "");
+      }
+      return Array.from(out).sort();
+    }),
+    newTerm: (folder, term) => call("newTerm", [folder, term], () => {
+      const name = term.replace(/\s+/g, " ").trim();
+      // The same slug as the engine: lower case, accents folded, other runs of characters one "-".
+      const slug = name.normalize("NFD").replace(/[\u0300-\u036f]+/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      if (!name) throw new Error("give the term a name");
+      if (!slug) throw new Error("the term needs a letter or a digit to name its file");
+      const dir = folder.replace(/^\/+|\/+$/g, "");
+      const path = dir ? `${dir}/${slug}.md` : `${slug}.md`;
+      if (path in sources) return { path, existed: true };
+      sources[path] = `---\nlayout: term\n---\n# ${name}\n\nThe definition in one or two sentences (at most 60 words). Say what the term means, not how it is used.\n`;
+      return { path, existed: false };
     }),
     reorderNav: (parent, paths) => call("reorderNav", [parent, paths], () => {
       const found = paths.length ? listOf(tree, paths[0]) : null;

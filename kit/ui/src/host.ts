@@ -9,6 +9,8 @@ export type Workspace = {
   /** The folder's settings file in use: ".zenmd.yml", or the old name while only that file exists. */
   configFile?: string;
 };
+/** What New Term… answers: the term's page, and whether it was there already. */
+export type NewTermResult = { path: string; existed: boolean };
 export type Crumb = { title: string; path: string };
 export type LayoutSource = "builtin" | "folder" | "user";
 export type PageLayoutRef = { name: string; source: LayoutSource | "" };
@@ -119,6 +121,13 @@ export interface KitHost extends RuntimeHost {
   reorderNav?(parent: string, paths: string[]): Promise<void>;
   setNavHidden?(path: string, hidden: boolean): Promise<void>;
   revealInFinder?(path: string): Promise<void>;
+  /**
+   * Glossaries (the glossary layout): the folders that have a glossary index ("" is the top level), and
+   * New Term…, which writes <folder>/<slug>.md from the term template. A term that exists is not touched:
+   * the answer has existed set, with its path. Only an app with the editor has newTerm.
+   */
+  glossaryFolders?(): Promise<string[]>;
+  newTerm?(folder: string, term: string): Promise<NewTermResult>;
   /** Also delivered when another window saved the page ("editor:saved"). */
   on(event: "page:changed", fn: (e: { path: string; dependent?: boolean }) => void): () => void;
   /** Another window's unsaved text for a page (see draft); content null = draft gone. */

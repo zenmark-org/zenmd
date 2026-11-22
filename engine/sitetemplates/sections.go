@@ -644,6 +644,9 @@ func (t Template) sectionPage(tmplID, dir, title string, set []KV, body func(id,
 	if err != nil {
 		return "", err
 	}
+	if layout == "term" {
+		fm = nil // the H1 of the skeleton is the term; there is no title: in the frontmatter
+	}
 	if layout != "" && layout != t.Layout {
 		fm = append(fm, KV{"layout", layout})
 	}
