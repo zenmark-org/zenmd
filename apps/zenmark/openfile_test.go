@@ -112,16 +112,16 @@ func TestOpenPicksMode(t *testing.T) {
 		t.Fatalf("a refused file replaced the window: %+v", w)
 	}
 
-	// The bound Open takes a path too; it must be absolute and exist.
+	// openAndEmit takes a path too; it must be absolute and exist.
 	ev.reset()
-	if err := z.Open(filepath.Join(h, "Downloads", "other.md")); err != nil {
+	if err := z.openAndEmit(filepath.Join(h, "Downloads", "other.md")); err != nil {
 		t.Fatal(err)
 	}
 	if got := openedEvents(ev); len(got) != 1 || !got[0].Workspace.Single || got[0].Page != "other.md" {
 		t.Fatalf("Open(file): %+v", got)
 	}
 	for _, bad := range []string{"Downloads/notes.md", filepath.Join(h, "nope.md"), filepath.Join(h, "Downloads", "pic.png"), ""} {
-		if err := z.Open(bad); err == nil {
+		if err := z.openAndEmit(bad); err == nil {
 			t.Errorf("Open(%q) did not fail", bad)
 		}
 	}

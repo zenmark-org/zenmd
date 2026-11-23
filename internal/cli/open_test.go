@@ -104,3 +104,45 @@ func TestOpenFlagsInHelp(t *testing.T) {
 		}
 	}
 }
+
+// Resolve is the opening rules without the command: no settings-folder move, same answers as Run.
+func TestResolve(t *testing.T) {
+	h := home(t)
+	dl := filepath.Join(h, "Downloads")
+	write(t, filepath.Join(dl, "notes.md"))
+	proj := filepath.Join(h, "proj")
+	write(t, filepath.Join(proj, ".zenmd.yml"))
+	write(t, filepath.Join(proj, "a.md"))
+	old := filepath.Join(h, ".config", "zen")
+	if err := os.MkdirAll(old, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	cases := []struct {
+		path         string
+		file, folder bool
+		want         Launch
+	}{
+		{filepath.Join(dl, "notes.md"), false, false, Launch{Dir: dl, Page: "notes.md", Mode: "read", File: true}},
+		{filepath.Join(dl, "notes.md"), false, true, Launch{Dir: dl, Page: "notes.md", Mode: "read"}},
+		{filepath.Join(proj, "a.md"), false, false, Launch{Dir: proj, Page: "a.md", Mode: "read"}},
+		{filepath.Join(proj, "a.md"), true, false, Launch{Dir: proj, Page: "a.md", Mode: "read", File: true}},
+		{dl, false, false, Launch{Dir: dl, Mode: "read"}},
+	}
+	for _, c := range cases {
+		got, err := Resolve(c.path, c.file, c.folder)
+		if err != nil || got != c.want {
+			t.Errorf("Resolve(%q,%v,%v) = %+v, %v; want %+v", c.path, c.file, c.folder, got, err, c.want)
+		}
+	}
+	for _, bad := range []struct {
+		path         string
+		file, folder bool
+	}{{dl, true, false}, {filepath.Join(dl, "notes.md"), true, true}, {filepath.Join(dl, "missing.md"), false, false}, {filepath.Join(h, "x.png"), false, false}} {
+		if _, err := Resolve(bad.path, bad.file, bad.folder); err == nil {
+			t.Errorf("Resolve(%+v) did not fail", bad)
+		}
+	}
+	if _, err := os.Stat(old); err != nil {
+		t.Error("Resolve touched the settings folder")
+	}
+}

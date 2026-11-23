@@ -747,6 +747,20 @@ func resolveOpen(arg, cwd string, allowNew, file, folder bool) (dir, page string
 	return dir, page, false, nil
 }
 
+// Resolve is what `zenmd <path>` would open, without running the command: the same rules, with file and folder
+// as --file and --folder. path is absolute or relative to the root folder; the settings folder is not touched.
+// Mode is "read". A wrong request is a usage error.
+func Resolve(path string, file, folder bool) (Launch, error) {
+	if file && folder {
+		return Launch{}, usageError("--file and --folder cannot be used together")
+	}
+	dir, page, single, err := resolveOpen(path, string(filepath.Separator), false, file, folder)
+	if err != nil {
+		return Launch{}, err
+	}
+	return Launch{Dir: dir, Page: page, Mode: "read", File: single}, nil
+}
+
 // markers are the files and folders that make a folder a project.
 var markers = []string{config.WorkspaceFile, config.LegacyWorkspaceFile, ".git"}
 

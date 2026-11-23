@@ -2,7 +2,6 @@ package app
 
 import (
 	"errors"
-	"io"
 	"path/filepath"
 
 	"github.com/zenmark-org/zenmd/internal/cli"
@@ -21,16 +20,8 @@ func launchFor(path string, folder bool) (cli.Launch, error) {
 	if !filepath.IsAbs(path) {
 		return cli.Launch{}, errors.New("not a folder or markdown file")
 	}
-	args := []string{path}
-	if folder {
-		args = []string{"--folder", path}
-	}
-	var l cli.Launch
-	code := cli.Run(args, "/", io.Discard, io.Discard, func(got cli.Launch) error {
-		l = got
-		return nil
-	}, nil, nil, nil)
-	if code != 0 {
+	l, err := cli.Resolve(path, false, folder)
+	if err != nil {
 		return cli.Launch{}, errors.New("not a folder or markdown file")
 	}
 	return l, nil
@@ -66,11 +57,11 @@ func (z *Zen) openAny(path string) (Startup, error) {
 	return z.openLaunch(l)
 }
 
-// Open opens a folder or a markdown file: a file opens alone, without its
+// openAndEmit opens a folder or a markdown file: a file opens alone, without its
 // folder, unless it is in a project folder (a .zenmd.yml or .git
 // above it), then the folder opens at that page. path is absolute. The window
-// gets workspace:opened. A newer open that replaces this one is not an error.
-func (z *Zen) Open(path string) (err error) {
+// gets workspace:opened. Not bound: the frontend never hands Go a path to open. A newer open that replaces this one is not an error.
+func (z *Zen) openAndEmit(path string) (err error) {
 	defer z.logCall("Open", &err)
 	st, err := z.openAny(path)
 	if errors.Is(err, ErrOpenCancelled) {
@@ -96,7 +87,7 @@ func (z *Zen) openPicked() error {
 	if err != nil || path == "" {
 		return err
 	}
-	return z.Open(path)
+	return z.openAndEmit(path)
 }
 
 // OpenEnclosingFolder opens the project folder of the file that is open on
