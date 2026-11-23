@@ -309,7 +309,7 @@ func TestBuildExitCodes(t *testing.T) {
 		{"build", "--portable", "--hosted"},
 	} {
 		r := run(t, h, nil, a...)
-		if r.code != 2 || r.built || r.launched || r.stdout != "" || !strings.Contains(r.stderr, "Usage:") {
+		if r.code != 2 || r.built || r.launched || r.stdout != "" || !strings.Contains(r.stderr, usageHint) {
 			t.Fatalf("%v: %+v", a, r)
 		}
 	}
@@ -368,7 +368,7 @@ func TestInitCommand(t *testing.T) {
 		{"blueprint", "save"}, {"blueprint", "check", "x"}, {"blueprint", "new", "a", "--from"}, {"blueprint", "new", "a", "--nope"},
 	} {
 		r := run(t, h, nil, a...)
-		if r.code != 2 || r.inited || !strings.Contains(r.stderr, "Usage:") {
+		if r.code != 2 || r.inited || !strings.Contains(r.stderr, usageHint) {
 			t.Errorf("%v: %+v", a, r)
 		}
 	}
@@ -382,7 +382,7 @@ func TestInitCommand(t *testing.T) {
 		{"templates", "--dir", "list"}, {"templates", "new"}, {"templates", "list", "--nope"},
 	} {
 		r := run(t, h, nil, a...)
-		if r.code != 2 || r.inited || !strings.Contains(r.stderr, "Usage:") {
+		if r.code != 2 || r.inited || !strings.Contains(r.stderr, usageHint) {
 			t.Errorf("%v: %+v", a, r)
 		}
 	}
@@ -431,7 +431,7 @@ func TestInitExitCodes(t *testing.T) {
 	// 2: usage errors from the Initer, with the usage text.
 	initerErr = UsageError("no template \"nosuch\"")
 	r = run(t, h, nil, "init", "site", "--nosuch")
-	if r.code != 2 || !strings.Contains(r.stderr, "no template") || !strings.Contains(r.stderr, "Usage:") {
+	if r.code != 2 || !strings.Contains(r.stderr, "no template") || !strings.Contains(r.stderr, usageHint) {
 		t.Fatalf("usage from initer: %+v", r)
 	}
 	initerErr = nil
@@ -444,7 +444,7 @@ func TestInitExitCodes(t *testing.T) {
 		{"init", "site", "--template", ""}, {"init", "--update", ""},
 	} {
 		r := run(t, h, nil, a...)
-		if r.code != 2 || r.inited || r.launched || r.stdout != "" || !strings.Contains(r.stderr, "Usage:") {
+		if r.code != 2 || r.inited || r.launched || r.stdout != "" || !strings.Contains(r.stderr, usageHint) {
 			t.Fatalf("%v: %+v", a, r)
 		}
 	}
@@ -643,6 +643,47 @@ func TestRootFindsEitherName(t *testing.T) {
 		r := run(t, h, nil, filepath.Join(ws, "docs", "a.md"))
 		if r.l.Dir != ws {
 			t.Errorf("%s: dir %q, want %q", name, r.l.Dir, ws)
+		}
+	}
+}
+
+const usageHint = "Run zenmd help for the commands and options."
+
+func TestPathErrorsNameTheFullPath(t *testing.T) {
+	h := home(t)
+	write(t, filepath.Join(h, "c.txt"))
+	cases := []struct {
+		args []string
+		want string
+	}{
+		{[]string{"docs/public/zenmd"}, "zenmd: no such folder or file: " + filepath.Join(h, "docs", "public", "zenmd") + "\n"},
+		{[]string{"missing.md"}, "zenmd: no such folder or file: " + filepath.Join(h, "missing.md") + "\n"},
+		{[]string{"c.txt"}, "zenmd: " + filepath.Join(h, "c.txt") + " is neither a directory nor a markdown file\n"},
+		{[]string{"edit", "new/new.md"}, "zenmd: " + filepath.Join(h, "new", "new.md") + ": parent directory does not exist\n"},
+	}
+	for _, c := range cases {
+		r := run(t, h, nil, c.args...)
+		if r.code != 2 || r.launched || r.stdout != "" {
+			t.Fatalf("%v: %+v", c.args, r)
+		}
+		if !strings.HasPrefix(r.stderr, c.want) {
+			t.Errorf("%v: stderr %q, want it to start with %q", c.args, r.stderr, c.want)
+		}
+	}
+}
+
+func TestUsageErrorPrintsOnlyTheHint(t *testing.T) {
+	h := home(t)
+	for _, a := range [][]string{{"--nope"}, {"missing"}, {"init"}, {"templates", "what"}} {
+		r := run(t, h, nil, a...)
+		if r.code != 2 || strings.Contains(r.stderr, "Usage:") || strings.Count(r.stderr, "\n") > 3 || !strings.HasSuffix(r.stderr, usageHint+"\n") {
+			t.Errorf("%v: %d %q", a, r.code, r.stderr)
+		}
+	}
+	for _, a := range []string{"help", "-h", "--help"} {
+		r := run(t, h, nil, a)
+		if r.code != 0 || !strings.Contains(r.stdout, "Usage:") || r.stderr != "" {
+			t.Errorf("%s: %+v", a, r)
 		}
 	}
 }
