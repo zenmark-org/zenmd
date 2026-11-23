@@ -116,7 +116,9 @@ func TestBundleLayout(t *testing.T) {
 
 func TestBundledCLI(t *testing.T) {
 	requireBundle(t)
-	out, err := exec.Command(filepath.Join(bundle, "Contents/MacOS/zenmd"), "--version").CombinedOutput()
+	cmd := exec.Command(filepath.Join(bundle, "Contents/MacOS/zenmd"), "--version")
+	cmd.Env = fakeHomeEnv(t) // cli.Run migrates the settings folder: never the real one
+	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("zenmd --version: %v\n%s", err, out)
 	}
@@ -130,7 +132,9 @@ func TestBundledCLI(t *testing.T) {
 // line ("zenmd 0.6.0 (add-ons: vale)").
 func bundleAddons(t *testing.T) []string {
 	t.Helper()
-	out, err := exec.Command(filepath.Join(bundle, "Contents/MacOS/zenmd"), "--version").CombinedOutput()
+	cmd := exec.Command(filepath.Join(bundle, "Contents/MacOS/zenmd"), "--version")
+	cmd.Env = fakeHomeEnv(t) // cli.Run migrates the settings folder: never the real one
+	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("zenmd --version: %v\n%s", err, out)
 	}
@@ -562,4 +566,13 @@ func TestBundledVale(t *testing.T) {
 	if out, err := exec.Command("codesign", "--verify", "--strict", vale).CombinedOutput(); err != nil {
 		t.Errorf("vale helper not signed: %v\n%s", err, out)
 	}
+}
+
+// fakeHomeEnv is the environment for a program that goes through cli.Run: a
+// temporary HOME and XDG_CONFIG_HOME, so its start-up migration of the
+// settings folder never touches the real one.
+func fakeHomeEnv(t *testing.T) []string {
+	t.Helper()
+	h := t.TempDir()
+	return append(os.Environ(), "HOME="+h, "XDG_CONFIG_HOME="+filepath.Join(h, ".config"))
 }

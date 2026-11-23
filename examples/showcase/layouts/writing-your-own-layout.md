@@ -17,7 +17,7 @@ work in [A memo](memo.md).
 | Where | For |
 |---|---|
 | `<folder>/.zen/layouts/<id>/` | layouts that travel with a folder of documents |
-| `<user config dir>/zen/layouts/<id>/` (macOS: `~/Library/Application Support/zen/layouts/`) | your own layouts, for every folder |
+| `<user config dir>/zen/layouts/<id>/` (macOS: `~/Library/Application Support/zenmark/layouts/`) | your own layouts, for every folder |
 
 zen asks before it uses a layout for the first time and again when its files
 change, like for plugins.

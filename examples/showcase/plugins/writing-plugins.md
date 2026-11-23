@@ -14,7 +14,7 @@ zen looks in two places:
 | Where | For |
 |---|---|
 | `<folder>/.zen/plugins/` | plugins that travel with a folder of documents |
-| `~/Library/Application Support/zen/plugins/` | your own plugins, for every folder |
+| `~/Library/Application Support/zenmark/plugins/` | your own plugins, for every folder |
 
 In each place a plugin is `<id>.tengo`, or a folder `<id>/` holding a
 `plugin.tengo` (a script) or a `plugin.yml` (a program, a tool or a page

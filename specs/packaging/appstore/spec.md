@@ -70,7 +70,7 @@ config comments), so nothing a user sees says Wails.
       - **Tengo** script plugins, which run in zen's own helper inside the bundle;
       - frontend JS plugins and folder layouts, after the same trust prompt;
       - Vale (bundled helper).
-12. Global config, trust and plugin storage live under the app container. The sandbox remaps `os.UserConfigDir()` there. On first run of the App Store build, zen offers once to import `~/Library/Application Support/zenmark/config.yml` through a file panel; the sandbox does not allow reading it silently.
+12. Global config, trust and plugin storage live under the app container. The sandbox remaps `os.UserConfigDir()` there. On first run of the App Store build, zen offers once to import `~/Library/Application Support/zenmark/config.yml` (or `zen/config.yml` from a release before 0.8.0) through a file panel; the sandbox does not allow reading it silently.
 13. No code path in the App Store build calls `exec` on anything outside `Contents/` (the bundle). A test checks this.
 
 ### E. Checks
