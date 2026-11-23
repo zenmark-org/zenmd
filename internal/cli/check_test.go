@@ -63,11 +63,14 @@ func TestCheckTextFormatAndExitCode(t *testing.T) {
 			t.Errorf("one plain line per problem: %q", l)
 		}
 	}
-	// The Fix line is not part of the text lines a parser reads: it follows indented, or not at all.
+	// stdout is the problem lines and nothing else; the summary goes to stderr.
 	for _, l := range lines {
-		if !checkLine.MatchString(l) && !strings.HasPrefix(l, " ") && l != "" && !strings.Contains(l, "problem") && !strings.Contains(l, "checked") {
-			t.Errorf("an unexpected line %q", l)
+		if !checkLine.MatchString(l) {
+			t.Errorf("stdout holds only problem lines, got %q", l)
 		}
+	}
+	if !strings.Contains(r.stderr, "Checked 4 pages") {
+		t.Errorf("summary on stderr: %q", r.stderr)
 	}
 }
 
@@ -106,7 +109,7 @@ func TestCheckCleanFolderExitsZero(t *testing.T) {
 	home(t)
 	dir := glossaryDir(t, map[string]string{"README.md": "# Home\n\nText.\n"})
 	r := run(t, dir, nil, "check")
-	if r.code != 0 || strings.TrimSpace(r.stdout) == "" || strings.Contains(r.stdout, ": error: ") {
+	if r.code != 0 || strings.TrimSpace(r.stdout) != "" || !strings.Contains(r.stderr, "Checked 1 page") {
 		t.Errorf("code %d out %q err %q", r.code, r.stdout, r.stderr)
 	}
 }

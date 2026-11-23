@@ -6,6 +6,13 @@ css: [docs.css]
 options:
   toc:  { type: bool, default: true, description: Show the contents rail on the right }
   edit: { type: bool, default: true, description: Show the Edit this page link }
+structure:
+  body:
+    - heading: { level: 1, count: 1, severity: suggestion }
+    - paragraph: { label: Summary, severity: suggestion }
+  rules:
+    heading-order: true
+    needs-sections: { words: 800, level: 2, severity: suggestion }
 help:
   summary: "A documentation page: the text in a reading column, an On this page rail (the second and third level headings) on the right, and Previous and Next links at the end that follow the sidebar order, with an Edit this page link. Options: toc and edit, both true by default."
   snippets:

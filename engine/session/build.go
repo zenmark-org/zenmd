@@ -290,6 +290,7 @@ func (in *buildInput) Render(path string) (site.Page, error) {
 	s.mu.Unlock()
 	sn.extWarns = nil // reported once for the site, not on every page
 	sn.tmplWarns = nil
+	sn.structure = structEnv{} // a site build has no use for the structure problems
 	p, err := sn.render(path, src)
 	if err != nil {
 		return site.Page{}, err

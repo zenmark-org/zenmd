@@ -80,14 +80,14 @@ func (c *checker) fields() {
 		if sev == "" {
 			sev = SevWarning
 		}
-		v, ok := c.d.FM[name]
+		v, ok := lookup(c.d.FM, name)
 		if s, isStr := v.(string); ok && isStr && strings.TrimSpace(s) == "" {
 			ok = false
 		}
 		if v == nil {
 			ok = false
 		}
-		line := c.d.fmLines[name]
+		line := c.d.fmLines[strings.SplitN(name, ".", 2)[0]]
 		if !ok {
 			if name == "title" && c.d.hasH1 {
 				continue
@@ -152,6 +152,21 @@ func (c *checker) fields() {
 			}
 		}
 	}
+}
+
+// lookup reads a field; a name with dots (layoutOptions.id) goes into mappings.
+func lookup(m map[string]any, name string) (any, bool) {
+	var cur any = m
+	for _, part := range strings.Split(name, ".") {
+		mm, ok := cur.(map[string]any)
+		if !ok {
+			return nil, false
+		}
+		if cur, ok = mm[part]; !ok {
+			return nil, false
+		}
+	}
+	return cur, true
 }
 
 // ---- the body

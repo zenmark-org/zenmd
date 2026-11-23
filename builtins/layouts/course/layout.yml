@@ -4,6 +4,12 @@ description: Show a page as a step-by-step course
 css: [course.css]
 js: [course.js]
 requires: [check]
+structure:
+  fields:
+    layoutOptions.id: { type: string, required: true }
+  body:
+    - section: { min: 2, contains: [ { block: { name: check, except-last: true } } ] }
+    - block: { name: quiz, min: 0, ids: unique }
 help:
   summary: "Shows a page as a step-by-step course. Each second-level heading is a step, and one step shows at a time. A check block holds a checklist that unlocks the next step. Progress is saved on this Mac. Option: id (the name progress is saved under)."
   snippets:
