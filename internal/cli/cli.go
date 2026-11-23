@@ -634,10 +634,13 @@ func finderLaunch(cwd string) bool {
 	return cwd == string(filepath.Separator)
 }
 
+// helpHint follows a usage error; the whole help is for zenmd help.
+const helpHint = "Run zenmd help for the commands and options."
+
 func fail(stderr io.Writer, err error) int {
 	var u usageError
 	if errors.As(err, &u) {
-		fmt.Fprintf(stderr, "zenmd: %v\n\n%s", err, usage)
+		fmt.Fprintf(stderr, "zenmd: %v\n\n%s\n", err, helpHint)
 		return 2
 	}
 	fmt.Fprintf(stderr, "zenmd: %v\n", err)
@@ -664,15 +667,17 @@ func resolve(arg, cwd string, allowNew bool) (dir, page string, err error) {
 	switch {
 	case statErr == nil && info.IsDir():
 		return p, "", nil
+	case statErr != nil && errors.Is(statErr, os.ErrNotExist) && !(allowNew && isMarkdown(p)):
+		return "", "", usageError("no such folder or file: " + p)
 	case !isMarkdown(p):
-		return "", "", usageError(arg + " is neither a directory nor a markdown file")
+		return "", "", usageError(p + " is neither a directory nor a markdown file")
 	case statErr == nil:
 	case allowNew && errors.Is(statErr, os.ErrNotExist):
 		if pi, err := os.Stat(filepath.Dir(p)); err != nil || !pi.IsDir() {
-			return "", "", usageError(arg + ": parent directory does not exist")
+			return "", "", usageError(p + ": parent directory does not exist")
 		}
 	default:
-		return "", "", usageError(arg + ": no such markdown file")
+		return "", "", usageError("no such folder or file: " + p)
 	}
 
 	dir = root(filepath.Dir(p))
