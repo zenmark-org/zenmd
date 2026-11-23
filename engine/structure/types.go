@@ -58,6 +58,8 @@ type Element struct {
 	IDs      string // block: "unique" or ""
 	// ExceptLast: a block asked of every repeated section but the last.
 	ExceptLast bool
+	// Unless: the block is not asked of a section that has a block of this name (a rating step).
+	Unless string
 	// Slide: HeadingRequired and MaxBullets.
 	HeadingRequired bool
 	MaxBullets      int // -1 unset

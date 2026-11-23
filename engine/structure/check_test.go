@@ -207,6 +207,16 @@ structure:
 			want: []want{{"warning", "block", 3, "check"}}, n: 1,
 		},
 		{
+			name: "a rating step needs no check block",
+			tpl:  "structure:\n  - section: { min: 2, contains: [ { block: { name: check, except-last: true, unless: rating } } ] }\n",
+			page: "# C\n\n## One\n\n:::check\n- [ ] a\n:::\n\n## Rate\n\n:::rating{id=r}\n:::\n\n## Done\n\ntext\n",
+		},
+		{
+			name: "tables are not prose for max-words",
+			tpl:  "rules:\n  max-words: 3\n",
+			page: "# T\n\n| a | b | c |\n|---|---|---|\n| one two | three four | five six |\n",
+		},
+		{
 			name: "block ids unique page-wide",
 			tpl:  "structure:\n  - block: { name: quiz, min: 0, ids: unique }\n",
 			page: ":::quiz{id=a}\nx\n:::\n\n:::quiz{id=a}\ny\n:::\n",

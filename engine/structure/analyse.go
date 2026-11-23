@@ -226,7 +226,6 @@ func Analyse(src []byte) *Doc {
 					nd.rows++
 				}
 			}
-			nd.words = countWords(plainOf(v))
 		case *ast.ThematicBreak:
 			nd.kind = "break"
 		case *ast.Blockquote:

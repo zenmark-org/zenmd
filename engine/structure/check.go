@@ -396,6 +396,15 @@ func (c *checker) seq(elems []Element, nodes []node, parent *node) {
 			if e.ExceptLast && c.last {
 				continue
 			}
+			if e.Unless != "" {
+				skip := false
+				for i := range nodes {
+					skip = skip || blockMatch(&nodes[i], e.Unless)
+				}
+				if skip {
+					continue
+				}
+			}
 			var found []int
 			for i := cur; i < len(nodes); i++ {
 				if blockMatch(&nodes[i], e.Name) {

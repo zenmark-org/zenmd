@@ -24,7 +24,7 @@ var kinds = map[string]struct {
 	"code":      {"lang", []string{"lang", "min", "max", "severity"}},
 	"table":     {"", []string{"min-rows", "columns", "min", "severity"}},
 	"image":     {"alt", []string{"alt", "min", "severity"}},
-	"block":     {"name", []string{"name", "min", "max", "ids", "except-last", "severity"}},
+	"block":     {"name", []string{"name", "min", "max", "ids", "except-last", "unless", "severity"}},
 	"slide":     {"", []string{"min", "max", "heading", "max-bullets", "severity"}},
 	"any":       {"", []string{"min", "max", "severity"}},
 	"end":       {"", []string{"severity"}},
@@ -313,7 +313,7 @@ func parseElement(n *yaml.Node) (Element, error) {
 		}
 	}
 	e.Optional, e.Repeat, e.ExceptLast = flag("optional"), flag("repeat"), flag("except-last")
-	e.Label, e.Lang, e.Alt, e.Name, e.IDs = str("label"), str("lang"), str("alt"), str("name"), str("ids")
+	e.Label, e.Lang, e.Alt, e.Name, e.IDs, e.Unless = str("label"), str("lang"), str("alt"), str("name"), str("ids"), str("unless")
 	switch kind {
 	case "heading":
 		e.Text = str("text")
