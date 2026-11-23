@@ -51,7 +51,7 @@ var addonList = addons.List
 // VersionLine is "zenmd 0.6.0", followed by the add-ons of the build when it has
 // some: "zenmd 0.6.0 (add-ons: vale, voice)". The About panel shows the same.
 func VersionLine() string {
-	line := "zenmd " + Version
+	line := "zenmd " + Version + buildSuffix()
 	var ids []string
 	for _, a := range addonList() {
 		ids = append(ids, a.ID)

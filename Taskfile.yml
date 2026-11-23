@@ -200,6 +200,16 @@ tasks:
       - cd "{{.BIN_DIR}}" && shasum -a 256 "Zenmark-{{.VERSION}}.dmg" > "Zenmark-{{.VERSION}}.dmg.sha256"
       - echo "{{.BIN_DIR}}/Zenmark-{{.VERSION}}.dmg is ready (task release:publish uploads it)"
 
+  build:cli:
+    summary: Builds the command-line-only zenmd (cmd/zenmd, no Wails, no cgo) for this machine as bin/zenmd-cli
+    cmds:
+      - CGO_ENABLED=0 go build -ldflags "{{.VERSION_LDFLAGS}}" -o "{{.BIN_DIR}}/zenmd-cli" ./cmd/zenmd
+
+  release:cli:
+    summary: Builds dist/zenmd_<version>_linux_{amd64,arm64}.tar.gz and dist/SHA256SUMS (the Linux command line, attached to each release)
+    cmds:
+      - sh build/cli/release.sh "{{.VERSION}}"
+
   release:notes:
     summary: Writes the CHANGELOG.md section of VERSION (the GitHub release notes) to bin/release-notes.md
     dir: '{{.ROOT_DIR}}'
@@ -222,6 +232,8 @@ tasks:
       - task: release:notes
       - gh release view "v{{.VERSION}}" >/dev/null 2>&1 || gh release create "v{{.VERSION}}" --verify-tag --title "Zenmark {{.VERSION}}" --notes-file "{{.BIN_DIR}}/release-notes.md"
       - gh release upload "v{{.VERSION}}" "{{.BIN_DIR}}/Zenmark-{{.VERSION}}.dmg" "{{.BIN_DIR}}/Zenmark-{{.VERSION}}.dmg.sha256" --clobber
+      # The Linux command line (task release:cli, the release workflow's cli job), when it was built.
+      - if [ -f dist/SHA256SUMS ]; then gh release upload "v{{.VERSION}}" dist/zenmd_{{.VERSION}}_linux_*.tar.gz dist/SHA256SUMS --clobber; fi
 
   install:cli:
     summary: Links the zenmd command (and the zen alias) from the installed Zenmark.app (INSTALL_DIR, APP_PATH override)

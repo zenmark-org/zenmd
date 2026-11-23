@@ -6,6 +6,9 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 
 ## [Unreleased]
 
+### Added
+- zenmd for Linux (amd64 and arm64): a command-line-only build attached to every release with checksums. It exports websites and runs init and templates; the app and PDF export stay macOS only (#30).
+
 ### Changed
 - The settings folder is now `zenmark` instead of `zen`, which clashed with the Zen browser's folder (`~/Library/Application Support/zenmark`, `$XDG_CONFIG_HOME/zenmark`). An existing `zen` folder with Zenmark's files is moved there once at startup; a failed move prints a warning and doesn't stop the command (#45).
 - Settings › Templates and `zenmd templates list` label page templates Built-in (an installed copy you haven't edited counts), Built-in · Edited, Custom (a file you added) or This folder instead of "Yours". The how-to, tutorial, reference and explanation templates drop "(Diátaxis)" from their descriptions (1.0.1, updated in place unless you edited them) (#46).

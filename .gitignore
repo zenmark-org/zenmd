@@ -16,3 +16,4 @@ exports/
 *.provisionprofile
 bin/*.pkg
 runtime/dist
+dist/

@@ -100,8 +100,8 @@ The key was `build:` before; it is still read, with a note under Problems, and S
 blueprints and theme (specs/kit/assembly; `all` means every built-in of that
 kind). `task build|package|run|dev|release APP=zenmark` (the default app) reads
 it, checks what each template and layout needs (`requires:` in their
-`blueprint.yml` / `layout.yml`), and regenerates `apps/<app>/assembly_gen.go`
-(by hand: `go run ./kit/assembly/cmd/gen apps/<app>`; `-tags-only` and
+`blueprint.yml` / `layout.yml`), and regenerates `apps/<app>/cliset/assembly_gen.go`
+(by hand: `go run ./kit/assembly/cmd/gen apps/<app>`, or `-out <dir>`; `-tags-only` and
 `-ids-only` print the add-on tags or the ids).
 
 Add-ons (docs/wiki/ADDONS.md, specs/kit/addons) are compiled in with the tag
@@ -135,6 +135,22 @@ step at a time (GitHub Project "Zenmark roadmap").
 
 `dialects:` lists the markdown dialects the app can read (specs/engine/dialects;
 missing means none). A folder turns one on in its `.zenmd.yml`.
+
+## Two zenmd builds
+
+- **The app's zenmd** is the Zenmark binary itself (root `main.go`): the
+  command line plus the app, with `app.Launch` and `app.ExportPDF`. macOS only.
+- **The command-line zenmd** is `cmd/zenmd`: no Wails, no cgo, for Linux and
+  macOS (specs/packaging/linux-cli). Opening a folder and `export pdf` say they
+  need the app (`cliset.NoApp`, `cliset.NoPDF`); `zenmd --version` says
+  `(command line)`. `task build:cli` builds it as `bin/zenmd-cli`, and
+  `task release:cli` (`build/cli/release.sh`) makes
+  `dist/zenmd_<v>_linux_{amd64,arm64}.tar.gz` and `SHA256SUMS`, which the
+  release workflow's `cli` job attaches to the release.
+
+Both share the same engine code for `export site`, `init` and `templates`:
+the generated assembly and those hooks live in `apps/zenmark/cliset`, which
+imports nothing from Wails (`TestClisetImports`).
 
 ## Developing
 

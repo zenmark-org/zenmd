@@ -1,7 +1,7 @@
 # What Zenmark is built from (specs/kit/assembly). `all` means every built-in of
 # that kind, so a new built-in joins Zenmark without editing this file; a niche
 # app lists only what it needs. After editing, `task build` regenerates
-# assembly_gen.go (or run: go run ./kit/assembly/cmd/gen apps/zenmark).
+# cliset/assembly_gen.go (or run: go run ./kit/assembly/cmd/gen apps/zenmark).
 #
 # Zenmark is being rebuilt from a starting shell (specs/kit/shell-features): the
 # main view, the sidebar, the page view, Settings, the Inspector and the Developer

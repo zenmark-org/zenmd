@@ -25,6 +25,12 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y libgtk-4-dev libwebkitgtk-6.0-dev
       - run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
       - run: wails3 task test
+      - name: command-line zenmd builds without cgo and exports the demo
+        run: |
+          GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o /dev/null ./cmd/zenmd
+          CGO_ENABLED=0 go build -o "$RUNNER_TEMP/zenmd" ./cmd/zenmd
+          HOME="$RUNNER_TEMP/home" XDG_CONFIG_HOME="$RUNNER_TEMP/home/.config" "$RUNNER_TEMP/zenmd" export site examples/demo -o "$RUNNER_TEMP/site"
+          test -f "$RUNNER_TEMP/site/index.html"
 
   macos:
     runs-on: macos-15

@@ -57,6 +57,7 @@ build features itself, apart from small review fixes.
 
 ```sh
 go vet ./... && go test ./...                       # needs apps/zenmark/frontend/dist (npx vite build)
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o /dev/null ./cmd/zenmd   # the command-line-only zenmd
 cd apps/zenmark/frontend && npx tsc --noEmit && npx vitest run   # app, kit and runtime projects
 task test && task build                             # the lead, after each merge
 ```
@@ -64,7 +65,8 @@ task test && task build                             # the lead, after each merge
 - Wails bindings are git-ignored. Regenerate them with
   `wails3 generate bindings -d apps/zenmark/frontend/bindings -clean=true -ts -i ./apps/zenmark`.
   `wails3` and `task` live in `$(go env GOPATH)/bin`.
-- After `apps/<app>/app-assembly.yml` changes, run `go run ./kit/assembly/cmd/gen apps/zenmark`.
+- After `apps/<app>/app-assembly.yml` changes, run `go run ./kit/assembly/cmd/gen apps/zenmark`
+  (it writes `apps/zenmark/cliset/assembly_gen.go`).
   `TestAssemblyGenerated` catches drift.
 - Known flaky under load (timing limits): `TestLargeFile`, `TestLargeBlock`, `TestH2StreamCancelWithEscapedChild`, `TestH2L2EscapedGrandchildTimesOut` and `TestAtomicSave`. Rerun them alone.
 

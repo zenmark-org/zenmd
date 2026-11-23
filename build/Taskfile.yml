@@ -279,7 +279,7 @@ tasks:
       BUILD_FLAGS: '-tags server{{if eq .DEV "true"}}{{if eq .OBFUSCATED "true"}},wails_obfuscated{{end}}{{$tags := without (list (.EXTRA_TAGS | default "") .ADDON_TAGS) ""}}{{if $tags}},{{join "," $tags}}{{end}} -buildvcs=false -gcflags=all="-l" -ldflags="{{.VERSION_LDFLAGS}}"{{else}},production{{if eq .OBFUSCATED "true"}},wails_obfuscated{{end}}{{$tags := without (list (.EXTRA_TAGS | default "") .ADDON_TAGS) ""}}{{if $tags}},{{join "," $tags}}{{end}} -trimpath -buildvcs=false -ldflags="-w -s {{.VERSION_LDFLAGS}}"{{end}}'
 
   assembly:gen:
-    summary: Writes apps/$APP/assembly_gen.go from apps/$APP/app-assembly.yml (what the app is made of; specs/kit/assembly)
+    summary: Writes apps/$APP/cliset/assembly_gen.go from apps/$APP/app-assembly.yml (what the app is made of; specs/kit/assembly)
     dir: '{{.ROOT_DIR}}'
     cmds:
       - go run ./kit/assembly/cmd/gen "apps/{{.APP}}"
