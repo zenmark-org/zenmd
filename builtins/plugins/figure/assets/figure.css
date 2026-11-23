@@ -1,0 +1,15 @@
+/* {figure} and {image}: only what is theirs; the frame, type and notes are the plugin kit's (docs/wiki/PLUGIN-UI.md). */
+.zf { width: fit-content; max-width: 100%; }
+.zf-image { margin: 1em 0; }
+.zen-block.zf-center, .zf-image.zf-center { margin-left: auto; margin-right: auto; }
+.zen-block.zf-right, .zf-image.zf-right { margin-left: auto; margin-right: 0; }
+.zen-block.zf-left, .zf-image.zf-left { margin-left: 0; margin-right: auto; }
+.zf figure { margin: 0; }
+.zf img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+.zf figcaption { margin: 8px 0 0; padding-top: 8px; border-top: 1px solid var(--rule); color: var(--fg-muted); font: 13px/1.4 var(--font-ui); }
+.zf-label { color: var(--fg); font-weight: 600; }
+.zf-legend { margin: 6px 0 0; }
+.zf-legend > :first-child { margin-top: 0; }
+.zf-legend > :last-child { margin-bottom: 0; }
+.zf-missing, .zf-note { margin: 8px 0 0; }
+@media print { .zf { break-inside: avoid; } }
