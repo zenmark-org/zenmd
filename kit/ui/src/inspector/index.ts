@@ -35,6 +35,8 @@ export type InspectorOptions = {
   host: Pick<KitHost, "pageInfo" | "revealInFinder" | "addons" | "build" | "logs" | "onLog">;
   /** Choosing a spelling problem also calls this (the editor selects the word in its source); the reader answers INSPECTOR_MARK instead. */
   onSelectIssue?(alert: Alert, index: number): void;
+  /** Choosing a Structure problem also calls this with its 1-based line (the editor selects that line in its source). */
+  onSelectLine?(line: number): void;
   /** The panel was opened or closed (button, shortcut or API); not called when nothing changes. */
   onOpenChange?(open: boolean): void;
   /**
@@ -43,7 +45,7 @@ export type InspectorOptions = {
    * `button` is the toggle and nothing is sent.
    */
   external?: boolean;
-  /** List the page's render warnings (`Page.warnings`) under Problems. The main window does; the editor's preview does not (the editor has its own console). */
+  /** List the page's render warnings (`Page.warnings`) and its Structure problems (`Page.structure`) under Problems. The main window and the editor both do. */
   pageWarnings?: boolean;
 };
 
@@ -270,6 +272,7 @@ export function createInspector(o: InspectorOptions): InspectorPanel {
     renderProblemDetails();
     showInPage(p);
     if (p?.alert) o.onSelectIssue?.(p.alert, p.index ?? 0); // the editor selects the word in its source
+    else if (p?.kind === "structure" && p.line) o.onSelectLine?.(p.line); // ... or the line
   }
 
   function renderProblems(): void {
