@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | specified |
+| Status | done |
 | Target version | 0.8.0 |
 | Branch | `feature/app-single-file` |
 | Wave | 57 |
@@ -32,7 +32,8 @@ tree and nothing else in the folder is scanned.
      the default, or dropping a file on the Dock icon also opens the file
      alone.
    - **Recents.** File › Open Recent lists such files with a document icon,
-     next to folders.
+     next to folders. *Not built in 0.8.0: the app has no Open Recent menu
+     yet; it comes with that menu.*
 3. **The one-file workspace.** The session opens a workspace whose only page
    is that file. `Files()` returns one entry. The folder is not walked: the
    page count is 1 and the folder limits don't apply. Assets the page links

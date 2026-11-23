@@ -58,6 +58,7 @@ config comments), so nothing a user sees says Wails.
 10. **Folder access in the sandbox:**
     - Open Folder… and Finder "Open With" grant access.
     - zen stores a security-scoped bookmark for each opened folder. Reopening the last folder at launch resolves it (`startAccessingSecurityScopedResource`), and a stale bookmark asks again with the folder panel preselected.
+    - One file opened alone (specs/app/single-file) gets access to that file only. Images next to it are read through a security-scoped bookmark on its folder, which the App Store build asks for on the first image.
     - Opening a single `.md` file grants that file only, so zen asks once for its folder (panel preselected, "Allow zen to show the pages next to this file") so it can build the sidebar. If the user declines, zen shows the file alone.
 11. **Features in the App Store build:** a build-time channel (`go build -tags appstore`) switches off what the sandbox or App Review does not allow. Each switched-off feature shows a clear note in Settings and on the page ("Not available in the App Store version"), never an error.
     - **Off:**

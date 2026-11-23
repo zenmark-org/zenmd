@@ -2,7 +2,6 @@ package app
 
 import (
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"slices"
@@ -253,27 +252,6 @@ func (z *Zen) PickFolder() (r0 *Workspace, err error) {
 	z.folderOpened(true)
 	z.page = ""
 	return z.s.Workspace(), nil
-}
-
-// openPath opens a folder or markdown file handed over by macOS (Open With,
-// `open -a Zen <path>`), using the same rules as the zen command line, and
-// returns what the frontend should show. Not bound to the frontend.
-func (z *Zen) openPath(path string) (Startup, error) {
-	var l cli.Launch
-	code := cli.Run([]string{path}, "/", io.Discard, io.Discard, func(got cli.Launch) error {
-		l = got
-		return nil
-	}, nil, nil, nil)
-	if code != 0 {
-		return Startup{}, errors.New("not a folder or markdown file")
-	}
-	if err := z.s.Open(l.Dir); err != nil {
-		return Startup{}, z.s.OpenError(err)
-	}
-	z.setLaunchErr(nil)
-	z.folderOpened(true)
-	z.page = l.Page
-	return z.Startup(), nil
 }
 
 // OpenExternal asks, then opens an http, https or mailto URL in the browser.

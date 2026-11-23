@@ -94,6 +94,7 @@ Spacing scale 4/8/12/16/24/32/48. Radius 6px. No shadows except the modal.
   left out). Pages drag within their siblings (a drop line, Esc cancels) and ⌥↑/⌥↓
   move one place; the order is saved as `nav.order` in the pages' frontmatter
   (ui/sidebar-menu).
+- **One-file sidebar.** When one markdown file is open alone (`Workspace.single`, specs/app/single-file), the sidebar has no tree: it shows the page's outline in the tree's rows ("No headings" when empty) and a quiet Open Enclosing Folder button (`.zen-sidebar-btn`, ⇧⌘O). New Page, New from Blueprint, Export › Website and This folder's settings are greyed with the tip "Open a folder to use this".
 - **Breadcrumb.** `Page.breadcrumb`, each crumb is a link, last one is plain
   text. Collapses the middle to `…` when it does not fit.
 - **Page.** Rendered HTML in `<article class="zen-page">`. Internal links

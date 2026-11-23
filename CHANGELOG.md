@@ -8,6 +8,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 
 ### Added
 - zenmd for Linux (amd64 and arm64): a command-line-only build attached to every release with checksums. It exports websites and runs init and templates; the app and PDF export stay macOS only (#30).
+- Open one markdown file on its own (File › Open…, Finder's Open With, `zenmd notes.md`) without scanning its folder; Open Enclosing Folder (⇧⌘O) opens the folder when you want it (#32).
 
 ### Changed
 - The settings folder is now `zenmark` instead of `zen`, which clashed with the Zen browser's folder (`~/Library/Application Support/zenmark`, `$XDG_CONFIG_HOME/zenmark`). An existing `zen` folder with Zenmark's files is moved there once at startup; a failed move prints a warning and doesn't stop the command (#45).

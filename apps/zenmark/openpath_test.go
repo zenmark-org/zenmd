@@ -10,21 +10,21 @@ import (
 	"github.com/zenmark-org/zenmd/engine/workspace"
 )
 
-func TestOpenPath(t *testing.T) {
+func TestOpenAny(t *testing.T) {
 	dir := tree(t, docs)
 	z, _, _, _ := newTestZen(t, "", "", "")
 
-	st, err := z.openPath(dir)
+	st, err := z.openAny(dir)
 	if err != nil || st.Workspace == nil || st.Page != "README.md" || st.Mode != "read" {
 		t.Fatalf("folder: %+v %v", st, err)
 	}
 
-	st, err = z.openPath(filepath.Join(dir, "docs", "guide.md"))
+	st, err = z.openAny(filepath.Join(dir, "docs", "guide.md"))
 	if err != nil || st.Workspace == nil || st.Page != "guide.md" {
 		t.Fatalf("file: %+v %v", st, err)
 	}
 
-	if _, err := z.openPath(filepath.Join(dir, "img", "a.png")); err == nil {
+	if _, err := z.openAny(filepath.Join(dir, "img", "a.png")); err == nil {
 		t.Fatal("non-markdown file should be refused")
 	}
 }
@@ -45,7 +45,7 @@ func TestOpenTooLargeFolder(t *testing.T) {
 	if ws, err := z.PickFolder(); ws != nil || err == nil || strings.Contains(err.Error(), dir) {
 		t.Fatalf("pick: %v %v", ws, err)
 	}
-	if _, err := z.openPath(dir); err == nil {
+	if _, err := z.openAny(dir); err == nil {
 		t.Fatal("open with: want error")
 	}
 	if z.Startup().Workspace != nil {
