@@ -21,6 +21,9 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 - Settings › Templates and `zenmd templates list` label page templates Built-in (an installed copy you haven't edited counts), Built-in · Edited, Custom (a file you added) or This folder instead of "Yours". The how-to, tutorial, reference and explanation templates drop "(Diátaxis)" from their descriptions (1.0.1, updated in place unless you edited them) (#46).
 - The showcase's example plugins are renamed so they don't clash with the new built-ins: the shell plugin `note` is now `banner`, the Tengo plugin `callout` is now `remark` (#33).
 
+### Fixed
+- The editor's Inspector › Problems lists the page's Structure problems and page warnings, from the preview of the unsaved text; clicking a Structure row selects its line in the source (#48).
+
 ## [0.7.0] - 2026-11-23
 
 Zenmark rebuilt from a bare shell, one feature at a time: the built-in plugins and layouts, find, the editor, printing, MyST, export to a website and a PDF, and blueprints with page templates. Every option is a `zenmd` flag first.
