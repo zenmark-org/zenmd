@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | planned |
+| Status | in progress (phases 1 and 2) |
 | Target version | 0.8.0 |
 | Branch | one per phase: `feature/myst-<phase>` (phases below) |
 | Wave | 36–40, one phase per wave |
@@ -44,6 +44,21 @@ Each built-in also works without MyST, as a `:::name` container or a
    - the kit classes are present.
 
 ## Phases
+
+**Running phases in parallel (decided 2026-11-23).** Phases 1 and 2 run at the
+same time, then 4, then 3 (after KaTeX is fetched) and 5. A phase branch owns
+only its new `builtins/plugins/<id>/**`, its tests, and the files named for it
+below. The shared registration is an Integration line the lead applies at
+merge:
+- `builtins/builtins.go` (`PluginIDs` and the switch);
+- `kit/assembly/generate.go` (the import map);
+- `engine/boundary_test.go` (the package list);
+- `apps/zenmark/app-assembly.yml` `plugins:` and the regenerated assembly;
+- `builtins/builtins_test.go` and `kit/assembly/assembly_test.go` (the id lists).
+
+Phase 1 also owns `builtins/dialects/myst/coverage_test.go` (new) and
+`examples/demo/features/myst.md`. Later phases send their rows and demo
+sections as Integration lines.
 
 ### Phase 1: callouts, built-in `callout` (wave 36)
 
