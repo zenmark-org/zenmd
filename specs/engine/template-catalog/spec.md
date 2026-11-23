@@ -5,7 +5,7 @@
 | Status | specified |
 | Target version | 0.8.0 |
 | Branch | `feature/engine-template-catalog` (phase 1), then one branch per phase |
-| Wave | 50–53 |
+| Wave | 53–56 (after engine/blueprint-hierarchy) |
 | Depends on | engine/templates-blueprints (blueprints, page templates, the install record and fingerprints), core/config (user-scoped keys) |
 | Owns | `engine/catalog/**` (new), `internal/cli/catalog*.go` + tests, `apps/zenmark/catalog.go` + test, `kit/ui/src/shell/catalog*.ts` + tests, `docs/CATALOG.md` (new); phase 4 adds `.github/workflows/templates-sync.yml` and `Taskfile.yml` task `templates:sync` (Integration) |
 
@@ -322,10 +322,10 @@ func BuildIndex(entries []Pack, source string, key ed25519.PrivateKey) (index, s
 
 | Phase | Wave | What | Branch |
 |---|---|---|---|
-| 1 | 50 | `engine/catalog`: index, signature, choose, archive rules, install and update from a **local** archive or folder; `sitetemplates.InstallFrom`; `zenmd catalog install <path>`, `pack`, `index`, `list --installed` | `feature/engine-template-catalog` |
-| 2 | 51 | network: sources in `config.yml`, fetch, cache, rollback, `check`, `install <id>`, `update`, `use-new`, `keep-mine`, `diff`, `sources` | `feature/engine-catalog-remote` |
-| 3 | 52 | Zenmark: service methods, the scheduled check, Settings › Templates groups and actions, Download in New from Blueprint | `feature/ui-catalog` |
-| 4 | 53 | the `zenmark-org/templates` repository and its CI (created by the user, who adds the signing secret); `task templates:sync`; `builtins/catalog.lock`; templates leave this repo as the source of truth | `feature/templates-repo` |
+| 1 | 53 | `engine/catalog`: index, signature, choose, archive rules, install and update from a **local** archive or folder; `sitetemplates.InstallFrom`; `zenmd catalog install <path>`, `pack`, `index`, `list --installed` | `feature/engine-template-catalog` |
+| 2 | 54 | network: sources in `config.yml`, fetch, cache, rollback, `check`, `install <id>`, `update`, `use-new`, `keep-mine`, `diff`, `sources` | `feature/engine-catalog-remote` |
+| 3 | 55 | Zenmark: service methods, the scheduled check, Settings › Templates groups and actions, Download in New from Blueprint | `feature/ui-catalog` |
+| 4 | 56 | the `zenmark-org/templates` repository and its CI (created by the user, who adds the signing secret); `task templates:sync`; `builtins/catalog.lock`; templates leave this repo as the source of truth | `feature/templates-repo` |
 
 Phases 1 and 2 are CLI only (CLI first). Phase 3 needs both. Phase 4 needs
 phase 2, and the user to create the repository and the key.
