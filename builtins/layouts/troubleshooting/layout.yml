@@ -1,0 +1,14 @@
+id: troubleshooting
+version: 1.0.0
+description: "One problem and its fix: the problem as the heading, the exact error message under it, and the versions it affects"
+template: layout.html
+css: [troubleshooting.css]
+fields:
+  error:    { type: string, description: "The exact error message, shown as code so readers can match it and search finds it" }
+  versions: { type: string, description: "The versions it happens in, such as >=0.5.0" }
+  fixed-in: { type: string, description: "The version that fixes it, if one does" }
+help:
+  summary: "A troubleshooting page: the problem, in the reader's words, as the heading; the exact error message under it as code; and a line with the versions it affects and the one that fixes it. Then the text: Symptoms, Cause, Solution (the troubleshooting page template gives that shape). Frontmatter fields: error, versions and fixed-in, all optional."
+  snippets:
+    - title: A problem and its fix
+      markdown: "---\nlayout: troubleshooting\nerror: \"zenmd: no such folder or file\"\nversions: \">=0.5.0\"\n---\n# zenmd can't find my folder\n\nThis happens when you give a relative path from another folder.\n\n## Symptoms\n\n- zenmd says it can't find the folder\n\n## Cause\n\nA relative path is read from the folder your terminal is in.\n\n## Solution\n\n1. Give the full path, or `cd` to the folder first.\n"

@@ -1,0 +1,8 @@
+<article class="zl-troubleshooting">
+  <header class="zl-troubleshooting-head">
+    <h1>{{.Title}}</h1>
+    {{with .Field "error"}}<pre class="zl-troubleshooting-error"><code>{{.}}</code></pre>{{end}}
+    {{if or (.Field "versions") (.Field "fixed-in")}}<p class="zl-troubleshooting-meta">{{with .Field "versions"}}<span>Affects {{.}}</span>{{end}}{{with $.Field "fixed-in"}}<span>Fixed in {{.}}</span>{{end}}</p>{{end}}
+  </header>
+  <div class="zl-troubleshooting-text">{{.Body}}</div>
+</article>

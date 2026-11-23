@@ -2,7 +2,7 @@ id: troubleshooting
 name: Troubleshooting
 description: "One problem per page: what the reader sees, why it happens, and how to fix it"
 version: 1.0.0
-layout: docs
+layout: troubleshooting
 fields:
   title:    { required: true }                 # the symptom, in the reader's words: "Export warns on every page"
   error:    { type: string }                   # the exact message, so search finds the page

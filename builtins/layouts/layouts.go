@@ -1,6 +1,6 @@
 // Package layouts holds the built-in page layouts: article (the default
 // reading view), slides and course (moved from the plugins they used to be),
-// and the template layouts docs, post, landing, wide, handout, term, glossary and release. Each is a
+// and the template layouts docs, post, landing, wide, handout, term, glossary, release and troubleshooting. Each is a
 // folder with a layout.yml in the same format as a user's own layout (see
 // docs/LAYOUTS.md), embedded in zen.
 package layouts
@@ -14,11 +14,11 @@ import (
 	core "github.com/zenmark-org/zenmd/engine/layouts"
 )
 
-//go:embed article slides course docs post landing wide handout term glossary release
+//go:embed article slides course docs post landing wide handout term glossary release troubleshooting
 var files embed.FS
 
 // IDs lists the built-in layouts in the order Settings shows them.
-var IDs = []string{"article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "release", "slides", "course"}
+var IDs = []string{"article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "release", "troubleshooting", "slides", "course"}
 
 // load loads the built-in layout id. It panics on a broken built-in, which
 // the tests catch.

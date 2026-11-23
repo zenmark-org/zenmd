@@ -3,7 +3,7 @@ name: Technical documentation
 description: Overview, getting started, how-tos, explanation, reference, troubleshooting, releases and glossary
 version: 2.6.0
 order: 10
-requires: { layouts: [docs, landing, term, glossary, release], plugins: [codeblock, diagram] }
+requires: { layouts: [docs, landing, term, glossary, release, troubleshooting], plugins: [codeblock, diagram] }
 ask:
   title: { label: Site title, default: "{{folder}}" }
   author: { label: Author, default: "the team" }
