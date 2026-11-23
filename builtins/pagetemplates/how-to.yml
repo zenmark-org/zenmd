@@ -1,7 +1,7 @@
 id: how-to
 name: How-to guide
-description: "Steps that get the reader to one result (Diátaxis)"
-version: 1.0.0
+description: "Steps that get the reader to one result"
+version: 1.0.1
 layout: docs
 fields:
   title: { required: true }

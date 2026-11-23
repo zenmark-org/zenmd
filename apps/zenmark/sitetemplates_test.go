@@ -659,7 +659,7 @@ func TestPageTemplatesService(t *testing.T) {
 		by[p.ID] = p
 	}
 	h := by["how-to"]
-	if h.Source != "builtin" || h.Edited || h.Path != filepath.Join(cfg, "templates", "pages", "how-to.yml") || h.Version != "1.0.0" || h.Layout != "docs" || len(h.Fields) != 1 || h.Fields[0].Name != "title" || !h.Fields[0].Required || !strings.Contains(h.Skeleton, "## Steps") {
+	if h.Source != "builtin" || h.Edited || h.Path != filepath.Join(cfg, "templates", "pages", "how-to.yml") || h.Version != "1.0.1" || h.Layout != "docs" || len(h.Fields) != 1 || h.Fields[0].Name != "title" || !h.Fields[0].Required || !strings.Contains(h.Skeleton, "## Steps") {
 		t.Errorf("how-to: %+v", h)
 	}
 	if strings.Join(h.Rules, ",") != "how-tos/**,guides/**" || len(by["term"].Rules) != 0 {
@@ -796,7 +796,7 @@ func TestTemplatesCommand(t *testing.T) {
 	if len(lines) != 9 || !strings.HasPrefix(lines[0], "lesson") || !strings.Contains(lines[0], "this folder") {
 		t.Errorf("list:\n%s", out)
 	}
-	if !strings.Contains(out, "how-to") || !strings.Contains(out, "built-in") || strings.Contains(out, "yours") || !strings.Contains(out, "1.0.0") {
+	if !strings.Contains(out, "how-to") || !strings.Contains(out, "built-in") || strings.Contains(out, "yours") || !strings.Contains(out, "1.0.1") {
 		t.Errorf("list lacks the installed ones:\n%s", out)
 	}
 	out, _, err = run(cli.Init{Show: true, Template: "how-to"})

@@ -15,8 +15,8 @@ import (
 
 // Where a page template comes from.
 const (
-	SourceBuiltin = "builtin" // zen itself: no copy on this Mac (deleted, or the folder cannot be written)
-	SourceYours   = "yours"   // a file in templates/pages: an installed copy or one you added
+	SourceBuiltin = "builtin" // Zenmark's own: no copy on this Mac, or an installed copy in templates/pages (see Edited)
+	SourceCustom  = "custom"  // a file in templates/pages that you added, not in the install record
 	SourceFolder  = "folder"  // the open folder's own .zen/templates/<id>.yml
 )
 
@@ -39,8 +39,9 @@ type OutlineItem struct {
 // PageTemplate is a page template as Settings and zenmd templates show it.
 type PageTemplate struct {
 	ID, Name, Description, Version, Layout string
-	Source                                 string // SourceBuiltin, SourceYours or SourceFolder
-	Path                                   string // the file, "" for a built-in one
+	Source                                 string // SourceBuiltin, SourceCustom or SourceFolder
+	Edited                                 bool   // an installed copy of a built-in one that you changed (or cannot be shown unchanged)
+	Path                                   string // the file: the installed copy, "" for a built-in one with none
 	Fields                                 []PageField
 	Outline                                []OutlineItem // its structure:, empty without one
 	Skeleton                               string
@@ -278,10 +279,16 @@ func ListPages(dir string, builtins fs.FS, folder string) ([]PageTemplate, []str
 			continue
 		}
 		p := parsePage(id, data)
-		p.Source, p.Path = SourceYours, file
+		p.Source, p.Path = SourceCustom, file
 		if have, ok := rec.Installed[id]; ok {
-			if b, _, ok := builtinPage(builtins, id); ok && newer(b.Version, have) {
-				p.Update = b.Version
+			if b, _, ok := builtinPage(builtins, id); ok {
+				p.Source = SourceBuiltin
+				// Unedited: the fingerprint of the file is the one recorded at install.
+				want, has := rec.Fingerprints[id]
+				p.Edited = !has || fingerprintBytes(data) != want
+				if newer(b.Version, have) {
+					p.Update = b.Version
+				}
 			}
 		}
 		by[id] = p
@@ -297,15 +304,23 @@ func ListPages(dir string, builtins fs.FS, folder string) ([]PageTemplate, []str
 			}
 		}
 	}
-	rank := map[string]int{SourceFolder: 0, SourceYours: 1, SourceBuiltin: 2}
+	rank := func(p PageTemplate) int {
+		switch {
+		case p.Source == SourceFolder:
+			return 0
+		case p.Path != "": // a file in templates/pages: an installed copy or your own
+			return 1
+		}
+		return 2 // built-in with no copy
+	}
 	out := make([]PageTemplate, 0, len(by))
 	for _, p := range by {
 		out = append(out, p)
 	}
 	sort.Slice(out, func(i, j int) bool {
 		a, b := out[i], out[j]
-		if rank[a.Source] != rank[b.Source] {
-			return rank[a.Source] < rank[b.Source]
+		if ra, rb := rank(a), rank(b); ra != rb {
+			return ra < rb
 		}
 		if a.Name != b.Name {
 			return a.Name < b.Name

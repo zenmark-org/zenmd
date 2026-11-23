@@ -101,7 +101,9 @@ export function createTemplatesSection(opts: { api: Api; newsite?: boolean }): T
 
 // ---- Settings › Templates: the page templates
 
-const SOURCE_LABEL: Record<PageTemplate["source"], string> = { builtin: "Built-in", yours: "Yours", folder: "This folder" };
+const SOURCE_LABEL: Record<PageTemplate["source"], string> = { builtin: "Built-in", custom: "Custom", folder: "This folder" };
+/** Built-in · Edited for an installed copy you changed; the other sources are one label. */
+const sourceNote = (t: PageTemplate) => (t.edited ? `${SOURCE_LABEL[t.source]} · Edited` : SOURCE_LABEL[t.source]);
 const SKELETON_PATH = "zen-template-skeleton.md";
 
 export function createPageTemplatesSection(opts: { api: Api; hasWorkspace(): boolean }): TemplatesSection {
@@ -121,7 +123,7 @@ export function createPageTemplatesSection(opts: { api: Api; hasWorkspace(): boo
     }
     return templates.map((t): SettingsItem => ({
       id: t.id, label: t.name || t.id,
-      note: [t.error ? "Invalid" : "", SOURCE_LABEL[t.source], t.update ? "Update available" : ""].filter(Boolean).join(" · "),
+      note: [t.error ? "Invalid" : "", sourceNote(t), t.update ? "Update available" : ""].filter(Boolean).join(" · "),
     }));
   }
 
@@ -190,7 +192,7 @@ export function createPageTemplatesSection(opts: { api: Api; hasWorkspace(): boo
     const status = statusLine();
     const head = el("div", "zen-plugin-help-head");
     if (t.version) head.append(el("span", "zen-settings-plugin-version", t.version));
-    head.append(el("span", "zen-settings-plugin-kind", SOURCE_LABEL[t.source]));
+    head.append(el("span", "zen-settings-plugin-kind", sourceNote(t)));
     right.append(head);
     if (t.description) right.append(el("p", "zen-plugin-help-description", t.description));
     if (t.error) right.append(el("p", "zen-settings-plugin-problem", t.error));

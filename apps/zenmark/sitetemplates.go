@@ -365,7 +365,7 @@ func initPages(tpls session.TemplatesAPI, i cli.Init, stdout, stderr io.Writer) 
 				fmt.Fprintf(stdout, "%-*s  (invalid: %s)  %s\n", width, p.ID, p.Error, p.Path)
 				continue
 			}
-			line := fmt.Sprintf("%-*s  %-9s", width, p.ID, sourceLabel(p.Source))
+			line := fmt.Sprintf("%-*s  %-9s", width, p.ID, sourceLabel(p.Source, p.Edited))
 			if p.Version != "" {
 				line += "  " + p.Version
 			}
@@ -397,12 +397,15 @@ func initPages(tpls session.TemplatesAPI, i cli.Init, stdout, stderr io.Writer) 
 	return cli.UsageError(fmt.Sprintf("there is no page template %q (page templates: %s)", i.Template, strings.Join(ids, ", ")))
 }
 
-func sourceLabel(src string) string {
+func sourceLabel(src string, edited bool) string {
 	switch src {
 	case sitetemplates.SourceFolder:
 		return "this folder"
-	case sitetemplates.SourceYours:
-		return "yours"
+	case sitetemplates.SourceCustom:
+		return "custom"
+	}
+	if edited {
+		return "built-in, edited"
 	}
 	return "built-in"
 }
@@ -412,7 +415,7 @@ func showPage(w io.Writer, p PageTemplate) {
 	if p.Description != "" {
 		fmt.Fprintln(w, p.Description)
 	}
-	from := sourceLabel(p.Source)
+	from := sourceLabel(p.Source, p.Edited)
 	if p.Path != "" {
 		from += ", " + p.Path
 	}

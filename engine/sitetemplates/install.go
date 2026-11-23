@@ -48,7 +48,7 @@ func writeRecord(folder string, r record) error {
 	if err != nil {
 		return err
 	}
-	head := "# Written by zen: which built-in templates were installed here, in which version,\n# and a fingerprint of what was written (a copy you have not edited can be updated in place).\n# A template that is listed here and was deleted is not installed again.\n"
+	head := "# Written by Zenmark: which built-in templates were installed here, in which version,\n# and a fingerprint of what was written (a copy you have not edited can be updated in place).\n# A template that is listed here and was deleted is not installed again.\n"
 	return atomicfile.Write(filepath.Join(folder, RecordFile), append([]byte(head), data...))
 }
 

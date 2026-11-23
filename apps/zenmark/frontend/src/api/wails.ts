@@ -267,7 +267,8 @@ const api: Api = {
     const list = ((await call(Zen.PageTemplates())) ?? []) as Raw[];
     return list.map((t) => ({
       id: String(t?.id ?? ""), name: String(t?.name ?? ""), description: String(t?.description ?? ""), version: String(t?.version ?? ""), layout: String(t?.layout ?? ""),
-      source: (t?.source === "folder" || t?.source === "yours" ? t.source : "builtin") as "builtin" | "yours" | "folder",
+      source: (t?.source === "folder" || t?.source === "custom" ? t.source : "builtin") as "builtin" | "custom" | "folder",
+      edited: t?.edited === true,
       path: String(t?.path ?? ""),
       fields: (Array.isArray(t?.fields) ? t.fields : []).map((f: Raw) => ({ name: String(f?.name ?? ""), type: String(f?.type ?? ""), required: f?.required === true, default: String(f?.default ?? "") })),
       outline: (Array.isArray(t?.outline) ? t.outline : []).map((o: Raw) => ({ depth: Number(o?.depth ?? 0), text: String(o?.text ?? "") })),

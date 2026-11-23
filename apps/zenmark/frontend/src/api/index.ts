@@ -50,8 +50,10 @@ export type SiteTemplate = {
 /** A page template (Settings › Templates): where it comes from, its fields, structure outline and skeleton. */
 export type PageTemplate = {
   id: string; name: string; description: string; version: string; layout: string;
-  /** builtin: no copy on this Mac; yours: a file in templates/pages; folder: the open folder's .zen/templates. */
-  source: "builtin" | "yours" | "folder";
+  /** builtin: Zenmark's own (no copy on this Mac, or an installed copy in templates/pages); custom: a file you added to templates/pages; folder: the open folder's .zen/templates. */
+  source: "builtin" | "custom" | "folder";
+  /** An installed copy of a built-in template that you edited. */
+  edited: boolean;
   /** The file, "" for a built-in one. */
   path: string;
   fields: { name: string; type: string; required: boolean; default: string }[];
