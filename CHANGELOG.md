@@ -8,6 +8,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 
 ### Changed
 - The settings folder is now `zenmark` instead of `zen`, which clashed with the Zen browser's folder (`~/Library/Application Support/zenmark`, `$XDG_CONFIG_HOME/zenmark`). An existing `zen` folder with Zenmark's files is moved there once at startup; a failed move prints a warning and doesn't stop the command (#45).
+- Settings › Templates and `zenmd templates list` label page templates Built-in (an installed copy you haven't edited counts), Built-in · Edited, Custom (a file you added) or This folder instead of "Yours". The how-to, tutorial, reference and explanation templates drop "(Diátaxis)" from their descriptions (1.0.1, updated in place unless you edited them) (#46).
 
 ## [0.7.0] - 2026-11-23
 
