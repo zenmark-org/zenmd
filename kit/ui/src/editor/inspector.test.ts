@@ -260,3 +260,34 @@ describe("editor inspector: unmount", () => {
     s = await setup(); // afterEach unmounts again
   });
 });
+
+describe("editor inspector: page problems (#48)", () => {
+  const STRUCT = { rule: "heading-order", message: "Heading level skips from 1 to 3", fix: "Use a level-2 heading", severity: "warning", source: "layout article", line: 3, anchor: "" };
+  async function withProblems(): Promise<Setup> {
+    sessionStorage.setItem(OPEN_KEY, "1");
+    const api = createFakeApi();
+    const real = api.preview.bind(api);
+    api.preview = async (path, text) => ({ ...(await real(path, text)), warnings: ['plugin "callout": admonition needs a title; it is shown as Note'], structure: [STRUCT] } as never);
+    const st = await setup("README.md", api);
+    type(st.ta, "# One\n\n### Skipped\n\nText.");
+    await wait(700);
+    return st;
+  }
+
+  it("lists the preview's Structure rows and page warnings", async () => {
+    s = await withProblems();
+    const rows = Array.from(issuesBody().querySelectorAll<HTMLElement>(".zen-problem"));
+    const titles = rows.map((r) => r.title).join("\n");
+    expect(titles).toContain("Heading level skips from 1 to 3");
+    expect(titles).toContain("admonition needs a title");
+  });
+
+  it("clicking a Structure row selects its line in the source", async () => {
+    s = await withProblems();
+    const row = Array.from(issuesBody().querySelectorAll<HTMLElement>(".zen-problem")).find((r) => r.title.includes("Heading level"))!;
+    row.click();
+    const line3Start = "# One\n\n".length;
+    expect(s.ta.selectionStart).toBe(line3Start);
+    expect(s.ta.selectionEnd).toBe(line3Start + "### Skipped".length);
+  });
+});
