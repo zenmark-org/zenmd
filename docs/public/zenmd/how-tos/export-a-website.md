@@ -25,5 +25,5 @@ Export holds the same options. Every option is in the
 
 ## Troubleshooting
 
-- **"will not clean …":** `--clean` empties the output folder only when it holds a `.zen-build` file from an earlier export.
+- **"will not clean …":** see [Export won't clean the output folder](../troubleshooting/wont-clean-output.md).
 - **Draft pages are missing:** pages with `draft: true` are left out unless you pass `--drafts`.

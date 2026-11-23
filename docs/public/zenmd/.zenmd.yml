@@ -17,5 +17,6 @@ templates:
   "how-tos/**": how-to
   "explanation/**": explanation
   "reference/**": reference
+  "troubleshooting/**": troubleshooting
   "releases/**": release-notes
   "glossary/**": term

@@ -29,6 +29,7 @@ given build has.
 | `term` | One glossary term. |
 | `glossary` | A glossary index, A to Z, built from the term pages. |
 | `release` | One release; its title is its version. |
+| `troubleshooting` | One problem and its fix, with the error message under the title. |
 
 ## Dialects
 

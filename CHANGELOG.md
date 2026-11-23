@@ -7,7 +7,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/VERSIONING.md).
 ## [Unreleased]
 
 ### Added
-- Troubleshooting pages: the `troubleshooting` page template (one problem per page: Symptoms, Cause, Solution, with `error`, `versions` and `fixed-in` fields) and the `troubleshooting` layout (the problem as the heading, the error message as code, the versions it affects). The Technical documentation blueprint (2.6.0) has a Troubleshooting section.
+- Troubleshooting pages: the `troubleshooting` page template (one problem per page: Symptoms, Cause, Solution, with `error`, `versions` and `fixed-in` fields) and the `troubleshooting` layout (the problem as the heading, the error message as code, the versions it affects). The Technical documentation blueprint (2.6.0) has a Troubleshooting section, and no longer writes its placeholder CONTRIBUTING.md.
 - The demo guide has a Templates section, laid out like the templates folder: a Page templates reference (fields, skeleton, structure) and a Blueprints reference (every key of blueprint.yml).
 - Reload button in the sidebar header (and ⌘R in the packaged app): scans the folder again, reloads plugin scripts and styles, and renders the page again in place, keeping the scroll position and any editor draft (#27).
 - Settings › Templates lists the page templates (built-in, yours and this folder's) with their fields and a preview of the page they start, and `zenmd templates list|show|update|--dir` does the same; templates live in `templates/blueprints/` and `templates/pages/` of the settings folder.

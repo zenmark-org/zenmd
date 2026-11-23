@@ -23,6 +23,6 @@ docs in markdown and for developers who build on the engine.
 - [How-tos](how-tos/index.md)
 - [Explanation](explanation/index.md)
 - [Reference](reference/index.md)
+- [Troubleshooting](troubleshooting/index.md)
 - [Releases](releases/index.md)
 - [Glossary](glossary/index.md)
-- [Contributing to these docs](CONTRIBUTING.md)

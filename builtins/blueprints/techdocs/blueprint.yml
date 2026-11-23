@@ -65,5 +65,4 @@ sections:
     index: { layout: glossary }
     pages:
       - { file: example-term.md, title: Example term }
-files: [CONTRIBUTING.md]
 templates: [overview, tutorial, how-to, explanation, reference, troubleshooting, term, release-notes]
