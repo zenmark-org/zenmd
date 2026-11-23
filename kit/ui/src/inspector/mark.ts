@@ -58,6 +58,12 @@ export function resolveTarget(root: HTMLElement, t: ProblemTarget, marks: readon
     range.selectNodeContents(el);
     return { el, range };
   };
+  if (t.kind === "structure") {
+    // The heading before the gap, by id (compared here, never put in a selector); else the top of the page.
+    const heads = Array.from(root.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6"));
+    const el = (t.heading ? heads.find((h) => h.id === t.heading) : undefined) ?? heads[0] ?? root.querySelector<HTMLElement>("p, li, table, pre");
+    return el ? around(el) : null;
+  }
   if (t.kind === "link") {
     const links = Array.from(root.querySelectorAll<HTMLElement>("a")).filter((a) => a.getAttribute("data-zen-link") === "broken");
     const a = nth(links, (e) => (e.getAttribute("href") ?? "") === (t.href ?? "") && (t.text === undefined || text(e) === t.text), t.offset);

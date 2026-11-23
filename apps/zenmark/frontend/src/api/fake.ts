@@ -287,7 +287,7 @@ export function createFakeApi(options: FakeOptions = {}): FakeApi {
     const page: Page = {
       path, title, html, frontmatter: {},
       breadcrumb: crumbs(tree, path) ?? [{ title, path }],
-      assets: { css: [], js: [] }, warnings: [], layout: { name: "article", source: "" },
+      assets: { css: [], js: [] }, warnings: [], structure: [], layout: { name: "article", source: "" },
     };
     return api.decorate ? api.decorate(page) : page;
   };

@@ -18,12 +18,24 @@ export type NewTermResult = { path: string; existed: boolean };
 export type Crumb = { title: string; path: string };
 export type LayoutSource = "builtin" | "folder" | "user";
 export type PageLayoutRef = { name: string; source: LayoutSource | "" };
+/** One thing a page lacks against its page template or its layout's structure (engine/structure): Problems › Structure. */
+export type StructureProblem = {
+  rule: string; message: string; fix: string; severity: "error" | "warning" | "suggestion";
+  /** 1-based line in the page file. */
+  line: number;
+  /** The id of the heading to mark (the one before a gap); "" for the top of the page. */
+  anchor: string;
+  /** Where it comes from: "template how-to" or "layout post". */
+  source: string;
+};
 export type Page = {
   path: string; title: string; html: string;
   frontmatter: Record<string, unknown>; breadcrumb: Crumb[];
   assets: { css: string[]; js: string[] }; warnings: string[];
   /** The layout the page is shown with (core/layouts): "article" when it has none; source "" for article. */
   layout: PageLayoutRef;
+  /** Structure problems of the page; a Go side that has none sends nothing. */
+  structure?: StructureProblem[];
 };
 /** workspace:opening — progress while a folder opens; the last one has phase "done" or "failed". */
 export type OpenProgress = { name: string; phase: "reading" | "indexing" | "done" | "failed"; done: number; total: number };
