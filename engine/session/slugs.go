@@ -16,6 +16,9 @@ type slugResolver struct {
 	slugs map[string]string // slug -> workspace path
 }
 
+// Root is the open folder's root: plugin hooks get it as Context.Workspace.
+func (r *slugResolver) Root() string { return r.ws.Root() }
+
 func (r *slugResolver) ResolveLink(from, href string) workspace.Link {
 	l := r.ws.ResolveLink(from, href)
 	if l.Kind != "broken" || len(r.slugs) == 0 {
