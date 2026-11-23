@@ -64,6 +64,9 @@ func (s *Session) ConfigFile(which string) (path, template string, err error) {
 		if ws == nil {
 			return "", "", errors.New("no folder is open")
 		}
+		if ws.Single {
+			return "", "", ErrFolderOnly
+		}
 		path, _, _ := config.WorkspaceConfigPath(ws.Root)
 		return path, workspaceTemplate, nil
 	}
@@ -159,6 +162,9 @@ func (s *Session) configRoot() (string, error) {
 	defer s.mu.Unlock()
 	if s.ws == nil {
 		return "", errors.New("no folder is open")
+	}
+	if s.ws.Single() {
+		return "", ErrFolderOnly // one file has no folder settings file
 	}
 	return s.ws.Root(), nil
 }

@@ -56,8 +56,8 @@ func TestSingleFileLinks(t *testing.T) {
 			t.Errorf("page lacks %s:\n%s", want, pg.HTML)
 		}
 	}
-	if strings.Count(pg.HTML, `data-zen-link="broken"`) != 2 {
-		t.Errorf("want 2 broken links (outside the folder, missing):\n%s", pg.HTML)
+	if strings.Count(pg.HTML, `data-zen-link="broken"`) != 3 {
+		t.Errorf("want 3 broken links (two above the folder, one missing):\n%s", pg.HTML)
 	}
 	// Following the link: the sibling page renders, and the window stays single.
 	b, err := z.Page("b.md")
@@ -126,7 +126,7 @@ func TestSingleFileConfig(t *testing.T) {
 		"other.md":   "# Other\n",
 	})
 	// As a folder, the folder's settings apply.
-	f, _, _ := newTestZen(t, dir, "", "read")
+	f, _, _, _ := newTestZen(t, dir, "", "read")
 	if pg, _ := f.Page("plain.md"); pg.Layout.Name != "docs" {
 		t.Fatalf("the folder's layout: %+v", pg.Layout)
 	}

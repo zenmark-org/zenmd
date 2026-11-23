@@ -27,6 +27,9 @@ func (s *Session) CreatePage(name, layout string) (r0 string, err error) {
 	if err := s.writable(); err != nil {
 		return "", err
 	}
+	if err := s.folderOnly(); err != nil { // New Page needs a folder
+		return "", err
+	}
 	rel, err := newPagePath(name)
 	if err != nil {
 		return "", err

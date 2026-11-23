@@ -78,6 +78,10 @@ type Workspace struct {
 	// ConfigFile is the name of the folder's settings file in use: ".zenmd.yml", or the old name while only that exists.
 	ConfigFile string    `json:"configFile,omitempty"`
 	Tree       []NavNode `json:"tree"`
+	// Single is set when one markdown file was opened on its own (OpenFile): the folder is not scanned, Tree
+	// has the one page, and File is its name. Name is then the file's name too.
+	Single bool   `json:"single,omitempty"`
+	File   string `json:"file,omitempty"`
 }
 
 // Crumb is one step of a page's breadcrumb.
@@ -210,7 +214,7 @@ type Session struct {
 	noWatch bool // open does not start a watcher (the static build)
 
 	watchMu  sync.Mutex // serialises watcher start/stop
-	w        *watch.Watcher
+	w        interface{ Stop() } // *watch.Watcher for a folder, a fileWatcher for one file
 	watchGen int // bumped by every start and stop; a late async start compares it
 
 	openMu      sync.Mutex
@@ -334,7 +338,7 @@ func (s *Session) rebuildLocked() bool {
 		s.cfg, s.r, s.idx, s.tree, s.slugs, s.navWarn = nil, nil, nil, nil, nil, nil
 		return true
 	}
-	s.cfg = config.Load(s.globalPath, s.ws.Root())
+	s.cfg = config.Load(s.globalPath, s.configRootLocked())
 	s.logNoticeLocked()
 	// Options with scope user come from the global config only.
 	global := config.Load(s.globalPath, "").ForPage(nil)
@@ -495,13 +499,17 @@ func (s *Session) workspaceLocked() *Workspace {
 	}
 	logo := s.logoLocked()
 	s.logo = logo
-	_, legacy, _ := config.WorkspaceConfigPath(s.ws.Root())
-	file := config.WorkspaceFile
-	if legacy {
-		file = config.LegacyWorkspaceFile
+	file := ""
+	if !s.ws.Single() { // one file has no settings file of its own
+		_, legacy, _ := config.WorkspaceConfigPath(s.ws.Root())
+		file = config.WorkspaceFile
+		if legacy {
+			file = config.LegacyWorkspaceFile
+		}
 	}
 	s.configFile = file
-	return &Workspace{Root: s.ws.Root(), Name: s.ws.Name(), Home: s.ws.Home(), Title: s.titleLocked(), Logo: logo, ConfigFile: file, Tree: s.tree}
+	return &Workspace{Root: s.ws.Root(), Name: s.ws.Name(), Home: s.ws.Home(), Title: s.titleLocked(), Logo: logo, ConfigFile: file, Tree: s.tree,
+		Single: s.ws.Single(), File: s.ws.File()}
 }
 
 // titleLocked is the folder's title for the sidebar: the first heading of the
@@ -543,6 +551,9 @@ func (s *Session) logoChangedLocked() bool {
 // configFileChangedLocked reports whether the name of the settings file in use
 // differs from the one the frontend last got (the old file was renamed).
 func (s *Session) configFileChangedLocked() bool {
+	if s.ws.Single() {
+		return false
+	}
 	_, legacy, _ := config.WorkspaceConfigPath(s.ws.Root())
 	return legacy != (s.configFile == config.LegacyWorkspaceFile)
 }
