@@ -1,0 +1,8 @@
+/* Display math: only what is its own. The frame, UI font and error line are the plugin kit's and the page's (docs/wiki/PLUGIN-UI.md). */
+.zm-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.zm-tex { grid-column: 1; margin: 0; padding: 0; background: none; border: 0; font: 13px/1.5 var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+.zm-eq { grid-column: 1; min-width: 0; overflow-x: auto; overflow-y: hidden; text-align: center; }
+.zm-eq .katex-display { margin: 0; }
+.zm-num { grid-column: 2; margin-left: 12px; font: 14px/1.4 var(--font-ui); color: var(--fg); white-space: nowrap; }
+.zm .zen-plugin-error { margin: 8px 0 0; }
+@media print { .zm { break-inside: avoid; } .zm-eq { overflow: visible; } }

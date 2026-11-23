@@ -209,3 +209,86 @@ func TestLinear(t *testing.T) {
 		t.Errorf("scanning took %v", d)
 	}
 }
+
+// $$ display math blocks map to the math block.
+func TestDollarMath(t *testing.T) {
+	src := "intro\n\n$$\na = b\n$$\n\nafter\n"
+	sp := one(t, src)
+	if sp.Name != "math" || sp.Body != "a = b" || sp.Code || len(sp.Attrs) != 0 {
+		t.Errorf("span: %+v", sp)
+	}
+	if got := src[sp.Start:sp.End]; got != "$$\na = b\n$$" {
+		t.Errorf("range %q", got)
+	}
+	// one line, content on the delimiter lines, several lines
+	for src, want := range map[string]string{
+		"$$ a = b $$\n":                   "a = b",
+		"$$a=b$$":                         "a=b",
+		"$$a\nb$$\n":                      "a\nb",
+		"$$ a\n  + b\n$$\n":               "a\n  + b",
+		"$$\n\\int_0^1 x\\,dx\n\nz\n$$\n": "\\int_0^1 x\\,dx\n\nz",
+		"   $$\nx\n   $$\n":               "x",
+	} {
+		if sp := one(t, src); sp.Name != "math" || sp.Body != want {
+			t.Errorf("%q: %+v, want body %q", src, sp, want)
+		}
+	}
+	// a label after the closing delimiter, MyST's dollarmath form
+	for _, src := range []string{"$$ a = b $$ (eq:one)\n", "$$\na = b\n$$ (eq:one)\n"} {
+		sp := one(t, src)
+		if sp.Body != "a = b" || sp.Attrs["label"] != "eq:one" {
+			t.Errorf("%q: %+v", src, sp)
+		}
+		if got := src[sp.Start:sp.End]; got != strings.TrimSuffix(src, "\n") {
+			t.Errorf("label range %q", got)
+		}
+	}
+	// CRLF
+	if sp := one(t, "$$\r\nx\r\n$$\r\nafter\r\n"); sp.Body != "x" {
+		t.Errorf("crlf: %+v", sp)
+	}
+	// in order with directives
+	sp2 := scan("```{note}\nn\n```\n\n$$ a $$\n\n```{tip}\nt\n```\n")
+	if len(sp2) != 3 || sp2[0].Name != "note" || sp2[1].Name != "math" || sp2[2].Name != "tip" {
+		t.Errorf("order: %+v", sp2)
+	}
+}
+
+func TestDollarMathIsNotFound(t *testing.T) {
+	for _, src := range []string{
+		"    $$\nx\n    $$\n",           // indented code
+		"$$\nx\n",                       // never closed: stays text
+		"$$ x\n",                        // the same
+		"It costs $$5 or so.\n",         // not at a line's start... and no closer
+		"text $$ x $$\n",                // inline, not a block
+		"$$ $$\n", "$$$$\n", "$$\n$$\n", // empty
+		"$$ a $$ b $$\n",        // a delimiter inside
+		"```\n$$\nx\n$$\n```\n", // inside an ordinary code fence
+		"~~~tex\n$$ x $$\n~~~\n",
+	} {
+		if sp := scan(src); len(sp) != 0 {
+			t.Errorf("%q: %+v, want none", src, sp)
+		}
+	}
+	// inside a directive it belongs to the directive; the body is scanned again when it renders
+	sp := one(t, "```{note}\n$$ a $$\n```\n")
+	if sp.Name != "note" || !strings.Contains(sp.Body, "$$ a $$") {
+		t.Errorf("nested: %+v", sp)
+	}
+	sp = one(t, ":::{note}\n$$\nx\n$$\n:::\n")
+	if sp.Name != "note" {
+		t.Errorf("nested colon: %+v", sp)
+	}
+}
+
+// Many unclosed $$ lines must not cost a rescan to the end for each of them.
+func TestDollarMathUnclosedIsLinear(t *testing.T) {
+	src := strings.Repeat("$$ x\n", 40000)
+	start := time.Now()
+	if sp := scan(src); len(sp) != 0 {
+		t.Errorf("%d spans", len(sp))
+	}
+	if d := time.Since(start); d > 2*time.Second {
+		t.Errorf("took %v", d)
+	}
+}
