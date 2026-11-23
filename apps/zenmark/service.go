@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/zenmark-org/zenmd/apps/zenmark/cliset"
 	"github.com/zenmark-org/zenmd/engine/layouts"
 	"github.com/zenmark-org/zenmd/engine/plugins"
 	"github.com/zenmark-org/zenmd/engine/session"
@@ -127,13 +128,16 @@ func newZen(o zenOptions) (*Zen, error) {
 func (z *Zen) close() { z.s.Close() }
 
 // The built-in plugins, layouts and dialects this app includes are the generated
-// assembly's (assembly_gen.go); tests of the package replace them with a full
-// build's (fullbuild_test.go).
+// assembly's (cliset/assembly_gen.go, shared with the command-line zenmd); tests of the package
+// replace them with a full build's (fullbuild_test.go).
 var (
-	builtinPlugins  = assemblyPlugins
-	builtinLayouts  = assemblyLayouts
-	builtinDialects = assemblyDialects
+	builtinPlugins  = cliset.Plugins
+	builtinLayouts  = cliset.Layouts
+	builtinDialects = cliset.Dialects
 )
+
+// assemblyInfo is what this app is made of (cliset.Info); tests of the package replace it.
+var assemblyInfo = cliset.Info
 
 // allFeatures are the features of a full build, in catalog order (a test
 // compares them with kit/assembly's catalog).

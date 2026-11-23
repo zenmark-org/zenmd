@@ -4,38 +4,40 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/zenmark-org/zenmd/internal/cli"
 )
 
-// A folder's .zenmd.yml can't aim the site outside the folder: the build goes
-// through the same session.WriteSite and config.Load as the app's, so the rule
-// holds here too.
+// The build goes through the same session.WriteSite and config.Load as the
+// app's, so its safety checks hold here too: --clean refuses a folder that
+// holds files zenmd didn't write, and keeps them.
 func TestOutputStaysInFolder(t *testing.T) {
 	fakeHome(t)
 	base := t.TempDir()
-	dir := filepath.Join(base, "site src")
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		t.Fatal(err)
-	}
+	dir := filepath.Join(base, "site src") // a folder with a space
+	outDir := filepath.Join(base, "mine")
 	for name, text := range map[string]string{
-		"index.md":   "# Home\n\nHello.\n",
-		".zenmd.yml": "export:\n  out: ../elsewhere\n",
+		filepath.Join(dir, "index.md"):   "# Home\n\nHello.\n",
+		filepath.Join(outDir, "own.txt"): "mine",
 	} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(text), 0o644); err != nil {
+		if err := os.MkdirAll(filepath.Dir(name), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(name, []byte(text), 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}
 	var out, errOut bytes.Buffer
-	_ = BuildSite(cli.Build{Dir: dir}, &out, &errOut)
-	if _, err := os.Stat(filepath.Join(base, "elsewhere")); err == nil {
-		t.Errorf("the site was written outside the folder\nstdout: %s\nstderr: %s", out.String(), errOut.String())
+	err := BuildSite(cli.Build{Dir: dir, Out: outDir, Clean: true}, &out, &errOut)
+	if err == nil || !strings.Contains(err.Error(), "will not clean") {
+		t.Fatalf("--clean on a folder of someone's own files: %v", err)
 	}
-	// A path with spaces builds, inside the folder.
-	if err := os.Remove(filepath.Join(dir, ".zenmd.yml")); err != nil {
-		t.Fatal(err)
+	if b, _ := os.ReadFile(filepath.Join(outDir, "own.txt")); string(b) != "mine" {
+		t.Error("the file in the output folder was touched")
 	}
+	// The default output is inside the folder, and a path with spaces builds.
 	out.Reset()
 	errOut.Reset()
 	if err := BuildSite(cli.Build{Dir: dir}, &out, &errOut); err != nil {

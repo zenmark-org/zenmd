@@ -290,7 +290,7 @@ func HostMain(stdin, stdout, stderr *os.File) int {
 		return 1
 	}
 	proto := os.NewFile(uintptr(fd), "protocol")
-	_ = syscall.Dup2(int(stderr.Fd()), int(stdout.Fd()))
+	_ = redirectStderr(stderr, stdout)
 	serve(stdin, proto, func() { os.Exit(0) })
 	return 0
 }
