@@ -6,6 +6,10 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-23
+
+Zenmark rebuilt from a bare shell, one feature at a time: the built-in plugins and layouts, find, the editor, printing, MyST, export to a website and a PDF, and blueprints with page templates. Every option is a `zenmd` flag first.
+
 ### Added
 - Troubleshooting pages: the `troubleshooting` page template (one problem per page: Symptoms, Cause, Solution, with `error`, `versions` and `fixed-in` fields) and the `troubleshooting` layout (the problem as the heading, the error message as code, the versions it affects). The Technical documentation blueprint (2.6.0) has a Troubleshooting section, and no longer writes its placeholder CONTRIBUTING.md.
 - The demo guide has a Templates section, laid out like the templates folder: a Page templates reference (fields, skeleton, structure) and a Blueprints reference (every key of blueprint.yml).

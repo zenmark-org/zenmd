@@ -93,6 +93,10 @@ task test && task build                             # the lead, after each merge
   `.zen-choice`, `.zen-field`) and the UI font at 14px, never their own buttons,
   choices or fonts. Put the guide in every plugin or layout brief, and check its
   review list before merging.
+- **Docs:** `docs/public/` is for public-facing docs (made with zenmd itself,
+  such as `docs/public/zenmd`); `docs/wiki/` is for internal ones (plans,
+  design, process, feedback in `docs/wiki/improve/`). New docs go in one of
+  the two, never loose in `docs/`.
 - Commits and PRs: plain messages with no Co-Authored-By lines. Never put
   personal data in issues.
 - Never ask for passwords, keys or certificates in chat. The user runs

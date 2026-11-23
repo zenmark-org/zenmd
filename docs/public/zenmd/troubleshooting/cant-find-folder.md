@@ -2,6 +2,7 @@
 layout: troubleshooting
 error: "zenmd: docs/public/zenmd is neither a directory nor a markdown file"
 versions: "0.4.0 to 0.5.1"
+fixed-in: "0.7.0"
 tags: [cli]
 ---
 # zenmd can't find my folder
@@ -22,6 +23,8 @@ say where zenmd looked.
 
 ## Solution
 
+From 0.7.0, the message names the full path zenmd looked at, so the mistake is easy to see.
+
 1. Give the full path: `zenmd ~/Docs/site`.
 2. Or go to the folder's parent first: `cd ~/Docs`, then `zenmd site`.
 
@@ -33,6 +36,3 @@ Zenmark opens and the terminal logs `folder opened` with the page count.
 
 - [The zenmd command](../reference/cli.md)
 
-> **Missing:** the version that fixes the message. The next release names the
-> full path and prints one hint line instead of the help (#29), so set
-> `fixed-in:` when it is tagged.

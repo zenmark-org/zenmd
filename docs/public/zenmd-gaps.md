@@ -19,8 +19,6 @@ lacked while writing it.
 | `reference/configuration.md` | Every plugin's own options in one table. |
 | `reference/builtins.md` | One page per plugin and layout, as the demo guide has. |
 | `how-tos/export-a-pdf.md` | Page size, margins and headers (not options yet). |
-| `releases/index.md` | The next release (a lot has landed since 0.5.1). |
-| `troubleshooting/cant-find-folder.md`, `user-option-warning.md` | The `fixed-in:` version, once #29 and #28 are released. |
 
 ## What the blueprint lacked
 

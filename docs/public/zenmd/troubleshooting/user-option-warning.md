@@ -2,6 +2,7 @@
 layout: troubleshooting
 error: "plugin \"sandbox\": option \"images\" can only be set in the global config; ignored"
 versions: "0.5.0 to 0.5.1"
+fixed-in: "0.7.0"
 tags: [export, plugins]
 ---
 # Export warns about a plugin option on every page
@@ -22,8 +23,9 @@ reported it as if the folder had set it.
 
 ## Solution
 
-1. Nothing is wrong with your settings, and the website is complete. You can ignore the warnings.
-2. To silence them in this version, remove the option from `config.yml` while you export, and put it back afterwards.
+1. Update to 0.7.0 or later: the export notes the option once.
+2. Nothing is wrong with your settings, and the website is complete. You can ignore the warnings.
+3. To silence them in an older version, remove the option from `config.yml` while you export, and put it back afterwards.
 
 ## Check that it's fixed
 
@@ -34,4 +36,3 @@ The export prints a single note about the option, not one per page.
 - [Export a website](../how-tos/export-a-website.md)
 - [Configuration](../reference/configuration.md)
 
-> **Missing:** the version that fixes it (#28); set `fixed-in:` when it is tagged.
