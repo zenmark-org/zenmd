@@ -13,6 +13,10 @@ Ask what the reader is doing when they open it.
 3. They are **working**, and need a fact such as a name, a limit or a default: write **reference**, in `reference/`.
 4. They are **studying**, and want to know why: write an **explanation**, in `explanation/`.
 
+Something went wrong, and they want it fixed: write a **troubleshooting** page,
+in `troubleshooting/`, one problem per page, with the exact error message in
+its `error:` field so search finds it.
+
 If one page tries to do two of these, split it and link the halves. A word that
 readers must know goes in `glossary/`, one file per term. What changed in a
 version goes in `releases/`, one file per release.

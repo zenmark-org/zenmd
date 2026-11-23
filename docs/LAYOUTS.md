@@ -59,6 +59,7 @@ also matches no folder), `?` one character.
 | `term` | template, CSS | one glossary entry: the term, `abbr` and `aliases`, the first paragraph as the definition, See also from `see`, previous and next terms A to Z | `title`, `aliases`, `abbr`, `see`, `tags` | |
 | `glossary` | template, CSS, script | the A to Z index of a folder, built from the pages beside it whose layout is `term`: letter bar, groups, filter, count, and page warnings for duplicates and missing terms or definitions | | |
 | `release` | template, CSS | one release of a product: the `version` large as the heading, the `date` and the optional `name` under it, then the text. The page has no H1; the version is its title | `version`, `date`, `name` | |
+| `troubleshooting` | template, CSS | one problem and its fix: the H1 (the problem, in the reader's words) as the heading, the `error` message under it as code, and a line with the `versions` it affects and the version it is `fixed-in`; each left out when not set, then the text | `error`, `versions`, `fixed-in` | |
 | `slides` | CSS, script | one slide at a time (`ratio`, `transition`); unchanged from the old plugin | | `ratio`, `transition` |
 | `course` | CSS, script | steps with saved progress and `:::check` lists (`id`); unchanged from the old plugin | | `id` |
 

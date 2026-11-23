@@ -7,7 +7,7 @@ questions (the title, the author) and pick an empty folder.
 
 | Blueprint | Gives you |
 |---|---|
-| Technical documentation | An overview home page, Getting started, How-tos, Explanation, Reference, Releases and Glossary |
+| Technical documentation | An overview home page, Getting started, How-tos, Explanation, Reference, Troubleshooting, Releases and Glossary |
 | Learning path | courses with steps, quizzes and checklists, and a glossary |
 | Planner | a roadmap, meeting notes and decisions |
 
@@ -22,6 +22,7 @@ getting-started/          Installation, Your first steps
 how-tos/                  one page per task
 explanation/              how it works, and why
 reference/                facts to look up
+troubleshooting/          one problem per page: symptoms, cause, solution
 glossary/
   index.md                every term A–Z, built from the term files
   example-term.md         one term per file

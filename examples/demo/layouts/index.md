@@ -30,6 +30,7 @@ has these layouts:
 | [slides](slides.md) | a page shown as slides, one at a time |
 | [course](course.md) | a page shown as steps, unlocked by checklists |
 | [glossary](glossary/index.md) | the A to Z index of a folder of terms, built from its pages |
+| troubleshooting | one problem and its fix: the problem as the heading, the exact error message under it, and the versions it affects; Technical documentation's Troubleshooting pages use it |
 | term | one entry of a glossary: the definition, see also and neighbouring terms; each term in the [glossary](glossary/index.md) uses it |
  Settings has a **Layouts** section that lists the
 layouts with help and snippets to copy; see
