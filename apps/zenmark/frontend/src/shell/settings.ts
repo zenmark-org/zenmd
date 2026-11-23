@@ -3,7 +3,7 @@
 // sections: Appearance, Accessibility (zoom, motion, contrast and the reader's text), Configuration (the two config files), Markdown (the dialects the folder uses), Layouts,
 // Plugins, Blueprints, Templates (the page templates), Export (the website and the PDF, in place) and Developer. What the build contains is in
 // Zenmark › About. A section whose feature the build leaves out is not there. All text through textContent.
-import { appearanceSection, button, createSettingsFrame, developerSection, el, hasFeature, mountPage, reloadSettings, type DialectInfo, type SettingsItem, type SettingsSection, type SettingsView } from "@zenmd/kit";
+import { appearanceSection, button, createSettingsFrame, developerSection, el, FOLDER_ONLY_TIP, hasFeature, mountPage, reloadSettings, type DialectInfo, type SettingsItem, type SettingsSection, type SettingsView } from "@zenmd/kit";
 import { accessibilitySection } from "@zenmd/kit/shell/settings";
 import type { Api } from "../api";
 import { createBuildForm, type BuildApi } from "./buildsite";
@@ -24,6 +24,8 @@ const DIALECT_SAMPLES: Record<string, string> = {
 export function createSettingsView(opts: {
   api: Api;
   hasWorkspace(): boolean;
+  /** One file is open on its own (app/single-file): what needs a folder is off, with a tip. Default: no. */
+  single?(): boolean;
   /** The build services (default: the api, once it has them). */
   build?: Partial<BuildApi>;
   /** The PDF form's services (default: the api). */
@@ -51,6 +53,8 @@ export function createSettingsView(opts: {
   let frame: SettingsView | null = null;
   const doc = () => (frame ? frame.el.ownerDocument : document);
   const root = () => (opts.hasWorkspace() ? (opts.root?.() ?? "/") : "");
+  /** A folder is open (not one file on its own): what writes the folder's settings or builds it needs this. */
+  const hasFolder = () => opts.hasWorkspace() && !opts.single?.();
 
   // ---- Configuration: the two config files, each with a read-only preview and its actions
 
@@ -61,12 +65,12 @@ export function createSettingsView(opts: {
     const exists = async (which: "global" | "workspace") => {
       try { return (await api.source(`zen:config/${which}`)) !== ""; } catch { return false; }
     };
-    const open = opts.hasWorkspace();
+    const open = hasFolder();
     const [g, w] = await Promise.all([exists("global"), open ? exists("workspace") : Promise.resolve(false)]);
     const missing = (e: boolean) => (e ? {} : { note: canCreate ? undefined : "Not created yet", disabled: !canCreate });
     return [
       { id: "global", label: "config.yml", note: "All folders", ...missing(g) },
-      { id: "workspace", label: folderFile() === ".zenmd.yml" ? ".zenmd.yml" : `${folderFile()} (old name)`, note: "This folder", ...(open ? missing(w) : { disabled: true }) },
+      { id: "workspace", label: folderFile() === ".zenmd.yml" ? ".zenmd.yml" : `${folderFile()} (old name)`, note: "This folder", ...(open ? missing(w) : { disabled: true, tip: FOLDER_ONLY_TIP }) },
     ].map((i) => ({ ...i, note: i.note ?? (i.id === "global" ? "All folders" : "This folder") }));
   };
   function renderConfig(item: SettingsItem, right: HTMLElement): () => void {
@@ -142,7 +146,7 @@ export function createSettingsView(opts: {
       const d = dialects.find((x) => x.id === item.id);
       if (!d) return;
       let gone = false;
-      const open = opts.hasWorkspace();
+      const open = hasFolder();
       const editable = hasFeature(api, "editor");
       const reason = !open ? "Open a folder to choose its markdown syntaxes." : !editable ? "This app is read-only, so the folder's settings cannot be changed." : "";
       const status = el("p", "zen-settings-status");
@@ -153,6 +157,7 @@ export function createSettingsView(opts: {
       box.dataset.dialect = d.id;
       box.checked = d.on;
       box.disabled = reason !== "";
+      if (!open) box.title = FOLDER_ONLY_TIP;
       box.addEventListener("change", () => {
         const want = box.checked;
         status.textContent = "";
@@ -207,7 +212,8 @@ export function createSettingsView(opts: {
   });
   const exportSection: SettingsSection = {
     id: "export", label: "Export",
-    items: () => [{ id: "website", label: "Website" }, ...(withPdf ? [{ id: "pdf", label: "PDF" }] : [])],
+    // The website is a folder's; one file on its own exports as a PDF only.
+    items: () => [{ id: "website", label: "Website", ...(opts.single?.() ? { disabled: true, tip: FOLDER_ONLY_TIP } : {}) }, ...(withPdf ? [{ id: "pdf", label: "PDF" }] : [])],
     render(item, right) {
       if (item.id === "pdf") {
         right.append(pdf.el);

@@ -301,7 +301,7 @@ func TestDemoFolder(t *testing.T) {
 		t.Errorf("README children = %s\nwant %s", got, want)
 	}
 	sub := map[string]string{
-		"features/index.md":         "features/reader.md,features/navigation.md,features/find.md,features/editor.md,features/inspector.md,features/printing.md,features/export.md,features/blueprints.md,features/developer.md",
+		"features/index.md":         "features/reader.md,features/open-a-file.md,features/navigation.md,features/find.md,features/editor.md,features/inspector.md,features/printing.md,features/export.md,features/blueprints.md,features/developer.md",
 		"features/reader.md":        "features/markdown.md,features/myst.md",
 		"plugins/index.md":          "plugins/codeblock.md,plugins/diagram.md,plugins/check.md,plugins/quiz.md,plugins/sandbox.md,plugins/rating.md",
 		"layouts/index.md":          "layouts/article.md,layouts/docs.md,layouts/post.md,layouts/landing.md,layouts/wide.md,layouts/handout.md,layouts/slides.md,layouts/course.md,layouts/glossary/index.md",
@@ -434,7 +434,7 @@ func TestDemoFeaturesMatchAssembly(t *testing.T) {
 		}
 	}
 	// Sub-pages of a feature's page come and go with it.
-	subPages := map[string][]string{"reader": {"markdown.md", "myst.md"}, }
+	subPages := map[string][]string{"reader": {"markdown.md", "myst.md", "open-a-file.md"}}
 	want := map[string]bool{"index.md": true}
 	for id := range have {
 		p, ok := page[id]

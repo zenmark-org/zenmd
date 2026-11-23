@@ -116,6 +116,14 @@ func (s *Session) timeoutOf(l config.Limits) time.Duration {
 // prompt does not count), and then leaves the folder that was open before as
 // it was. A newer open cancels an older one.
 func (s *Session) Open(dir string) error {
+	if isMarkdownFile(dir) {
+		return s.OpenFile(dir) // a markdown file opens alone
+	}
+	return s.open(dir, false)
+}
+
+// open is Open and OpenFile: path is a folder, or with single a markdown file.
+func (s *Session) open(dir string, single bool) error {
 	l := config.Load(s.globalPath, "").Limits() // global only: a folder cannot raise its own limits
 	parent, cancel := context.WithCancel(context.Background())
 	s.openMu.Lock()
@@ -145,7 +153,7 @@ func (s *Session) Open(dir string) error {
 	}
 	s.mu.Unlock()
 	start := time.Now()
-	err := s.openIn(parent, dir, l, timeout, p)
+	err := s.openIn(parent, dir, single, l, timeout, p)
 	s.logOpened(dir, name, prevName, err, time.Since(start))
 	if dir != "" {
 		if err != nil {
@@ -165,9 +173,14 @@ func (s *Session) Open(dir string) error {
 	return err
 }
 
-func (s *Session) openIn(parent context.Context, dir string, l config.Limits, timeout time.Duration, p *openProgress) error {
+func (s *Session) openIn(parent context.Context, dir string, single bool, l config.Limits, timeout time.Duration, p *openProgress) error {
 	var ws *workspace.Workspace
-	if dir != "" {
+	if single {
+		var err error
+		if ws, err = workspace.OpenFile(dir); err != nil { // no walk: nothing else in the folder is read
+			return err
+		}
+	} else if dir != "" {
 		ctx, stop := context.WithTimeout(parent, timeout)
 		var err error
 		ws, err = workspace.OpenContext(ctx, dir, l.Files, l.Entries, func(n int) { p.send("reading", n, 0) })
@@ -211,7 +224,7 @@ func (s *Session) openIn(parent context.Context, dir string, l config.Limits, ti
 		ext.cancel()
 		s.reloadMu.Unlock()
 		if prev.ws != nil && !s.noWatch {
-			s.startWatch(prev.ws.Root(), true)
+			s.watchWorkspace(prev.ws, true)
 		}
 		return err
 	}
@@ -225,7 +238,7 @@ func (s *Session) openIn(parent context.Context, dir string, l config.Limits, ti
 	s.emit(EventLayoutsChanged, nil)
 	if ws != nil && !s.noWatch {
 		// Watching a big tree takes seconds: show the folder first.
-		s.startWatch(ws.Root(), ws.Entries() >= asyncWatchFrom)
+		s.watchWorkspace(ws, ws.Entries() >= asyncWatchFrom)
 	}
 	return nil
 }

@@ -18,6 +18,7 @@ var serviceMethods = []string{
 	"PrintPage", "PrintSite", "PrintWindow", "Reload", "ReorderNav", "RevealBuiltSite", "RevealExport", "RevealInFinder", "RevealTemplates", "Save", "SaveBuildDefaults", "SetDialect",
 	"SetNavHidden", "SiteTemplates", "Source", "Startup", "SuggestPageName", "TemplatesDir",
 	"CopyPageTemplate", "OpenPageTemplate", "PageTemplates", "RevealPageTemplates", "UpdateTemplate",
+	"OpenEnclosingFolder", // app/single-file
 }
 
 func TestServiceMethodsUnchanged(t *testing.T) {

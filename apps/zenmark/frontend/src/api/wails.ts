@@ -25,7 +25,9 @@ function nodes(list: Raw[] | null | undefined): NavNode[] {
 
 function workspace(w: Raw): Workspace | null {
   if (!w) return null;
-  return { root: w.root ?? "", name: w.name ?? "", home: w.home ?? "", title: w.title ?? "", logo: w.logo ?? "", tree: nodes(w.tree) };
+  const base = { root: w.root ?? "", name: w.name ?? "", home: w.home ?? "", title: w.title ?? "", logo: w.logo ?? "", tree: nodes(w.tree) };
+  // One file opened on its own: the folder is not scanned, the file is the only page.
+  return w.single === true ? { ...base, single: true, file: String(w.file ?? "") } : base;
 }
 
 const LAYOUT_SOURCES = ["builtin", "folder", "user"] as const;
@@ -237,6 +239,9 @@ const api: Api = {
   },
   async reload() {
     return workspace((await call(Zen.Reload())) as Raw);
+  },
+  async openEnclosingFolder() {
+    await call(Zen.OpenEnclosingFolder());
   },
   async closeFolder() {
     const r = (await call(Zen.CloseFolder())) as unknown;

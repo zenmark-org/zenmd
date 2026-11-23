@@ -10,7 +10,8 @@ that folder.
 ## How to open one
 
 - Click **Open a folder** on the welcome screen.
-- Or choose **File › Open Folder…**, or press <kbd>⌘O</kbd>.
+- Or choose **File › Open…**, or press <kbd>⌘O</kbd>. It takes a folder or a
+  markdown file; a file opens alone, without its folder.
 - **File › Close Folder** (<kbd>⇧⌘W</kbd>) goes back to the welcome screen.
 
 ## What Zenmark shows first

@@ -85,6 +85,10 @@ type Workspace struct {
 	root                 string
 	maxFiles, maxEntries int
 
+	// single and file make a one-file workspace (OpenFile): file is the page's name inside root.
+	single bool
+	file   string
+
 	mu      sync.Mutex
 	first   []string // the listing made by OpenContext, handed out once by Opened
 	entries int      // files and folders the last walk visited
@@ -131,8 +135,13 @@ func OpenContext(ctx context.Context, dir string, maxFiles, maxEntries int, onEn
 // Root is the absolute, symlink-resolved path of the folder.
 func (w *Workspace) Root() string { return w.root }
 
-// Name is the folder's base name.
-func (w *Workspace) Name() string { return filepath.Base(w.root) }
+// Name is the folder's base name; a one-file workspace is named by its file.
+func (w *Workspace) Name() string {
+	if w.single {
+		return w.file
+	}
+	return filepath.Base(w.root)
+}
 
 // Files lists every markdown file as sorted, "/"-separated relative paths.
 func (w *Workspace) Files() ([]string, error) {
@@ -152,6 +161,9 @@ func (w *Workspace) Opened() []string {
 // FilesContext is Files that stops with ctx's error when ctx ends and reports
 // the entries visited through onEntry (every 256, may be nil).
 func (w *Workspace) FilesContext(ctx context.Context, onEntry func(int)) ([]string, error) {
+	if w.single {
+		return w.singleFiles(), nil // the folder is never walked
+	}
 	maxFiles, maxEntries := MaxFiles, MaxEntries
 	if w.maxFiles > 0 {
 		maxFiles = w.maxFiles
@@ -228,7 +240,12 @@ func (w *Workspace) Entries() int {
 
 // Home returns the root page: index.md (any case), or README.md when there
 // is no index.md, or "".
-func (w *Workspace) Home() string { return w.homeOf("") }
+func (w *Workspace) Home() string {
+	if w.single {
+		return w.file
+	}
+	return w.homeOf("")
+}
 
 // homeOf returns the relative path of a folder's own page directly in the
 // workspace-relative directory dir: its index.md (any case), else its

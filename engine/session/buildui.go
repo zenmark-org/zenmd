@@ -93,7 +93,21 @@ func (s *Session) buildFolder() (root string, err error) {
 	if s.ws == nil {
 		return "", errNoWorkspace
 	}
+	if s.ws.Single() {
+		return "", ErrFolderOnly // Export › Website and the folder's defaults need a folder
+	}
 	return s.ws.Root(), nil
+}
+
+// pdfFolder is the open folder for the PDF export, which also works for one file on its own: root is where the
+// export goes by default, cfgRoot the folder whose .zenmd.yml applies ("" for one file: only config.yml does).
+func (s *Session) pdfFolder() (root, cfgRoot string, err error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.ws == nil {
+		return "", "", errNoWorkspace
+	}
+	return s.ws.Root(), s.configRootLocked(), nil
 }
 
 func (s *Session) buildFilePath(root string) string {
@@ -393,11 +407,11 @@ type PDFRun struct {
 // export.pdf section of the config files, over the defaults.
 func (s *Session) PDFDefaults() (r0 PDFOptions, err error) {
 	defer s.logFail("PDFDefaults", &err)
-	root, err := s.buildFolder()
+	root, cfgRoot, err := s.pdfFolder()
 	if err != nil {
 		return PDFOptions{}, err
 	}
-	p, err := config.Load(s.globalPath, root).PDF()
+	p, err := config.Load(s.globalPath, cfgRoot).PDF()
 	if err != nil {
 		return PDFOptions{}, err
 	}

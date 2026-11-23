@@ -114,6 +114,8 @@ export interface Api extends KitHost {
   appReady(): Promise<void>;
   /** File › Close Folder: editor windows close first (each asks about unsaved changes); false when one kept its changes. */
   closeFolder(): Promise<boolean>;
+  /** The sidebar's Open Enclosing Folder (⇧⌘O) of a file opened alone: Go opens its project folder at the page and sends workspace:opened. */
+  openEnclosingFolder(): Promise<void>;
   // Site templates (core/init)
   siteTemplates(): Promise<SiteTemplate[]>;
   /** The native folder panel with New Folder enabled; "" when cancelled. */

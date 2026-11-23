@@ -127,24 +127,24 @@ func TestPathArguments(t *testing.T) {
 	expect(t, run(t, h, nil, filepath.Join(repo, "x", "y", "b.markdown")),
 		Launch{Dir: repo, Page: "x/y/b.markdown", Mode: "read"})
 
-	// no marker: file's own directory
+	// no marker: the file alone, in its own directory
 	write(t, filepath.Join(h, "plain", "sub", "c.md"))
 	expect(t, run(t, h, nil, "plain/sub/c.md"),
-		Launch{Dir: filepath.Join(h, "plain", "sub"), Page: "c.md", Mode: "read"})
+		Launch{Dir: filepath.Join(h, "plain", "sub"), Page: "c.md", Mode: "read", File: true})
 
 	// marker in home itself is never used as root
 	write(t, filepath.Join(h, ".zenmd.yml"))
 	write(t, filepath.Join(h, "other", "d.md"))
 	expect(t, run(t, h, nil, "other/d.md"),
-		Launch{Dir: filepath.Join(h, "other"), Page: "d.md", Mode: "read"})
+		Launch{Dir: filepath.Join(h, "other"), Page: "d.md", Mode: "read", File: true})
 	// file directly in home: its directory (home) is the root, no climbing
 	write(t, filepath.Join(h, "e.md"))
-	expect(t, run(t, h, nil, "e.md"), Launch{Dir: h, Page: "e.md", Mode: "read"})
+	expect(t, run(t, h, nil, "e.md"), Launch{Dir: h, Page: "e.md", Mode: "read", File: true})
 
 	// outside home: no climbing to /
 	out := t.TempDir()
 	write(t, filepath.Join(out, "f.md"))
-	expect(t, run(t, h, nil, filepath.Join(out, "f.md")), Launch{Dir: out, Page: "f.md", Mode: "read"})
+	expect(t, run(t, h, nil, filepath.Join(out, "f.md")), Launch{Dir: out, Page: "f.md", Mode: "read", File: true})
 }
 
 func TestEdit(t *testing.T) {
@@ -219,8 +219,8 @@ func TestUsageErrors(t *testing.T) {
 func TestSeparators(t *testing.T) {
 	h := home(t)
 	write(t, filepath.Join(h, "-v.md"))
-	expect(t, run(t, h, nil, "--", "-v.md"), Launch{Dir: h, Page: "-v.md", Mode: "read"})
-	expect(t, run(t, h, nil, "edit", "--", "-v.md"), Launch{Dir: h, Page: "-v.md", Mode: "edit"})
+	expect(t, run(t, h, nil, "--", "-v.md"), Launch{Dir: h, Page: "-v.md", Mode: "read", File: true})
+	expect(t, run(t, h, nil, "edit", "--", "-v.md"), Launch{Dir: h, Page: "-v.md", Mode: "edit", File: true})
 	expect(t, run(t, h, nil, "-psn_0_12345"), Launch{Dir: h, Mode: "read"})
 	expect(t, run(t, h, nil, "-psn_0_1", "edit"), Launch{Dir: h, Mode: "edit"})
 	// "edit" after -- is a path, not a command

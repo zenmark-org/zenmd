@@ -22,7 +22,11 @@ export type SettingsView = {
 };
 
 /** One row of a section's list. `note` is a short mark beside the label; a disabled row cannot be selected. */
-export type SettingsItem = { id: string; label: string; note?: string; disabled?: boolean };
+export type SettingsItem = {
+  id: string; label: string; note?: string; disabled?: boolean;
+  /** Why a disabled row is off, shown as its tooltip ("Open a folder to use this"). */
+  tip?: string;
+};
 
 /**
  * One section of the page. Its heading (the label) is added by the frame. A section gives either `el` (old
@@ -430,7 +434,10 @@ export function createSettingsFrame(sections: SettingsSection[]): SettingsView {
       r.dataset.item = it.id;
       r.setAttribute("aria-selected", "false");
       r.tabIndex = -1;
-      if (it.disabled) r.setAttribute("aria-disabled", "true");
+      if (it.disabled) {
+        r.setAttribute("aria-disabled", "true");
+        if (it.tip) r.title = it.tip;
+      }
       r.append(el("span", "zen-settings-item-label", it.label));
       if (it.note) r.append(el("span", "zen-settings-item-note", it.note));
       return r;

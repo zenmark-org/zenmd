@@ -24,10 +24,10 @@ const (
 // menuActions are the callbacks app.go wires into the custom menu items, so
 // this file does not depend on Zen internals.
 type menuActions struct {
-	NewSite, NewPage, OpenFolder, Settings func()
-	CloseFolder                            func()
-	BuildWebsite, PrintPage, PrintSite     func()
-	Find, FindNext, FindPrevious           func()
+	NewSite, NewPage, Open, Settings   func()
+	OpenEnclosing, CloseFolder         func()
+	BuildWebsite, PrintPage, PrintSite func()
+	Find, FindNext, FindPrevious       func()
 
 	// emit sends the event of a custom item that only tells the windows something (View > Zoom In); buildMenu sets it.
 	emit func(event string)
@@ -54,8 +54,10 @@ func (a menuActions) forLabel(label string) func() {
 		return a.FindPrevious
 	case labelNewPage:
 		return a.NewPage
-	case labelOpenFolder:
-		return a.OpenFolder
+	case labelOpen:
+		return a.Open
+	case labelOpenEnclosing:
+		return a.OpenEnclosing
 	case labelCloseFolder:
 		return a.CloseFolder
 	case labelSettings:
@@ -84,7 +86,8 @@ const (
 	labelFindNext      = "Find Next"
 	labelFindPrevious  = "Find Previous"
 	labelNewPage       = "New Page…"
-	labelOpenFolder    = "Open Folder…"
+	labelOpen          = "Open…"
+	labelOpenEnclosing = "Open Enclosing Folder"
 	labelCloseFolder   = "Close Folder"
 	labelSettings      = "Settings…"
 	labelAbout         = "About " + Name
@@ -101,8 +104,8 @@ func menuSpec(dev bool) []menuItem { return menuSpecFor(dev, allFeatures) }
 
 // menuSpecFor is menuSpec for a build with these features (kit/shell-features).
 // An item of a feature the build leaves out is not there at all, not greyed, and
-// no separator is left behind. The bare shell keeps the App menu, File with Open
-// Folder and Close Folder, Edit without Find, and Window.
+// no separator is left behind. The bare shell keeps the App menu, File with Open,
+// Open Enclosing Folder and Close Folder, Edit without Find, and Window.
 func menuSpecFor(dev bool, features []string) []menuItem {
 	has := func(id string) bool { return slices.Contains(features, id) }
 	// when keeps the items only if cond holds.
@@ -123,7 +126,8 @@ func menuSpecFor(dev bool, features []string) []menuItem {
 		when(has("newsite"), menuItem{Label: labelNewSite, Accel: "CmdOrCtrl+Shift+N"}, sep),
 		when(has("editor"), menuItem{Label: labelNewPage, Accel: "CmdOrCtrl+N"}),
 		[]menuItem{
-			{Label: labelOpenFolder, Accel: "CmdOrCtrl+O"},
+			{Label: labelOpen, Accel: "CmdOrCtrl+O"},
+			{Label: labelOpenEnclosing, Accel: "CmdOrCtrl+Shift+O"},
 			{Label: labelCloseFolder, Accel: "CmdOrCtrl+Shift+W"},
 			sep,
 		},
@@ -242,7 +246,7 @@ func fillMenu(sub *application.Menu, items []menuItem, act menuActions, st *menu
 			inner := sub.AddSubmenu(it.Label)
 			if st != nil && folderOnly(it.Label) { // the submenu entry itself (File > Export)
 				if mi := sub.FindByLabel(it.Label); mi != nil {
-					st.add(func(on bool) { mi.SetEnabled(on) })
+					st.addFor(it.Label, func(on bool) { mi.SetEnabled(on) })
 				}
 			}
 			fillMenu(inner, it.Children, act, st)
@@ -272,8 +276,8 @@ func fillMenu(sub *application.Menu, items []menuItem, act menuActions, st *menu
 					act.zoom.add(nil, func(on bool) { item.SetEnabled(on) })
 				}
 			}
-			if st != nil && folderOnly(it.Label) {
-				st.add(func(on bool) { item.SetEnabled(on) })
+			if st != nil {
+				st.addFor(it.Label, func(on bool) { item.SetEnabled(on) })
 			}
 		}
 		if it.Accel != "" {
