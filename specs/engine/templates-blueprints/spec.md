@@ -217,7 +217,7 @@ One folder holds both kinds of template, each in a subfolder you can open, read 
 5. **Seeing them in the app.**
    - **Settings › Blueprints** shows `templates/blueprints/`; **Show in Finder** opens that folder.
    - **Settings › Templates** is new, right after Blueprints, in the Settings frame:
-     - **The left column** lists the page templates, marked Built-in, Yours (in `templates/pages/`) or This folder (`.zen/templates/`).
+     - **The left column** lists the page templates, marked Built-in (no copy, or an installed copy you have not edited), Built-in · Edited (an installed copy you changed), Custom (a file you added to `templates/pages/`) or This folder (`.zen/templates/`).
      - **The right column** shows the selected template:
        - its description and layout;
        - a table of its fields (name, type, required, default);

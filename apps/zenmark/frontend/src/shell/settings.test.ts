@@ -52,20 +52,20 @@ const TEMPLATES: SiteTemplate[] = [
 
 const PAGES: PageTemplate[] = [
   {
-    id: "lesson", name: "Lesson <b>plan</b>", description: "A lesson with <i>steps</i>", version: "", layout: "course", source: "folder", path: "/Users/me/site/.zen/templates/lesson.yml",
+    id: "lesson", name: "Lesson <b>plan</b>", description: "A lesson with <i>steps</i>", version: "", layout: "course", source: "folder", edited: false, path: "/Users/me/site/.zen/templates/lesson.yml",
     fields: [{ name: "title", type: "string", required: true, default: "" }, { name: "level", type: "string", required: false, default: "beginner" }],
     outline: [{ depth: 0, text: "heading: level 1, count 1" }, { depth: 0, text: "section: Steps" }, { depth: 1, text: "list: ordered, min-items 2" }, { depth: 0, text: "end" }],
     skeleton: "# {{title}}\n\n## Steps\n\n1. One\n", update: "", error: "", rules: ["lessons/**", "course/**"],
   },
   {
-    id: "how-to", name: "How-to guide", description: "Steps to one result", version: "1.0.0", layout: "docs", source: "yours", path: "/Users/me/Library/Application Support/zenmark/templates/pages/how-to.yml",
+    id: "how-to", name: "How-to guide", description: "Steps to one result", version: "1.0.0", layout: "docs", source: "builtin", edited: true, path: "/Users/me/Library/Application Support/zenmark/templates/pages/how-to.yml",
     fields: [{ name: "title", type: "string", required: true, default: "" }], outline: [], skeleton: "# {{title}}\n\nText\n", update: "1.1.0", error: "", rules: [],
   },
   {
-    id: "term", name: "Glossary term", description: "One term", version: "", layout: "term", source: "builtin", path: "",
+    id: "term", name: "Glossary term", description: "One term", version: "", layout: "term", source: "builtin", edited: false, path: "",
     fields: [], outline: [], skeleton: "The definition.\n", update: "", error: "", rules: [],
   },
-  { id: "broken", name: "broken", description: "", version: "", layout: "", source: "yours", path: "/x/pages/broken.yml", fields: [], outline: [], skeleton: "", update: "", error: "did not find expected <u>key</u>", rules: [] },
+  { id: "broken", name: "broken", description: "", version: "", layout: "", source: "custom", edited: false, path: "/x/pages/broken.yml", fields: [], outline: [], skeleton: "", update: "", error: "did not find expected <u>key</u>", rules: [] },
 ];
 
 type Opts = {
@@ -722,13 +722,13 @@ test("blueprints: Update available on the item, an Update button that says what 
 
 // ---- Templates (page templates): the Settings frame, items left and details right
 
-test("templates: items marked Built-in, Yours or This folder, with Update available; the empty text stands in the left column", async () => {
+test("templates: items marked Built-in, Built-in · Edited, Custom or This folder, with Update available; the empty text stands in the left column", async () => {
   const { s, api } = setup({ pageTemplates: PAGES });
   await go(s, "templates");
   expect(api.callsTo("pageTemplates")).toHaveLength(1);
   expect(rows(s, "templates").map((r) => r.dataset.item)).toEqual(["lesson", "how-to", "term", "broken"]);
   const note = (id: string) => row(s, "templates", id).querySelector(".zen-settings-item-note")?.textContent ?? null;
-  expect([note("lesson"), note("how-to"), note("term"), note("broken")]).toEqual(["This folder", "Yours · Update available", "Built-in", "Invalid · Yours"]);
+  expect([note("lesson"), note("how-to"), note("term"), note("broken")]).toEqual(["This folder", "Built-in · Edited · Update available", "Built-in", "Invalid · Custom"]);
   expect(row(s, "templates", "lesson").querySelector(".zen-settings-item-label")!.textContent).toBe("Lesson <b>plan</b>");
   const e = setup({ pageTemplates: [] });
   await go(e.s, "templates");

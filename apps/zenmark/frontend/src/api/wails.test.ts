@@ -143,13 +143,13 @@ describe("wails api", () => {
   it("maps the page template calls", async () => {
     const api = (await import("./wails")).default;
     results.PageTemplates = [
-      { id: "how-to", name: "How-to", description: "d", version: "1.0.0", layout: "docs", source: "yours", path: "/p/how-to.yml", fields: [{ name: "title", type: "string", required: true, default: "", extra: 1 }], outline: [{ depth: 1, text: "list: ordered" }], skeleton: "# x", update: "1.1.0", error: "", rules: ["a/**", 3], extra: 1 },
+      { id: "how-to", name: "How-to", description: "d", version: "1.0.0", layout: "docs", source: "custom", edited: true, path: "/p/how-to.yml", fields: [{ name: "title", type: "string", required: true, default: "", extra: 1 }], outline: [{ depth: 1, text: "list: ordered" }], skeleton: "# x", update: "1.1.0", error: "", rules: ["a/**", 3], extra: 1 },
       { id: "x", source: "weird" }, null,
     ];
     expect(await api.pageTemplates()).toEqual([
-      { id: "how-to", name: "How-to", description: "d", version: "1.0.0", layout: "docs", source: "yours", path: "/p/how-to.yml", fields: [{ name: "title", type: "string", required: true, default: "" }], outline: [{ depth: 1, text: "list: ordered" }], skeleton: "# x", update: "1.1.0", error: "", rules: ["a/**", "3"] },
-      { id: "x", name: "", description: "", version: "", layout: "", source: "builtin", path: "", fields: [], outline: [], skeleton: "", update: "", error: "", rules: [] },
-      { id: "", name: "", description: "", version: "", layout: "", source: "builtin", path: "", fields: [], outline: [], skeleton: "", update: "", error: "", rules: [] },
+      { id: "how-to", name: "How-to", description: "d", version: "1.0.0", layout: "docs", source: "custom", edited: true, path: "/p/how-to.yml", fields: [{ name: "title", type: "string", required: true, default: "" }], outline: [{ depth: 1, text: "list: ordered" }], skeleton: "# x", update: "1.1.0", error: "", rules: ["a/**", "3"] },
+      { id: "x", name: "", description: "", version: "", layout: "", source: "builtin", edited: false, path: "", fields: [], outline: [], skeleton: "", update: "", error: "", rules: [] },
+      { id: "", name: "", description: "", version: "", layout: "", source: "builtin", edited: false, path: "", fields: [], outline: [], skeleton: "", update: "", error: "", rules: [] },
     ]);
     results.PageTemplates = null;
     expect(await api.pageTemplates()).toEqual([]);

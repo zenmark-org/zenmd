@@ -1,7 +1,7 @@
 id: reference
 name: Reference
-description: "Facts to look up: dry, complete and exact (Diátaxis)"
-version: 1.0.0
+description: "Facts to look up: dry, complete and exact"
+version: 1.0.1
 layout: docs
 fields:
   title: { required: true }

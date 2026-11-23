@@ -48,6 +48,13 @@ them. Each copy is recorded with its version and a SHA-256 fingerprint in
 - **Page templates:** `zenmd templates list` and `zenmd templates show <id>`.
   A folder's `.zen/templates/<id>.yml` wins over `templates/pages/<id>.yml`,
   which wins over the built-in one.
+- **Labels:** Settings › Templates and `zenmd templates list` say where a page
+  template comes from: **Built-in** (no copy, or an installed copy whose
+  fingerprint still matches `.zen-templates.yml`), **Built-in · Edited**
+  (`built-in, edited` on the command line: an installed copy you changed, or one
+  with no recorded fingerprint), **Custom** (a file you added to
+  `templates/pages/`, not in the record) and **This folder** (the open folder's
+  `.zen/templates`). **Update available** and **Invalid** are added to these.
 - **The old folder:** an earlier build kept blueprints in `templates/sites/`. The
   first use renames it to `templates/blueprints/` (with its record) and notes it
   under Problems. It stays where it is when `blueprints/` already exists, when

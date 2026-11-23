@@ -69,21 +69,21 @@ export type FakeOptions = {
 
 const SAMPLE_PAGE_TEMPLATES: PageTemplate[] = [
   {
-    id: "how-to", name: "How-to guide", description: "Steps that get the reader to one result (Diátaxis)", version: "1.0.0", layout: "docs", source: "yours", path: "/Users/me/Library/Application Support/zenmark/templates/pages/how-to.yml",
+    id: "how-to", name: "How-to guide", description: "Steps that get the reader to one result", version: "1.0.0", layout: "docs", source: "builtin", edited: false, path: "/Users/me/Library/Application Support/zenmark/templates/pages/how-to.yml",
     fields: [{ name: "title", type: "string", required: true, default: "" }],
     outline: [],
     skeleton: "# {{title}}\n\nOne paragraph that names the task.\n\n## Steps\n\n1. The first step\n2. The second step\n",
     update: "", error: "", rules: [],
   },
   {
-    id: "release-notes", name: "Release notes", description: "What changed in one release: Added, Changed, Fixed", version: "1.1.0", layout: "release", source: "yours", path: "/Users/me/Library/Application Support/zenmark/templates/pages/release-notes.yml",
+    id: "release-notes", name: "Release notes", description: "What changed in one release: Added, Changed, Fixed", version: "1.1.0", layout: "release", source: "builtin", edited: true, path: "/Users/me/Library/Application Support/zenmark/templates/pages/release-notes.yml",
     fields: [{ name: "title", type: "string", required: true, default: "" }, { name: "version", type: "string", required: true, default: "" }, { name: "date", type: "date", required: true, default: "{{today}}" }],
     outline: [],
     skeleton: "# {{title}} {{version}}\n\n## Added\n\n- A new thing\n",
     update: "", error: "", rules: [],
   },
   {
-    id: "term", name: "Glossary term", description: "One term and its definition, one file per term", version: "1.0.0", layout: "term", source: "yours", path: "/Users/me/Library/Application Support/zenmark/templates/pages/term.yml",
+    id: "term", name: "Glossary term", description: "One term and its definition, one file per term", version: "1.0.0", layout: "term", source: "builtin", edited: false, path: "/Users/me/Library/Application Support/zenmark/templates/pages/term.yml",
     fields: [{ name: "title", type: "string", required: true, default: "" }, { name: "aliases", type: "list", required: false, default: "" }],
     outline: [],
     skeleton: "The definition in one or two sentences.\n\n## Examples\n\nAn example of the term in use.\n",
@@ -92,7 +92,7 @@ const SAMPLE_PAGE_TEMPLATES: PageTemplate[] = [
 ];
 
 const SAMPLE_TEMPLATES: SiteTemplate[] = [
-  { id: "techdocs", name: "Technical documentation", description: "Tutorials, how-to guides, reference and explanation (Diátaxis)", version: "1.0.0", ask: [{ key: "title", label: "Site title", default: "{{folder}}" }, { key: "author", label: "Author", default: "the team" }], builtin: true, update: "", error: "" },
+  { id: "techdocs", name: "Technical documentation", description: "Tutorials, how-to guides, reference and explanation", version: "1.0.0", ask: [{ key: "title", label: "Site title", default: "{{folder}}" }, { key: "author", label: "Author", default: "the team" }], builtin: true, update: "", error: "" },
   { id: "learning", name: "Learning path", description: "A course with steps, a quiz and exercises", version: "1.0.0", ask: [{ key: "title", label: "Site title", default: "{{folder}}" }], builtin: true, update: "", error: "" },
   { id: "planner", name: "Planner", description: "Roadmap, weekly plans, decisions and meeting notes", version: "1.0.0", ask: [{ key: "title", label: "Site title", default: "{{folder}}" }], builtin: true, update: "", error: "" },
 ];

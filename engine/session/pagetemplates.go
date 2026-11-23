@@ -35,7 +35,8 @@ type PageTemplateInfo struct {
 	Description string              `json:"description"`
 	Version     string              `json:"version"`
 	Layout      string              `json:"layout"`
-	Source      string              `json:"source"` // "builtin", "yours" (templates/pages) or "folder" (.zen/templates)
+	Source      string              `json:"source"` // "builtin" (also an installed copy), "custom" (your file in templates/pages) or "folder" (.zen/templates)
+	Edited      bool                `json:"edited"` // an installed copy of a built-in one that you changed
 	Path        string              `json:"path"`   // the file, "" for a built-in one
 	Fields      []PageTemplateField `json:"fields"`
 	Outline     []PageTemplateLine  `json:"outline"`
@@ -93,7 +94,7 @@ func (t TemplatesAPI) pagesIn(root string, rules []config.TemplateRule) PageList
 	for _, p := range list {
 		info := PageTemplateInfo{
 			ID: p.ID, Name: p.Name, Description: p.Description, Version: p.Version, Layout: p.Layout,
-			Source: p.Source, Path: p.Path, Skeleton: p.Skeleton, Update: p.Update, Error: p.Err,
+			Source: p.Source, Edited: p.Edited, Path: p.Path, Skeleton: p.Skeleton, Update: p.Update, Error: p.Err,
 			Fields: []PageTemplateField{}, Outline: []PageTemplateLine{}, Rules: []string{},
 		}
 		for _, f := range p.Fields {
