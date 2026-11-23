@@ -38,7 +38,7 @@ func TestGlobalPath(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if want := filepath.Join(dir, "zen", "config.yml"); got != want {
+	if want := filepath.Join(dir, "zenmark", "config.yml"); got != want {
 		t.Fatalf("GlobalPath() = %q, want %q", got, want)
 	}
 }
