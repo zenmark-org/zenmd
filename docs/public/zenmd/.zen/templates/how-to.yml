@@ -1,0 +1,21 @@
+id: how-to
+name: How-to guide
+description: "Steps that get the reader to one result (Diátaxis)"
+version: 1.0.0
+layout: docs
+fields:
+  title: { required: true }
+skeleton: |
+  # {{title}}
+
+  One paragraph that names the task and what the reader will have done at the end.
+
+  ## Steps
+
+  1. The first step
+  2. The second step
+  3. The third step
+
+  ## Troubleshooting
+
+  What can go wrong, and what to do. Remove this section if nothing can.

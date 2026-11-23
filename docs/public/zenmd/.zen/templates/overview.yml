@@ -1,0 +1,21 @@
+id: overview
+name: Overview
+description: "What the product is, who it is for, its key features and where to go next"
+version: 1.0.0
+layout: docs
+fields:
+  title: { required: true }
+skeleton: |
+  # {{title}}
+
+  {{product}} is … (one paragraph: what it is, and who it is for.)
+
+  ## Key features
+
+  - The first thing it does well
+  - The second thing
+  - The third thing
+
+  ## Where to go next
+
+  {{sections}}

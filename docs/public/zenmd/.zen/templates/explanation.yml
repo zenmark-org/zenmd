@@ -1,0 +1,19 @@
+id: explanation
+name: Explanation
+description: "Understanding: background, reasons and trade-offs (Diátaxis)"
+version: 1.0.0
+layout: docs
+fields:
+  title: { required: true }
+skeleton: |
+  # {{title}}
+
+  One paragraph that says what this page helps the reader understand.
+
+  ## The idea
+
+  Explain it in plain words. A diagram helps here.
+
+  ## Why it is this way
+
+  The reasons, the alternatives that were rejected and the trade-offs.

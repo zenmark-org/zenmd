@@ -1,0 +1,23 @@
+id: reference
+name: Reference
+description: "Facts to look up: dry, complete and exact"
+version: 1.0.0
+layout: docs
+fields:
+  title: { required: true }
+skeleton: |
+  # {{title}}
+
+  One paragraph that says what this page lists.
+
+  ## Options
+
+  | Name | Type | Default | What it does |
+  |---|---|---|---|
+  | `name` | text | none | What it is for. |
+
+  ## Example
+
+  ```yaml
+  name: value
+  ```
