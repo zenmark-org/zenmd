@@ -104,9 +104,10 @@ var (
 
 func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) {
 	attrs, body := yamlOptions(b.Attrs, b.Body)
-	var notes []string
 	note := func(key, why string) {
-		notes = append(notes, "Option :"+key+": "+why+" and was ignored.")
+		if ctx.Warn != nil {
+			ctx.Warn("option :" + key + ": " + why + " and was ignored")
+		}
 	}
 	keys := make([]string, 0, len(attrs))
 	for k := range attrs {
@@ -194,14 +195,13 @@ func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) 
 	if imgHTML == "" {
 		missing = `<div class="zen-block-status zf-missing">Image not found: ` + html.EscapeString(clip(src, 200)) + `</div>`
 	}
-	var notesHTML strings.Builder
-	for _, n := range notes {
-		notesHTML.WriteString(`<div class="zen-block-status zf-note">` + html.EscapeString(n) + `</div>`)
+	if imgHTML == "" && ctx.Warn != nil {
+		ctx.Warn("image not found: " + clip(src, 100))
 	}
 
 	if isImage {
 		classes = append(classes, "zf-image")
-		return `<div class="` + strings.Join(classes, " ") + `"` + idAttr + `>` + imgHTML + missing + notesHTML.String() + `</div>`, nil
+		return `<div class="` + strings.Join(classes, " ") + `"` + idAttr + `>` + imgHTML + missing + `</div>`, nil
 	}
 
 	caption, legend := splitCaption(body)
@@ -220,7 +220,7 @@ func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) 
 		fc.WriteString(`<figcaption><div class="zf-legend">` + markdown(ctx, legend) + `</div></figcaption>`)
 	}
 	return `<div class="zen-block ` + strings.Join(classes, " ") + `"><div class="zen-block-body"><figure` + idAttr + `>` +
-		imgHTML + missing + fc.String() + `</figure>` + notesHTML.String() + `</div></div>`, nil
+		imgHTML + missing + fc.String() + `</figure>` + `</div></div>`, nil
 }
 
 func errMissing(name string) error {

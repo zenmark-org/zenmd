@@ -29,6 +29,7 @@ Each built-in also works without MyST, as a `:::name` container or a
    - Every MyST option a directive accepts is read, through `:key: value` lines or a YAML block.
    - `:class:` and `:name:` work on every directive: `:name:` gives the block an `id` that links and `{ref}` can point to.
    - An option the built-in doesn't support shows a page warning and is otherwise ignored. It is never an error.
+   - The page warning of rule 2 is `ctx.Warn` (#47): it adds the warning to the page under the plugin's id, shown in Problems and in a build's warning lines. A built-in names the option or file in the message, never its value or the file's contents, and keeps rendering the block. A note stays in the block only where the reader needs it on the page, such as "Image not found" in a figure.
 3. **The look comes from the plugin kit** (docs/wiki/PLUGIN-UI.md): `.zen-block`, the UI font at 14px, tokens only, no new kind of button, choice or field. Callout colours use the lint tokens (`--lint-error`, `--lint-warning`, `--lint-suggestion`) for the left rule only, so pages stay black and white.
 4. **Rendered in Go** wherever possible, with output that a page without scripts can read. Scripts only add behaviour, such as tabs or dropdowns opening by keyboard.
 5. **Safe:**

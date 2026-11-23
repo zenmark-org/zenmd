@@ -195,7 +195,8 @@ func TestMissingImage(t *testing.T) {
 	r, _ := folder(t)
 	p := page(t, r, "page.md", "```{figure} img/nope.png\nA caption\n```\n")
 	lacks(t, p.HTML, "<img")
-	contains(t, p.HTML, "img/nope.png", "not found", "A caption", "zen-block-status")
+	contains(t, p.HTML, "img/nope.png", "not found", "A caption", "zen-block-status") // the reader sees it
+	contains(t, strings.Join(p.Warnings, "|"), `plugin "figure"`, "image not found: img/nope.png")
 	out := page(t, r, "page.md", "```{figure} ../../outside.png\nA caption\n```\n").HTML
 	lacks(t, out, "<img")
 }
@@ -276,9 +277,11 @@ func TestOptionsInYAMLBlock(t *testing.T) {
 // An option the built-in does not support is shown on the page and ignored.
 func TestUnknownOptionsWarn(t *testing.T) {
 	r, _ := folder(t)
-	h := page(t, r, "page.md", "```{figure} img/a.png\n:frobnicate: yes\n:align: sideways\n:width: 3cm\nCap\n```\n").HTML
-	contains(t, h, "frobnicate", "align", "width", "zen-block-status")
-	lacks(t, h, "zen-plugin-error", `width="3cm"`, "sideways\"")
+	pg := page(t, r, "page.md", "```{figure} img/a.png\n:frobnicate: yes\n:align: sideways\n:width: 3cm\nCap\n```\n")
+	h, w := pg.HTML, strings.Join(pg.Warnings, "|")
+	contains(t, w, "option :frobnicate:", "option :align:", "option :width:")
+	lacks(t, w, "sideways", "3cm", "yes")
+	lacks(t, h, "zen-block-status", "zen-plugin-error", `width="3cm"`, "sideways\"")
 	if !strings.Contains(h, "<img") || !strings.Contains(h, "Cap") {
 		t.Errorf("the figure still renders:\n%s", h)
 	}

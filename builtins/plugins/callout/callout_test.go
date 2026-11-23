@@ -52,6 +52,20 @@ func page(t *testing.T, r *render.Renderer, src string) string {
 	return p.HTML
 }
 
+// warnings renders src and returns the page's warnings, one string. A
+// non-fatal problem is a page warning (ctx.Warn), never a line in the block.
+func warnings(t *testing.T, r *render.Renderer, src string) string {
+	t.Helper()
+	p, err := r.Render("a.md", []byte(src))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(p.HTML, "zen-block-status") {
+		t.Errorf("a status line in the block: %s", p.HTML)
+	}
+	return strings.Join(p.Warnings, " | ")
+}
+
 var attrsRE = regexp.MustCompile(` data-zen-attrs="[^"]*"`)
 
 func bare(s string) string { return attrsRE.ReplaceAllString(s, "") }
@@ -144,7 +158,8 @@ func TestAdmonition(t *testing.T) {
 	has(t, page(t, r, "```{admonition} Careful\n:class: danger\nx\n```\n"), "zen-callout-error")
 	// a missing title warns and uses "Note"
 	miss := page(t, r, "```{admonition}\nBody.\n```\n")
-	has(t, miss, `<span class="zen-callout-title">Note</span>`, "zen-block-status", "needs a title")
+	has(t, miss, `<span class="zen-callout-title">Note</span>`)
+	has(t, warnings(t, r, "```{admonition}\nBody.\n```\n"), `plugin "callout"`, "admonition needs a title")
 }
 
 func TestVersionKinds(t *testing.T) {
@@ -161,7 +176,7 @@ func TestVersionKinds(t *testing.T) {
 		// no body is fine: one line
 		has(t, page(t, r, "```{"+name+"} 1.2\n```\n"), title)
 	}
-	has(t, page(t, r, "```{versionadded}\nx\n```\n"), "needs a version", "zen-block-status")
+	has(t, warnings(t, r, "```{versionadded}\nx\n```\n"), "versionadded needs a version")
 }
 
 func TestDropdown(t *testing.T) {
@@ -186,8 +201,13 @@ func TestDropdown(t *testing.T) {
 
 func TestUnknownOptionWarns(t *testing.T) {
 	got := page(t, mystRenderer(t), "```{note}\n:bogus: 1\n:class: dropdown\nBody\n```\n")
-	has(t, got, "zen-block-status", "option :bogus: is not supported", "<details>", "Body")
-	if strings.Contains(page(t, mystRenderer(t), "```{note}\n:class: wide\n:name: my-note\nBody\n```\n"), "not supported") {
+	has(t, got, "<details>", "Body")
+	w := warnings(t, mystRenderer(t), "```{note}\n:bogus: 1\n:class: dropdown\nBody\n```\n")
+	has(t, w, "option :bogus: is not supported")
+	if strings.Contains(w, "= 1") || strings.Contains(w, "bogus: 1") {
+		t.Errorf("the option's value is in the warning: %s", w)
+	}
+	if w := warnings(t, mystRenderer(t), "```{note}\n:class: wide\n:name: my-note\nBody\n```\n"); w != "" {
 		t.Error("class and name are supported")
 	}
 }
@@ -215,7 +235,7 @@ func TestNameIsTheID(t *testing.T) {
 	if strings.Contains(bad, "<script") || strings.Contains(bad, `id="><`) {
 		t.Errorf("hostile name: %s", bad)
 	}
-	has(t, page(t, r, "```{note}\n:name: ***\nBody\n```\n"), "not supported")
+	has(t, warnings(t, r, "```{note}\n:name: ***\nBody\n```\n"), "option :name:")
 }
 
 func TestHostileText(t *testing.T) {

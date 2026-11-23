@@ -127,10 +127,16 @@ var (
 	listRE  = regexp.MustCompile(`^[0-9]+[.)]( |$)`)
 )
 
-// notes collects what was ignored; each shows under the table.
-type notes []string
+// notes reports what was ignored as page warnings (ctx.Warn).
+type notes struct{ warn func(string) }
 
-func (n *notes) add(key, why string) { *n = append(*n, "Option :"+key+": "+why+" and was ignored.") }
+func (n *notes) add(key, why string) { n.say("option :" + key + ": " + why + " and was ignored") }
+
+func (n *notes) say(msg string) {
+	if n != nil && n.warn != nil {
+		n.warn(msg)
+	}
+}
 
 func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) {
 	opts := known[b.Name]
@@ -138,7 +144,7 @@ func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) 
 		return "", fmt.Errorf("unknown block %q", b.Name)
 	}
 	attrs, body := yamlOptions(b.Attrs, b.Body)
-	var ns notes
+	ns := notes{warn: ctx.Warn}
 	keys := make([]string, 0, len(attrs))
 	for k := range attrs {
 		keys = append(keys, k)
@@ -197,7 +203,7 @@ func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) 
 		out := markdown(ctx, body)
 		i := strings.Index(out, "<table>")
 		if i < 0 {
-			ns = append(ns, "The body has no markdown table.")
+			ns.say("the body has no markdown table")
 			content = out
 		} else {
 			content = out[:i] + "<table" + idAttr + widthAttr + ">" + caption + out[i+len("<table>"):]
@@ -234,17 +240,13 @@ func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) 
 			}
 		}
 		if len(rows) == 0 {
-			ns = append(ns, "The table has no rows.")
+			ns.say("the table has no rows")
 		}
 		content = gridHTML(ctx, rows, header, stub, attrs["widths"], idAttr, widthAttr, caption, &ns)
 	}
 
-	var nh strings.Builder
-	for _, n := range ns {
-		nh.WriteString(`<div class="zen-block-status zt-note">` + html.EscapeString(n) + `</div>`)
-	}
 	return `<div class="` + strings.Join(classes, " ") + `"><div class="zen-block-body"><div class="zt-scroll">` +
-		content + `</div>` + nh.String() + `</div></div>`, nil
+		content + `</div></div></div>`, nil
 }
 
 // gridHTML draws rows as a table: header rows first, then the body, with the

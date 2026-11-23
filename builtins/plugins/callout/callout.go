@@ -89,7 +89,11 @@ func (plugin) Manifest() plugins.Manifest {
 }
 
 func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) {
-	var warns []string
+	warn := func(msg string) {
+		if ctx.Warn != nil {
+			ctx.Warn(msg)
+		}
+	}
 	group, icon, title := suggestion, "N", ""
 	extra := []string{}
 	dropdown := false
@@ -116,7 +120,7 @@ func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) 
 		title = arg
 		if title == "" {
 			title = "Note"
-			warns = append(warns, "the admonition needs a title, so it shows as Note")
+			warn("admonition needs a title; it is shown as Note")
 		}
 	case versionKinds[b.Name] != "":
 		v := strings.TrimSpace(b.Attrs["version"])
@@ -125,7 +129,7 @@ func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) 
 		}
 		title = versionKinds[b.Name]
 		if v == "" {
-			warns = append(warns, "the "+b.Name+" note needs a version")
+			warn(b.Name + " needs a version")
 		} else {
 			title += " " + v
 		}
@@ -152,7 +156,7 @@ func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) 
 	}
 	sort.Strings(unknown)
 	for _, k := range unknown {
-		warns = append(warns, "the option :"+k+": is not supported and was ignored")
+		warn("option :" + k + ": is not supported and was ignored")
 	}
 
 	open := false
@@ -177,11 +181,8 @@ func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) 
 		if id := slug(n); id != "" {
 			idAttr = ` id="` + id + `"`
 		} else {
-			warns = append(warns, "the option :name: has a value that is not supported")
+			warn("option :name: has a value that is not supported and was ignored")
 		}
-	}
-	for _, w := range warns {
-		body = `<div class="zen-block-status">` + html.EscapeString(w) + `</div>` + body
 	}
 	if body != "" {
 		body = `<div class="zen-block-body">` + body + `</div>`

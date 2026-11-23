@@ -2,7 +2,6 @@ package table
 
 import (
 	"html"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -17,26 +16,6 @@ import (
 	"github.com/zenmark-org/zenmd/engine/workspace"
 	xhtml "golang.org/x/net/html"
 )
-
-// rooted gives the plugin the folder's root the way the engine will: block
-// hooks do not carry Context.Workspace yet.
-type rooted struct {
-	plugins.Plugin
-	root string
-}
-
-func (r rooted) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) {
-	ctx.Workspace = r.root
-	return r.Plugin.(plugins.BlockHook).RenderBlock(ctx, b)
-}
-
-func (r rooted) HTML(ctx plugins.Context, s string) (string, error) {
-	return r.Plugin.(plugins.HTMLHook).HTML(ctx, s)
-}
-
-func (r rooted) Assets() fs.FS { return r.Plugin.(plugins.AssetProvider).Assets() }
-
-func (r rooted) Entry() plugins.Assets { return r.Plugin.(plugins.AssetProvider).Entry() }
 
 func folder(t *testing.T) (*render.Renderer, string) {
 	t.Helper()
@@ -59,7 +38,7 @@ func folder(t *testing.T) (*render.Renderer, string) {
 		t.Fatal(err)
 	}
 	reg := plugins.NewRegistry()
-	if err := reg.Register(rooted{New(), dir}); err != nil {
+	if err := reg.Register(New()); err != nil {
 		t.Fatal(err)
 	}
 	dr, err := dialects.NewRegistry(myst.New())
@@ -224,8 +203,10 @@ func TestCSVTableHeaderAndDelim(t *testing.T) {
 	contains(t, h, "<thead>", `<th scope="col">Name</th>`, `<th scope="col">Score</th>`, "<td>ann</td>", "<td>4</td>")
 	tab := page(t, r, "page.md", "```{csv-table}\n:delim: tab\n\na\tb\n```\n").HTML
 	contains(t, tab, "<td>a</td>", "<td>b</td>")
-	bad := page(t, r, "page.md", "```{csv-table}\n:delim: ab\n\na,b\n```\n").HTML
-	contains(t, bad, "delim", "zen-block-status", "<td>a</td>")
+	bad := page(t, r, "page.md", "```{csv-table}\n:delim: ab\n\na,b\n```\n")
+	contains(t, bad.HTML, "<td>a</td>")
+	lacks(t, bad.HTML, "zen-block-status")
+	contains(t, strings.Join(bad.Warnings, "|"), `plugin "table"`, "option :delim:")
 }
 
 func TestCSVTableFile(t *testing.T) {
@@ -296,6 +277,9 @@ func TestCSVFileConfinement(t *testing.T) {
 		if !strings.Contains(h, "zen-plugin-error") {
 			t.Errorf("%s: %q was not refused:\n%s", name, f, h)
 		}
+		if w := strings.Join(page(t, r, "page.md", "```{csv-table}\n:file: "+f+"\n```\n").Warnings, "|"); !strings.Contains(w, `plugin "table"`) || strings.Contains(w, dir) || strings.Contains(w, outside) {
+			t.Errorf("%s: want a warning without a real path, got %q", name, w)
+		}
 		if sh := stripAttrs(h); strings.Contains(sh, dir) || strings.Contains(sh, outside) {
 			t.Errorf("%s: the error names a real path:\n%s", name, h)
 		}
@@ -309,15 +293,28 @@ func TestCSVFileConfinement(t *testing.T) {
 }
 
 func TestCSVFileWithoutAFolder(t *testing.T) {
+	// a renderer with no folder gives the hook an empty Workspace: warn, read nothing
+	reg := plugins.NewRegistry()
+	if err := reg.Register(New()); err != nil {
+		t.Fatal(err)
+	}
+	pg, err := render.New(reg, nil, nil).Render("a.md", []byte(":::csv-table{file=x.csv}\n:::\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	contains(t, strings.Join(pg.Warnings, "|"), `plugin "table"`, "needs an open folder")
+	// and called directly with no Workspace it refuses
 	h := New().(plugins.BlockHook)
-	_, err := h.RenderBlock(plugins.Context{Path: "a.md"}, plugins.Block{Name: "csv-table", Attrs: map[string]string{"file": "x.csv"}})
-	if err == nil {
+	if _, err := h.RenderBlock(plugins.Context{Path: "a.md"}, plugins.Block{Name: "csv-table", Attrs: map[string]string{"file": "x.csv"}}); err == nil {
 		t.Fatal("a file with no folder must fail")
 	}
 	// url is never fetched
 	r, _ := folder(t)
-	p := page(t, r, "page.md", "```{csv-table}\n:url: https://example.com/x.csv\n\na,b\n```\n").HTML
-	contains(t, p, "url", "zen-block-status", "<td>a</td>")
+	p := page(t, r, "page.md", "```{csv-table}\n:url: https://example.com/x.csv\n\na,b\n```\n")
+	contains(t, p.HTML, "<td>a</td>")
+	lacks(t, p.HTML, "zen-block-status")
+	contains(t, strings.Join(p.Warnings, "|"), "option :url:")
+	lacks(t, strings.Join(p.Warnings, "|"), "example.com")
 }
 
 func TestTableTooLarge(t *testing.T) {
@@ -350,16 +347,19 @@ func TestNumbering(t *testing.T) {
 
 func TestUnknownOptionsWarn(t *testing.T) {
 	r, _ := folder(t)
-	h := page(t, r, "page.md", "```{list-table} T\n:frobnicate: 1\n:align: up\n:widths: 1 x\n\n"+listTable+"```\n").HTML
-	contains(t, h, "frobnicate", "align", "widths", "zen-block-status", "<td>")
-	lacks(t, h, "zen-plugin-error")
+	pg := page(t, r, "page.md", "```{list-table} T\n:frobnicate: 1\n:align: up\n:widths: 1 x\n\n"+listTable+"```\n")
+	h := pg.HTML
+	contains(t, h, "<td>")
+	contains(t, strings.Join(pg.Warnings, "|"), "option :frobnicate:", "option :align:", "option :widths:")
+	lacks(t, h, "zen-plugin-error", "zen-block-status")
 	for _, n := range []string{"table", "csv-table"} {
 		body := gfm
 		if n == "csv-table" {
 			body = "a,b\n"
 		}
-		h := page(t, r, "page.md", "```{"+n+"} T\n:bogus: 1\n\n"+body+"```\n").HTML
-		contains(t, h, "bogus", "zen-block-status")
+		pg := page(t, r, "page.md", "```{"+n+"} T\n:bogus: 1\n\n"+body+"```\n")
+		contains(t, strings.Join(pg.Warnings, "|"), "option :bogus:")
+		lacks(t, pg.HTML, "zen-block-status")
 	}
 }
 
