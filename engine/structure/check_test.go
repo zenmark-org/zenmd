@@ -444,7 +444,7 @@ func TestParseErrors(t *testing.T) {
 			t.Errorf("%s: want an error", name)
 		}
 	}
-	if _, err := Parse("t", []byte("structure:\n  - section: { heading: \"/" + strings.Repeat("a", 200) + "/\" }\n")); err != nil {
+	if _, err := Parse("t", []byte("structure:\n  - section: { heading: \"/"+strings.Repeat("a", 200)+"/\" }\n")); err != nil {
 		t.Errorf("a pattern of 200 characters is allowed: %v", err)
 	}
 	// A page template file as the built-ins write it: no structure at all.
