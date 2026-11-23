@@ -90,13 +90,13 @@ func TestOpenSingleFile(t *testing.T) {
 func TestOpenFlagsInHelp(t *testing.T) {
 	h := home(t)
 	r := run(t, h, nil, "--help")
-	i := strings.Index(r.stdout, "Opening")
+	i := strings.Index(r.stdout, "Opening:")
 	if i < 0 {
 		t.Fatalf("the help has no Opening section:\n%s", r.stdout)
 	}
 	section := r.stdout[i:]
-	if j := strings.Index(section[len("Opening"):], "\n\n"); j >= 0 {
-		section = section[:len("Opening")+j]
+	if j := strings.Index(section[len("Opening:"):], "\n\n"); j >= 0 {
+		section = section[:len("Opening:")+j]
 	}
 	for _, want := range []string{"--file", "--folder"} {
 		if !strings.Contains(section, want) {

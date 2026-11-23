@@ -110,6 +110,9 @@ type Launch struct {
 	Dir  string // absolute directory to open
 	Page string // workspace-relative page, "" for default
 	Mode string // "read" | "edit"
+	// File opens the markdown file Dir/Page on its own, without scanning Dir: the file is not in a project
+	// folder, or --file asked for it. Dir and Page are still the file's folder and name.
+	File bool
 }
 
 // Launcher starts the GUI and blocks until it exits.
@@ -198,6 +201,13 @@ Options:
   -v, --version       show the version
   --                  treat the following arguments as paths
 
+Opening:
+  --file              open one markdown file on its own, without its folder
+                      (the default for a file with no .zenmd.yml, .zen.yml or
+                      .git in a folder above it); with a folder it is an error
+  --folder            open the file's project folder at that page, even when
+                      no folder above it has a marker
+
 Init options:
   --blueprint <id>    the blueprint (--template <id>, --<id> work too)
   --title <text>      the site title; --author <text>; --set <key=value>
@@ -223,6 +233,7 @@ func Run(args []string, cwd string, stdout, stderr io.Writer, launch Launcher, b
 	}
 	mode := "read"
 	var paths []string
+	forceFile, forceFolder := false, false // --file and --folder
 	flags, first := true, true
 	for i, arg := range args {
 		switch {
@@ -236,6 +247,10 @@ func Run(args []string, cwd string, stdout, stderr io.Writer, launch Launcher, b
 		case flags && (arg == "-v" || arg == "--version"):
 			fmt.Fprintln(stdout, VersionLine())
 			return 0
+		case flags && arg == "--file":
+			forceFile = true
+		case flags && arg == "--folder":
+			forceFolder = true
 		case flags && strings.HasPrefix(arg, "-") && arg != "-":
 			return fail(stderr, usageError("unknown option "+arg))
 		case flags && first && arg == "help":
@@ -273,6 +288,12 @@ func Run(args []string, cwd string, stdout, stderr io.Writer, launch Launcher, b
 	if len(paths) > 1 {
 		return fail(stderr, usageError("more than one path given"))
 	}
+	if forceFile && forceFolder {
+		return fail(stderr, usageError("--file and --folder cannot be used together"))
+	}
+	if forceFile && len(paths) == 0 {
+		return fail(stderr, usageError("--file needs a markdown file, not the current folder"))
+	}
 
 	l := Launch{Dir: cwd, Mode: mode}
 	if len(paths) == 0 && finderLaunch(cwd) {
@@ -280,7 +301,7 @@ func Run(args []string, cwd string, stdout, stderr io.Writer, launch Launcher, b
 	}
 	if len(paths) == 1 {
 		var err error
-		if l.Dir, l.Page, err = resolve(paths[0], cwd, mode == "edit"); err != nil {
+		if l.Dir, l.Page, l.File, err = resolveOpen(paths[0], cwd, mode == "edit", forceFile, forceFolder); err != nil {
 			return fail(stderr, err)
 		}
 	}
@@ -693,23 +714,73 @@ func resolve(arg, cwd string, allowNew bool) (dir, page string, err error) {
 	return dir, filepath.ToSlash(rel), nil
 }
 
+// resolveOpen is resolve for the command that opens a window: it also says
+// whether a markdown file opens on its own (single). That is so when no folder
+// above it, up to home, has a marker, or when file (--file) asks for it; folder
+// (--folder) asks for the folder. A folder argument is never single, and --file
+// with one is a usage error. A file that does not exist yet (zenmd edit new.md)
+// opens its folder, as the file has to be there to open alone.
+func resolveOpen(arg, cwd string, allowNew, file, folder bool) (dir, page string, single bool, err error) {
+	dir, page, err = resolve(arg, cwd, allowNew)
+	if err != nil {
+		return "", "", false, err
+	}
+	if page == "" { // a folder
+		if file {
+			return "", "", false, usageError("--file needs a markdown file, but " + arg + " is a folder")
+		}
+		return dir, page, false, nil
+	}
+	p := filepath.Clean(arg)
+	if !filepath.IsAbs(p) {
+		p = filepath.Join(cwd, p)
+	}
+	if fi, statErr := os.Stat(p); statErr != nil || !fi.Mode().IsRegular() {
+		if file {
+			return "", "", false, usageError("--file needs an existing markdown file: " + p)
+		}
+		return dir, page, false, nil
+	}
+	if file || (!folder && !hasMarker(filepath.Dir(p))) {
+		return filepath.Dir(p), filepath.Base(p), true, nil
+	}
+	return dir, page, false, nil
+}
+
+// markers are the files and folders that make a folder a project.
+var markers = []string{config.WorkspaceFile, config.LegacyWorkspaceFile, ".git"}
+
+// findRoot returns the nearest ancestor of start (inclusive) containing a
+// marker, searching only strictly below the user's home directory; found is
+// false (and the root is start) when none has.
+func findRoot(start string) (root string, found bool) {
+	home, err := os.UserHomeDir()
+	if err != nil || home == "" {
+		return start, false
+	}
+	home = filepath.Clean(home)
+	for d := start; within(d, home); d = filepath.Dir(d) {
+		for _, m := range markers {
+			if _, err := os.Stat(filepath.Join(d, m)); err == nil {
+				return d, true
+			}
+		}
+	}
+	return start, false
+}
+
+// hasMarker reports whether start or a folder above it (below home) is a project.
+func hasMarker(start string) bool {
+	_, found := findRoot(start)
+	return found
+}
+
 // root returns the nearest ancestor of start (inclusive) containing a folder
 // settings file (either name) or .git, searching only strictly below the
 // user's home directory. Without a marker, start itself is the root.
 func root(start string) string {
-	home, err := os.UserHomeDir()
-	if err != nil || home == "" {
-		return start
-	}
-	home = filepath.Clean(home)
-	for d := start; within(d, home); d = filepath.Dir(d) {
-		for _, m := range []string{config.WorkspaceFile, config.LegacyWorkspaceFile, ".git"} {
-			if _, err := os.Stat(filepath.Join(d, m)); err == nil {
-				return d
-			}
-		}
-	}
-	return start
+	r, _ := findRoot(start)
+	return r
 }
 
 // within reports whether d is strictly inside home.
