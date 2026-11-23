@@ -32,7 +32,9 @@ var coverage = []row{
 	{2, "figure", "figure", false}, {2, "image", "figure", false},
 	{2, "table", "table", false}, {2, "list-table", "table", false}, {2, "csv-table", "table", false},
 	// phase 3: math
-	{3, "math", "math", false}, {3, "math", "math", true}, {3, "eq", "math", true},
+	{3, "math", "math", false},
+	// The {math} and {eq} roles belong to phase 5 (ScanInline); add their rows
+	// ({5, "math", "math", true}, {5, "eq", "math", true}) when phase 5 builds them.
 	// phase 4: layout blocks
 	{4, "tab-set", "tabs", false}, {4, "tab-item", "tabs", false}, {4, "dropdown", "dropdown", false},
 	{4, "card", "cards", false}, {4, "grid", "cards", false}, {4, "grid-item", "cards", false},
