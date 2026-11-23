@@ -40,6 +40,39 @@ zenmd version
 
 You should see `zenmd` and a version number, such as `zenmd 0.5.1`.
 
+## Install zenmd on Linux
+
+Linux has `zenmd` only: no app and no PDF export. It exports websites and runs
+`init` and `templates`. It needs no other software. Releases carry builds for
+x86-64 (`amd64`) and 64-bit ARM (`arm64`).
+
+1. Download `zenmd_<version>_linux_amd64.tar.gz` (or `_arm64`) and `SHA256SUMS`
+   from the [releases page](https://github.com/zenmark-org/zenmd/releases).
+2. Check the download. It prints `OK` for the file you have:
+
+   ```sh
+   sha256sum --ignore-missing -c SHA256SUMS
+   ```
+
+3. Unpack it and put `zenmd` on your path:
+
+   ```sh
+   tar -xzf zenmd_<version>_linux_amd64.tar.gz
+   mkdir -p ~/.local/bin
+   install zenmd_<version>_linux_amd64/zenmd ~/.local/bin/zenmd
+   ```
+
+4. Check it. You should see `zenmd 0.8.0 (command line)`, with your version:
+
+   ```sh
+   zenmd version
+   ```
+
+What isn't there: the Zenmark app and `zenmd export pdf`. `zenmd` or
+`zenmd <folder>` print a line saying so, and `zenmd export site <folder>` makes
+a website. The settings folder is `~/.config/zenmark`. See
+[the command reference](../reference/cli.md#the-command-line-build).
+
 ## Build from source
 
 If you work on zenmd itself:

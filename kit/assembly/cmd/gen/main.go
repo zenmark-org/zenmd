@@ -1,13 +1,15 @@
 // Command gen turns an app's assembly into code and build tags:
 //
 //	go run ./kit/assembly/cmd/gen apps/zenmark              # writes apps/zenmark/assembly_gen.go
+//	go run ./kit/assembly/cmd/gen -out apps/zenmark/cliset apps/zenmark   # writes apps/zenmark/cliset/assembly_gen.go
 //	go run ./kit/assembly/cmd/gen -tags-only apps/zenmark   # prints addon_vale (the Taskfile's tags)
 //	go run ./kit/assembly/cmd/gen -ids-only apps/zenmark    # prints vale (the default of ADDONS)
 //	go run ./kit/assembly/cmd/gen -tags-only -addons "" apps/zenmark   # an explicit ADDONS wins
 //
 // The folder holds app-assembly.yml; it is loaded and checked against the
 // built-in catalog first, and nothing is written when it does not pass. The
-// generated file is in the package of the folder's Go files and is committed;
+// generated file is written into the folder -out names (which must exist), else
+// into the app's cliset folder when it has one, else into the app folder, in the package of that folder's Go files, and is committed;
 // a test fails when it no longer matches the YAML (specs/kit/assembly).
 package main
 
@@ -36,6 +38,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 	tagsOnly := fs.Bool("tags-only", false, "print the add-on build tags (addon_<id>, comma-separated) and write nothing")
 	idsOnly := fs.Bool("ids-only", false, "print the add-on ids (comma-separated) and write nothing")
 	addonsFlag := fs.String("addons", "", "add-ons to use instead of the assembly's (an empty list means none)")
+	outDir := fs.String("out", "", "folder the generated file is written to, which must exist (default: the app's cliset folder when it has one, else the app folder)")
 	pkg := fs.String("package", "", "package name of the generated file (default: the package of the folder's Go files)")
 	if err := fs.Parse(args); err != nil {
 		return 2
@@ -85,19 +88,33 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 
+	target := dir
+	if *outDir == "" {
+		// The app shares its assembly with the command-line zenmd through its
+		// cliset folder (specs/packaging/linux-cli): when it is there, the file
+		// goes there, so `task build` and the plain command keep it in step.
+		if fi, err := os.Stat(filepath.Join(dir, "cliset")); err == nil && fi.IsDir() {
+			target = filepath.Join(dir, "cliset")
+		}
+	} else {
+		target = *outDir
+		if fi, err := os.Stat(target); err != nil || !fi.IsDir() {
+			return fail(stderr, fmt.Errorf("-out %s is not a folder", target))
+		}
+	}
 	name := *pkg
 	if name == "" {
-		name = packageOf(dir)
+		name = packageOf(target)
 	}
 	src, err := assembly.Generate(a, name)
 	if err != nil {
 		return fail(stderr, err)
 	}
-	target := filepath.Join(dir, generatedFile)
-	if old, err := os.ReadFile(target); err == nil && string(old) == string(src) {
+	file := filepath.Join(target, generatedFile)
+	if old, err := os.ReadFile(file); err == nil && string(old) == string(src) {
 		return 0
 	}
-	if err := os.WriteFile(target, src, 0o644); err != nil {
+	if err := os.WriteFile(file, src, 0o644); err != nil {
 		return fail(stderr, err)
 	}
 	return 0

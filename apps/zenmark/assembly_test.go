@@ -14,9 +14,10 @@ import (
 	"github.com/zenmark-org/zenmd/kit/assembly"
 )
 
-// TestAssemblyGenerated: assembly_gen.go is what the generator writes for
-// app-assembly.yml today; after editing the YAML run `task build` (or
-// go run ./kit/assembly/cmd/gen apps/zenmark).
+// TestAssemblyGenerated: cliset/assembly_gen.go (shared by the app and the
+// command-line zenmd) is what the generator writes for app-assembly.yml today;
+// after editing the YAML run `task build` (or
+// go run ./kit/assembly/cmd/gen -out apps/zenmark/cliset apps/zenmark).
 func TestAssemblyGenerated(t *testing.T) {
 	cat, err := assembly.BuiltinCatalog()
 	if err != nil {
@@ -26,16 +27,16 @@ func TestAssemblyGenerated(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want, err := assembly.Generate(a, "app")
+	want, err := assembly.Generate(a, "cliset")
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := os.ReadFile("assembly_gen.go")
+	got, err := os.ReadFile(filepath.Join("cliset", "assembly_gen.go"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if string(got) != string(want) {
-		t.Errorf("assembly_gen.go is out of date with app-assembly.yml; run: go run ./kit/assembly/cmd/gen apps/zenmark")
+		t.Errorf("cliset/assembly_gen.go is out of date with app-assembly.yml; run: go run ./kit/assembly/cmd/gen -out apps/zenmark/cliset apps/zenmark")
 	}
 	if _, err := os.Stat(filepath.Join("app-assembly.yml")); err != nil {
 		t.Error(err)
