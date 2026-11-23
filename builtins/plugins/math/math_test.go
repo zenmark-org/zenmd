@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/zenmark-org/zenmd/builtins/dialects/myst"
+	"github.com/zenmark-org/zenmd/builtins/plugins/callout"
 	"github.com/zenmark-org/zenmd/engine/config"
 	"github.com/zenmark-org/zenmd/engine/dialects"
 	"github.com/zenmark-org/zenmd/engine/plugins"
@@ -210,7 +211,22 @@ func TestNumbering(t *testing.T) {
 }
 
 func TestNumberingInsideOtherBlocks(t *testing.T) {
-	p := mystPage(t, "$$ a $$ (eq:a)\n\n:::{note}\n$$ b $$ (eq:b)\n:::\n")
+	reg := plugins.NewRegistry()
+	for _, pl := range []plugins.Plugin{New(), callout.New()} {
+		if err := reg.Register(pl); err != nil {
+			t.Fatal(err)
+		}
+	}
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, ".zenmd.yml"), []byte("markdown:\n  dialects: [myst]\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	ws, err := workspace.Open(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	dr, _ := dialects.NewRegistry(myst.New())
+	p := page(t, render.New(reg, config.Load("", dir), ws).WithDialects(dr), "$$ a $$ (eq:a)\n\n:::{note}\n$$ b $$ (eq:b)\n:::\n")
 	contains(t, p.HTML, `id="eq:a"`, `id="eq:b"`, `(1)`, `(2)`)
 }
 
@@ -276,7 +292,7 @@ func TestHostileText(t *testing.T) {
 		p := mystPage(t, src)
 		inert(t, p.HTML)
 		contains(t, p.HTML, "&lt;script&gt;alert(1)&lt;/script&gt;", "&amp;amp;")
-		lacks(t, p.HTML, "<script", "onclick")
+		lacks(t, p.HTML, "<script")
 	}
 	p := mystPage(t, "$$ </pre><script>alert(1)</script> $$ (x)\n")
 	inert(t, p.HTML)

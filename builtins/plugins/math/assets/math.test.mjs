@@ -6,6 +6,7 @@ import { KATEX_URL, loadKatex, renderAll, wrapTex } from "./math.js";
 
 class El {
   constructor(tag, doc) { this.tagName = tag.toUpperCase(); this.ownerDocument = doc; this.children = []; this.dataset = {}; this.attrs = {}; this.className = ""; this.textContent = ""; this.innerHTML = ""; this.listeners = {}; this.parent = null; }
+  get parentNode() { return this.parent; }
   append(...cs) { for (const c of cs) { c.parent = this; this.children.push(c); } }
   replaceWith(n) { const p = this.parent; if (!p) return; n.parent = p; p.children = p.children.map((c) => (c === this ? n : c)); this.parent = null; }
   remove() { if (this.parent) this.parent.children = this.parent.children.filter((c) => c !== this); }
