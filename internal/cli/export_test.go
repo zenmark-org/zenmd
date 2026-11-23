@@ -110,8 +110,8 @@ func TestExportErrors(t *testing.T) {
 			if strings.Count(r.stderr, "\n") != 1 || !strings.HasPrefix(r.stderr, "zenmd: ") || !strings.Contains(r.stderr, contains) {
 				t.Errorf("stderr %q, want one line with %q", r.stderr, contains)
 			}
-		} else if !strings.Contains(r.stderr, "Usage:") || !strings.Contains(r.stderr, contains) {
-			t.Errorf("stderr %q, want the usage and %q", r.stderr, contains)
+		} else if !strings.Contains(r.stderr, usageHint) || !strings.Contains(r.stderr, contains) {
+			t.Errorf("stderr %q, want the hint and %q", r.stderr, contains)
 		}
 	}
 	// Usage errors: exit 2 with the usage.
