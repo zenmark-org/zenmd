@@ -31,7 +31,7 @@ func TestPackageLayout(t *testing.T) {
 		"engine",
 		"engine/config", "engine/dialects", "engine/extplugins", "engine/index", "engine/layouts", "engine/lint",
 		"engine/plugins", "engine/render", "engine/scriptplugins", "engine/session",
-		"engine/session/sessiontest", "engine/site", "engine/sitetemplates", "engine/watch", "engine/workspace",
+		"engine/session/sessiontest", "engine/site", "engine/sitetemplates", "engine/structure", "engine/watch", "engine/workspace",
 		"builtins", "builtins/dialects/myst", "builtins/layouts", "builtins/blueprints", "builtins/pagetemplates",
 		"builtins/plugins/check", "builtins/plugins/codeblock", "builtins/plugins/diagram",
 		"builtins/plugins/quiz", "builtins/plugins/rating", "builtins/plugins/sandbox",

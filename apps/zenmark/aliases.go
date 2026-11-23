@@ -10,6 +10,7 @@ type (
 	Crumb             = session.Crumb
 	PageAssets        = session.PageAssets
 	PageLayout        = session.PageLayout
+	StructureProblem  = session.StructureProblem
 	Page              = session.Page
 	PageInfo          = session.PageInfo
 	Startup           = session.Startup
