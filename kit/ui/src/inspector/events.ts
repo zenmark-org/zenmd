@@ -19,11 +19,15 @@ export const INSPECTOR_CONSOLE = "zen:inspector-console";
  * link: `href` and `text` (the link text) of a broken link, `offset` the nth link with the same two;
  * image: `src` and `text` (alt), `offset` the nth with the same src; spelling: `text` the word, `offset`
  * the index of the Vale alert (the page's lint marks share it) and `length` the word's length;
+ * structure: `heading` is the id of the heading to mark, compared with each heading's id in JS ("" or one that is gone: the
+ * top of the page) and `line` the line in the source;
  * a page warning names no element and has neither.
  */
 export const INSPECTOR_MARK = "zen:inspector-mark"; // detail: ProblemTarget | null
 
-export type ProblemTarget = { kind: ProblemKind; severity: "error" | "warning" | "suggestion"; href?: string; src?: string; text?: string; offset?: number; length?: number };
+export type ProblemTarget = { kind: ProblemKind; severity: "error" | "warning" | "suggestion"; href?: string; src?: string; text?: string; offset?: number; length?: number;
+  /** structure: the 1-based line, and the id of the heading before the gap ("" for the top of the page). */
+  line?: number; heading?: string };
 
 export type InspectorState = { available: boolean; open: boolean; count: number };
 

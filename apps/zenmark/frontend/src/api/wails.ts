@@ -50,6 +50,7 @@ function page(p: Raw): Page {
     assets: { css: p?.assets?.css ?? [], js: p?.assets?.js ?? [] },
     warnings: p?.warnings ?? [],
     layout: pageLayout(p?.layout),
+    structure: Array.isArray(p?.structure) ? p.structure : [],
   };
 }
 

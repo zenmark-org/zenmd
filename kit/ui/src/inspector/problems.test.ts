@@ -379,3 +379,73 @@ test("version note: a release version that is not semver is a warning with a Fix
   expect(detail(i, "message")).toBe(NOTE);
   expect(detail(i, "fix")).toBe('Write the version without a v, quoted, such as version: "0.2.0"');
 });
+
+
+// ---- engine/structure-check: Problems › Structure
+
+const ROW = { rule: "section", message: "Missing section 'Steps'", fix: "Add a '## Steps' section after 'Intro'", severity: "warning", line: 5, anchor: "intro", source: "template how-to" } as const;
+function structured(rows: readonly (typeof ROW | Record<string, unknown>)[], opts: { pageWarnings?: boolean } = {}): Inspector {
+  const i = createInspector({ doc: document, host: { addons: [VALE] } as never, onSelectIssue: select, pageWarnings: opts.pageWarnings ?? true });
+  made.push(i);
+  const r = document.createElement("article");
+  r.innerHTML = "<h1>A</h1><h2 id='intro'>Intro</h2><p>x</p>";
+  document.body.append(i.el, r);
+  i.setPage("a.md", { ...page(), structure: rows as never }, r);
+  i.open();
+  i.el.querySelector<HTMLButtonElement>('[data-tab="problems"]')!.click();
+  return i;
+}
+
+test("structure: each row of Page.structure is a problem of kind structure, under Checks, with the lint colour of its severity", () => {
+  const i = structured([ROW, { ...ROW, rule: "fields", message: "date is required by the post layout", severity: "error", source: "layout post", line: 1, anchor: "" }, { ...ROW, severity: "suggestion", message: "Page has 900 words and no H2 sections" }]);
+  expect(kinds(i)).toEqual(["structure", "structure", "structure"]);
+  expect(rows(i).map((r) => r.dataset.severity)).toEqual(["warning", "error", "suggestion"]);
+  expect(rows(i)[0].textContent).toContain("Missing section 'Steps'");
+  expect(rows(i)[0].querySelector(".zen-problem-kind")!.textContent).toBe("Structure");
+  expect(rows(i)[0].textContent).toContain("template how-to");
+  expect(i.el.querySelector('[data-tab="problems"] .zen-panel-count')!.textContent).toBe("3");
+  choose(i, "checks");
+  expect(rows(i)).toHaveLength(3);
+  choose(i, "spelling");
+  expect(rows(i)).toHaveLength(0);
+});
+
+test("structure: the right column has the message, the Fix line, where it comes from and the severity", () => {
+  const i = structured([ROW]);
+  rows(i)[0].click();
+  expect(detail(i, "message")).toBe("Missing section 'Steps'");
+  expect(detail(i, "fix")).toBe("Add a '## Steps' section after 'Intro'");
+  expect(detail(i, "source")).toBe("template how-to");
+  expect(detail(i, "severity")).toBe("warning");
+  expect(detail(i, "where")).toContain("Line 5");
+  expect(detail(i, "rule")).toBe("section");
+});
+
+test("structure: clicking a row asks the page to mark the heading before the gap (its line, text and heading id)", () => {
+  const i = structured([ROW, { ...ROW, anchor: "", line: 1, message: "date is required by the post layout" }]);
+  marks = [];
+  rows(i)[0].click();
+  expect(marks.at(-1)).toMatchObject({ kind: "structure", severity: "warning", line: 5, heading: "intro" });
+  rows(i)[1].click();
+  expect(marks.at(-1)).toMatchObject({ kind: "structure", line: 1, heading: "" }); // the top of the page
+});
+
+test("structure: the editor's inspector does not list them, and a page without the field has none", () => {
+  expect(rows(structured([ROW], { pageWarnings: false }))).toHaveLength(0);
+  const i = make();
+  expect(kinds(i)).toEqual(["link"]);
+});
+
+test("structure: text is text, never markup, and a refresh keeps the selection", () => {
+  const i = structured([{ ...ROW, message: "Missing <img src=x onerror=alert(1)>", fix: "<b>x</b>" }]);
+  rows(i)[0].click();
+  expect(i.el.querySelector(".zen-problem img, .zen-problem-details img, .zen-problem-details b")).toBeNull();
+  marks = [];
+  i.setPage("a.md", { ...page(), structure: [{ ...ROW, message: "Missing <img src=x onerror=alert(1)>", fix: "<b>x</b>" }] as never }, document.createElement("article"));
+  expect(rows(i)[0].getAttribute("aria-selected")).toBe("true");
+});
+
+test("structure: a malformed row from the Go side is dropped, not shown", () => {
+  const i = structured([{ rule: 3 }, null as never, ROW]);
+  expect(rows(i)).toHaveLength(1);
+});

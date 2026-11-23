@@ -269,6 +269,25 @@ test("problem marks: only one at a time; null, a page warning and an unknown tar
   expect(scrolled).toHaveLength(4); // the warning and the unknown link scrolled nowhere
 });
 
+test("problem marks: a structure problem marks the heading before the gap, found by its id as a value", async () => {
+  await shown();
+  article().insertAdjacentHTML("beforeend", "<h2 id='intro'>Intro</h2><p>text</p><h2 id='steps'>Steps</h2>");
+  mark({ kind: "structure", line: 5, heading: "steps", text: "Missing section" });
+  expect(marked("zen-problem")).toEqual(["Steps"]);
+  expect(marked("zen-problem-warning")).toEqual(["Steps"]);
+  expect(scrolled[0].el).toBe(article().querySelector("#steps"));
+  mark({ kind: "structure", line: 1, heading: "x\"],h2[id=\"steps" }); // never a selector: it finds nothing and falls to the top
+  expect(scrolled.at(-1)!.el).toBe(article().querySelector("h1, h2, h3, h4, h5, h6, p"));
+});
+
+test("problem marks: a structure problem with no heading marks the top of the page", async () => {
+  await shown();
+  article().insertAdjacentHTML("afterbegin", "<h1 id='top'>The title</h1>");
+  mark({ kind: "structure", line: 1, heading: "" });
+  expect(marked("zen-problem")).toEqual(["The title"]);
+  expect(scrolled[0].el).toBe(article().querySelector("#top"));
+});
+
 test("problem marks: the page changing clears it", async () => {
   await shown();
   mark({ kind: "link", href: "gone.md", text: "Gone page" });

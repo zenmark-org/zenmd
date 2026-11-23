@@ -8,6 +8,12 @@ fields:
   cover:   { type: image, description: Image of the folder shown behind the title }
 options:
   cards: { type: bool, default: true, description: Show a card for each page under this one }
+structure:
+  fields:
+    tagline: { type: string, required: true, severity: suggestion }
+    cover:   { type: image }
+  rules:
+    max-words: { words: 200, severity: suggestion }
 help:
   summary: "The home page of a folder: a hero with the title, an optional tagline and cover image, the text, and a card for each page under this one in the sidebar (its title and first paragraph). Frontmatter fields: tagline and cover. Option: cards (false hides the cards)."
   snippets:

@@ -66,6 +66,9 @@ type Manifest struct {
 	// Requires lists the plugins the layout's pages rely on (`requires:` in
 	// layout.yml); kit/assembly checks an app includes them.
 	Requires []string
+	// Structure is the layout's `structure:` block as YAML (fields, body and
+	// rules, read by engine/structure), nil for a layout without one.
+	Structure []byte
 }
 
 // Invalid describes a layout folder that was rejected.
@@ -163,6 +166,7 @@ type rawLayout struct {
 	Options     map[string]rawOption `yaml:"options"`
 	Help        any                  `yaml:"help"`
 	Requires    []string             `yaml:"requires"`
+	Structure   yaml.Node            `yaml:"structure"`
 }
 
 var (
@@ -232,6 +236,13 @@ func parse(data []byte, folder string, f files, source string) (*Layout, error) 
 		seenReq[r] = true
 	}
 	m.Requires = append([]string(nil), raw.Requires...)
+	if raw.Structure.Kind != 0 {
+		b, err := yaml.Marshal(&raw.Structure)
+		if err != nil {
+			return nil, fmt.Errorf("structure: %v", err)
+		}
+		m.Structure = b
+	}
 	l := &Layout{source: source, files: map[string]bool{}}
 	for _, g := range []struct {
 		kind  string

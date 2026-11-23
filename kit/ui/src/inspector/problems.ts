@@ -6,11 +6,11 @@
 // (an image whose file is not in the folder becomes its alt text; a /_ws/ file that is gone fails in the
 // webview), so an <img> that failed to load is a missing image: an `error` event while the page is shown, or
 // one that has already finished with no pixels.
-import type { Alert } from "../host";
+import type { Alert, StructureProblem } from "../host";
 import { severityOf } from "../lint";
 import type { ProblemTarget } from "./events";
 
-export type ProblemKind = "link" | "image" | "spelling" | "warning";
+export type ProblemKind = "link" | "image" | "spelling" | "warning" | "structure";
 export type ProblemSeverity = "error" | "warning" | "suggestion";
 
 export type Problem = {
@@ -27,6 +27,10 @@ export type Problem = {
   fix?: string;
   /** Checks: the element in the page. */
   el?: HTMLElement;
+  /** Structure: where it comes from ("template how-to", "layout post"), its line and the heading to mark. */
+  source?: string;
+  line?: number;
+  anchor?: string;
   /** Spelling: the alert and its index in the list the host gave. */
   alert?: Alert;
   index?: number;
@@ -83,6 +87,24 @@ export function warningProblems(warnings: readonly string[]): Problem[] {
   });
 }
 
+const SEVERITIES: readonly string[] = ["error", "warning", "suggestion"];
+
+/** The structure problems of a page (`Page.structure`) as problems: the message, its Fix line, the template or layout it comes from. A malformed row is dropped. */
+export function structureProblems(rows: readonly StructureProblem[] | undefined): Problem[] {
+  const out: Problem[] = [];
+  for (const r of Array.isArray(rows) ? rows : []) {
+    if (!r || typeof r.message !== "string" || r.message === "" || !SEVERITIES.includes(r.severity)) continue;
+    const line = Number.isInteger(r.line) && r.line > 0 ? r.line : 1;
+    const source = typeof r.source === "string" ? r.source : "";
+    out.push({
+      kind: "structure", severity: r.severity, label: r.message, message: r.message, rule: typeof r.rule === "string" ? r.rule : "structure",
+      where: source ? `Line ${line} · ${source}` : `Line ${line}`, source, line, anchor: typeof r.anchor === "string" ? r.anchor : "",
+      ...(typeof r.fix === "string" && r.fix ? { fix: r.fix } : {}),
+    });
+  }
+  return out;
+}
+
 export function spellingProblems(alerts: readonly Alert[]): Problem[] {
   return alerts.map((a, index) => ({
     kind: "spelling", severity: severityOf(a.severity), label: a.match, alert: a, index, rule: a.check,
@@ -93,6 +115,7 @@ export function spellingProblems(alerts: readonly Alert[]): Problem[] {
 /** The same problem again after a refresh (the page is rendered anew, the alerts arrive anew). */
 export function sameProblem(a: Problem, b: Problem): boolean {
   if (a.kind !== b.kind) return false;
+  if (a.kind === "structure") return a.rule === b.rule && a.label === b.label && a.line === b.line && a.source === b.source;
   if (a.alert && b.alert) return a.alert.line === b.alert.line && a.alert.col === b.alert.col && a.alert.check === b.alert.check;
   if (a.el && b.el && a.el === b.el) return true;
   return a.rule === b.rule && a.label === b.label;
@@ -105,6 +128,7 @@ export function sameProblem(a: Problem, b: Problem): boolean {
 export function problemTarget(p: Problem, root: ParentNode | null): ProblemTarget {
   const base = { kind: p.kind, severity: p.severity };
   if (p.kind === "spelling" && p.alert) return { ...base, text: p.alert.match, offset: p.index ?? 0, length: Array.from(p.alert.match).length };
+  if (p.kind === "structure") return { ...base, text: p.label, line: p.line ?? 1, heading: p.anchor ?? "" };
   const el = p.el;
   if (!el || !root) return base;
   if (p.kind === "link") {

@@ -9,6 +9,10 @@ fields:
   abbr:    { type: string, description: "An abbreviation, shown after the term" }
   see:     { type: list, description: "Related terms, as links to term pages of the same folder" }
   tags:    { type: list, description: Optional grouping }
+structure:
+  body:
+    - heading: { level: 1, count: 1 }
+    - paragraph: { label: Definition, max-words: 60 }
 help:
   summary: "One entry of a glossary: the term (the page's H1) large, its abbreviation and aliases, the definition (the first paragraph) set apart, the rest of the text, See also links from see:, and links to the terms before and after it in alphabetical order. The first paragraph is the definition, at most 60 words. Frontmatter: aliases, abbr, see, tags (and title, for a page with no H1). Terms are hidden from the sidebar; the Glossary page lists them."
   snippets:

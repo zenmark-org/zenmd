@@ -3,6 +3,9 @@ version: 0.1.0
 description: Show a page as slides
 css: [slides.css]
 js: [slides.js]
+structure:
+  body:
+    - slide: { min: 2, heading: required, max-bullets: 6, severity: suggestion }
 help:
   summary: "Shows a page as slides. A line with three dashes starts a new slide (without any, each top heading does). A paragraph that starts with Note: is a speaker note. Arrow keys move, O shows all slides, F shows the deck full page. Options: ratio (width:height, default 16:9) and transition (fade)."
   snippets:

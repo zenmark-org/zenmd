@@ -513,7 +513,7 @@ func TestPresets(t *testing.T) {
 			switch id {
 			case "learning":
 				pg, _ := z.Page("paths/first-path/index.md")
-				if strings.Count(pg.HTML, `data-zen-name="quiz"`) != 1 || strings.Count(pg.HTML, `data-zen-name="check"`) != 1 {
+				if strings.Count(pg.HTML, `data-zen-name="quiz"`) != 1 || strings.Count(pg.HTML, `data-zen-name="check"`) != 3 { // one per step but the last
 					t.Errorf("course page lacks its quiz or checklist: %s", pg.HTML)
 				}
 				if strings.Count(pg.HTML, "<h2") != 4 {

@@ -188,6 +188,9 @@ Usage:
                         bring a built-in page template to its newer version
                         (zenmd init --update <id> does it for a blueprint)
   zenmd templates --dir print the templates folder (blueprints/, pages/)
+  zenmd check [folder]  check every page against its page template and its
+                        layout's structure; one line per problem,
+                        <page>:<line>: <severity>: <message>; exits 1 on errors
   zenmd glossary add "<Term>" [--folder <folder>] [--definition <text>] [--open]
                         add a term: <folder>/<slug>.md from the term template
                         (the folder is found when there is one glossary)
@@ -207,6 +210,11 @@ Opening:
                       in a folder above it); with a folder it is an error
   --folder            open the file's project folder at that page, even when
                       no folder above it has a marker
+
+Check options:
+  --format <f>        text (default) or json
+  --severity <s>      the lowest to show: error, warning (default) or suggestion
+  --template <id>     check every page against this page template
 
 Init options:
   --blueprint <id>    the blueprint (--template <id>, --<id> work too)
@@ -276,6 +284,8 @@ func Run(args []string, cwd string, stdout, stderr io.Writer, launch Launcher, b
 			return runBlueprint(args[i+1:], cwd, stdout, stderr, initer)
 		case flags && first && arg == "templates":
 			return runTemplates(args[i+1:], cwd, stdout, stderr, initer)
+		case flags && first && arg == "check":
+			return runCheck(args[i+1:], cwd, stdout, stderr)
 		case flags && first && arg == "glossary":
 			return runGlossary(args[i+1:], cwd, stdout, stderr, launch)
 		case flags && first && arg == "edit":
