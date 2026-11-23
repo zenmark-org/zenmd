@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | in progress (phases 1 and 2) |
+| Status | in progress: phases 1 and 2 done (2026-11-23); 3, 4 and 5 to do |
 | Target version | 0.8.0 |
 | Branch | one per phase: `feature/myst-<phase>` (phases below) |
 | Wave | 36–40, one phase per wave |
@@ -61,7 +61,7 @@ Phase 1 also owns `builtins/dialects/myst/coverage_test.go` (new) and
 `examples/demo/features/myst.md`. Later phases send their rows and demo
 sections as Integration lines.
 
-### Phase 1: callouts, built-in `callout` (wave 36)
+### Phase 1: callouts, built-in `callout` (wave 36) — done
 
 | MyST | Renders |
 |---|---|
@@ -76,7 +76,7 @@ sections as Integration lines.
 - `:open:` starts it open;
 - a title argument replaces the kind's default title.
 
-### Phase 2: figures and tables, built-ins `figure` and `table` (wave 37)
+### Phase 2: figures and tables, built-ins `figure` and `table` (wave 37) — done
 
 | MyST | Built-in | Renders |
 |---|---|---|
