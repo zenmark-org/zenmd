@@ -6,8 +6,8 @@
 | Target version | 0.8.0 |
 | Branch | `feature/packaging-linux-cli` |
 | Wave | 57 |
-| Depends on | none (engine/session, kit/assembly and engine/export-cli-parity are done) |
-| Owns | `cmd/zenmd/**` (new), `apps/zenmark/cliset/**` (new), `apps/zenmark/build.go`, `apps/zenmark/sitetemplates.go`, `apps/zenmark/service.go` (the three `builtin…` lines only), `apps/zenmark/assembly_gen.go` (moves), `kit/assembly/cmd/gen/**`, `engine/scriptplugins/host.go` and new `engine/scriptplugins/dup_*.go`, `docs/public/zenmd/getting-started/installation.md`, `docs/public/zenmd/reference/cli.md` |
+| Depends on | none (engine/session, kit/assembly and engine/export-cli-parity are done). Runs beside app/single-file in wave 57: that spec owns `internal/cli/cli.go`, this one only adds `internal/cli/build.go` |
+| Owns | `cmd/zenmd/**` (new), `apps/zenmark/cliset/**` (new), `apps/zenmark/build.go`, `apps/zenmark/sitetemplates.go`, `apps/zenmark/service.go` (the three `builtin…` lines only), `apps/zenmark/assembly_gen.go` (moves), `kit/assembly/cmd/gen/**`, `internal/cli/build.go` (new: `cli.Build`), `engine/scriptplugins/host.go` and new `engine/scriptplugins/dup_*.go`, `docs/public/zenmd/getting-started/installation.md`, `docs/public/zenmd/reference/cli.md` |
 
 ## Purpose
 
