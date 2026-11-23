@@ -325,6 +325,7 @@ help)
   ;;
 check)
   printf '%s' "$FAKE_CHECK_ERR" >&2
+  printf '%s' "$FAKE_CHECK_OUT"
   exit "${FAKE_CHECK_RC:-0}"
   ;;
 export)
@@ -469,8 +470,8 @@ func TestRunScript(t *testing.T) {
 		}
 	})
 	t.Run("check passes with warnings", func(t *testing.T) {
-		r := runRun(t, map[string]string{"ZM_CHECK": "true", "FAKE_HAS_CHECK": "1", "FAKE_CHECK_ERR": "a.md: broken link\n", "ZM_FOLDER": "d"})
-		if r.code != 0 || !strings.Contains(r.stdout, "::warning file=d/a.md,title=zenmd::broken link\n") {
+		r := runRun(t, map[string]string{"ZM_CHECK": "true", "FAKE_HAS_CHECK": "1", "FAKE_CHECK_OUT": "a.md:2: warning: broken link\n", "ZM_FOLDER": "d"})
+		if r.code != 0 || !strings.Contains(r.stdout, "::warning file=d/a.md,line=2,title=zenmd::broken link\n") {
 			t.Fatalf("exit %d\n%s\n%s", r.code, r.stdout, r.stderr)
 		}
 		c := r.call("check")
@@ -479,6 +480,29 @@ func TestRunScript(t *testing.T) {
 		}
 		if r.call("export") == nil {
 			t.Error("export did not run after a passing check")
+		}
+	})
+	t.Run("check form", func(t *testing.T) {
+		out := "guide/a.md:12: error: broken link to x.md\nb.md:3: warning: heading level jumps\nb.md:9: suggestion: add a description, 100%\nChecked 2 pages\n"
+		r := runRun(t, map[string]string{"ZM_CHECK": "true", "FAKE_HAS_CHECK": "1", "FAKE_CHECK_RC": "1", "FAKE_CHECK_OUT": out, "ZM_FOLDER": "docs"})
+		if r.code != 1 || r.call("export") != nil {
+			t.Fatalf("exit %d, calls %v", r.code, r.calls)
+		}
+		for _, w := range []string{
+			"::error file=docs/guide/a.md,line=12,title=zenmd::broken link to x.md",
+			"::warning file=docs/b.md,line=3,title=zenmd::heading level jumps",
+			"::notice file=docs/b.md,line=9,title=zenmd::add a description, 100%25",
+			"Checked 2 pages",
+		} {
+			if !strings.Contains(r.stdout, w+"\n") {
+				t.Errorf("missing %q in\n%s", w, r.stdout)
+			}
+		}
+	})
+	t.Run("check form from stderr, passing", func(t *testing.T) {
+		r := runRun(t, map[string]string{"ZM_CHECK": "true", "FAKE_HAS_CHECK": "1", "FAKE_CHECK_ERR": "a.md:4: warning: odd\n", "FAKE_CHECK_OUT": "b.md:1: suggestion: nice\n"})
+		if r.code != 0 || !strings.Contains(r.stdout, "::warning file=a.md,line=4,title=zenmd::odd\n") || !strings.Contains(r.stdout, "::notice file=b.md,line=1,title=zenmd::nice\n") || r.call("export") == nil {
+			t.Fatalf("exit %d\n%s", r.code, r.stdout)
 		}
 	})
 	t.Run("check fails the job", func(t *testing.T) {

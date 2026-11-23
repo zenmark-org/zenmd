@@ -54,7 +54,9 @@ Each warning also shows on the job as an annotation on the page it names.
   `main` and deploys with GitHub Pages. It never runs for pull requests, and
   only its deploy job may write to Pages.
 
-Copy one into `.github/workflows/` and set the folder.
+Copy one into `.github/workflows/` and set the folder. The examples pin
+`actions/checkout@v7` and the Pages actions at the versions they were written
+with; pin to the current major of each when you copy them.
 
 ## Other CI systems
 

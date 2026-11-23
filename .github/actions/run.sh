@@ -5,7 +5,10 @@
 #
 # zenmd prints one warning per stderr line: "<page>: <text>" (the page's path
 # in the folder), or "site: <text>" for the whole site; a text may start with
-# "line N: ". Annotations carry that text only.
+# "line N: ". `zenmd check` prints one problem per line on stdout:
+# "<page>:<line>: <severity>: <message>" (error, warning or suggestion), which
+# becomes ::error, ::warning or ::notice with line=. Annotations carry that
+# text only.
 #
 # Environment: ZM_FOLDER, ZM_OUTPUT, ZM_HOSTED, ZM_DRAFTS, ZM_SCHEME, ZM_CLEAN,
 # ZM_PRINT, ZM_CHECK, GITHUB_OUTPUT.
@@ -16,12 +19,41 @@ output="${ZM_OUTPUT:-_site}"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
-# annotate <file of warning lines>: one ::warning:: per line; prints the count
-# to $tmp/count.
+# esc_prop and esc_msg escape a property value and a message for a workflow command.
+esc_prop() { printf '%s' "$1" | sed -e 's/%/%25/g' -e 's/,/%2C/g' -e 's/:/%3A/g'; }
+esc_msg() { printf '%s' "$1" | sed -e 's/%/%25/g' -e 's/\r/%0D/g'; }
+
+# with_folder <page>: the page's path from the repository root.
+with_folder() {
+  case "$folder" in
+    .|./|"") printf '%s' "$1" ;;
+    *) printf '%s/%s' "${folder%/}" "${1#./}" ;;
+  esac
+}
+
+# annotate <file> <mode>: one annotation per line; prints the count to
+# $tmp/count. A check-form line ("<page>:<line>: <severity>: <message>") maps
+# error, warning and suggestion to ::error, ::warning and ::notice. In mode
+# check, any other line is passed through as it is; in mode export it is a
+# warning of the "<page>: <text>" form.
 annotate() {
   n=0
   while IFS= read -r line || [ -n "$line" ]; do
     [ -n "$line" ] || continue
+    if printf '%s\n' "$line" | grep -Eq '^.+:[0-9]+: (error|warning|suggestion): '; then
+      n=$((n + 1))
+      sev="$(printf '%s\n' "$line" | sed -E 's/^.+:[0-9]+: (error|warning|suggestion): .*$/\1/')"
+      lno="$(printf '%s\n' "$line" | sed -E 's/^.+:([0-9]+): (error|warning|suggestion): .*$/\1/')"
+      pg="$(printf '%s\n' "$line" | sed -E 's/^(.+):[0-9]+: (error|warning|suggestion): .*$/\1/')"
+      msg="$(printf '%s\n' "$line" | sed -E 's/^.+:[0-9]+: (error|warning|suggestion): (.*)$/\2/')"
+      case "$sev" in error) cmd=error ;; warning) cmd=warning ;; *) cmd=notice ;; esac
+      printf '::%s file=%s,line=%s,title=zenmd::%s\n' "$cmd" "$(esc_prop "$(with_folder "$pg")")" "$lno" "$(esc_msg "$msg")"
+      continue
+    fi
+    if [ "$2" = check ]; then
+      printf '%s\n' "$line"
+      continue
+    fi
     n=$((n + 1))
     file="" lno="" msg="$line"
     case "$line" in
@@ -43,13 +75,9 @@ annotate() {
         ;;
     esac
     if [ -n "$file" ]; then
-      case "$folder" in
-        .|./|"") ;;
-        *) file="${folder%/}/${file#./}" ;;
-      esac
-      file="$(printf '%s' "$file" | sed -e 's/%/%25/g' -e 's/,/%2C/g' -e 's/:/%3A/g')"
+      file="$(esc_prop "$(with_folder "$file")")"
     fi
-    msg="$(printf '%s' "$msg" | sed -e 's/%/%25/g' -e 's/\r/%0D/g')"
+    msg="$(esc_msg "$msg")"
     props=""
     [ -z "$file" ] || props="file=$file,"
     [ -z "$lno" ] || props="${props}line=$lno,"
@@ -64,13 +92,9 @@ if [ "${ZM_CHECK:-false}" = true ]; then
     exit 1
   fi
   rc=0
-  zenmd check "$folder" >"$tmp/check.out" 2>"$tmp/check.err" || rc=$?
-  cat "$tmp/check.out"
-  if [ "$rc" -ne 0 ]; then
-    cat "$tmp/check.err" >&2
-    exit "$rc"
-  fi
-  annotate "$tmp/check.err"
+  zenmd check "$folder" >"$tmp/check.out" 2>&1 || rc=$?
+  annotate "$tmp/check.out" check
+  [ "$rc" -eq 0 ] || exit "$rc"
 fi
 
 set -- export site "$folder" -o "$output"
@@ -87,7 +111,7 @@ if [ "$rc" -ne 0 ]; then
   cat "$tmp/err" >&2
   exit "$rc"
 fi
-annotate "$tmp/err"
+annotate "$tmp/err" export
 warnings="$(cat "$tmp/count")"
 pages="$(sed -n 's/^Built \([0-9][0-9]*\) pages\{0,1\} .*/\1/p' "$tmp/out" | head -n 1)"
 
