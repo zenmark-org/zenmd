@@ -29,7 +29,7 @@ Each built-in also works without MyST, as a `:::name` container or a
    - Every MyST option a directive accepts is read, through `:key: value` lines or a YAML block.
    - `:class:` and `:name:` work on every directive: `:name:` gives the block an `id` that links and `{ref}` can point to.
    - An option the built-in doesn't support shows a page warning and is otherwise ignored. It is never an error.
-3. **The look comes from the plugin kit** (docs/PLUGIN-UI.md): `.zen-block`, the UI font at 14px, tokens only, no new kind of button, choice or field. Callout colours use the lint tokens (`--lint-error`, `--lint-warning`, `--lint-suggestion`) for the left rule only, so pages stay black and white.
+3. **The look comes from the plugin kit** (docs/wiki/PLUGIN-UI.md): `.zen-block`, the UI font at 14px, tokens only, no new kind of button, choice or field. Callout colours use the lint tokens (`--lint-error`, `--lint-warning`, `--lint-suggestion`) for the left rule only, so pages stay black and white.
 4. **Rendered in Go** wherever possible, with output that a page without scripts can read. Scripts only add behaviour, such as tabs or dropdowns opening by keyboard.
 5. **Safe:**
    - nothing runs code: `{code-cell}` and `{eval}` stay code;
@@ -157,7 +157,7 @@ Each new built-in declares its MyST names in `Blocks` or `Inlines`. The help sni
 
 ## UI
 
-UI consistency: every block is a plugin-kit block (docs/PLUGIN-UI.md).
+UI consistency: every block is a plugin-kit block (docs/wiki/PLUGIN-UI.md).
 Callouts, cards, dropdowns and tabs share the frame, type and buttons, and
 colour appears only as a callout's left rule, from the lint tokens.
 
@@ -178,4 +178,4 @@ colour appears only as a callout's left rule, from the lint tokens.
 
 ## Prompt
 
-> Implement phase N of `specs/plugins/myst-builtins/spec.md` following CLAUDE.md and docs/PLUGIN-UI.md, in `../zen-worktrees/myst-<phase>` on `feature/myst-<phase>`. Model each built-in on `builtins/plugins/quiz` (Go render, kit styles, runtime tests). Tests first, committed failing. Only that phase's paths. Do not launch the app, run task package/install/release, push or touch main.
+> Implement phase N of `specs/plugins/myst-builtins/spec.md` following CLAUDE.md and docs/wiki/PLUGIN-UI.md, in `../zen-worktrees/myst-<phase>` on `feature/myst-<phase>`. Model each built-in on `builtins/plugins/quiz` (Go render, kit styles, runtime tests). Tests first, committed failing. Only that phase's paths. Do not launch the app, run task package/install/release, push or touch main.

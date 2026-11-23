@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!-- Alpha: no App Sandbox, so the `zen` command can open any folder from a
      terminal. The sandboxed set for the App Store build is in
-     *.sandbox.plist (beta, see docs/PLAN.md). -->
+     *.sandbox.plist (beta, see docs/wiki/PLAN.md). -->
 <plist version="1.0">
 	<dict/>
 </plist>

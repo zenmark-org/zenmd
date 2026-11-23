@@ -78,7 +78,7 @@ layouts** that anyone can write with HTML and CSS.
 | `wide` | tables, diagrams, dashboards | full pane width, no reading column |
 | `handout` | printable one-pagers | A4/Letter page frame on screen, print CSS, header/footer with title, date and page numbers |
 
-(Ideas for later: docs/possible-layouts.md.)
+(Ideas for later: docs/wiki/possible-layouts.md.)
 
 ## Tests
 

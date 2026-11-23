@@ -7,7 +7,7 @@
 | Branch | `feature/15-editor` (found while checking roadmap step 6, #15) |
 | Wave | 34 |
 | Depends on | ui/nav-panel (the sidebar footer group), ui/find, #25 (the Inspector), the editor feature |
-| Owns | `kit/ui/src/shell/icons.ts` (new: the app's line icons) + test, `kit/ui/src/shell/{layout,dom}.ts` + tests (footer group, icons moved out), `kit/ui/src/page/index.ts` (the Edit button) + tests, `kit/ui/src/find/**` (the Find button's pressed state), `kit/ui/src/inspector/index.ts` (where its button lives) + tests, `kit/ui/src/styles/shell.css`, `apps/zenmark/frontend/src/shell/shell.ts` + tests, `docs/UI.md` (top bar, sidebar), `examples/demo/{intro/editor,intro/find,intro/inspector,layouts/course,configuration/settings}.md` |
+| Owns | `kit/ui/src/shell/icons.ts` (new: the app's line icons) + test, `kit/ui/src/shell/{layout,dom}.ts` + tests (footer group, icons moved out), `kit/ui/src/page/index.ts` (the Edit button) + tests, `kit/ui/src/find/**` (the Find button's pressed state), `kit/ui/src/inspector/index.ts` (where its button lives) + tests, `kit/ui/src/styles/shell.css`, `apps/zenmark/frontend/src/shell/shell.ts` + tests, `docs/wiki/UI.md` (top bar, sidebar), `examples/demo/{intro/editor,intro/find,intro/inspector,layouts/course,configuration/settings}.md` |
 
 ## Purpose
 
@@ -39,7 +39,7 @@ in the sidebar footer.
 5. **Keys and menus are unchanged:** ⌘F, ⌘E, ⌥⌘I, ⌥⌘J and Edit › Find. A key that turns a button on or off updates its state.
 6. **The editor window** is unchanged in this spec. Its header keeps its own buttons (Split, Done).
 7. **Docs and demo:**
-   - docs/UI.md: update the top bar sketch and the sidebar paragraph;
+   - docs/wiki/UI.md: update the top bar sketch and the sidebar paragraph;
    - the demo pages that name these buttons say "the pencil in the top bar", "the magnifying glass", and "the Inspector button in the top bar".
 
 ## Architecture

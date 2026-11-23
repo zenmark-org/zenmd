@@ -108,7 +108,7 @@ Edge cases: a folder name with spaces or `/`-like characters in the default PDF 
 
 - Menu: File › Export ▸ Website… ⇧⌘B, PDF… ⇧⌘P (macOS submenu), greyed out without a folder.
 - Preview toolbar: Close, Print…, **Export PDF…** (primary). States: idle; preparing (buttons disabled until ready, as Print); exporting ("Exporting…", buttons disabled); saved (status line "Saved Guide.pdf" + Show in Finder link); error (status line in `--lint-error` text, role="alert"). The status line is `aria-live="polite"`.
-- Settings › Export: two sub-headings, Website and PDF, same layout as the other sections; tokens from docs/UI.md only.
+- Settings › Export: two sub-headings, Website and PDF, same layout as the other sections; tokens from docs/wiki/UI.md only.
 - Keyboard: the save panel is native; Esc closes the preview as before.
 
 ## Security
@@ -125,9 +125,9 @@ Edge cases: a folder name with spaces or `/`-like characters in the default PDF 
 - **Out of scope:** PDF on Linux/Windows; choosing paper size and margins (the save job uses the system defaults, Print… is there for control); a PDF of one page from the CLI; exporting other formats (EPUB, DOCX); a progress bar in the CLI.
 - **Integration (done by the lead at merge):**
   - `specs/ui/static-build/spec.md` and `specs/ui/print/spec.md`: a line under Behaviour pointing to app/export for the renamed menu items; `specs/app/menu/spec.md`: the Export submenu.
-  - `docs/PLAN.md` Service API: `exportPdf`, `revealExport`.
+  - `docs/wiki/PLAN.md` Service API: `exportPdf`, `revealExport`.
   - User guide (`examples/demo`): rename Build Website / Print Site to Export in the pages that mention them, then update the golden hash of `TestDemoBuildUnchanged`.
-  - `docs/BUILD.md` (or wherever `zenmd build` is documented): `zenmd export site|pdf`.
+  - `docs/wiki/BUILD.md` (or wherever `zenmd build` is documented): `zenmd export site|pdf`.
   - `README.md` command list.
 - **App Store / sandbox:** the in-app export writes only where the save panel allows (user-selected file, already granted by the panel). The headless CLI is not part of the App Store build (the CLI is installed separately), so no new entitlement.
 - **Changelog:** `Added: Export — File › Export › Website… (⇧⌘B) and PDF… (⇧⌘P), Settings › Export, and zenmd export site|pdf; the PDF is saved directly, without the print panel, and zenmd export pdf works from the command line (#5).`

@@ -1,5 +1,5 @@
 // Package render turns a markdown file into the sanitised HTML page the
-// reader shows, running the plugin pipeline described in docs/PLAN.md:
+// reader shows, running the plugin pipeline described in docs/wiki/PLAN.md:
 // frontmatter, source hooks, parse, block/inline hooks, links, HTML hooks,
 // sanitise. Sanitising is last and unconditional.
 //

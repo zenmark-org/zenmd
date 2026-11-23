@@ -29,11 +29,11 @@ render pipeline.
 ## Architecture
 
 Pure Go, standard library only. Defines types only; `core/render` drives the
-hooks. Full API and syntax: docs/PLUGINS.md (authoritative for type shapes).
+hooks. Full API and syntax: docs/wiki/PLUGINS.md (authoritative for type shapes).
 
 ## Interfaces
 
-All types from docs/PLUGINS.md (`Manifest`, `Plugin`, `Context`, `Block`,
+All types from docs/wiki/PLUGINS.md (`Manifest`, `Plugin`, `Context`, `Block`,
 `Inline`, the five hook interfaces, `APIVersion`), plus:
 
 ```go
@@ -99,6 +99,6 @@ None (error box style belongs to ui/page: class `zen-plugin-error`).
 ## Prompt
 
 > Implement `specs/core/plugins/spec.md` following the rules in `specs/README.md`.
-> docs/PLUGINS.md is authoritative for type shapes and syntax. Standard library only.
+> docs/wiki/PLUGINS.md is authoritative for type shapes and syntax. Standard library only.
 > Write a small fake plugin in the test files to exercise the registry. Done when the
 > tests in the table pass.

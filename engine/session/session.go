@@ -37,7 +37,7 @@ const (
 	EventPluginsChanged = "plugins:changed"
 )
 
-// Events delivers the session's events (docs/PLAN.md "Service API"); the app
+// Events delivers the session's events (docs/wiki/PLAN.md "Service API"); the app
 // forwards them to its frontend. A session works without one.
 type Events interface {
 	Emit(name string, data any)
@@ -60,7 +60,7 @@ type TrustPrompter interface{ ConfirmTrust(message string) bool }
 type Readier interface{ Ready() bool }
 
 // NavNode, Workspace, Crumb, Page and Startup are the JSON shapes of
-// docs/PLAN.md "Service API".
+// docs/wiki/PLAN.md "Service API".
 type NavNode struct {
 	Title    string    `json:"title"`
 	Path     string    `json:"path"`

@@ -29,7 +29,7 @@ theme: default
 ```
 
 Features are not add-ons. An add-on brings a helper program or a permission
-(docs/ADDONS.md). A feature is part of the app that is there by default and
+(docs/wiki/ADDONS.md). A feature is part of the app that is there by default and
 can be turned off.
 
 ## Behaviour
@@ -153,9 +153,9 @@ menu and Settings simply have fewer items. Settings › This build gets a
   - a read-only *mode* switched at run time in Zenmark;
   - App Store entitlements (a read-only app could ask only for read access to the folder, a later packaging spec).
 - **Integration (lead, at merge):**
-  - `docs/BUILD.md` "What an app is built from": the `features` key.
-  - `docs/ADDONS.md`: a line under *Add-on, plugin or layout?* saying features are the fourth kind (part of the app, on by default).
-  - `docs/ENGINE.md`: `session.Options.ReadOnly`, `ErrReadOnly`.
+  - `docs/wiki/BUILD.md` "What an app is built from": the `features` key.
+  - `docs/wiki/ADDONS.md`: a line under *Add-on, plugin or layout?* saying features are the fourth kind (part of the app, on by default).
+  - `docs/wiki/ENGINE.md`: `session.Options.ReadOnly`, `ErrReadOnly`.
   - `specs/kit/assembly/spec.md`: a pointer here.
   - README; the user guide only if it describes the assembly.
 - **The working tree:** `apps/zenmark/app-assembly.yml` has local edits (empty plugins/layouts/templates). The agent adds only `features: all` to the committed version, and the lead re-applies the local edits after the merge.

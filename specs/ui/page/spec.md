@@ -24,7 +24,7 @@ Shows a rendered page with editorial typography and makes its links work.
 7. `page:changed` for the current path re-renders in place and keeps the scroll position; for another path it does nothing.
 8. `page.warnings` are shown in a dismissible muted bar above the article.
 9. The header `actions` slot gets an "Edit" button (⌘E) that sets `mode: "edit"`.
-10. `page/page.css` styles every element the renderer can emit (headings, lists, task lists, tables, code, blockquote, footnotes, images max-width 100%, `hr`, `.zen-plugin-error`, broken links) per docs/UI.md.
+10. `page/page.css` styles every element the renderer can emit (headings, lists, task lists, tables, code, blockquote, footnotes, images max-width 100%, `hr`, `.zen-plugin-error`, broken links) per docs/wiki/UI.md.
 
 ## Architecture
 
@@ -56,7 +56,7 @@ export function handleLinkClick(e: MouseEvent, ctx: Ctx): void;
 
 ## UI
 
-docs/UI.md "Reader": page column 68ch centred, serif body, states. Print
+docs/wiki/UI.md "Reader": page column 68ch centred, serif body, states. Print
 stylesheet is out of scope.
 
 ## Security

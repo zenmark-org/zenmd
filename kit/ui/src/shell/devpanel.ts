@@ -120,7 +120,7 @@ export function createConsoleTab({ doc, host, capture, tools }: ConsoleTabOption
   list.tabIndex = 0;
   const jump = button("Jump to latest", () => { follow = true; jump.hidden = true; toBottom(); }, { className: "zen-dev-jump" });
   jump.hidden = true;
-  // The panel's own empty state, padded like every tab (docs/UI.md, UI consistency).
+  // The panel's own empty state, padded like every tab (docs/wiki/UI.md, UI consistency).
   const empty = panelEmpty("No log entries yet.");
   empty.classList.add("zen-dev-empty");
   cols.left.classList.add("zen-console-list");

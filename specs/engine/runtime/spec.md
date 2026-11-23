@@ -7,7 +7,7 @@
 | Branch | `feature/engine-runtime` |
 | Wave | 15 (E2b) |
 | Depends on | engine/public-api |
-| Owns | `runtime/` (new), the moved files from `frontend/src/{plugins/runtime.ts,static,print/ready.ts,print/page.ts,page/page.css,page/print.css,styles/tokens.css,styles/base.css}` and their tests, `frontend/{vite.config.ts,tsconfig.json,package.json scripts,vitest config}`, import paths in `frontend/src/**`, `engine/session` (default runtime), `main.go` and `internal/app/build.go` (`StaticAssets` wiring), `Taskfile.yml` / `build/Taskfile.yml` (build order), `.github/workflows/ci.yml` (only if the build order needs it), `docs/ENGINE.md` (the runtime section) |
+| Owns | `runtime/` (new), the moved files from `frontend/src/{plugins/runtime.ts,static,print/ready.ts,print/page.ts,page/page.css,page/print.css,styles/tokens.css,styles/base.css}` and their tests, `frontend/{vite.config.ts,tsconfig.json,package.json scripts,vitest config}`, import paths in `frontend/src/**`, `engine/session` (default runtime), `main.go` and `internal/app/build.go` (`StaticAssets` wiring), `Taskfile.yml` / `build/Taskfile.yml` (build order), `.github/workflows/ci.yml` (only if the build order needs it), `docs/wiki/ENGINE.md` (the runtime section) |
 
 ## Purpose
 

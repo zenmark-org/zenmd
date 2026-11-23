@@ -13,7 +13,7 @@
 
 The page side of external plugins: the `zen` object plugin scripts use, mount
 and clean-up of plugin blocks and layouts, the Plugins list in Settings, and
-the how-to in the demo folder. Contract: docs/PLUGINS.md "Writing your own plugin".
+the how-to in the demo folder. Contract: docs/wiki/PLUGINS.md "Writing your own plugin".
 
 ## Behaviour
 
@@ -66,7 +66,7 @@ export function installRuntime(opts: { api: Api; navigate(path: string, anchor?:
 ## Prompt
 
 > Implement `specs/ui/plugins/spec.md` following the rules in `specs/README.md`;
-> docs/PLUGINS.md "Writing your own plugin" is the contract. Another agent builds the Go
+> docs/wiki/PLUGINS.md "Writing your own plugin" is the contract. Another agent builds the Go
 > side and `examples/demo/.zen/plugins/{note,calc}/` exactly as that document shows them:
 > write the how-to assuming those exist, and do not touch Go files or the generated bindings
 > (write `wails.ts` against the method names in specs/core/extplugins; tsc will only pass for

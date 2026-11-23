@@ -1,7 +1,7 @@
 /* The top bar (.zen-top, .zen-top-controls) and the icon (.zen-icon) are shared with exported sites: the runtime's top-bar.css. */
 @import "@zenmd/runtime/css/top-bar.css";
 
-/* Welcome, error and the frame (docs/ui/mockup.html). */
+/* Welcome, error and the frame (docs/wiki/ui/mockup.html). */
 
 /* welcome and error */
 .zen-welcome,

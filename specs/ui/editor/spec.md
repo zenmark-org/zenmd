@@ -58,7 +58,7 @@ export function continueList(e: Edit): Edit | null; // Enter key behaviour
 
 ## UI
 
-docs/UI.md "Editor" and the mockup. Toolbar 36px, grayscale glyph buttons with
+docs/wiki/UI.md "Editor" and the mockup. Toolbar 36px, grayscale glyph buttons with
 `aria-label` and tooltip including the shortcut.
 
 ## Security

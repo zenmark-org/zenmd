@@ -84,5 +84,5 @@ None.
 
 > Implement `specs/core/config/spec.md` following the rules in `specs/README.md`.
 > Create package `internal/core/config` with exactly the interface above, using
-> `gopkg.in/yaml.v3` (already in go.mod). See docs/PLUGINS.md "Enabling, disabling,
+> `gopkg.in/yaml.v3` (already in go.mod). See docs/wiki/PLUGINS.md "Enabling, disabling,
 > configuring" for the file format. Done when the tests in the table pass.

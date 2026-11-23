@@ -1,7 +1,7 @@
 /* The plugin kit: the one look of every interactive block (quiz, rating, checklist, sandbox, course ...).
    The sandbox's bar and buttons are the reference. Plugins and layouts add these classes to their elements and keep
-   only the styles that are their own; they never restyle buttons, choices, fields or frames. Tokens only (docs/UI.md).
-   The rules for authors are in docs/PLUGIN-UI.md. */
+   only the styles that are their own; they never restyle buttons, choices, fields or frames. Tokens only (docs/wiki/UI.md).
+   The rules for authors are in docs/wiki/PLUGIN-UI.md. */
 
 /* The frame of a block. */
 .zen-block { box-sizing: border-box; margin: 1em 0; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--bg-subtle); color: var(--fg); font: 14px/1.4 var(--font-ui); }

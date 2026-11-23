@@ -40,7 +40,7 @@
 //
 // # Compatibility
 //
-// The engine follows Semantic Versioning (docs/VERSIONING.md). Before 1.0 a
+// The engine follows Semantic Versioning (docs/wiki/VERSIONING.md). Before 1.0 a
 // breaking change to an exported name bumps the minor version; CI runs
 // apidiff against the latest tag and fails an undeclared break.
 package engine

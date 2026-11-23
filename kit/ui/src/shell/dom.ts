@@ -31,7 +31,7 @@ export function iconButton(name: IconName, label: string, title: string, onClick
 
 const SVG = "http://www.w3.org/2000/svg";
 
-/** The zen mark: yin and yang reduced to two shapes (docs/ui/mockup.html). */
+/** The zen mark: yin and yang reduced to two shapes (docs/wiki/ui/mockup.html). */
 export function logo(className: string, strokeWidth = 1.5): SVGSVGElement {
   const svg = document.createElementNS(SVG, "svg");
   svg.setAttribute("class", className);

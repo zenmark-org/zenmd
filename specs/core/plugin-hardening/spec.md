@@ -6,7 +6,7 @@
 | Target version | 0.2.0-alpha.2 |
 | Branches | `feature/plugin-hardening-go`, `feature/plugin-hardening-ui` |
 | Depends on | waves 6–8 |
-| Source | docs/plugin-review-2026-11.md (findings H1–H4, M1–M7, L1–L10) |
+| Source | docs/wiki/plugin-review-2026-11.md (findings H1–H4, M1–M7, L1–L10) |
 
 Fixes every finding in the review. Two parts with disjoint ownership; the
 **shared contract** below is fixed and both parts code against it.
@@ -28,7 +28,7 @@ Fixes every finding in the review. Two parts with disjoint ownership; the
 
 ## Part A — Go (`feature/plugin-hardening-go`)
 
-Owns `internal/core/**`, `internal/app/**` (not plugin `assets/*.js`), `docs/PLUGINS.md`, `specs/core/{extplugins,plugin-extras}/spec.md`, `docs/plugin-review-2026-11.md` (status column only).
+Owns `internal/core/**`, `internal/app/**` (not plugin `assets/*.js`), `docs/wiki/PLUGINS.md`, `specs/core/{extplugins,plugin-extras}/spec.md`, `docs/wiki/plugin-review-2026-11.md` (status column only).
 
 | Finding | Required behaviour |
 |---|---|

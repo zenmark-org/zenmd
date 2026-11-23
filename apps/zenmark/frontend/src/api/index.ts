@@ -1,5 +1,5 @@
 // The typed client for the Go services. Types and the Api interface mirror
-// docs/PLAN.md "Service API" exactly; UI features import only from here.
+// docs/wiki/PLAN.md "Service API" exactly; UI features import only from here.
 import type { NewTermResult, AddonInfo, Alert, BuildInfo, DialectInfo, Draft, KitHost, LayoutSource, LintResult, OpenProgress, Page, PageInfo, PluginStreamEvent, Workspace as KitWorkspace } from "@zenmd/kit";
 import { createFakeApi, sampleWorkspace, type FakeOptions } from "./fake";
 import { inApp, wailsReady } from "./detect";

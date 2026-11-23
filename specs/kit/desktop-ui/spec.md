@@ -7,11 +7,11 @@
 | Branch | `feature/kit-desktop-ui` |
 | Wave | 16 (E2c); runs **alone**: it moves the app and its frontend |
 | Depends on | engine/public-api, engine/runtime |
-| Owns | `internal/app/**` → `apps/zenmd-app/**` and `kit/desktop/**`, `frontend/**` → `apps/zenmd-app/frontend/**` and `kit/ui/**`, `main.go`, `Taskfile.yml`, `build/Taskfile.yml`, `build/darwin/Taskfile.yml`, `build/config.yml` (frontend path), `.github/workflows/ci.yml`, `.gitignore`, `runtime/package.json` and `runtime/vite.config.ts` (paths to the frontend's node_modules), docs paths in `docs/ENGINE.md` and `README.md` |
+| Owns | `internal/app/**` → `apps/zenmd-app/**` and `kit/desktop/**`, `frontend/**` → `apps/zenmd-app/frontend/**` and `kit/ui/**`, `main.go`, `Taskfile.yml`, `build/Taskfile.yml`, `build/darwin/Taskfile.yml`, `build/config.yml` (frontend path), `.github/workflows/ci.yml`, `.gitignore`, `runtime/package.json` and `runtime/vite.config.ts` (paths to the frontend's node_modules), docs paths in `docs/wiki/ENGINE.md` and `README.md` |
 
 ## Purpose
 
-Add the middle layer of docs/ENGINE.md:
+Add the middle layer of docs/wiki/ENGINE.md:
 - **`kit/`** holds what any desktop app built on zenmd needs: the window shell in Go, and the shared UI in TypeScript;
 - **`apps/zenmd-app/`** holds what makes zen.md itself: its main window, menu, `Zen` service, its dialogs and its frontend.
 

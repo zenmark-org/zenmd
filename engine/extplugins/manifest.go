@@ -1,6 +1,6 @@
 // Package extplugins loads external plugins: folders with a plugin.yml whose
 // backend is a program zen runs (stdin, stdout, environment) and whose
-// frontend is scripts and styles served to the page. See docs/PLUGINS.md,
+// frontend is scripts and styles served to the page. See docs/wiki/PLUGINS.md,
 // "Writing your own plugin". Nothing here runs a plugin before the app has
 // asked the user (see Trust).
 //
@@ -238,7 +238,7 @@ func Load(dir string) (*Plugin, error) {
 		return nil, fmt.Errorf("version %q is not valid SemVer (such as 1.0.0)", raw.Version)
 	}
 	if raw.Layouts != nil {
-		return nil, errors.New("layouts moved: a plugin cannot declare layouts; put the layout in .zen/layouts/<id>/layout.yml (see docs/LAYOUTS.md)")
+		return nil, errors.New("layouts moved: a plugin cannot declare layouts; put the layout in .zen/layouts/<id>/layout.yml (see docs/wiki/LAYOUTS.md)")
 	}
 	p := &Plugin{dir: real, hash: hash, guard: NewGuard(fp, func() (string, error) { return FolderFingerprint(real) })}
 	m := plugins.Manifest{

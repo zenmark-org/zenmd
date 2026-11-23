@@ -1,5 +1,5 @@
 /* The sidebar's header (logo, title, Reload, close) and the Navigation row of Settings (ui/nav-panel).
-   Tokens only (docs/UI.md). The separators are the frame's own rules: 1px --rule. */
+   Tokens only (docs/wiki/UI.md). The separators are the frame's own rules: 1px --rule. */
 
 .zen-sidebar-head {
   height: 44px;

@@ -51,7 +51,7 @@ func New() plugins.Plugin
 
 ## UI
 
-Monochrome code styling consistent with docs/UI.md tokens.
+Monochrome code styling consistent with docs/wiki/UI.md tokens.
 
 ## Security
 
@@ -70,4 +70,4 @@ Monochrome code styling consistent with docs/UI.md tokens.
 ## Prompt
 
 > Implement `specs/plugins/codeblock/spec.md` following the rules in `specs/README.md` and
-> docs/PLUGINS.md. Use chroma v2 with class-based HTML output. Done when the tests pass.
+> docs/wiki/PLUGINS.md. Use chroma v2 with class-based HTML output. Done when the tests pass.

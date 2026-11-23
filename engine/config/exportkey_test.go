@@ -116,7 +116,7 @@ func TestGlobalBuildKey(t *testing.T) {
 
 // build: config examples appear only in the legacy notes: the code that reads
 // the key, the CHANGELOG, the historical specs and the one sentence in
-// docs/BUILD.md that says it is still read.
+// docs/wiki/BUILD.md that says it is still read.
 func TestNoLegacyBuildKeyOutsideNotices(t *testing.T) {
 	root, err := filepath.Abs("../..")
 	if err != nil {
@@ -129,7 +129,7 @@ func TestNoLegacyBuildKeyOutsideNotices(t *testing.T) {
 		switch rel {
 		case "engine/config/export.go", "CHANGELOG.md":
 			return true
-		case "docs/BUILD.md":
+		case "docs/wiki/BUILD.md":
 			return strings.Contains(line, "still read")
 		}
 		return false

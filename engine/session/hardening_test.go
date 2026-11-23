@@ -1,6 +1,6 @@
 package session
 
-// Regression tests for docs/plugin-review-2026-11.md (app side).
+// Regression tests for docs/wiki/plugin-review-2026-11.md (app side).
 
 import (
 	"net/http"

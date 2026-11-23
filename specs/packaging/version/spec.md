@@ -11,7 +11,7 @@
 
 ## Purpose
 
-Every build knows its SemVer version from one file, as described in docs/VERSIONING.md.
+Every build knows its SemVer version from one file, as described in docs/wiki/VERSIONING.md.
 
 ## Behaviour
 
@@ -57,7 +57,7 @@ None: build metadata only, no input from users at runtime.
 ## Prompt
 
 > Implement `specs/packaging/version/spec.md` following the rules in `specs/README.md`
-> and docs/VERSIONING.md. `VERSION` and `CHANGELOG.md` exist already. Do not change
+> and docs/wiki/VERSIONING.md. `VERSION` and `CHANGELOG.md` exist already. Do not change
 > anything in the Taskfiles unrelated to version stamping. `wails3` and `task` are in
 > `$(go env GOPATH)/bin`. Done when the tests pass and `task build && ./bin/zen --version`
 > prints `zen 0.1.0-alpha.1`. Revert incidental changes to `build/darwin/icons.icns`.

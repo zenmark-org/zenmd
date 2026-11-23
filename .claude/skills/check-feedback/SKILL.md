@@ -1,12 +1,12 @@
 ---
 name: check-feedback
-description: Check the testing feedback in docs/improve/ - pull the notes the user added (often committed straight on GitHub), read each one, verify bug claims, decide issue or spec, file them with the /add-issue flow after one confirmation, delete the filed notes and commit. Use when the user runs /check-feedback, says they added an improvement, feedback, note or issue to docs/improve, or asks to go through the feedback.
-argument-hint: "[file in docs/improve]  (default: every note)"
+description: Check the testing feedback in docs/wiki/improve/ - pull the notes the user added (often committed straight on GitHub), read each one, verify bug claims, decide issue or spec, file them with the /add-issue flow after one confirmation, delete the filed notes and commit. Use when the user runs /check-feedback, says they added an improvement, feedback, note or issue to docs/wiki/improve, or asks to go through the feedback.
+argument-hint: "[file in docs/wiki/improve]  (default: every note)"
 ---
 
 # /check-feedback
 
-`docs/improve/` holds notes the user writes while testing Zenmark: one note per
+`docs/wiki/improve/` holds notes the user writes while testing Zenmark: one note per
 file, `README.md` excepted (it describes the process and may add rules; read
 it first). Arguments: `$ARGUMENTS` — one note file, or nothing for all of them.
 
@@ -22,10 +22,10 @@ git diff --stat main...origin/main
 
 - If `origin/main` is ahead and the working tree is clean, `git pull --ff-only origin main`.
 - If the local tree has changes, or the branches have diverged, or the new
-  commits touch more than `docs/improve/`, stop and tell the user what is
+  commits touch more than `docs/wiki/improve/`, stop and tell the user what is
   there instead of merging.
 
-Then list the notes: every `docs/improve/*.md` except `README.md`. If there
+Then list the notes: every `docs/wiki/improve/*.md` except `README.md`. If there
 are none, say so in one line and stop.
 
 ## 2. Read and check each note
@@ -59,7 +59,7 @@ After a clear yes:
 1. Create each issue (`gh issue create … --body-file`), stop at the first failure.
 2. `git rm` each note whose issue was created (never `README.md`; a note that
    was skipped or failed stays).
-3. Commit: `Filed docs/improve feedback as issues #N, #M`.
+3. Commit: `Filed docs/wiki/improve feedback as issues #N, #M`.
 4. Do not push; ask the user.
 
 ## 5. Report

@@ -7,7 +7,7 @@
 | Branch | `feature/engine-public-api` |
 | Wave | 14 (E2a); runs **alone**: it touches the import paths of every Go file |
 | Depends on | engine/session, engine/cli-rename |
-| Owns | `go.mod`, every `*.go` import path, `internal/core/**` → `engine/**`, `internal/{plugins,layouts,sitetemplates}/**` → `builtins/**`, `engine/doc.go` and the package docs, `engine/example_test.go`, `.github/workflows/ci.yml` (the apidiff job), the Taskfiles' `-ldflags` path, `frontend/src/api/wails.ts` (binding import path), `docs/ENGINE.md` (the API section) |
+| Owns | `go.mod`, every `*.go` import path, `internal/core/**` → `engine/**`, `internal/{plugins,layouts,sitetemplates}/**` → `builtins/**`, `engine/doc.go` and the package docs, `engine/example_test.go`, `.github/workflows/ci.yml` (the apidiff job), the Taskfiles' `-ldflags` path, `frontend/src/api/wails.ts` (binding import path), `docs/wiki/ENGINE.md` (the API section) |
 
 ## Purpose
 
@@ -108,7 +108,7 @@ None.
   - `kit/` (E2c).
 - **Integration (lead):**
   - the changelog line;
-  - mark E2a done in `docs/ENGINE.md` and `specs/README.md`;
+  - mark E2a done in `docs/wiki/ENGINE.md` and `specs/README.md`;
   - a `v0.4.0` tag after release, so apidiff has a baseline.
 - **Changelog:** `Changed (engine): the module is github.com/zenmark-org/zenmd; the engine packages are public under engine/ and the default plugins, layouts and site templates under builtins/. No visible change.`
 

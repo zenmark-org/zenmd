@@ -3,8 +3,8 @@
 `zenmd export site` (also `zenmd build`) exports a folder as a static website, and `zenmd export pdf` as one PDF file (see the end of this page). Every page is rendered with
 the same Go pipeline as the app (plugins, layouts, sidebar, breadcrumb), then
 written as plain HTML with its assets next to it. Spec:
-[specs/core/static-build](../specs/core/static-build/spec.md). User guide:
-[examples/showcase/build/index.md](../examples/showcase/build/index.md).
+[specs/core/static-build](../../specs/core/static-build/spec.md). User guide:
+[examples/showcase/build/index.md](../../examples/showcase/build/index.md).
 
 ```sh
 zenmd export site [folder] [-o dir] [--hosted] [--drafts|--no-drafts] [--clean] [--print|--no-print] [--scheme auto|light|dark] [--save-defaults [--dry-run]]
@@ -104,7 +104,7 @@ it, checks what each template and layout needs (`requires:` in their
 (by hand: `go run ./kit/assembly/cmd/gen apps/<app>`; `-tags-only` and
 `-ids-only` print the add-on tags or the ids).
 
-Add-ons (docs/ADDONS.md, specs/kit/addons) are compiled in with the tag
+Add-ons (docs/wiki/ADDONS.md, specs/kit/addons) are compiled in with the tag
 `addon_<id>`, and their helpers are bundled only when they are in the build.
 `ADDONS=` on the command line overrides the file (`ADDONS=` empty: none); the
 release workflow passes the repository variable `ADDONS`, and when it is unset

@@ -138,7 +138,7 @@ Edge cases:
 
 ## UI
 
-Settings › Accessibility, in the same frame and controls as Appearance (docs/UI.md tokens only):
+Settings › Accessibility, in the same frame and controls as Appearance (docs/wiki/UI.md tokens only):
 
 ```
 Accessibility
@@ -190,8 +190,8 @@ Accessibility
 - **Integration (lead, at merge):**
   - `apps/zenmark/frontend/src/api/{index,wails,fake}.ts`: the `menu:zoom-in`, `menu:zoom-out` and `menu:zoom-reset` events (ui/nav-panel owns those files in this wave); until then `main.ts` listens with the Wails `Events.On` directly.
   - `kit/ui/src/nav/panel.css` (ui/nav-panel): add the reduced-motion twin if it has motion rules.
-  - docs/UI.md: the Accessibility paragraph gains the section, the attributes, View › Zoom and "Contrast more".
-  - docs/BUILD.md: Accessibility is in the bare shell.
+  - docs/wiki/UI.md: the Accessibility paragraph gains the section, the attributes, View › Zoom and "Contrast more".
+  - docs/wiki/BUILD.md: Accessibility is in the bare shell.
   - README: a features line.
   - CHANGELOG under Added.
 - **App Store / sandbox:** none.

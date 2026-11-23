@@ -108,8 +108,8 @@ CI and `task test` run the Go tests twice: without tags and with `-tags addon_va
 
 - **Out of scope:** installing or removing add-ons after the build; a frontend bundle per add-on (the lint UI code stays in the bundle and is gated at run time; the size that matters is the 30 MB Vale binary, which is left out); the voice add-on itself and the hooks it needs (panel tab, service, menu, microphone entitlement) — each gets its own spec.
 - **Integration (lead, at merge):**
-  - `docs/ENGINE.md`: `session.SetLinter`; `docs/PLAN.md`: `Startup.addons`.
-  - `docs/BUILD.md` and `docs/DISTRIBUTION.md`: `ADDONS=`, and the `ADDONS` repository variable for releases.
+  - `docs/wiki/ENGINE.md`: `session.SetLinter`; `docs/wiki/PLAN.md`: `Startup.addons`.
+  - `docs/wiki/BUILD.md` and `docs/wiki/DISTRIBUTION.md`: `ADDONS=`, and the `ADDONS` repository variable for releases.
   - User guide: the lint pages say Vale is an add-on included in some builds; golden hash.
   - `specs/core/lint`, `specs/ui/lint`, `specs/ui/inspector`: a line pointing here.
   - README: build with add-ons.

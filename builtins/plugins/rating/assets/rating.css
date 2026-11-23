@@ -1,4 +1,4 @@
-/* :::rating — only what is the rating's own (the stars); the frame, title and Clear button are the plugin kit's (docs/PLUGIN-UI.md). */
+/* :::rating — only what is the rating's own (the stars); the frame, title and Clear button are the plugin kit's (docs/wiki/PLUGIN-UI.md). */
 .zr-rating { margin: 12px 0; }
 .zr-text { margin: 0 0 8px; }
 .zr-stars { display: flex; align-items: baseline; gap: 2px; }

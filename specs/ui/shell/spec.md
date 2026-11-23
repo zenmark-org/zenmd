@@ -23,7 +23,7 @@ a fake so every UI feature can be built and tested without Go.
 4. The shell owns app state `{workspace, path, mode: "read"|"edit"}` in a small store (`get`, `set`, `subscribe`) and a history stack: `navigate(path, anchor?)`, `back()` ⌘[, `forward()` ⌘].
 5. Features are registered in `shell/features.ts` as `{ mount(slots, ctx) }` where `ctx = { api, store, navigate }`. The shipped file registers placeholder features so the app runs before the other UI specs merge.
 6. `mode` switches what is mounted in `main`: page feature for `read`, editor feature for `edit`.
-7. `styles/tokens.css` defines every token in docs/UI.md for light and dark (`prefers-color-scheme`, overridable with `data-theme`); `styles/base.css` holds resets, buttons, focus ring.
+7. `styles/tokens.css` defines every token in docs/wiki/UI.md for light and dark (`prefers-color-scheme`, overridable with `data-theme`); `styles/base.css` holds resets, buttons, focus ring.
 8. `api/index.ts` exports the `Api` interface and types exactly as in PLAN.md "Service API", `getApi()` (returns the Wails implementation when `window._wails` exists and `api/wails.ts` is present, else the fake), and `api/fake.ts`: an in-memory implementation with a three-page sample workspace, `emit()` for events, and call recording for tests.
 9. A failed `startup()` shows an error screen with the message and a Retry button.
 
@@ -63,7 +63,7 @@ export const features: Feature[];
 
 ## UI
 
-docs/UI.md views 1 and frame of 2; mockup `docs/ui/mockup.html`. Landmarks
+docs/wiki/UI.md views 1 and frame of 2; mockup `docs/wiki/ui/mockup.html`. Landmarks
 `nav`, `header`, `main`. All shortcuts also work via visible controls.
 
 ## Security
@@ -81,7 +81,7 @@ docs/UI.md views 1 and frame of 2; mockup `docs/ui/mockup.html`. Landmarks
 ## Prompt
 
 > Implement `specs/ui/shell/spec.md` following the rules in `specs/README.md`. Read
-> docs/UI.md and open docs/ui/mockup.html for the look. Replace the current
+> docs/wiki/UI.md and open docs/wiki/ui/mockup.html for the look. Replace the current
 > `frontend/src/shell.ts`, `shell.test.ts`, `style.css` and `main.ts`. The app must build
 > (`npx vite build` needs `frontend/bindings`; if missing, rely on `tsc` and vitest) and
 > run against the fake API. Done when the tests in the table pass and `npx tsc --noEmit` is clean.

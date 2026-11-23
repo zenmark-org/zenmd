@@ -1,6 +1,6 @@
 package extplugins
 
-// Regression tests for docs/plugin-review-2026-11.md (the reviewer's probes,
+// Regression tests for docs/wiki/plugin-review-2026-11.md (the reviewer's probes,
 // asserting the fixed behaviour).
 
 import (

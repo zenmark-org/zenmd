@@ -52,7 +52,7 @@ export function renderBreadcrumb(el: HTMLElement, crumbs: Crumb[], opts: { onOpe
 
 ## UI
 
-docs/UI.md "Reader": sidebar and breadcrumb; mockup for spacing. Indent 14px
+docs/wiki/UI.md "Reader": sidebar and breadcrumb; mockup for spacing. Indent 14px
 per level, row height 26px, ellipsis on overflow with full title in `title`.
 
 ## Security
@@ -71,5 +71,5 @@ per level, row height 26px, ellipsis on overflow with full title in `title`.
 
 > Implement `specs/ui/navigation/spec.md` following the rules in `specs/README.md`. Build
 > against the fake API and the `Feature`/`Ctx` types from `frontend/src/shell/types.ts`
-> (ui/shell is merged in your base). Look at docs/ui/mockup.html for the look; use tokens
+> (ui/shell is merged in your base). Look at docs/wiki/ui/mockup.html for the look; use tokens
 > from `styles/tokens.css` only, no new colours. Done when the tests in the table pass.

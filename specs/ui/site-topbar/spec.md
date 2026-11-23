@@ -59,4 +59,4 @@ UI consistency: the exported page's top bar is the app's top bar pattern, with t
 
 ## Prompt
 
-> Implement `specs/ui/site-topbar/spec.md` following CLAUDE.md and docs/UI.md, in `../zen-worktrees/issue-19` on `feature/19-export`. Tests first, committed failing. Only the Owns paths (and `kit/ui/src/shell/icons.ts` if a sidebar icon is needed). Do not launch the app, run task package/install/release, push or touch main.
+> Implement `specs/ui/site-topbar/spec.md` following CLAUDE.md and docs/wiki/UI.md, in `../zen-worktrees/issue-19` on `feature/19-export`. Tests first, committed failing. Only the Owns paths (and `kit/ui/src/shell/icons.ts` if a sidebar icon is needed). Do not launch the app, run task package/install/release, push or touch main.

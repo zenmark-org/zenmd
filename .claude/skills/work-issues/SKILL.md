@@ -39,8 +39,8 @@ When two are even, the older issue goes first. An issue whose dependency is
 not merged yet waits for a later wave.
 
 **Too big for an issue?** A feature that touches several layers (engine + CLI
-+ app) or that changes a contract (`docs/PLAN.md` Service API,
-`docs/PLUGINS.md`) gets a spec first: propose `/add-spec <scope>/<feature>`
++ app) or that changes a contract (`docs/wiki/PLAN.md` Service API,
+`docs/wiki/PLUGINS.md`) gets a spec first: propose `/add-spec <scope>/<feature>`
 for it, and leave it out of the waves until the spec is approved.
 
 ## 3. Plan the waves and confirm once

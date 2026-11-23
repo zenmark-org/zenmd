@@ -2,9 +2,9 @@
 
 A macOS markdown app (Zenmark) and engine/CLI (`zenmd`), on Wails v3 with Go and
 TypeScript. The repository is `zenmark-org/zenmd`, and `main` is the integration branch.
-Start with docs/PLAN.md (decisions), specs/README.md (features, waves, rules),
-docs/UI.md (look and tokens), docs/BUILD.md (assembly, features, export) and
-docs/ENGINE.md (what is engine, what is app).
+Start with docs/wiki/PLAN.md (decisions), specs/README.md (features, waves, rules),
+docs/wiki/UI.md (look and tokens), docs/wiki/BUILD.md (assembly, features, export) and
+docs/wiki/ENGINE.md (what is engine, what is app).
 
 ## How work is done
 
@@ -74,13 +74,13 @@ task test && task build                             # the lead, after each merge
   inspector, developer]`). The roadmap is the GitHub Project "Zenmark roadmap"
   (#9 and its sub-issues). Don't cut a release from `main` during the roadmap.
   Hotfixes go on `release/0.6`.
-- **UI consistency is a constraint** on every design (docs/UI.md, Principles).
+- **UI consistency is a constraint** on every design (docs/wiki/UI.md, Principles).
   Reuse the existing pattern for each kind of view: the Settings frame (items
   on the left, details on the right, empty text in the left column), the
   panel columns, and one style per state. Fix the shared component, never one
   instance. Every spec's UI section names the pattern it reuses, and the lead
   checks it in review.
-- UI: black and white tokens only (docs/UI.md), keyboard reachable, and
+- UI: black and white tokens only (docs/wiki/UI.md), keyboard reachable, and
   `prefers-reduced-motion` respected.
 - **CLI first.** Every option of an export, a build or any folder operation
   is designed first as a `zenmd` flag and a config key, then shown in the
@@ -88,7 +88,7 @@ task test && task build                             # the lead, after each merge
   Interfaces section. Export options are kept in one table,
   `apps/zenmark/export-options.json`, and tests check the CLI and the
   Settings forms against it.
-- **Plugins and layouts** follow docs/PLUGIN-UI.md: interactive blocks use
+- **Plugins and layouts** follow docs/wiki/PLUGIN-UI.md: interactive blocks use
   the plugin kit (`.zen-block`, `.zen-btn`, `.zen-btn-primary`, `.zen-btn-quiet`,
   `.zen-choice`, `.zen-field`) and the UI font at 14px, never their own buttons,
   choices or fonts. Put the guide in every plugin or layout brief, and check its

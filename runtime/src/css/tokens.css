@@ -1,4 +1,4 @@
-/* Design tokens (docs/UI.md). Light and dark are exact inversions; the theme
+/* Design tokens (docs/wiki/UI.md). Light and dark are exact inversions; the theme
    follows the system and can be forced with <html data-theme="light|dark">. */
 :root {
   color-scheme: light dark;

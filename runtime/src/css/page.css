@@ -1,6 +1,6 @@
-/* ui/page: the reader. Typography from docs/ui/mockup.html; tokens only. */
+/* ui/page: the reader. Typography from docs/wiki/ui/mockup.html; tokens only. */
 @import "./print.css"; /* Print Page and Print Site (ui/print) */
-@import "./plugin-kit.css"; /* The classes every interactive block uses (docs/PLUGIN-UI.md) */
+@import "./plugin-kit.css"; /* The classes every interactive block uses (docs/wiki/PLUGIN-UI.md) */
 .zen-progress {
   position: sticky;
   top: 0;

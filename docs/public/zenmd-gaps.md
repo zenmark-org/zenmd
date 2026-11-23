@@ -2,7 +2,7 @@
 
 `docs/public/zenmd` was made with
 `zenmd init --blueprint techdocs docs/public/zenmd --title zenmd --set product=zenmd`,
-then filled in from the repository (README, CHANGELOG, docs/ENGINE.md, the
+then filled in from the repository (README, CHANGELOG, docs/wiki/ENGINE.md, the
 demo guide, `zenmd help`, `apps/zenmark/export-options.json`). This file lists
 what is still missing: first the content, then what the blueprint itself
 lacked while writing it.
@@ -14,7 +14,7 @@ lacked while writing it.
 | `index.md` | A screenshot of Zenmark with a folder open, and one of an exported site. |
 | `getting-started/installation.md` | The public download page (zenmark.org), and an "Install command line tool" item in the app (planned, not built). |
 | `explanation/architecture.md` | The Go API for embedding the engine (`engine/session`), with an example. |
-| `explanation/plugin-trust.md` | The plugin author guide (docs/PLUGINS.md isn't published as user docs). |
+| `explanation/plugin-trust.md` | The plugin author guide (docs/wiki/PLUGINS.md isn't published as user docs). |
 | `reference/cli.md` | Exit codes, and which commands work without the app. |
 | `reference/configuration.md` | Every plugin's own options in one table. |
 | `reference/builtins.md` | One page per plugin and layout, as the demo guide has. |

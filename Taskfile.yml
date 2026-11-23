@@ -17,7 +17,7 @@ vars:
   ADDONS:
     sh: 'if [ -n "${ADDONS:-}" ]; then printf "%s" "$ADDONS"; else go run ./kit/assembly/cmd/gen -ids-only "apps/{{.APP}}"; fi'
   ADDONS_KNOWN: vale
-  # SemVer version, read from the VERSION file (see docs/VERSIONING.md).
+  # SemVer version, read from the VERSION file (see docs/wiki/VERSIONING.md).
   VERSION:
     sh: cat "{{.ROOT_DIR}}/VERSION"
   # Linker flag that stamps the version into every `go build`.
@@ -43,7 +43,7 @@ tasks:
       - task: "{{.GOOS}}:package"
 
   package:appstore:
-    summary: Builds the sandboxed Mac App Store bundle and .pkg (needs Xcode's actool, an identity and PROFILE; see docs/DISTRIBUTION.md)
+    summary: Builds the sandboxed Mac App Store bundle and .pkg (needs Xcode's actool, an identity and PROFILE; see docs/wiki/DISTRIBUTION.md)
     cmds:
       - task: darwin:package:appstore
 
@@ -191,7 +191,7 @@ tasks:
         echo "$v -> $new"
 
   release:
-    summary: Builds the notarised universal DMG for VERSION as bin/Zenmark-<version>.dmg and its .sha256, with the add-ons of ADDONS (needs SIGN_IDENTITY and KEYCHAIN_PROFILE, or NOTARY_KEY, NOTARY_KEY_ID and NOTARY_ISSUER; see docs/DISTRIBUTION.md)
+    summary: Builds the notarised universal DMG for VERSION as bin/Zenmark-<version>.dmg and its .sha256, with the add-ons of ADDONS (needs SIGN_IDENTITY and KEYCHAIN_PROFILE, or NOTARY_KEY, NOTARY_KEY_ID and NOTARY_ISSUER; see docs/wiki/DISTRIBUTION.md)
     cmds:
       - task: version:check
       - task: darwin:sign:notarize

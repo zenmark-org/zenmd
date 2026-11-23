@@ -1,4 +1,4 @@
-/* :::quiz — only what is the quiz's own; frames, buttons, choices and fields are the plugin kit's (docs/PLUGIN-UI.md). */
+/* :::quiz — only what is the quiz's own; frames, buttons, choices and fields are the plugin kit's (docs/wiki/PLUGIN-UI.md). */
 .zq-header { border-bottom: 1px solid var(--rule); padding: 0 0 8px; margin: 1em 0 8px; }
 .zq-form { font: 14px/1.4 var(--font-ui); }
 .zq-question { margin: 12px 0; }

@@ -81,7 +81,7 @@ Edge cases:
 
 ## UI
 
-UI consistency (docs/UI.md):
+UI consistency (docs/wiki/UI.md):
 - The notice is a Problems item like any page warning.
 - Settings › Configuration keeps its two items. Only the folder item's label and note change.
 

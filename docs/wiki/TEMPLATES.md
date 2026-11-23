@@ -2,7 +2,7 @@
 
 A blueprint is a folder that `zenmd init --blueprint` (or File › New from
 Blueprint…, ⇧⌘N) copies into a new or existing folder. Spec:
-[specs/core/init](../specs/core/init/spec.md).
+[specs/core/init](../../specs/core/init/spec.md).
 
 ```sh
 zenmd init --blueprint techdocs docs  # Technical documentation (Diátaxis)
@@ -118,7 +118,7 @@ files: [CONTRIBUTING.md]     # other files, copied as they are
 - A folder's home is its `index.md` (any case), with `README.md` as the fallback when there is none; `index.md` wins when both exist. This holds for the root and for every folder. Blueprints write `index.md`.
 - `index: { layout: landing, tagline: "..." }`, `{ template: overview }` or `{ layout: glossary }` change the index page.
 - A starting page with its own `layout:` keeps it and follows no template.
-- The `release-notes` page template is a release page: layout `release`, the fields `version` (required), `date` (required, today by default) and `name` (optional), and a skeleton of just Added, Changed and Fixed. It has no `title` and no H1: the version is the page's title (see `title:` in docs/LAYOUTS.md), and the file is named after it, `releases/v0.1.0.md`, titled v0.1.0 (the layout's `title: "v{{version}}"`). The releases index shows each release as a card with its version, date and name.
+- The `release-notes` page template is a release page: layout `release`, the fields `version` (required), `date` (required, today by default) and `name` (optional), and a skeleton of just Added, Changed and Fixed. It has no `title` and no H1: the version is the page's title (see `title:` in docs/wiki/LAYOUTS.md), and the file is named after it, `releases/v0.1.0.md`, titled v0.1.0 (the layout's `title: "v{{version}}"`). The releases index shows each release as a card with its version, date and name.
 - The `troubleshooting` page template is one problem per page, in the `troubleshooting` layout: the H1 is the problem in the reader's words, then a paragraph on when it happens, Symptoms (a list), Cause, Solution (numbered steps), and optional Check that it's fixed and Related. Its optional fields are `error` (the exact message, shown as code under the title), `versions`, `fixed-in` and `tags`. techdocs has a Troubleshooting section (`troubleshooting/`) between Reference and Releases.
 - In skeletons and titles: `{{title}}`, `{{author}}`, `{{today}}`, any `ask:` key and the `set:` fields. `{{sections}}` in a template is a link to every section.
 - The built-in page templates are in `builtins/pagetemplates/`. A blueprint's own `.zen/templates/<id>.yml` wins.

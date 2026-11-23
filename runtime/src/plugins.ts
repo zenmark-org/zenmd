@@ -1,4 +1,4 @@
-// The page side of plugins (docs/PLUGINS.md "Frontend: mount on your blocks"):
+// The page side of plugins (docs/wiki/PLUGINS.md "Frontend: mount on your blocks"):
 // each plugin's script is an ES module loaded with import() from the page's
 // assets; its default export ({ mount }) is bound to that plugin's id, and
 // mounted and cleaned up on the [data-zen-plugin] wrappers of the page.

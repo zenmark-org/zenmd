@@ -7,11 +7,11 @@ argument-hint: <scope>/<feature> [short description]
 # /add-spec
 
 Arguments: `$ARGUMENTS` — `<scope>/<feature>` then an optional description.
-If missing, ask. Scopes: `engine`, `kit`, `cli`, `core`, `ui`, `plugins`, `app`, `packaging` (see docs/ENGINE.md for what belongs to the engine).
+If missing, ask. Scopes: `engine`, `kit`, `cli`, `core`, `ui`, `plugins`, `app`, `packaging` (see docs/wiki/ENGINE.md for what belongs to the engine).
 
-Always read first: `docs/PLAN.md`, `specs/README.md` (feature table, waves,
-**Rules for every feature agent**), and, as relevant, `docs/UI.md`,
-`docs/PLUGINS.md`, `docs/VERSIONING.md`.
+Always read first: `docs/wiki/PLAN.md`, `specs/README.md` (feature table, waves,
+**Rules for every feature agent**), and, as relevant, `docs/wiki/UI.md`,
+`docs/wiki/PLUGINS.md`, `docs/wiki/VERSIONING.md`.
 
 ## A. The spec does not exist yet → write it (lead work, on the integration branch)
 
@@ -23,10 +23,10 @@ Always read first: `docs/PLAN.md`, `specs/README.md` (feature table, waves,
    - *Behaviour*: numbered and testable. *Tests*: each behaviour maps to a
      named test; list edge cases.
    - *Interfaces*: exact signatures; must agree with PLAN.md "Service API"
-     and docs/PLUGINS.md. Change those documents first if the contract changes.
+     and docs/wiki/PLUGINS.md. Change those documents first if the contract changes.
    - *UI*: states (empty, loading, error, populated), keyboard, accessibility,
-     tokens from docs/UI.md only. *Security*: risk → mitigation → test.
-   - *Target version* per docs/VERSIONING.md, and the *Changelog* line.
+     tokens from docs/wiki/UI.md only. *Security*: risk → mitigation → test.
+   - *Target version* per docs/wiki/VERSIONING.md, and the *Changelog* line.
    - *Prompt*: self-contained brief for the subagent that will build it.
 3. Add the row to the table in `specs/README.md` (wave, owns, depends on).
 4. New Go dependency? Add it to `go.mod` and `internal/deps/deps.go` now, on

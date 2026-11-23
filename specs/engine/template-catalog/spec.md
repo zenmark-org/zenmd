@@ -299,7 +299,7 @@ func BuildIndex(entries []Pack, source string, key ed25519.PrivateKey) (index, s
   - **Error:** one line per source that failed, with the cached date.
   - **Populated** and **empty**, as above.
 - **Keyboard:** the list and actions are reachable as in the other Settings sections. "Check for Updates" can be reached with Tab and has no shortcut.
-- **Look:** tokens only (docs/UI.md). Update and Edited notes use the existing `--fg-muted` small note style.
+- **Look:** tokens only (docs/wiki/UI.md). Update and Edited notes use the existing `--fg-muted` small note style.
 
 ## Security
 
@@ -309,7 +309,7 @@ func BuildIndex(entries []Pack, source string, key ed25519.PrivateKey) (index, s
 | An old catalog that brings back a vulnerable or broken version (rollback or freeze) | the last accepted `generated` is kept per source; older is refused; no lower versions without force | 8 |
 | An archive that writes outside the templates folder (zip slip, links) | unpack into a fresh temporary folder; refuse `..`, absolute paths, symlinks, hard links and special files; copy into place with `copyTree` | `TestArchiveRules` |
 | Resource exhaustion (huge or many files, a gzip bomb) | 5 MB packed and unpacked, 500 entries, 1 MB per file; the download stops at the declared size plus 1 byte | `TestArchiveRules`, 9 |
-| Code in a pack | packs are data only. Allowed files: `.yml .yaml .md .txt .png .jpg .jpeg .gif .webp .svg`. Anything else (`.js`, `.tengo`, `.sh`, executables) refuses the whole pack. Layouts and plugins aren't in the catalog; they keep their own trust flow (docs/PLUGINS.md, Trust) | `TestArchiveRules` |
+| Code in a pack | packs are data only. Allowed files: `.yml .yaml .md .txt .png .jpg .jpeg .gif .webp .svg`. Anything else (`.js`, `.tengo`, `.sh`, executables) refuses the whole pack. Layouts and plugins aren't in the catalog; they keep their own trust flow (docs/wiki/PLUGINS.md, Trust) | `TestArchiveRules` |
 | A folder adds a source, or swaps the official key (a downloaded project steering your installs) | `catalog:` is read only from the user's `config.yml`; in `.zenmd.yml` it's ignored with a Problems note; the official key is compiled in | 4 |
 | An unsigned third-party source | added only by the user, confirmed once, and always shown as Unsigned | 5 |
 | The user's edits lost by an update | fingerprints: edited copies are never replaced; use-new keeps `.old` | 10 |
@@ -346,7 +346,7 @@ phase 2, and the user to create the repository and the key.
   - `core/config`: the `catalog:` key with user scope;
   - `apps/zenmark/app-assembly.yml`: none (the catalog is part of the `newsite` feature);
   - `specs/README.md`: rows;
-  - `docs/TEMPLATES.md`: "Getting more templates" points at docs/CATALOG.md;
+  - `docs/wiki/TEMPLATES.md`: "Getting more templates" points at docs/CATALOG.md;
   - `Taskfile.yml`: `templates:sync` (phase 4);
   - `apps/zenmark/bindings_test.go`: the new methods.
 - **Changelog:**

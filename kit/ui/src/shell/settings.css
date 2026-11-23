@@ -1,4 +1,4 @@
-/* Settings in two columns (shell/settings.ts) and the About sheet (shell/about.ts). Tokens of docs/UI.md only. */
+/* Settings in two columns (shell/settings.ts) and the About sheet (shell/about.ts). Tokens of docs/wiki/UI.md only. */
 .zen-settings-cols { display: grid; grid-template-columns: 240px minmax(0, 1fr); align-items: start; }
 .zen-settings-cols.zen-settings-single { display: block; }
 .zen-settings-list { display: flex; flex-direction: column; gap: 2px; padding-right: var(--space-3); border-right: 1px solid var(--rule); min-height: 120px; }

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// The JSON the frontend receives is a contract (docs/PLAN.md "Service API").
+// The JSON the frontend receives is a contract (docs/wiki/PLAN.md "Service API").
 // Types may move between packages, their JSON may not change.
 func TestPayloadShapes(t *testing.T) {
 	site := SiteTemplate{ID: "docs", Name: "Docs", Description: "d", Version: "1", Builtin: true, Update: "2", Error: ""}

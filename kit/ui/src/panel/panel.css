@@ -1,4 +1,4 @@
-/* ui/panel: the tabbed bottom panel. Tokens only (docs/UI.md; the lint tokens for count chips). */
+/* ui/panel: the tabbed bottom panel. Tokens only (docs/wiki/UI.md; the lint tokens for count chips). */
 .zen-panel {
   position: relative;
   flex: none;

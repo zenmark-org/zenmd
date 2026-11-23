@@ -44,7 +44,7 @@ type zenOptions struct {
 	DeferOpen bool
 }
 
-// Zen is the service bound to the frontend (docs/PLAN.md "Service API"). It is
+// Zen is the service bound to the frontend (docs/wiki/PLAN.md "Service API"). It is
 // a thin layer over the headless session of engine/session: bindings,
 // dialogs, windows and the launch state.
 type Zen struct {

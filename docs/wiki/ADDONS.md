@@ -22,7 +22,7 @@ task package ADDONS=        # no add-ons
 task release ADDONS=vale,tts
 ```
 
-How it works is specified in [specs/kit/addons](../specs/kit/addons/spec.md):
+How it works is specified in [specs/kit/addons](../../specs/kit/addons/spec.md):
 the `addon_<id>` build tag, the `addons/<id>` Go package that registers itself,
 helpers in `resources.yml` marked `addon: <id>`, and Settings › This build, which
 lists what a build includes.
@@ -44,7 +44,7 @@ so and degrade quietly without it.
 
 A fourth kind, the **feature**, is part of the app itself, on by default:
 `features:` in `app-assembly.yml` can leave one out (specs/kit/features). The
-features are `reader`, `nav`, `find`, `editor` (without it the app is read-only), `inspector`, `print`, `export`, `newsite` and `developer` (docs/BUILD.md). An add-on may need a feature: `vale` needs `reader`, and its Linting tab appears only with `inspector`. A **dialect** (`dialects:`,
+features are `reader`, `nav`, `find`, `editor` (without it the app is read-only), `inspector`, `print`, `export`, `newsite` and `developer` (docs/wiki/BUILD.md). An add-on may need a feature: `vale` needs `reader`, and its Linting tab appears only with `inspector`. A **dialect** (`dialects:`,
 specs/engine/dialects) is another markdown syntax for the same plugins, such as MyST;
 the build decides which exist, the folder's `.zenmd.yml` which are on.
 
@@ -103,7 +103,7 @@ first add-on that needs a hook adds it, in its own spec.
 ### Theming
 
 Themes may not need an add-on: the look of pages is already the job of
-layouts and the token CSS (docs/UI.md), and a folder can bring its own. An add-on
+layouts and the token CSS (docs/wiki/UI.md), and a folder can bring its own. An add-on
 fits only if a build should ship a **set of app themes** (the chrome, not the
 pages: colours, fonts, density) that its users pick in Settings › Appearance,
 for example a branded look for one of the Hash apps. That would need a theme

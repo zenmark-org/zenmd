@@ -4,8 +4,8 @@ Every feature is specified here before it is built. One feature = one
 `specs/<scope>/<feature>/spec.md` (copy of [`_template/spec.md`](_template/spec.md))
 = one branch `feature/<scope>-<feature>` = one `git worktree` = one subagent.
 
-Read first: [docs/PLAN.md](../docs/PLAN.md), [docs/UI.md](../docs/UI.md),
-[docs/PLUGINS.md](../docs/PLUGINS.md), [docs/VERSIONING.md](../docs/VERSIONING.md).
+Read first: [docs/wiki/PLAN.md](../docs/wiki/PLAN.md), [docs/wiki/UI.md](../docs/wiki/UI.md),
+[docs/wiki/PLUGINS.md](../docs/wiki/PLUGINS.md), [docs/wiki/VERSIONING.md](../docs/wiki/VERSIONING.md).
 
 ## Features
 
@@ -33,7 +33,7 @@ Read first: [docs/PLAN.md](../docs/PLAN.md), [docs/UI.md](../docs/UI.md),
 | 5 | [core/lint](core/lint/spec.md) | `internal/core/lint`, `resources.yml`, `build/darwin` helper fetch | packaging/macos | done |
 | 5b | [ui/lint](ui/lint/spec.md) | `internal/app/lint.go`, `frontend/src/lint`, page/editor wiring | ui/editor-window, core/lint | done |
 | 6 | [core/extplugins](core/extplugins/spec.md) | `internal/core/{extplugins,plugins,render}`, `internal/app`, demo plugins `note`, `calc` | core/plugins, core/render | done |
-| 6 | [ui/plugins](ui/plugins/spec.md) | `frontend/src/plugins`, api, page wiring, Settings › Plugins, demo how-to and `progress` plugin | ui/page, contract in docs/PLUGINS.md | done |
+| 6 | [ui/plugins](ui/plugins/spec.md) | `frontend/src/plugins`, api, page wiring, Settings › Plugins, demo how-to and `progress` plugin | ui/page, contract in docs/wiki/PLUGINS.md | done |
 | 7 | [core/plugin-extras](core/plugin-extras/spec.md) | actions and streams for built-ins and external plugins, `ctx.stream/onAnchor/badge/storage.keys`, user-scoped options, ⌘P | wave 6 | done |
 | 8 | [plugins/layouts](plugins/layouts/spec.md) | `internal/plugins/{slides,course}`, demo pages | core/plugin-extras | done |
 | 8 | [plugins/quiz](plugins/quiz/spec.md) | `internal/plugins/quiz`, demo page | core/plugin-extras | done |
@@ -78,7 +78,7 @@ Read first: [docs/PLAN.md](../docs/PLAN.md), [docs/UI.md](../docs/UI.md),
 | 31 | [app/demo-guide](app/demo-guide/spec.md) | `examples/demo` shows only what the build has (Intro, Plugins, Layouts, Configuration, growing per roadmap step), guarded by the assembly; the full tour moves to `examples/showcase` | kit/shell-features, #12 | done |
 | 31 | [plugins/logging](plugins/logging/spec.md) | the Console shows the built-in plugins: action and stream calls at debug, sandbox runs with capped output and exit, quiz scores, diagram errors; `engine/plugins/log.go`, logging in `engine/session` and `builtins/plugins/{sandbox,quiz,diagram}` | app/logging, core/plugin-extras | done |
 | 32 | [plugins/rating](plugins/rating/spec.md) | `:::rating`: 1–5 stars (or up to 10) with optional labels, kept on this Mac, Clear, and `:::rating-results`; demo page and the last step of the demo course; `builtins/plugins/rating` | core/plugin-extras, plugins/quiz | done |
-| 33 | [ui/plugin-kit](ui/plugin-kit/spec.md) | one kit of block, button, choice and field classes shipped on every page; quiz, rating, check, sandbox and course adopt it; docs/PLUGIN-UI.md, the style guide for future plugins and layouts | plugins/rating | done |
+| 33 | [ui/plugin-kit](ui/plugin-kit/spec.md) | one kit of block, button, choice and field classes shipped on every page; quiz, rating, check, sandbox and course adopt it; docs/wiki/PLUGIN-UI.md, the style guide for future plugins and layouts | plugins/rating | done |
 | 34 | [ui/top-bar-actions](ui/top-bar-actions/spec.md) | Find, Edit and the Inspector as icons in the top bar (magnifying glass, pencil, panel), one icon set in `kit/ui/src/shell/icons.ts`, the footer keeps Settings and Export, the view group stays | ui/nav-panel, ui/find, #25 | done |
 | 35 | [ui/reader-settings](ui/reader-settings/spec.md) | `dialects: all` (#22); Settings › Markdown becomes Settings › Reader with CommonMark and GFM as the default and the dialects under a Markdown heading; the demo Reader page holds CommonMark/GFM and MyST | engine/dialects, ui/settings-layout, app/demo-guide | done |
 | 36–40 | [plugins/myst-builtins](plugins/myst-builtins/spec.md) | every common MyST directive and role as a built-in, in phases: callouts, figures and tables, math, tabs/dropdowns/cards, roles and the rest of MyST syntax | engine/dialects, builtins/dialects/myst, ui/plugin-kit | planned |

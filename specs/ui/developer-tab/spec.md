@@ -100,7 +100,7 @@ Edge cases: `since` beyond the newest entry; `since` older than the ring; empty 
 
 ## UI
 
-Empty: "No log entries yet." Panel header with tabs, filters and buttons; entries in a monospace list (`role="log"`, `aria-live` off so a flood is not announced). Keyboard: ⌥⌘J, Esc, arrows on the resize handle, all controls are buttons or inputs. Level colours: `--lint-error`, `--lint-warning`, muted for info and debug; everything else from the tokens in docs/UI.md.
+Empty: "No log entries yet." Panel header with tabs, filters and buttons; entries in a monospace list (`role="log"`, `aria-live` off so a flood is not announced). Keyboard: ⌥⌘J, Esc, arrows on the resize handle, all controls are buttons or inputs. Level colours: `--lint-error`, `--lint-warning`, muted for info and debug; everything else from the tokens in docs/wiki/UI.md.
 
 ## Security
 

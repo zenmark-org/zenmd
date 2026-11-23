@@ -68,5 +68,5 @@ Diagrams are centred, max-width 100%, monochrome `neutral` theme by default.
 ## Prompt
 
 > Implement `specs/plugins/diagram/spec.md` following the rules in `specs/README.md` and
-> docs/PLUGINS.md. `internal/plugins/diagram/assets/mermaid.min.js` and `VENDOR.md` are
+> docs/wiki/PLUGINS.md. `internal/plugins/diagram/assets/mermaid.min.js` and `VENDOR.md` are
 > provided by the lead; do not download anything. Done when the tests pass.

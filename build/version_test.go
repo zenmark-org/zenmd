@@ -1,5 +1,5 @@
 // Package build_test checks the version metadata described in
-// docs/VERSIONING.md: the VERSION file, the changelog and build stamping.
+// docs/wiki/VERSIONING.md: the VERSION file, the changelog and build stamping.
 package build_test
 
 import (

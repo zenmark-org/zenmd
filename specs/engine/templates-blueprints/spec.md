@@ -555,4 +555,4 @@ UI consistency:
 
 ## Prompt
 
-> Implement phase N of `specs/engine/templates-blueprints/spec.md` following CLAUDE.md (CLI first) and docs/UI.md, in `../zen-worktrees/blueprints-<phase>` on `feature/blueprints-<phase>`. Tests first, committed failing. Only that phase's paths. Do not launch the app, run task package/install/release, push or touch main.
+> Implement phase N of `specs/engine/templates-blueprints/spec.md` following CLAUDE.md (CLI first) and docs/wiki/UI.md, in `../zen-worktrees/blueprints-<phase>` on `feature/blueprints-<phase>`. Tests first, committed failing. Only that phase's paths. Do not launch the app, run task package/install/release, push or touch main.

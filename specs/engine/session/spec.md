@@ -7,7 +7,7 @@
 | Branch | `feature/engine-session` |
 | Wave | 13 (E1) |
 | Depends on | everything in `internal/app` today (waves 3–12) |
-| Owns | `engine/session/` (new), `internal/app` (all files except `main.go`, which it does not touch), `frontend/src/api/wails.ts` (only if generated binding paths change), `docs/ENGINE.md` (the session section) |
+| Owns | `engine/session/` (new), `internal/app` (all files except `main.go`, which it does not touch), `frontend/src/api/wails.ts` (only if generated binding paths change), `docs/wiki/ENGINE.md` (the session section) |
 
 ## Purpose
 
@@ -159,8 +159,8 @@ None. The app must look and behave the same; check it by hand once after merge (
   - the frontend runtime split (E2);
   - any behaviour change.
 - **Integration (done by the lead at merge):**
-  - `docs/ENGINE.md`: mark E1 session as done;
-  - `docs/PLAN.md` "Service API": the session's Go API next to the frontend contract;
+  - `docs/wiki/ENGINE.md`: mark E1 session as done;
+  - `docs/wiki/PLAN.md` "Service API": the session's Go API next to the frontend contract;
   - the changelog;
   - `specs/README.md`.
 - **App Store / sandbox:** unchanged; the channel code stays in the app.

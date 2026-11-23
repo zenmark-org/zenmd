@@ -5,7 +5,7 @@ name: release
 # Run by hand (workflow_dispatch) it does the same but only keeps the DMG as a
 # workflow artifact: a dry run of signing and notarisation.
 #
-# Repository secrets (docs/DISTRIBUTION.md, "Signing in CI"):
+# Repository secrets (docs/wiki/DISTRIBUTION.md, "Signing in CI"):
 #   MACOS_CERT_P12_BASE64   the Developer ID Application certificate and key, .p12, base64
 #   MACOS_CERT_PASSWORD     the .p12 export password
 #   NOTARY_KEY_P8_BASE64    an App Store Connect API key (.p8), base64
@@ -70,7 +70,7 @@ jobs:
             eval "val=\${$n}"
             [ -n "$val" ] || missing="$missing $n"
           done
-          [ -z "$missing" ] || { echo "::error::Missing signing inputs:$missing (see docs/DISTRIBUTION.md, Signing in CI)"; exit 1; }
+          [ -z "$missing" ] || { echo "::error::Missing signing inputs:$missing (see docs/wiki/DISTRIBUTION.md, Signing in CI)"; exit 1; }
 
       # A throwaway keychain holding only the Developer ID certificate; deleted at the end.
       - name: keychain

@@ -29,7 +29,7 @@ ln -sf /Applications/Zenmark.app/Contents/MacOS/zenmd ~/.local/bin/zenmd
 ```
 
 > **Missing:** an "Install command line tool" item in the app, so nobody has
-> to type this. The plan lists it for 0.1.0-beta.1 (docs/VERSIONING.md) but it
+> to type this. The plan lists it for 0.1.0-beta.1 (docs/wiki/VERSIONING.md) but it
 > isn't built.
 
 ## Step 3: Check that it works

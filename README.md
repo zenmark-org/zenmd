@@ -11,7 +11,7 @@ built on [Wails v3](https://v3.wails.io).
 
 Underneath is **zenmd**, the engine (format, rendering, plugins, layouts, build,
 print, blueprints), with the command line tool `zenmd`. Zenmark is the first app
-built on it ([docs/ENGINE.md](docs/ENGINE.md)).
+built on it ([docs/wiki/ENGINE.md](docs/wiki/ENGINE.md)).
 
 Website: [zenmark.org](https://zenmark.org) · Code: [github.com/zenmark-org/zenmd](https://github.com/zenmark-org/zenmd) · Status: alpha, `0.4.0` (see [CHANGELOG.md](CHANGELOG.md)).
 
@@ -44,7 +44,7 @@ INSTALL_DIR=~/.local/bin task install:cli   # point zenmd at the installed app i
 
 A local `task package` is ad-hoc signed and is for this Mac. Releases are signed
 with a Developer ID and notarised by Apple, so they open without the "could not
-verify" warning: `task darwin:sign:notarize` (see [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md)).
+verify" warning: `task darwin:sign:notarize` (see [docs/wiki/DISTRIBUTION.md](docs/wiki/DISTRIBUTION.md)).
 
 ## Everyday commands
 
@@ -90,15 +90,15 @@ Imports point down: apps, then kit, then engine.
 
 | | |
 |---|---|
-| [docs/ENGINE.md](docs/ENGINE.md) | The engine, the kit and the apps; the engine roadmap |
-| [docs/PLAN.md](docs/PLAN.md) | Architecture and the service API between Go and the frontend |
-| [docs/PLUGINS.md](docs/PLUGINS.md) | Writing plugins: Go, external programs, Tengo scripts, page scripts |
-| [docs/LAYOUTS.md](docs/LAYOUTS.md) | Writing layouts: templates, CSS, scripts |
-| [docs/TEMPLATES.md](docs/TEMPLATES.md) | Blueprints for `zenmd init` (formerly site templates) |
-| [docs/BUILD.md](docs/BUILD.md) | Static websites and `print.html` |
-| [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | Signing, notarisation, the DMG and the Mac App Store |
-| [docs/VERSIONING.md](docs/VERSIONING.md) | SemVer for the app, the engine, plugins and config |
-| [docs/UI.md](docs/UI.md) | The design system |
+| [docs/wiki/ENGINE.md](docs/wiki/ENGINE.md) | The engine, the kit and the apps; the engine roadmap |
+| [docs/wiki/PLAN.md](docs/wiki/PLAN.md) | Architecture and the service API between Go and the frontend |
+| [docs/wiki/PLUGINS.md](docs/wiki/PLUGINS.md) | Writing plugins: Go, external programs, Tengo scripts, page scripts |
+| [docs/wiki/LAYOUTS.md](docs/wiki/LAYOUTS.md) | Writing layouts: templates, CSS, scripts |
+| [docs/wiki/TEMPLATES.md](docs/wiki/TEMPLATES.md) | Blueprints for `zenmd init` (formerly site templates) |
+| [docs/wiki/BUILD.md](docs/wiki/BUILD.md) | Static websites and `print.html` |
+| [docs/wiki/DISTRIBUTION.md](docs/wiki/DISTRIBUTION.md) | Signing, notarisation, the DMG and the Mac App Store |
+| [docs/wiki/VERSIONING.md](docs/wiki/VERSIONING.md) | SemVer for the app, the engine, plugins and config |
+| [docs/wiki/UI.md](docs/wiki/UI.md) | The design system |
 | [specs/README.md](specs/README.md) | Every feature spec, its wave and status |
 | [examples/demo](examples/demo/README.md) | The Zenmark guide: what the app has today, as a zen folder |
 | [examples/showcase](examples/showcase/README.md) | The full feature tour, as a zen folder |
@@ -114,7 +114,7 @@ does this ([.claude/skills/add-spec](.claude/skills/add-spec/SKILL.md)).
 Bugs and ideas go to [GitHub issues](https://github.com/zenmark-org/zenmd/issues);
 `/add-issue <notes>` drafts them from a list and files them after one confirmation
 ([.claude/skills/add-issue](.claude/skills/add-issue/SKILL.md)).
-Notes from testing go in [docs/improve](docs/improve/README.md); `/check-feedback`
+Notes from testing go in [docs/wiki/improve](docs/wiki/improve/README.md); `/check-feedback`
 turns them into issues ([.claude/skills/check-feedback](.claude/skills/check-feedback/SKILL.md)).
 `/work-issues` ranks the open issues and gives each one its own subagent and
 worktree, then merges them in order after review
@@ -124,10 +124,10 @@ worktree, then merges them in order after review
 
 | What | Where | State |
 |---|---|---|
-| Format spec and conformance tests, `zenmd check` | engine wave E3 in [docs/ENGINE.md](docs/ENGINE.md) | to specify |
+| Format spec and conformance tests, `zenmd check` | engine wave E3 in [docs/wiki/ENGINE.md](docs/wiki/ENGINE.md) | to specify |
 | Hardening: fuzzing, performance budgets, error codes | engine wave E3 | to specify |
 | `zenmd serve`, a live preview for other editors | engine wave E4 (optional) | to specify |
-| Signed releases from CI: add the GitHub secrets, then the first tagged release | [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md#signing-in-ci-once) | workflow ready; needs the secrets (owner) |
+| Signed releases from CI: add the GitHub secrets, then the first tagged release | [docs/wiki/DISTRIBUTION.md](docs/wiki/DISTRIBUTION.md#signing-in-ci-once) | workflow ready; needs the secrets (owner) |
 | Mac App Store build: wire the plugin gate, folder bookmarks, CLI refusal; `Assets.car` | [specs/packaging/appstore](specs/packaging/appstore/spec.md) | in progress; needs full Xcode and owner decisions |
-| A second app on the engine (language learning: speech, glosses, flashcards) | [docs/ENGINE.md](docs/ENGINE.md) | idea |
-| More plugins and layouts | [docs/possible-plugins.md](docs/possible-plugins.md), [docs/possible-layouts.md](docs/possible-layouts.md) | ideas |
+| A second app on the engine (language learning: speech, glosses, flashcards) | [docs/wiki/ENGINE.md](docs/wiki/ENGINE.md) | idea |
+| More plugins and layouts | [docs/wiki/possible-plugins.md](docs/wiki/possible-plugins.md), [docs/wiki/possible-layouts.md](docs/wiki/possible-layouts.md) | ideas |

@@ -1,6 +1,6 @@
 # Possible plugins
 
-Ideas for plugins that fit the current plugin system (docs/PLUGINS.md). Not
+Ideas for plugins that fit the current plugin system (docs/wiki/PLUGINS.md). Not
 planned or specified yet: the plugin internals get hardened first. Each row
 names the parts of the system it would use:
 

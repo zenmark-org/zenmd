@@ -7,7 +7,7 @@
 | Branch | `feature/engine-blueprint-hierarchy` (phase 1), then one branch per phase |
 | Wave | 50–52 (before engine/template-catalog, whose packs take their `requires` from this) |
 | Depends on | engine/templates-blueprints, core/layouts (a layout's `requires`), ui/settings-layout |
-| Owns | `engine/sitetemplates/hierarchy.go` + test (new), `engine/sitetemplates/pages.go` + tests (the `plugins:` key), `builtins/pagetemplates/*.yml` + tests, `builtins/blueprints/**` + tests, `apps/zenmark/frontend/src/shell/templateshelp.ts` + test, `apps/zenmark/frontend/src/api/index.ts`, `apps/zenmark/frontend/src/api/fake.ts`, `apps/zenmark/frontend/src/api/wails.ts`, `docs/TEMPLATES.md`, `examples/demo/features/blueprints.md`, `examples/demo/templates/**` |
+| Owns | `engine/sitetemplates/hierarchy.go` + test (new), `engine/sitetemplates/pages.go` + tests (the `plugins:` key), `builtins/pagetemplates/*.yml` + tests, `builtins/blueprints/**` + tests, `apps/zenmark/frontend/src/shell/templateshelp.ts` + test, `apps/zenmark/frontend/src/api/index.ts`, `apps/zenmark/frontend/src/api/fake.ts`, `apps/zenmark/frontend/src/api/wails.ts`, `docs/wiki/TEMPLATES.md`, `examples/demo/features/blueprints.md`, `examples/demo/templates/**` |
 
 ## Purpose
 
@@ -108,7 +108,7 @@ build only on the one below it, and shows the chain in Settings and the docs.
 
 ### D. The docs say it once
 
-14. **One diagram and four one-line definitions:** `docs/TEMPLATES.md` opens with the diagram from Purpose and the four definitions:
+14. **One diagram and four one-line definitions:** `docs/wiki/TEMPLATES.md` opens with the diagram from Purpose and the four definitions:
     - **Blueprint:** a named collection of page structures;
     - **Page template:** the structure of one kind of page, for one layout, with the plugins it uses;
     - **Layout:** how a page looks;
@@ -231,7 +231,7 @@ func Resolve(t Template, layoutNeeds func(id string) []string) (Tree, error)
 
 ## Prompt
 
-> Implement phase <N> of `specs/engine/blueprint-hierarchy/spec.md` following CLAUDE.md and docs/PLUGIN-UI.md, in the worktree `../zen-worktrees/<branch>` on branch `<branch>`.
+> Implement phase <N> of `specs/engine/blueprint-hierarchy/spec.md` following CLAUDE.md and docs/wiki/PLUGIN-UI.md, in the worktree `../zen-worktrees/<branch>` on branch `<branch>`.
 > - Read `engine/sitetemplates` (`sections.go` `generate`, `pages.go`, `manifest.go`) first. Reuse the page template lookup; don't copy it.
 > - Write the tests first and commit them failing.
 > - Phase 1 must keep every page a fresh techdocs folder writes byte for byte, except where the spec changes it: index frontmatter now comes from templates. Show any difference in your report.

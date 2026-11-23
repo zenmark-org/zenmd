@@ -7,7 +7,7 @@
 | Branch | `feature/export-theme` |
 | Wave | 44 |
 | Depends on | engine/export-key (`export:`), ui/site-topbar (the site shell), core/static-build, engine/runtime (tokens.css, static.css) |
-| Owns | `engine/config/**` (`export.theme`), `engine/site/**` (the head, shell, assets and footer), `runtime/src/static/**`, `runtime/src/css/tokens.css` (only to name the tokens a theme may set), new `builtins/themes/**` (the built-in site themes), Settings › Export › Website (a Theme part, in `apps/zenmark/frontend/src/shell/{buildsite,exportform}.ts`) + tests, `engine/session/buildui.go` (saving it), `docs/THEMES.md` (new), `docs/BUILD.md`, the demo's Export page and a sample theme in `examples/showcase` |
+| Owns | `engine/config/**` (`export.theme`), `engine/site/**` (the head, shell, assets and footer), `runtime/src/static/**`, `runtime/src/css/tokens.css` (only to name the tokens a theme may set), new `builtins/themes/**` (the built-in site themes), Settings › Export › Website (a Theme part, in `apps/zenmark/frontend/src/shell/{buildsite,exportform}.ts`) + tests, `engine/session/buildui.go` (saving it), `docs/THEMES.md` (new), `docs/wiki/BUILD.md`, the demo's Export page and a sample theme in `examples/showcase` |
 
 ## Purpose
 
@@ -133,4 +133,4 @@ UI consistency: the Theme part of Settings › Export › Website uses the expor
 
 ## Prompt
 
-> Implement `specs/engine/export-theme/spec.md` (one phase per run if split) following CLAUDE.md and docs/UI.md, in `../zen-worktrees/export-theme` on `feature/export-theme`. Tests first, committed failing. Only the Owns paths. Do not launch the app, run task package/install/release, push or touch main.
+> Implement `specs/engine/export-theme/spec.md` (one phase per run if split) following CLAUDE.md and docs/wiki/UI.md, in `../zen-worktrees/export-theme` on `feature/export-theme`. Tests first, committed failing. Only the Owns paths. Do not launch the app, run task package/install/release, push or touch main.

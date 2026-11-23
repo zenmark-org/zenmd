@@ -7,7 +7,7 @@
 | Branch | `feature/core-plugin-extras` |
 | Wave | 7 |
 | Depends on | core/extplugins, ui/plugins |
-| Owns | `internal/core/plugins/`, `internal/core/extplugins/`, `internal/app/` (plugin services, events, menu), `frontend/src/plugins/`, `frontend/src/api/`, `frontend/src/nav/` (badges), `frontend/src/page/index.ts` (anchor + print wiring), `docs/PLUGINS.md` (document the additions) |
+| Owns | `internal/core/plugins/`, `internal/core/extplugins/`, `internal/app/` (plugin services, events, menu), `frontend/src/plugins/`, `frontend/src/api/`, `frontend/src/nav/` (badges), `frontend/src/page/index.ts` (anchor + print wiring), `docs/wiki/PLUGINS.md` (document the additions) |
 
 ## Purpose
 
@@ -30,7 +30,7 @@ so each of those can then be built in its own folder without touching the core.
    - `ctx.badge(path, text | null)` sets or clears a short label for a page in the sidebar (kept in the store for the window's lifetime, max 12 chars, shown muted after the title with `title` = text),
    - streams started by a block are cancelled when it unmounts.
 6. **Print.** File › Print… (⌘P) in the main window calls `window.print()`; `page.css` gets a minimal `@media print` (no sidebar/header/panels, article full width). Plugins may add their own print rules.
-7. `docs/PLUGINS.md` documents `stream` (backend table + `ctx.stream`), `scope: user`, `map`/`list` option types, `ctx.storage.keys`, `ctx.anchor/onAnchor`, `ctx.badge`, and that built-in plugins use the same `ctx`.
+7. `docs/wiki/PLUGINS.md` documents `stream` (backend table + `ctx.stream`), `scope: user`, `map`/`list` option types, `ctx.storage.keys`, `ctx.anchor/onAnchor`, `ctx.badge`, and that built-in plugins use the same `ctx`.
 
 ## Interfaces
 
@@ -75,5 +75,5 @@ interface Api { pluginStream(id: string, page: string, json: string): Promise<st
 ## Prompt
 
 > Implement `specs/core/plugin-extras/spec.md` following the rules in `specs/README.md`.
-> Read docs/PLUGINS.md and the wave-6 code first (`internal/core/extplugins`, `internal/app/extplugins.go`,
+> Read docs/wiki/PLUGINS.md and the wave-6 code first (`internal/core/extplugins`, `internal/app/extplugins.go`,
 > `frontend/src/plugins/runtime.ts`). Keep every existing test green.

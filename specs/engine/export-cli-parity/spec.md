@@ -7,7 +7,7 @@
 | Branch | `feature/19-export` (asked while checking roadmap step 10, #19) |
 | Wave | 45 |
 | Depends on | engine/export-key, ui/export-pdf-settings, ui/site-topbar; the first slice of engine/export-theme (the scheme) |
-| Owns | `internal/cli/**` + tests, `engine/config/**` (`export.theme.scheme`), `engine/site/**` (the scheme in the shell), `engine/session/buildui.go` (saving defaults) + tests, `apps/zenmark/{headless,exportpdf}.go` + tests, `apps/zenmark/frontend/src/shell/{buildsite,pdfform,exportform}.ts` + tests, new `apps/zenmark/export-options.json` (the parity table), `docs/BUILD.md`, the demo's Export page |
+| Owns | `internal/cli/**` + tests, `engine/config/**` (`export.theme.scheme`), `engine/site/**` (the scheme in the shell), `engine/session/buildui.go` (saving defaults) + tests, `apps/zenmark/{headless,exportpdf}.go` + tests, `apps/zenmark/frontend/src/shell/{buildsite,pdfform,exportform}.ts` + tests, new `apps/zenmark/export-options.json` (the parity table), `docs/wiki/BUILD.md`, the demo's Export page |
 
 ## Purpose
 

@@ -123,7 +123,7 @@ Edge cases:
 
 - **Out of scope:** a logo for built sites (layouts can do that already), and changing the tree itself.
 - **Integration (lead, at merge):**
-  - docs/UI.md sidebar paragraph;
+  - docs/wiki/UI.md sidebar paragraph;
   - docs: the `logo:` key next to the other `.zen.yml` keys (the demo `examples/demo/.zen.yml` may show it);
   - engine apidiff: the added fields are compatible;
   - CHANGELOG.

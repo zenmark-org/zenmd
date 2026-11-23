@@ -11,7 +11,7 @@
 
 ## Purpose
 
-Problems and Build work like every other list in the app (docs/UI.md, UI
+Problems and Build work like every other list in the app (docs/wiki/UI.md, UI
 consistency): pick an item on the left, and its details are on the right. In
 Problems, picking an item also shows the problem in the page, the way the
 spelling checker marks a word.
@@ -73,7 +73,7 @@ export type ProblemTarget = { kind: ProblemKind; severity: "error" | "warning" |
 
 ## UI
 
-UI consistency (docs/UI.md):
+UI consistency (docs/wiki/UI.md):
 - the Build list is the Problems/Console list pattern;
 - the problem mark is the Vale mark pattern;
 - no new style for selection.

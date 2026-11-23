@@ -12,7 +12,7 @@ the environment.
 | Go build tag | none | `appstore` |
 | `zenmd` command, program/tool/sandbox plugins | yes | off ("Not available in the App Store version") |
 | Tengo and JS plugins, layouts | yes | yes |
-| Add-ons (`ADDONS=vale`, see docs/ADDONS.md) | as built | as built |
+| Add-ons (`ADDONS=vale`, see docs/wiki/ADDONS.md) | as built | as built |
 | Identity | `Developer ID Application` | `Apple Distribution` + `3rd Party Mac Developer Installer` |
 
 The product name, bundle id, copyright and category are in `build/config.yml`

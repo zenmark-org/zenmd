@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 
 const css = readFileSync(new URL("../../../../runtime/src/css/tokens.css", import.meta.url), "utf8");
 
-// docs/UI.md "Tokens"
+// docs/wiki/UI.md "Tokens"
 const light: Record<string, string> = {
   "--bg": "#ffffff", "--bg-subtle": "#f5f5f4", "--fg": "#111111", "--fg-muted": "#6b6b6b",
   "--rule": "#e2e2e0", "--btn-bg": "#ececeb", "--btn-bg-hover": "#dededc",

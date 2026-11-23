@@ -18,5 +18,5 @@ and asks again.
 - **Pages can't approve anything.** Only zenmd's own dialog can allow a plugin; a script on a page can't.
 
 > **Missing:** the plugin guide for authors (writing a plugin, its manifest,
-> its backend). It lives in the repository's docs/PLUGINS.md and isn't
+> its backend). It lives in the repository's docs/wiki/PLUGINS.md and isn't
 > published as user docs yet.

@@ -2,7 +2,7 @@
 
 Source of truth for requirements: [design-draft-v010-alpha.md](design-draft-v010-alpha.md).
 Companion documents: [UI.md](UI.md) (views, tokens, mockup), [PLUGINS.md](PLUGINS.md)
-(plugin API and syntax), [VERSIONING.md](VERSIONING.md), [../specs/README.md](../specs/README.md)
+(plugin API and syntax), [VERSIONING.md](VERSIONING.md), [../specs/README.md](../../specs/README.md)
 (feature list, waves, rules for feature agents).
 
 `Zenmark.app` is a desktop markdown reader and editor for **folders** of markdown.
@@ -97,7 +97,7 @@ Sanitising is last and unconditional; no plugin output skips it.
 ### Service API (the contract between Go and the frontend)
 
 Since engine E1 the Go side of this contract is `engine/session` (a headless
-folder session, see docs/ENGINE.md and `go doc ./engine/session`); the app's
+folder session, see docs/wiki/ENGINE.md and `go doc ./engine/session`); the app's
 `Zen` service in `internal/app` binds it to Wails with one-line delegations.
 
 Exposed by `internal/app`, consumed only through `frontend/src/api`.

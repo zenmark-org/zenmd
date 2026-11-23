@@ -3,7 +3,7 @@ package extplugins
 // The pieces that every kind of folder plugin shares: what trust works on,
 // the cheap "did anything change" check, and the hardened hashing and path
 // containment. Script plugins (core/scriptplugins) use them as they are, so
-// the rules of docs/plugin-review-2026-11.md exist in one place.
+// the rules of docs/wiki/plugin-review-2026-11.md exist in one place.
 
 import (
 	"crypto/sha256"

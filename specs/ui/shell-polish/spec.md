@@ -30,7 +30,7 @@ Markdown use the same list on the left as every other section.
 
    The CommonMark/GFM sentence is removed.
 
-5. **Changed after testing (UI consistency, docs/UI.md):**
+5. **Changed after testing (UI consistency, docs/wiki/UI.md):**
    - **Markdown:** the syntaxes are the items, like Plugins and Layouts: **CommonMark and GFM** (Always on) first, then each dialect with On/Off. The right column has the selected one's switch, summary, sample and preview. A failure to read them stands in the left column.
    - **Every section:** the empty text is in the left column.
    - **Navigation:** it is also in Settings on the home screen.
@@ -70,7 +70,7 @@ Edge cases:
 
 ## UI
 
-docs/UI.md tokens only; black and white. The active bar sits on the content side, so it mirrors when the sidebar is on the right.
+docs/wiki/UI.md tokens only; black and white. The active bar sits on the content side, so it mirrors when the sidebar is on the right.
 
 ## Security
 
@@ -80,7 +80,7 @@ None: no new input, and settings text goes in through `textContent` as before.
 
 - **Runs beside:** ui/inspector-polish, which owns `shell.ts`, the panel and the Inspector, `page/index.ts`, `menu.go`, `app.go` and the api.
 - **Integration (lead):**
-  - docs/UI.md, the sidebar and Settings paragraphs;
+  - docs/wiki/UI.md, the sidebar and Settings paragraphs;
   - CHANGELOG: `Changed: the sidebar shows the folder's name once and marks the open panel's button; Settings › Appearance lists Theme and Navigation, and Settings › Markdown lists Dialects, like the other sections.`
 - **App Store / sandbox:** none.
 

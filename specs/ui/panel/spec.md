@@ -45,7 +45,7 @@ and the content of its body.
 
 ## UI
 
-Header 34 px on `--bg-subtle`; tabs are text, the selected one bold with a 2 px underline in `--focus`; count chips are 16 px pills. Bodies on `--bg` with `--space-3`/`--space-4` padding. Tokens only (docs/UI.md).
+Header 34 px on `--bg-subtle`; tabs are text, the selected one bold with a 2 px underline in `--focus`; count chips are 16 px pills. Bodies on `--bg` with `--space-3`/`--space-4` padding. Tokens only (docs/wiki/UI.md).
 
 ## Notes
 

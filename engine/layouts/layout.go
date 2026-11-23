@@ -4,7 +4,7 @@
 // needs, an HTML template, style sheets and a page script. Built-in layouts
 // are the same folders, embedded in zen (see builtins/layouts); folder and
 // user layouts go through the same discovery, hashing and trust as external
-// plugins (core/extplugins). See docs/LAYOUTS.md.
+// plugins (core/extplugins). See docs/wiki/LAYOUTS.md.
 package layouts
 
 import (

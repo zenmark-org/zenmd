@@ -2,7 +2,7 @@
 
 All notable changes to Zenmark and the zenmd engine are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
-follows [Semantic Versioning](https://semver.org) (see docs/VERSIONING.md).
+follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 
 ## [Unreleased]
 
@@ -54,7 +54,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/VERSIONING.md).
 - Settings › Markdown is now Settings › Reader: a Markdown heading over CommonMark and GFM (the default) and the dialects; the demo's markdown showcase is now the Markdown page under Reader.
 - The demo guide groups the app's features in a Features section, one page each (reader, navigation, find, editor, inspector, print, developer), after the Intro.
 - Find, Edit and the Inspector are icons in the top bar (a magnifying glass, a pencil and a panel); the sidebar footer keeps Settings and Export, and every icon comes from one set.
-- Every interactive block (quiz, rating, checklists, sandbox, course) uses one set of frames, buttons, choices and text styles, documented in docs/PLUGIN-UI.md for future plugins and layouts; the course's step list lines up wrapped titles.
+- Every interactive block (quiz, rating, checklists, sandbox, course) uses one set of frames, buttons, choices and text styles, documented in docs/wiki/PLUGIN-UI.md for future plugins and layouts; the course's step list lines up wrapped titles.
 - `examples/demo` is the Zenmark guide for what the app has today and grows with each roadmap step; the full tour is `examples/showcase`.
 - Sandbox: read-only code is coloured like a code block, and the note about a stopped container service checks again when you come back to the window or press Check again.
 - Clicking a problem jumps to it in the page and marks it like a spelling mark, with its details on the right; the Inspector's Build tab is a list with details. Settings opens on Configuration, a config file that does not exist is greyed out when the build cannot create it, and the home screen fades in only when the app starts.
@@ -118,7 +118,7 @@ The first tagged release: the app is Zenmark, built on the zenmd engine (`github
 - Diagrams render again (the diagram script now exports `mount`, as the plugin runtime expects).
 - Reload keeps the page you were reading.
 
-- Plugin hardening (docs/plugin-review-2026-11.md): plugins can no longer hang or exhaust zen, run code that was not approved, or reach other plugins from page scripts.
+- Plugin hardening (docs/wiki/plugin-review-2026-11.md): plugins can no longer hang or exhaust zen, run code that was not approved, or reach other plugins from page scripts.
 - Slides: arrow keys and Space in the sidebar no longer also move the slides.
 - Page titles keep `<`, `>` and decode entities in the sidebar and breadcrumb.
 - Zen.app no longer hangs when opened from Finder.
@@ -158,16 +158,16 @@ The first tagged release: the app is Zenmark, built on the zenmd engine (`github
 
 ### Added
 
-- Two distribution channels: `task package` (Developer ID: signed, notarised `.dmg`, everything included) and `task package:appstore` (sandboxed Mac App Store `.pkg`, without program, tool and container plugins or the `zen` command). See docs/DISTRIBUTION.md; the App Store build still needs an Apple account and owner decisions.
+- Two distribution channels: `task package` (Developer ID: signed, notarised `.dmg`, everything included) and `task package:appstore` (sandboxed Mac App Store `.pkg`, without program, tool and container plugins or the `zen` command). See docs/wiki/DISTRIBUTION.md; the App Store build still needs an Apple account and owner decisions.
 
-- Site templates: `zen init site --techdocs|--learning|--planner` and File › New Site from Template… (⇧⌘N, also on the welcome screen) start a folder from editable presets kept in your templates folder (technical docs after Diátaxis, a learning path, a planner). See docs/TEMPLATES.md.
+- Site templates: `zen init site --techdocs|--learning|--planner` and File › New Site from Template… (⇧⌘N, also on the welcome screen) start a folder from editable presets kept in your templates folder (technical docs after Diátaxis, a learning path, a planner). See docs/wiki/TEMPLATES.md.
 - Print Page (⌘P) and Print Site (⇧⌘P): the whole folder as one document with a cover and contents, through the print panel (Save as PDF); `zen build` writes `print.html` (`--no-print` to skip).
 - File › Build Website… (⇧⌘B) and Settings › Website: build the open folder as a static website from the app, with progress, warnings by page, and Open in Browser.
 
 - A loader while a folder opens: the folder's name, what zen is doing (reading the folder, indexing pages) with counts, and Cancel. Opening stops after `limits.openTimeout` seconds (default 30) and keeps the folder that was open. The folder given at launch now opens after the window shows.
 
 - `zen build`: export a folder as a static website that opens from disk or any web server (`--hosted` for a web-server-only build), rendered with the same plugins and layouts as the app.
-- Layouts are their own concept, separate from plugins: `.zen/layouts/<id>/layout.yml` with an HTML template (Go `html/template`), CSS and an optional script; folder defaults and path patterns in `.zen.yml`; Settings › Layouts and the New Page picker list them. New built-in layouts `docs`, `post`, `landing`, `wide`, `handout` (slides and course unchanged). Demo: a `memo` folder layout and a `blog/` folder using `layouts: "blog/**": post`. See docs/LAYOUTS.md.
+- Layouts are their own concept, separate from plugins: `.zen/layouts/<id>/layout.yml` with an HTML template (Go `html/template`), CSS and an optional script; folder defaults and path patterns in `.zen.yml`; Settings › Layouts and the New Page picker list them. New built-in layouts `docs`, `post`, `landing`, `wide`, `handout` (slides and course unchanged). Demo: a `memo` folder layout and a `blog/` folder using `layouts: "blog/**": post`. See docs/wiki/LAYOUTS.md.
 - Plugin help: Settings › Plugins shows help for each plugin next to the list (summary, what it adds, snippets with a Copy button, a preview for built-ins) and an "All plugins" cheat sheet. Plugins add it with a `help:` key in `plugin.yml` or the Tengo `plugin` map; all built-in and demo plugins have it.
 - Script plugins: a single `.tengo` file is a plugin (blocks, inlines, layouts, actions), with a `zen` module for HTML, nested markdown, storage and, with permission, reading the folder. Scripts run in a helper process with time, allocation and memory limits, so a broken script can never crash zen. Samples: `callout.tengo`, `wordcount/plugin.tengo`.
 - File › New Page… (⌘N) asks for a name and a layout (page, slides or course) and opens the new page in the editor.

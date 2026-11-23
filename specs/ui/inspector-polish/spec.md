@@ -76,7 +76,7 @@ Edge cases:
 
 ## UI
 
-docs/UI.md tokens only. The separator is a 1 px `--rule` line with an 8 px hit area, and `--fg-muted` on hover and focus, like the sidebar's edge. Warnings use the amber lint signal colour only for their icon, as the lint marks do.
+docs/wiki/UI.md tokens only. The separator is a 1 px `--rule` line with an 8 px hit area, and `--fg-muted` on hover and focus, like the sidebar's edge. Warnings use the amber lint signal colour only for their icon, as the lint marks do.
 
 ## Security
 
@@ -89,7 +89,7 @@ docs/UI.md tokens only. The separator is a 1 px `--rule` line with an 8 px hit a
 - **Out of scope:** new kinds of checks.
 - **Runs beside:** ui/shell-polish, which owns `kit/ui/src/nav/**`, `kit/ui/src/shell/{settings,layout}.ts`, `kit/ui/src/shell/settings.css`, `kit/ui/src/styles/shell.css` and the app's `settings.ts`. The `.zen-about*` rules in `settings.css` are removed there.
 - **Integration (lead):**
-  - docs/UI.md, the Inspector paragraph;
+  - docs/wiki/UI.md, the Inspector paragraph;
   - CHANGELOG: `Changed: the Inspector's columns can be resized and have the same padding in every tab; page warnings (an unknown layout, a dialect not in the build) are listed under Problems; what the build contains is the Inspector's Build tab, and Zenmark › About is the standard macOS panel again.`
 - **App Store / sandbox:** none.
 

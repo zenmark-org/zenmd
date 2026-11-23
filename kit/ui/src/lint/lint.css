@@ -1,4 +1,4 @@
-/* ui/lint. The chrome is grayscale (docs/UI.md); the only colours in the app
+/* ui/lint. The chrome is grayscale (docs/wiki/UI.md); the only colours in the app
    are the three lint signal tokens below, the conventional squiggle colours
    every editor uses, so a flag is never mistaken for a link's underline. */
 :root {

@@ -93,7 +93,7 @@ func (p *Plugin) parse(id string, res *msg) error {
 		return fmt.Errorf("plugin must be a map (plugin := {version: …}), not a %s", res.Type)
 	}
 	if _, ok := m["layouts"]; ok {
-		return fmt.Errorf("layouts moved: a plugin cannot declare layouts; put the layout in .zen/layouts/<id>/layout.yml (see docs/LAYOUTS.md)")
+		return fmt.Errorf("layouts moved: a plugin cannot declare layouts; put the layout in .zen/layouts/<id>/layout.yml (see docs/wiki/LAYOUTS.md)")
 	}
 	for k := range m {
 		if !knownKeys[k] {

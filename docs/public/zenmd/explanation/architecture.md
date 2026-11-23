@@ -25,5 +25,5 @@ flowchart TD
 - **The same output everywhere.** The app and `zenmd export site` use one build of the browser runtime, so an exported site looks like the app.
 
 > **Missing:** the Go API for embedding the engine (`engine/session`), with an
-> example. docs/ENGINE.md plans it for developers but it isn't written for
+> example. docs/wiki/ENGINE.md plans it for developers but it isn't written for
 > readers yet.

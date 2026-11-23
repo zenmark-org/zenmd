@@ -25,7 +25,7 @@ old folders keep working, and they're told how to move on.
    - With both keys, `export:` wins, `build:` is ignored, and the notice says so.
    - The global `config.yml` gets the same notice, naming that file.
 3. **Save as folder defaults** (Settings › Export and the website dialog) writes `export:`. If the file has a `build:` mapping, the saved values go under `export:`. The old mapping's other values move with them, so nothing is lost, and the `build:` key is removed. That's the only time Zenmark renames the key by itself. The preview that shows what will change shows this too.
-4. **Docs and examples** say `export:` everywhere, apart from the one sentence in docs/BUILD.md that says `build:` is still read.
+4. **Docs and examples** say `export:` everywhere, apart from the one sentence in docs/wiki/BUILD.md that says `build:` is still read.
    - The demo's guard (`TestDemoMatchesAssembly`) allows `export` in `.zenmd.yml` with the export feature. It allows `build` never.
    - A grep test, like `TestNoLegacyNameOutsideNotices`, fails on a `build:` config example outside the legacy notes.
 5. **Default output: `exports/html`** (was `_site`).

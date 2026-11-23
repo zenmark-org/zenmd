@@ -1,6 +1,6 @@
 // Package plugins defines the zen plugin API (version 1), the registry that
 // holds plugins and the parser for the directive syntax. It only defines
-// types and lookups; core/render drives the hooks. See docs/PLUGINS.md.
+// types and lookups; core/render drives the hooks. See docs/wiki/PLUGINS.md.
 package plugins
 
 import (

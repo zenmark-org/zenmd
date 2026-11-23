@@ -1,4 +1,4 @@
-/* :::sandbox — only what is the sandbox's own (code, console, spinner); the frame, bar and buttons are the plugin kit's (docs/PLUGIN-UI.md). */
+/* :::sandbox — only what is the sandbox's own (code, console, spinner); the frame, bar and buttons are the plugin kit's (docs/wiki/PLUGIN-UI.md). */
 .zen-sandbox { margin: 1em 0; }
 .zen-sandbox-note { padding: 8px 12px; color: var(--fg-muted); border-bottom: 1px solid var(--rule); }
 .zen-sandbox-note .zen-btn { margin-left: 4px; padding-top: 1px; padding-bottom: 1px; }

@@ -171,7 +171,7 @@ Edge cases:
 
 - **Hint:** one quiet line above the page (the style of the reader's warnings strip, an info tone, not a warning). The two buttons are ghost buttons, and Esc dismisses the hint like Not now. It is announced politely (`role="status"`).
 - **Settings › Markdown:** a checkbox list (name, then the summary muted underneath). The note under it reads "Saved in this folder's .zen.yml, so the folder renders the same everywhere."
-- Tokens only (docs/UI.md).
+- Tokens only (docs/wiki/UI.md).
 
 ## Security
 
@@ -196,10 +196,10 @@ Edge cases:
   - aliases need no new manifest field, because a plugin lists the MyST names in `blocks` (behaviour 9);
   - a built-in admonition plugin is a separate issue.
 - **Integration (lead, at merge):**
-  - `docs/PLUGINS.md`: "Other syntaxes (dialects)", pointing here.
-  - `docs/ENGINE.md`: `engine/dialects`, `render.Options.Dialects`, `builtins.DialectsFor`.
-  - `docs/BUILD.md`: the `dialects` key.
-  - `docs/ADDONS.md`: the table row "dialect" next to add-on, plugin and layout.
+  - `docs/wiki/PLUGINS.md`: "Other syntaxes (dialects)", pointing here.
+  - `docs/wiki/ENGINE.md`: `engine/dialects`, `render.Options.Dialects`, `builtins.DialectsFor`.
+  - `docs/wiki/BUILD.md`: the `dialects` key.
+  - `docs/wiki/ADDONS.md`: the table row "dialect" next to add-on, plugin and layout.
   - The user guide page `examples/demo/plugins/dialects.md` and its golden hash.
   - README.
   - Close #3 with the merge (`Fixes #3` on the merge commit).

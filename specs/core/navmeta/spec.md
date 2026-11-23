@@ -80,7 +80,7 @@ None new: the sidebar and breadcrumb show what the index returns.
 ## Notes
 
 - **Out of scope:** slugs as window URLs, renaming files, a nav editor UI.
-- **Integration (lead):** document keys in docs/PLUGINS.md "Enabling, disabling, configuring" (frontmatter section).
+- **Integration (lead):** document keys in docs/wiki/PLUGINS.md "Enabling, disabling, configuring" (frontmatter section).
 - **Changelog:** Added: frontmatter `slug` and `nav` (title, order, parent, hidden).
 
 ## Prompt

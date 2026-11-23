@@ -191,7 +191,7 @@ Edge cases to cover:
 
 ## UI
 
-- Welcome screen: the logo, Open a folder (primary), then **Start from a template**: a grid of up to 6 cards (name in the body font, description muted, 2 lines at most), then Show all…. Tokens from docs/UI.md; black and white.
+- Welcome screen: the logo, Open a folder (primary), then **Start from a template**: a grid of up to 6 cards (name in the body font, description muted, 2 lines at most), then Show all…. Tokens from docs/wiki/UI.md; black and white.
 - New Site dialog:
   - a modal like New Page: a template list (radio cards), the `ask:` fields, a Choose folder… button and the chosen path shown as text, then Cancel and **Create** (primary, disabled until a folder is chosen);
   - Esc cancels and Enter creates;
@@ -222,7 +222,7 @@ Edge cases to cover:
   - `internal/app/menu.go`: put New Site from Template… (⇧⌘N, `menuActions.NewSite`) first in File, followed by a separator; `menu_test.go` expectations.
   - The api: add `siteTemplates`, `pickSiteFolder`, `createSite`, `revealTemplates` and `menu:new-site` in `index.ts`, `wails.ts` and `fake.ts`.
   - The CLI usage text gets `zen init site [--techdocs|--learning|--planner] [folder]`.
-  - Docs: `docs/PLAN.md` Service API; a `docs/TEMPLATES.md` how-to (format, placeholders, where they live); README link; changelog.
+  - Docs: `docs/wiki/PLAN.md` Service API; a `docs/wiki/TEMPLATES.md` how-to (format, placeholders, where they live); README link; changelog.
 - **App Store / sandbox:** the templates dir is inside the container, so it works. The target folder comes from the folder panel. `zen init` from the CLI isn't in the App Store build (packaging/appstore).
 - **Changelog:** `Added: site templates — zen init site --techdocs|--learning|--planner and File › New Site from Template… start a folder from editable presets kept in your templates folder.`
 

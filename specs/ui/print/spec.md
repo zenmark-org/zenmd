@@ -135,7 +135,7 @@ Edge cases to cover:
   - a narrow toolbar at the top with the title, the page count, Include drafts (a checkbox), Pages (a select: All, This section), Close, and Print… (primary);
   - under it, the document on a light "paper" background with sheet-sized sections (A4/Letter width from the locale), scrolling;
   - states: preparing (a spinner and a count), ready, too many pages (a message plus the section select), an error (the message plus Retry);
-  - tokens from docs/UI.md; the toolbar follows the app theme and the document is always light.
+  - tokens from docs/wiki/UI.md; the toolbar follows the app theme and the document is always light.
 - **Accessibility:**
   - the toolbar is a `toolbar` role with arrow-key movement;
   - the document is a `document` landmark;
@@ -165,7 +165,7 @@ Edge cases to cover:
   - `frontend/src/shell/shell.ts`: route `?window=print` to `mountPreview`; the main window's ⌘P handler calls the print flow; and remove the page's own ⌘P handler in `frontend/src/page/index.ts`, which the print flow replaces.
   - `internal/app/assets.go`: route `/_print/` to `print.go`'s handler.
   - `internal/cli`: the `--no-print` flag and the usage line.
-  - docs/BUILD.md: `print.html`; a demo link; the changelog.
+  - docs/wiki/BUILD.md: `print.html`; a demo link; the changelog.
 - **App Store / sandbox:** none. Printing uses the system panel.
 - **Changelog:** `Added: Print Page (⌘P) and Print Site (⇧⌘P) — the whole folder as one document with a cover and contents, through the print panel (Save as PDF); zen build writes print.html.`
 

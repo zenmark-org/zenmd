@@ -7,7 +7,7 @@
 | Branch | `feature/22-dialects` (roadmap step 13, #22) |
 | Wave | 35 |
 | Depends on | engine/dialects, ui/settings-layout, app/demo-guide (the Features section) |
-| Owns | `apps/zenmark/app-assembly.yml` + `assembly_gen.go` (`dialects: all`), `apps/zenmark/frontend/src/shell/settings.ts` + tests (the Markdown section), `apps/zenmark/dialects.go` (comment), `kit/ui/src/host.ts` (comments), `kit/ui/src/inspector/problems.ts` + test (the Fix text), wherever the app opens Settings on the Markdown section (the MyST project hint) + tests, `docs/UI.md` (Settings paragraph), `examples/demo/**`, `engine/session/demo_test.go` |
+| Owns | `apps/zenmark/app-assembly.yml` + `assembly_gen.go` (`dialects: all`), `apps/zenmark/frontend/src/shell/settings.ts` + tests (the Markdown section), `apps/zenmark/dialects.go` (comment), `kit/ui/src/host.ts` (comments), `kit/ui/src/inspector/problems.ts` + test (the Fix text), wherever the app opens Settings on the Markdown section (the MyST project hint) + tests, `docs/wiki/UI.md` (Settings paragraph), `examples/demo/**`, `engine/session/demo_test.go` |
 
 ## Purpose
 
@@ -72,4 +72,4 @@ UI consistency: the Settings frame, with items on the left and details on the ri
 
 ## Prompt
 
-> Implement `specs/ui/reader-settings/spec.md` following CLAUDE.md and docs/PLUGIN-UI.md, in the worktree `../zen-worktrees/issue-22` on branch `feature/22-dialects`. Tests first, committed failing. Only the Owns paths. Do not launch the app, run task package/install/release, push or touch main.
+> Implement `specs/ui/reader-settings/spec.md` following CLAUDE.md and docs/wiki/PLUGIN-UI.md, in the worktree `../zen-worktrees/issue-22` on branch `feature/22-dialects`. Tests first, committed failing. Only the Owns paths. Do not launch the app, run task package/install/release, push or touch main.

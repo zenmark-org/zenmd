@@ -7,7 +7,7 @@
 | Branch | `feature/13-layouts` (found while checking roadmap step 4, #13) |
 | Wave | 33 |
 | Depends on | plugins/rating, the built-in plugins and layouts |
-| Owns | `runtime/src/css/plugin-kit.css` (new) and how the runtime ships it, `runtime/src/css/page.css` (only to drop rules the kit replaces), `builtins/plugins/{check,quiz,rating,sandbox,codeblock,diagram}/**` (styles and class names only), `builtins/layouts/course/**` (styles and class names only), their tests, `kit/ui/src/page/css.test.ts` or a new `runtime/test/plugin-kit.test.ts`, `docs/PLUGIN-UI.md` (new), `docs/PLUGINS.md` (a link to it) |
+| Owns | `runtime/src/css/plugin-kit.css` (new) and how the runtime ships it, `runtime/src/css/page.css` (only to drop rules the kit replaces), `builtins/plugins/{check,quiz,rating,sandbox,codeblock,diagram}/**` (styles and class names only), `builtins/layouts/course/**` (styles and class names only), their tests, `kit/ui/src/page/css.test.ts` or a new `runtime/test/plugin-kit.test.ts`, `docs/wiki/PLUGIN-UI.md` (new), `docs/wiki/PLUGINS.md` (a link to it) |
 
 ## Purpose
 
@@ -23,7 +23,7 @@ follows, fixes the pattern once.
 
 ## Behaviour
 
-1. **The kit.** The runtime ships `plugin-kit.css` on every page, in the app and in built sites, with these classes. They use only the docs/UI.md tokens, the sandbox's current look is the reference, and every control has a `:focus-visible` ring.
+1. **The kit.** The runtime ships `plugin-kit.css` on every page, in the app and in built sites, with these classes. They use only the docs/wiki/UI.md tokens, the sandbox's current look is the reference, and every control has a `:focus-visible` ring.
 
    | Class | Is |
    |---|---|
@@ -51,7 +51,7 @@ follows, fixes the pattern once.
 
 ## Style guide
 
-`docs/PLUGIN-UI.md` is the rule for every future plugin and layout. It covers:
+`docs/wiki/PLUGIN-UI.md` is the rule for every future plugin and layout. It covers:
 - **use the kit:** never restyle buttons, choices, fields or frames;
 - **type:** the UI font at 14px inside blocks, and only the documented tokens;
 - **states:** empty, loading, error, done, each with the same status style;
@@ -61,7 +61,7 @@ follows, fixes the pattern once.
 - **what a layout may change:** the page around blocks, never the blocks' controls;
 - **checklist for review:** a short list the lead checks.
 
-`docs/PLUGINS.md` links to it. CLAUDE.md points to it; the lead adds that line.
+`docs/wiki/PLUGINS.md` links to it. CLAUDE.md points to it; the lead adds that line.
 
 ## Architecture
 
@@ -70,7 +70,7 @@ follows, fixes the pattern once.
 
 ## Interfaces
 
-The class names in Behaviour 1 are a public contract for plugin authors, documented in `docs/PLUGIN-UI.md`.
+The class names in Behaviour 1 are a public contract for plugin authors, documented in `docs/wiki/PLUGIN-UI.md`.
 
 ## Tests
 
@@ -93,8 +93,8 @@ This spec defines the pattern: UI consistency for every interactive block.
 
 ## Notes
 
-- **Changelog** (added by the lead): `Changed: every interactive block (quiz, rating, checklists, sandbox, course) uses one set of buttons, choices and text styles, documented in docs/PLUGIN-UI.md for future plugins and layouts.`
-- **Integration** (lead): the CLAUDE.md line pointing to docs/PLUGIN-UI.md.
+- **Changelog** (added by the lead): `Changed: every interactive block (quiz, rating, checklists, sandbox, course) uses one set of buttons, choices and text styles, documented in docs/wiki/PLUGIN-UI.md for future plugins and layouts.`
+- **Integration** (lead): the CLAUDE.md line pointing to docs/wiki/PLUGIN-UI.md.
 
 ## Prompt
 

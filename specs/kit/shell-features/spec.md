@@ -154,7 +154,7 @@ and marked "not in this build" for screen readers.
   - removing a missing feature's code from the frontend bundle;
   - features of the engine CLI beyond export;
   - per-feature Go build tags (features are run-time gates in one binary, unlike add-ons).
-- **Integration (lead, at merge):** docs/BUILD.md (the feature table and needs); docs/ADDONS.md (add-on needs); docs/ENGINE.md if anything engine-facing changes; README; CHANGELOG `Added: every big piece of the app (reader, nav, find, editor, inspector, print, export, new site, developer) is a feature an app assembly can leave out; features: [] builds a bare shell.`
+- **Integration (lead, at merge):** docs/wiki/BUILD.md (the feature table and needs); docs/wiki/ADDONS.md (add-on needs); docs/wiki/ENGINE.md if anything engine-facing changes; README; CHANGELOG `Added: every big piece of the app (reader, nav, find, editor, inspector, print, export, new site, developer) is a feature an app assembly can leave out; features: [] builds a bare shell.`
 - **App Store / sandbox:** none.
 
 ## Prompt

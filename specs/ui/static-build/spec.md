@@ -129,7 +129,7 @@ Edge cases to cover:
   - focus starts on Build;
   - progress is a `progressbar` with `aria-valuenow`;
   - the result is announced (`role="status"`) and warnings are a list.
-- Tokens from docs/UI.md; black and white.
+- Tokens from docs/wiki/UI.md; black and white.
 
 ## Security
 
@@ -152,7 +152,7 @@ Edge cases to cover:
   - `internal/app/menu.go`: Build Website… ⇧⌘B (`menuActions.BuildWebsite`, disabled without a folder) in the File group with the Print items; `menu_test.go`.
   - The api: add `buildOptions`, `buildWebsite`, `cancelBuild`, `saveBuildDefaults`, `pickBuildFolder`, `openBuiltSite`, `revealBuiltSite`, `build:progress` and `menu:build-website` in `index.ts`, `wails.ts` and `fake.ts`.
   - `frontend/src/shell/shell.ts`: listen for `menu:build-website` and open the dialog.
-  - Docs: docs/BUILD.md "In the app"; the changelog.
+  - Docs: docs/wiki/BUILD.md "In the app"; the changelog.
 - **App Store / sandbox:** the default output inside the open folder is covered by its user-selected access, and other folders come from the panel.
 - **Changelog:** `Added: File › Build Website… (⇧⌘B) and Settings › Website — build the open folder as a static website from the app, with progress, warnings by page, and Open in Browser.`
 

@@ -7,7 +7,7 @@
 | Branch | `feature/packaging-appstore` |
 | Wave | 12 |
 | Depends on | packaging/macos, app/menu (About panel, no developer items) |
-| Owns | `build/darwin/**`, `build/config.yml`, `build/appicon.*`, `build/Taskfile.yml`, `resources.yml`, `internal/app/channel*.go` + tests (new), `internal/core/extplugins/channel*.go` + tests (new), `docs/DISTRIBUTION.md` (new, lead reviews) |
+| Owns | `build/darwin/**`, `build/config.yml`, `build/appicon.*`, `build/Taskfile.yml`, `resources.yml`, `internal/app/channel*.go` + tests (new), `internal/core/extplugins/channel*.go` + tests (new), `docs/wiki/DISTRIBUTION.md` (new, lead reviews) |
 
 ## Purpose
 
@@ -168,14 +168,14 @@ Edge cases to cover:
   4. **App Store feature set.** This spec keeps Tengo and JS plugins; App Review guideline 2.5.2 (downloaded or executed code) is the main review risk. The fallback is built-ins only.
   5. **Copyright holder** for `NSHumanReadableCopyright`.
 - **Out of scope:**
-  - TestFlight and App Store Connect metadata (screenshots, description), which go in `docs/DISTRIBUTION.md` as a checklist;
+  - TestFlight and App Store Connect metadata (screenshots, description), which go in `docs/wiki/DISTRIBUTION.md` as a checklist;
   - auto-update for the Developer ID build (Sparkle, later);
   - Windows and Linux packages.
 - **Integration (done by the lead at merge):**
   - `Taskfile.yml`: pass `CHANNEL` through `package`;
   - `.gitignore`: `*.provisionprofile`, `bin/*.pkg`;
   - README: an Install section for the two channels;
-  - `docs/PLAN.md` milestones: the App Store at 0.3.0;
+  - `docs/wiki/PLAN.md` milestones: the App Store at 0.3.0;
   - the Settings page shows `ErrUnavailable` statuses: the shared `status` union in `frontend/src/api/index.ts` gains `"unavailable"`.
 - **App Store / sandbox:** this spec.
 - **Changelog:**

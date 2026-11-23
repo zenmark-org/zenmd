@@ -40,7 +40,7 @@ double click.
 
 ### Assets and scripts
 12. Plugin and layout assets the built pages use are written to `<out>/_zen/plugins/<id>/<file>` and `<out>/_zen/layouts/<id>/<file>` (only files listed by the plugin or layout, same rules as the app's `/_plugins/` and `/_layouts/` routes). zen's own page CSS (tokens, base, page) and the static runtime go to `<out>/_zen/zen.css` and `<out>/_zen/zen.js`. Font files are copied only when the CSS references them.
-13. The static runtime (`frontend/src/static`) mounts plugin and layout scripts with the **same contract** as the app (default export `{ mount(el, ctx) }`, docs/PLUGINS.md and docs/LAYOUTS.md), with a `ctx` that has:
+13. The static runtime (`frontend/src/static`) mounts plugin and layout scripts with the **same contract** as the app (default export `{ mount(el, ctx) }`, docs/wiki/PLUGINS.md and docs/wiki/LAYOUTS.md), with a `ctx` that has:
     - `storage` kept in the reader's `localStorage` under `zen.site.<siteId>.<plugin|layout>.<id>.<key>` (`siteId` from `build.id`, else the folder name). If localStorage is unavailable, storage works for the session only.
     - `invoke` and `stream` that reject with `Error("runs in the zen app only")`; the block shows the usual plugin error box with that text.
     - `navigate`, `anchor` and `onAnchor` that follow the static links; `badge` that does nothing.
@@ -209,7 +209,7 @@ Edge cases to cover:
 
 There is no app UI; the feature is command line only. Output pages:
 
-- They use the app's tokens (`docs/UI.md`): same editorial font, black and white, light and dark through `prefers-color-scheme`.
+- They use the app's tokens (`docs/wiki/UI.md`): same editorial font, black and white, light and dark through `prefers-color-scheme`.
 - The sidebar sits on the left. Below 720px it collapses behind a `<details>` "Contents" toggle, so it works without JS.
 - Accessibility:
   - landmarks `<nav aria-label="Pages">`, `<nav aria-label="Breadcrumb">` and `<main>`;
@@ -248,7 +248,7 @@ There is no app UI; the feature is command line only. Output pages:
   - `frontend/vite.config.ts`: add the `static` entry (`build.rollupOptions.input` + a library build to `dist/static/` as IIFE), or a second config run by `task build:frontend`.
   - `Taskfile.yml`: make sure `task build` builds the static bundle before `go build`.
   - `cli` usage text: the line `zen build [folder]   build a static website (-o dir, --portable, --drafts, --clean)`.
-  - `docs/BUILD.md`: a new how-to, linked from README and `examples/demo`. Also: the `build:` keys in the config docs, and a `build:` example in `examples/demo/.zen.yml`.
+  - `docs/wiki/BUILD.md`: a new how-to, linked from README and `examples/demo`. Also: the `build:` keys in the config docs, and a `build:` example in `examples/demo/.zen.yml`.
   - `.gitignore`: `_site/`.
 - **App Store / sandbox:** none. It's a command-line feature that writes only where the user points it.
 - **Changelog:** `Added: zen build — export a folder as a static website (hosted or --portable for file://), rendered with the same plugins and layouts as the app.`

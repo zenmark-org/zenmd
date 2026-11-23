@@ -177,7 +177,7 @@ a path with spaces or non-ASCII characters.
 States: closed (button only, red count badge when there are issues), open with loading
 file data, populated, file data unavailable. Compact rows (12 px, label left in
 `--fg-muted`, value right), tabs look like the Developer panel's (`.zen-inspector-tab`).
-Tokens from docs/UI.md only (`--bg`, `--bg-subtle`, `--fg`, `--fg-muted`, `--rule`,
+Tokens from docs/wiki/UI.md only (`--bg`, `--bg-subtle`, `--fg`, `--fg-muted`, `--rule`,
 `--btn-bg`, `--focus`, `--space-*`, `--radius`, fonts); the lint severity tokens
 for the issue list as today. Keyboard: ⌥⌘I, Tab through the tabs and buttons,
 Esc closes. The panel is `aside[aria-label="Inspector"]`; each tab has a

@@ -6,7 +6,7 @@
 | Target version | 0.2.0 |
 | Depends on | core/extplugins, core/plugin-extras |
 | Branch | `feature/core-script-plugins` |
-| Owns | `internal/core/scriptplugins/` (new), `internal/core/extplugins/` (discovery, trust, Plugins() listing for script plugins), `internal/app/extplugins.go` (wiring only), `go.mod`/`go.sum` (add `github.com/d5/tengo/v2 v2.17.0` only), docs/PLUGINS.md, `examples/demo/.zen/plugins/` (new `.tengo` samples), `examples/demo/plugins/writing-plugins.md`, `internal/app/demo_test.go` |
+| Owns | `internal/core/scriptplugins/` (new), `internal/core/extplugins/` (discovery, trust, Plugins() listing for script plugins), `internal/app/extplugins.go` (wiring only), `go.mod`/`go.sum` (add `github.com/d5/tengo/v2 v2.17.0` only), docs/wiki/PLUGINS.md, `examples/demo/.zen/plugins/` (new `.tengo` samples), `examples/demo/plugins/writing-plugins.md`, `internal/app/demo_test.go` |
 
 ## Why
 

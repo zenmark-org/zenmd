@@ -232,7 +232,7 @@ tasks:
   create:app:bundle:
     summary: Creates bin/Zenmark.app (binary, Info.plist from VERSION, icon, helpers from resources.yml) and signs it
     vars:
-      # docs/VERSIONING.md: short version = MAJOR.MINOR.PATCH, build = commit count.
+      # docs/wiki/VERSIONING.md: short version = MAJOR.MINOR.PATCH, build = commit count.
       SHORT_VERSION:
         sh: sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+).*/\1/' "{{.ROOT_DIR}}/VERSION"
       BUILD_NUMBER:

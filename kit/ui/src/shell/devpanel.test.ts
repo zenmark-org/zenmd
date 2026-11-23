@@ -58,7 +58,7 @@ test("empty state", async () => {
   expect(panel.el.querySelector(".zen-dev-empty")).toBeNull();
 });
 
-// UI consistency (docs/UI.md): the Console's empty states are the panel's, padded like every other tab.
+// UI consistency (docs/wiki/UI.md): the Console's empty states are the panel's, padded like every other tab.
 test("the Console's empty states are the shared panel empty state, with no padding of their own", async () => {
   await open();
   expect(panel.el.querySelector(".zen-dev-empty")!.classList.contains("zen-panel-empty")).toBe(true);

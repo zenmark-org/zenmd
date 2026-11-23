@@ -12,7 +12,7 @@
 ## Purpose
 
 The command line tool and the executable are **`zenmd`**: the name of the
-engine (docs/ENGINE.md). `zen` keeps working as an alias for one minor
+engine (docs/wiki/ENGINE.md). `zen` keeps working as an alias for one minor
 release and says it is going away.
 
 ## Behaviour
@@ -95,7 +95,7 @@ None (command line). The app's About and menus are unchanged.
   - the Go module path (wave E2);
   - the `ZEN_*` plugin environment variables.
 - **Integration (done by the lead at merge):**
-  - `docs/PLAN.md` and `docs/ENGINE.md`: mark E1 cli-rename as done;
+  - `docs/wiki/PLAN.md` and `docs/wiki/ENGINE.md`: mark E1 cli-rename as done;
   - the changelog line;
   - `specs/README.md` status.
 - **App Store / sandbox:** the App Store build has no CLI; the executable rename applies to it too.

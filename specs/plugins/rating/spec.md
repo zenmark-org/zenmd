@@ -7,7 +7,7 @@
 | Branch | `feature/13-layouts` (added during roadmap step 4, #13) |
 | Wave | 32 |
 | Depends on | core/plugin-extras (ctx.storage), plugins/quiz (the pattern: Go render plus page script, results list) |
-| Owns | `builtins/plugins/rating/**` (new), `runtime/test/builtin-rating.test.ts` (new), the registration lines for a new built-in (`builtins/builtins.go`, `kit/assembly/generate.go` and the catalog or tests that list built-in ids), `apps/zenmark/app-assembly.yml` + `assembly_gen.go` (add `rating`), `examples/demo/plugins/{index,rating}.md`, `examples/demo/layouts/course.md`, `engine/session/demo_test.go`, `docs/PLUGINS.md` (the built-in list only) |
+| Owns | `builtins/plugins/rating/**` (new), `runtime/test/builtin-rating.test.ts` (new), the registration lines for a new built-in (`builtins/builtins.go`, `kit/assembly/generate.go` and the catalog or tests that list built-in ids), `apps/zenmark/app-assembly.yml` + `assembly_gen.go` (add `rating`), `examples/demo/plugins/{index,rating}.md`, `examples/demo/layouts/course.md`, `engine/session/demo_test.go`, `docs/wiki/PLUGINS.md` (the built-in list only) |
 
 ## Purpose
 

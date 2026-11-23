@@ -118,7 +118,7 @@ Edge cases:
 
 ## UI
 
-docs/UI.md tokens only. The list rows look like the sidebar rows: the selected one has `--btn-bg` and `aria-selected`. The right column has the item's title as `h3`, then its content. Thin `--rule` between the columns. Every list is a `listbox`; About is a `dialog` with `aria-modal`.
+docs/wiki/UI.md tokens only. The list rows look like the sidebar rows: the selected one has `--btn-bg` and `aria-selected`. The right column has the item's title as `h3`, then its content. Thin `--rule` between the columns. Every list is a `listbox`; About is a `dialog` with `aria-modal`.
 
 ## Security
 
@@ -134,7 +134,7 @@ docs/UI.md tokens only. The list rows look like the sidebar rows: the selected o
 - **Integration (lead, at merge):**
   - In `apps/zenmark/frontend/src/shell/shell.ts`: handle `menu:about` with `openAbout`, pass `openConsole` to the Developer section, and route `menu:build-website` to Settings › Export.
   - Remove the `.zen-settings-*` rules in `kit/ui/src/styles/shell.css` that settings.css replaces.
-  - docs/UI.md Settings paragraph; CHANGELOG.
+  - docs/wiki/UI.md Settings paragraph; CHANGELOG.
 - **App Store / sandbox:** none.
 - **Changelog:** `Changed: Settings has two columns in every section (the item on the left, its preview, help and actions on the right); Export and the Developer switch work in place; This build moved to Zenmark › About (#26).`
 

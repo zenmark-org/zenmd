@@ -2,7 +2,7 @@
 // reading view), slides and course (moved from the plugins they used to be),
 // and the template layouts docs, post, landing, wide, handout, term, glossary, release and troubleshooting. Each is a
 // folder with a layout.yml in the same format as a user's own layout (see
-// docs/LAYOUTS.md), embedded in zen.
+// docs/wiki/LAYOUTS.md), embedded in zen.
 package layouts
 
 import (

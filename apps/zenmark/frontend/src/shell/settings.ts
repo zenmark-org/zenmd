@@ -103,7 +103,7 @@ export function createSettingsView(opts: {
   }
   const config: SettingsSection = { id: "config", label: "Configuration", items: configItems, render: renderConfig };
 
-  // ---- Reader: the markdown syntaxes are the items, like Plugins and Layouts (docs/UI.md, UI consistency),
+  // ---- Reader: the markdown syntaxes are the items, like Plugins and Layouts (docs/wiki/UI.md, UI consistency),
   // under a small "Markdown" heading. CommonMark and GFM come first and are the default (always on); each dialect of the build is on or off for this folder
   // (saved in its .zenmd.yml). The right column has the selected one's switch, summary, sample and preview.
 

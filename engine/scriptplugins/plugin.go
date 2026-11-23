@@ -2,7 +2,7 @@
 // Tengo that zen runs itself, inside the app, under a hard time and
 // allocation budget and with no access to files, programs or the network
 // unless the plugin asks for the "read" permission (and then only to the
-// markdown and text files of the open folder). See docs/PLUGINS.md, "Script
+// markdown and text files of the open folder). See docs/wiki/PLUGINS.md, "Script
 // plugins (Tengo)".
 //
 // A script plugin is `<id>.tengo`, or `<id>/plugin.tengo` with files beside

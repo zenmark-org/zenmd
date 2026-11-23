@@ -1,4 +1,4 @@
-// The plugin kit (runtime/src/css/plugin-kit.css, docs/PLUGIN-UI.md): the shared classes for every interactive block.
+// The plugin kit (runtime/src/css/plugin-kit.css, docs/wiki/PLUGIN-UI.md): the shared classes for every interactive block.
 // Reads the CSS only, no DOM.
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -50,8 +50,8 @@ test("the kit is shipped with page.css, in the app and in built sites", () => {
 });
 
 test("the style guide exists and is linked from PLUGINS.md", () => {
-  expect(read("docs/PLUGIN-UI.md")).toContain("zen-btn");
-  expect(read("docs/PLUGINS.md")).toContain("PLUGIN-UI.md");
+  expect(read("docs/wiki/PLUGIN-UI.md")).toContain("zen-btn");
+  expect(read("docs/wiki/PLUGINS.md")).toContain("PLUGIN-UI.md");
 });
 
 // Plugins and layouts keep only their own styles.

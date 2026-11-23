@@ -28,7 +28,7 @@ func configWhich(path string) (string, bool) {
 // Templates written when a config file is opened for the first time. Every
 // setting is commented out, so creating the file changes nothing.
 const globalTemplate = `# zen global settings (all windows, all folders).
-# Docs: docs/PLUGINS.md "Enabling, disabling, configuring".
+# Docs: docs/wiki/PLUGINS.md "Enabling, disabling, configuring".
 version: 1
 
 # plugins:
@@ -42,7 +42,7 @@ version: 1
 `
 
 const workspaceTemplate = `# zen settings for this folder (override the global config.yml;
-# a page's frontmatter overrides these). Docs: docs/PLUGINS.md.
+# a page's frontmatter overrides these). Docs: docs/wiki/PLUGINS.md.
 version: 1
 
 # plugins:
