@@ -70,6 +70,8 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 - The Inspector button sits next to the Settings cog as an icon with a red issue-count badge, and the Inspector is a resizable bottom panel, closed at launch, with Linting (with a count), File and Page tabs that remember the last one used (#8).
 
 ### Fixed
+- `zenmd export site` no longer warns on every page about a user-scoped plugin option set in the global config; it is noted once, and options set in a folder or page still warn (#28).
+- `zenmd` path errors name the full path (`no such folder or file: /abs/path`), and a usage error prints one hint line (`Run zenmd help for the commands and options.`) instead of the whole help (#29).
 - The Inspector's Build tab listed the blueprints as "Templates": it now has Blueprints and Page templates, in the order pages are made (blueprints, page templates, layouts, plugins), Features one per line, and CommonMark and GFM in Dialects.
 - Ordered lists keep their start number, so `3.` after a code block renders as 3 instead of 1 (#2).
 
