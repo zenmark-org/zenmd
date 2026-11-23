@@ -101,7 +101,7 @@ sections as Integration lines.
 - **When it loads:** only on pages that have math, through `ctx.assetUrl`, the way the diagram plugin loads mermaid.
 - **How it renders:** in the page, with `throwOnError: false`, `trust: false` and `strict: "warn"`. An error shows the TeX with the message under it.
 - **Before KaTeX loads,** and in a page without scripts, the TeX shows as monospace text in a `.zen-block`.
-- **Fetching it:** the lead downloads KaTeX once, with the user's go-ahead, before the subagent starts. Subagents never download.
+- **Fetching it:** the lead downloads KaTeX once, with the user's go-ahead, before the subagent starts. Subagents never download. *Done 2026-11-23: KaTeX 0.19.1 is in `builtins/plugins/math/assets/` (script, CSS, the `.woff2` fonts), with `VENDOR.md`; the phase 3 branch owns the rest of `builtins/plugins/math/**`.*
 
 ### Phase 4: interactive layout blocks (sphinx-design), built-ins `tabs`, `dropdown` and `cards` (wave 39)
 
