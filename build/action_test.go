@@ -212,7 +212,7 @@ func TestInstallScript(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Only the release URL, https only, no redirect to another scheme.
-	for _, w := range []string{"https://github.com/zenmark-org/zenmd/releases/download", "--proto =https", "--proto-redir =https", "--fail"} {
+	for _, w := range []string{"https://github.com/zenmark-org/zenmd/releases/download", `proto="=https"`, `--proto "$proto"`, `--proto-redir "$proto"`, "--fail"} {
 		if !strings.Contains(string(src), w) {
 			t.Errorf("install.sh lacks %q", w)
 		}

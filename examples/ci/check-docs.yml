@@ -1,0 +1,20 @@
+# Check and build the docs on every pull request that touches them.
+# Copy to .github/workflows/check-docs.yml.
+name: check docs
+
+on:
+  pull_request:
+    paths: [docs/**]
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: zenmark-org/zenmd@v0.8.0
+        with:
+          folder: docs
+          output: _site
