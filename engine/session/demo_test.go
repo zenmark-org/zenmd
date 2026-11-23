@@ -294,9 +294,9 @@ func TestDemoFolder(t *testing.T) {
 	if len(tree) != 2 || tree[0].Path != "README.md" || tree[1].Title != "Other pages" {
 		t.Fatalf("top level = %s", paths(tree))
 	}
-	// Intro is the README and its pages; then Features, Plugins, Layouts and Configuration.
+	// Intro is the README and its pages; then Features, Plugins, Layouts, Templates and Configuration.
 	want := "intro/opening-folders.md,intro/frontmatter.md,intro/shortcuts.md,features/index.md," +
-		"plugins/index.md,layouts/index.md,configuration/settings.md"
+		"plugins/index.md,layouts/index.md,templates/index.md,configuration/settings.md"
 	if got := paths(tree[0].Children); got != want {
 		t.Errorf("README children = %s\nwant %s", got, want)
 	}
@@ -307,7 +307,8 @@ func TestDemoFolder(t *testing.T) {
 		"layouts/index.md":          "layouts/article.md,layouts/docs.md,layouts/post.md,layouts/landing.md,layouts/wide.md,layouts/handout.md,layouts/slides.md,layouts/course.md,layouts/glossary/index.md",
 		"layouts/glossary/index.md": "", // the terms are not in the sidebar: layout: term hides them
 		"configuration/settings.md": "configuration/reference.md",
-		"features/blueprints.md":    "features/blueprint-yml.md",
+		"features/blueprints.md":    "",
+		"templates/index.md":        "templates/page-templates.md,templates/blueprints.md",
 	}
 	var check func([]NavNode)
 	check = func(ns []NavNode) {
@@ -433,7 +434,7 @@ func TestDemoFeaturesMatchAssembly(t *testing.T) {
 		}
 	}
 	// Sub-pages of a feature's page come and go with it.
-	subPages := map[string][]string{"reader": {"markdown.md", "myst.md"}, "newsite": {"blueprint-yml.md"}}
+	subPages := map[string][]string{"reader": {"markdown.md", "myst.md"}, }
 	want := map[string]bool{"index.md": true}
 	for id := range have {
 		p, ok := page[id]

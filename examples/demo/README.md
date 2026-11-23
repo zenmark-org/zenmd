@@ -24,5 +24,7 @@ Inspector, printing and the Developer tools.
 
 - [Plugins](plugins/index.md): code colours, diagrams, checklists, quizzes and code you can run.
 - [Layouts](layouts/index.md): the look of a whole page.
+- [Templates](templates/index.md): page templates, the structure of one kind
+  of page, and blueprints, the collections of them that start a folder.
 - [Configuration](configuration/settings.md): the Settings page and the
   `.zenmd.yml` file.

@@ -1,4 +1,4 @@
-# Blueprints
+# New from Blueprint
 
 A **blueprint** is a ready-made folder to start from: its sections, their
 first pages and the rules that shape the pages you add later. Choose
@@ -50,4 +50,5 @@ zenmd blueprint new my-docs --from techdocs   # your own, to edit
 A blueprint of your own is a folder with a `blueprint.yml` in the blueprints
 folder (Settings › Blueprints shows where). It lists its sections, and
 Zenmark makes the folders, their first pages and the links between them.
-Every key is in the [blueprint.yml reference](blueprint-yml.md).
+Every key of `blueprint.yml`, and of the page templates a blueprint is made
+of, is in the Templates part of this guide.

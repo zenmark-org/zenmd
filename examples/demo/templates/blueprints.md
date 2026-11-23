@@ -1,6 +1,8 @@
-# The blueprint.yml reference
+# Blueprints
 
-Every blueprint is a folder with a `blueprint.yml` at its top. That file says
+A **blueprint** is a collection of [page templates](page-templates.md),
+arranged as a folder's sections. Every blueprint is a folder in
+`templates/blueprints/`, with a `blueprint.yml` at its top. That file says
 what a new folder gets: the questions asked when the folder is made, its home
 page, its sections and the page templates they use. Every other file in the
 blueprint folder is copied into the new folder as it is.
@@ -154,4 +156,4 @@ zenmd blueprint list
 zenmd init --blueprint my-docs ~/Docs/try-it
 ```
 
-Back to [Blueprints](blueprints.md).
+Back to [Templates](index.md).

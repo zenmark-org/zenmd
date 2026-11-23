@@ -7,7 +7,7 @@
 | Branch | `feature/engine-blueprint-hierarchy` (phase 1), then one branch per phase |
 | Wave | 50–52 (before engine/template-catalog, whose packs take their `requires` from this) |
 | Depends on | engine/templates-blueprints, core/layouts (a layout's `requires`), ui/settings-layout |
-| Owns | `engine/sitetemplates/hierarchy.go` + test (new), `engine/sitetemplates/pages.go` + tests (the `plugins:` key), `builtins/pagetemplates/*.yml` + tests, `builtins/blueprints/**` + tests, `apps/zenmark/frontend/src/shell/templateshelp.ts` + test, `apps/zenmark/frontend/src/api/index.ts`, `apps/zenmark/frontend/src/api/fake.ts`, `apps/zenmark/frontend/src/api/wails.ts`, `docs/TEMPLATES.md`, `examples/demo/features/blueprints.md`, `examples/demo/features/blueprint-yml.md` |
+| Owns | `engine/sitetemplates/hierarchy.go` + test (new), `engine/sitetemplates/pages.go` + tests (the `plugins:` key), `builtins/pagetemplates/*.yml` + tests, `builtins/blueprints/**` + tests, `apps/zenmark/frontend/src/shell/templateshelp.ts` + test, `apps/zenmark/frontend/src/api/index.ts`, `apps/zenmark/frontend/src/api/fake.ts`, `apps/zenmark/frontend/src/api/wails.ts`, `docs/TEMPLATES.md`, `examples/demo/features/blueprints.md`, `examples/demo/templates/**` |
 
 ## Purpose
 
@@ -115,8 +115,8 @@ build only on the one below it, and shows the chain in Settings and the docs.
     - **Plugin:** what a block does.
 15. **The demo uses the same words, in the same order:**
     - Features › Blueprints says what a blueprint is made of;
-    - the blueprint.yml reference shows `index: { template: … }`, the `template:` key on pages, and `requires:` as worked out (writing it is optional);
-    - the reference also gains a short **page template** part, with `layout:` and `plugins:`.
+    - Templates › Blueprints (the blueprint.yml reference) shows `index: { template: … }`, the `template:` key on pages, and `requires:` as worked out (writing it is optional);
+    - Templates › Page templates gains `plugins:` beside `layout:`.
 
 ## Architecture
 
