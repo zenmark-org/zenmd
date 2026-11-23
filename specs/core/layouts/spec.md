@@ -38,7 +38,7 @@ layouts** that anyone can write with HTML and CSS.
    - `article` — the current reading column (explicit, no change in look),
    - `slides` and `course` — **moved unchanged** from `internal/plugins/` (same names, same options, same behaviour, same storage keys, same tests);
    - plus the template layouts below.
-5. **Folder and user layouts**: `<folder>/.zen/layouts/<id>/` and `<user config dir>/zen/layouts/<id>/` with a `layout.yml`:
+5. **Folder and user layouts**: `<folder>/.zen/layouts/<id>/` and `<user config dir>/zenmark/layouts/<id>/` with a `layout.yml`:
    ```yaml
    id: post
    version: 0.1.0

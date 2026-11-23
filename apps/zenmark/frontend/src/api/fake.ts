@@ -69,21 +69,21 @@ export type FakeOptions = {
 
 const SAMPLE_PAGE_TEMPLATES: PageTemplate[] = [
   {
-    id: "how-to", name: "How-to guide", description: "Steps that get the reader to one result (Diátaxis)", version: "1.0.0", layout: "docs", source: "yours", path: "/Users/me/Library/Application Support/zen/templates/pages/how-to.yml",
+    id: "how-to", name: "How-to guide", description: "Steps that get the reader to one result (Diátaxis)", version: "1.0.0", layout: "docs", source: "yours", path: "/Users/me/Library/Application Support/zenmark/templates/pages/how-to.yml",
     fields: [{ name: "title", type: "string", required: true, default: "" }],
     outline: [],
     skeleton: "# {{title}}\n\nOne paragraph that names the task.\n\n## Steps\n\n1. The first step\n2. The second step\n",
     update: "", error: "", rules: [],
   },
   {
-    id: "release-notes", name: "Release notes", description: "What changed in one release: Added, Changed, Fixed", version: "1.1.0", layout: "release", source: "yours", path: "/Users/me/Library/Application Support/zen/templates/pages/release-notes.yml",
+    id: "release-notes", name: "Release notes", description: "What changed in one release: Added, Changed, Fixed", version: "1.1.0", layout: "release", source: "yours", path: "/Users/me/Library/Application Support/zenmark/templates/pages/release-notes.yml",
     fields: [{ name: "title", type: "string", required: true, default: "" }, { name: "version", type: "string", required: true, default: "" }, { name: "date", type: "date", required: true, default: "{{today}}" }],
     outline: [],
     skeleton: "# {{title}} {{version}}\n\n## Added\n\n- A new thing\n",
     update: "", error: "", rules: [],
   },
   {
-    id: "term", name: "Glossary term", description: "One term and its definition, one file per term", version: "1.0.0", layout: "term", source: "yours", path: "/Users/me/Library/Application Support/zen/templates/pages/term.yml",
+    id: "term", name: "Glossary term", description: "One term and its definition, one file per term", version: "1.0.0", layout: "term", source: "yours", path: "/Users/me/Library/Application Support/zenmark/templates/pages/term.yml",
     fields: [{ name: "title", type: "string", required: true, default: "" }, { name: "aliases", type: "list", required: false, default: "" }],
     outline: [],
     skeleton: "The definition in one or two sentences.\n\n## Examples\n\nAn example of the term in use.\n",
@@ -314,7 +314,7 @@ export function createFakeApi(options: FakeOptions = {}): FakeApi {
     calls: [],
     pick: options.pick === undefined ? sampleWorkspace() : options.pick,
     confirmExternal: true,
-    updateResult: { path: "/Users/me/Library/Application Support/zen/templates/pages/how-to.yml", inPlace: true },
+    updateResult: { path: "/Users/me/Library/Application Support/zenmark/templates/pages/how-to.yml", inPlace: true },
     exportPath: "/Users/me/Documents/sample-docs.pdf",
     pdfDefaultsValue: { out: "/Users/me/sample-docs/exports/pdf/sample-docs.pdf", drafts: false, cover: true, open: true },
     broadcasts: [],
@@ -359,7 +359,7 @@ export function createFakeApi(options: FakeOptions = {}): FakeApi {
       return { workspace: ws, page: ws.home, mode: "read" as const };
     }),
     revealTemplates: () => call("revealTemplates", [], () => undefined),
-    templatesDir: () => call("templatesDir", [], () => "/Users/me/Library/Application Support/zen/templates"),
+    templatesDir: () => call("templatesDir", [], () => "/Users/me/Library/Application Support/zenmark/templates"),
     pageTemplates: () => call("pageTemplates", [], () => (options.pageTemplates ?? SAMPLE_PAGE_TEMPLATES).map((t) => ({ ...t, fields: t.fields.map((f) => ({ ...f })), outline: t.outline.map((o) => ({ ...o })), rules: [...t.rules] }))),
     updateTemplate: (kind, id) => call("updateTemplate", [kind, id], () => ({ ...api.updateResult })),
     revealPageTemplates: () => call("revealPageTemplates", [], () => undefined),

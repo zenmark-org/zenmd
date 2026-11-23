@@ -217,5 +217,5 @@ After E3, the engine gets its own version (`zenmd 1.0.0-beta`) and apps depend o
 1. **One repository**, holding the engine, the kit, the apps and the spec, with one Go module. Split when a second app has its own release rhythm.
 2. **The repository is renamed to `zenmd`** on GitHub by the owner; the module path follows in E2a (`github.com/zenmark-org/zenmd`).
 3. **A kit layer** between the engine and the apps (E2c), so a second app does not copy Zenmark's shell.
-4. **The config folder.** `~/Library/Application Support/zen/` stays (a migration later, if ever), so existing settings, trust and plugin data keep working.
+4. **The config folder.** `~/Library/Application Support/zenmark/` stays (a migration later, if ever), so existing settings, trust and plugin data keep working.
 5. **App Store packaging** belongs to each app (packaging/appstore stays with Zenmark); the engine stays free of app-only entitlements.

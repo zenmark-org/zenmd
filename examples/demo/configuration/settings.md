@@ -36,7 +36,7 @@ From weakest to strongest:
 
 1. Zenmark's defaults
 2. the global `config.yml`
-   (`~/Library/Application Support/zen/config.yml`)
+   (`~/Library/Application Support/zenmark/config.yml`)
 3. the folder's `.zenmd.yml`
 4. a page's [frontmatter](../intro/frontmatter.md)
 

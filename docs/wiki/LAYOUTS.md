@@ -75,7 +75,7 @@ A folder with a `layout.yml` and the files it lists. A layout may have only CSS
 |---|---|---|
 | `internal/layouts/<id>` (embedded) | `builtin` | always on |
 | `<folder>/.zen/layouts/<id>/` | `folder` | asked per folder |
-| `<user config dir>/zen/layouts/<id>/` (macOS: `~/Library/Application Support/zen/layouts/`) | `user` | asked once, for every folder |
+| `<user config dir>/zenmark/layouts/<id>/` (macOS: `~/Library/Application Support/zenmark/layouts/`) | `user` | asked once, for every folder |
 
 A folder layout shadows a user layout of the same id; a layout may not use the
 id of a built-in one.

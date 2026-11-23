@@ -236,4 +236,4 @@ func Resolve(t Template, layoutNeeds func(id string) []string) (Tree, error)
 > - Write the tests first and commit them failing.
 > - Phase 1 must keep every page a fresh techdocs folder writes byte for byte, except where the spec changes it: index frontmatter now comes from templates. Show any difference in your report.
 > - Only the Owns paths; anything in a shared file goes in your report as an Integration line.
-> - No new dependencies or downloads. Don't launch the app, run task package/install/release, push or touch main. Never write to `~/Library/Application Support/zen`.
+> - No new dependencies or downloads. Don't launch the app, run task package/install/release, push or touch main. Never write to `~/Library/Application Support/zenmark`.

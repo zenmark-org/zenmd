@@ -216,6 +216,11 @@ func (e usageError) Error() string { return string(e) }
 
 // Run executes the command line and returns the process exit code.
 func Run(args []string, cwd string, stdout, stderr io.Writer, launch Launcher, build Builder, initer Initer, pdf PDFExporter) int {
+	// Move the pre-0.8.0 settings folder (zen) to zenmark, once. A failure
+	// is only a warning: the command still runs.
+	if _, err := config.Migrate(); err != nil {
+		fmt.Fprintf(stderr, "zenmd: could not move the settings folder to %s: %v\n", config.FolderName, err)
+	}
 	mode := "read"
 	var paths []string
 	flags, first := true, true

@@ -5,6 +5,8 @@ package desktop
 import (
 	"os"
 	"path/filepath"
+
+	"github.com/zenmark-org/zenmd/engine/config"
 )
 
 // appStore is true in the Mac App Store build (go build -tags appstore).
@@ -17,7 +19,7 @@ func bookmarks() folderAccess {
 	if err != nil {
 		return noAccess{err}
 	}
-	return newStoreAccess(filepath.Join(dir, "zen", "bookmarks.json"), cocoaBookmarks{})
+	return newStoreAccess(filepath.Join(dir, config.FolderName, "bookmarks.json"), cocoaBookmarks{})
 }
 
 // noAccess is used when there is no settings folder: nothing can be remembered.
