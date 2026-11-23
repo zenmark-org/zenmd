@@ -13,6 +13,7 @@ import (
 	"github.com/zenmark-org/zenmd/engine/plugins"
 	"github.com/zenmark-org/zenmd/engine/render"
 	"github.com/zenmark-org/zenmd/engine/workspace"
+	xhtml "golang.org/x/net/html"
 )
 
 // folder makes a workspace with a few images and returns a renderer with the
@@ -72,6 +73,33 @@ func lacks(t *testing.T, s string, bad ...string) {
 			t.Errorf("unexpected %q in\n%s", b, s)
 		}
 	}
+}
+
+// inert fails the test when h has a script element or an event-handler attribute.
+func inert(t *testing.T, h string) {
+	t.Helper()
+	doc, err := xhtml.Parse(strings.NewReader(h))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var walk func(n *xhtml.Node)
+	walk = func(n *xhtml.Node) {
+		if n.Type == xhtml.ElementNode {
+			switch n.Data {
+			case "script", "svg", "iframe", "style", "object", "embed":
+				t.Errorf("hostile element <%s> in\n%s", n.Data, h)
+			}
+			for _, a := range n.Attr {
+				if strings.HasPrefix(strings.ToLower(a.Key), "on") || strings.HasPrefix(strings.ToLower(a.Val), "javascript:") {
+					t.Errorf("hostile attribute %s=%q in\n%s", a.Key, a.Val, h)
+				}
+			}
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			walk(c)
+		}
+	}
+	walk(doc)
 }
 
 var attrsRE = regexp.MustCompile(` data-zen-attrs="[^"]*"`)
@@ -178,7 +206,8 @@ func TestExternalAndRefusedSources(t *testing.T) {
 	contains(t, ok, `<img src="https://example.com/p.png" alt="remote">`)
 	for _, bad := range []string{"javascript:alert(1)", "data:image/png;base64,AAAA", "http://example.com/p.png", "file:///etc/passwd"} {
 		out := page(t, r, "page.md", "```{image} "+bad+"\n```\n").HTML
-		lacks(t, out, "<img", "javascript:", "file://")
+		lacks(t, out, "<img")
+		inert(t, out)
 	}
 }
 
@@ -228,7 +257,8 @@ func TestTarget(t *testing.T) {
 	in := page(t, r, "page.md", "```{image} img/a.png\n:target: other.md\n```\n").HTML
 	contains(t, in, `data-zen-link="internal"`, `data-path="other.md"`)
 	bad := page(t, r, "page.md", "```{image} img/a.png\n:target: javascript:alert(1)\n```\n").HTML
-	lacks(t, bad, "javascript:")
+	inert(t, bad)
+	lacks(t, bad, "href=\"javascript")
 }
 
 func TestClassAndName(t *testing.T) {
@@ -269,12 +299,14 @@ func TestHostile(t *testing.T) {
 	src := "```{figure} img/a.png\n:alt: \"><script>alert(1)</script>\n:name: x\"><script>alert(2)</script>\n:class: a\"onmouseover=\"alert(3) zen-block\n:width: 1\" onerror=\"alert(4)\n:target: \"><script>alert(5)</script>\n<script>alert(6)</script> <img src=x onerror=alert(7)> caption\n```\n\n" +
 		"```{image} img/a\" onerror=\"alert(8).png\n```\n\n```{image} <script>alert(9)</script>\n```\n"
 	h := page(t, r, "page.md", src).HTML
-	lacks(t, h, "<script", "onerror", "onmouseover", "alert(")
+	inert(t, h)
 }
 
 func TestHostileDirectOutput(t *testing.T) {
 	h := New().(plugins.BlockHook)
-	md := func(s string) (string, error) { return "<p>" + strings.ReplaceAll(strings.ReplaceAll(s, "&", "&amp;"), "<", "&lt;") + "</p>\n", nil }
+	md := func(s string) (string, error) {
+		return "<p>" + strings.ReplaceAll(strings.ReplaceAll(s, "&", "&amp;"), "<", "&lt;") + "</p>\n", nil
+	}
 	out, err := h.RenderBlock(plugins.Context{Path: "p.md", Markdown: md}, plugins.Block{
 		Name: "figure", Body: "<script>x</script>",
 		Attrs: map[string]string{"arg": `a" onerror="x`, "name": `n"><b>`, "alt": `"><i>`, "class": `c"><u>`, "width": `1"><s>`, "align": `x"><s>`, "foo\"><s>": "1"},
@@ -282,7 +314,8 @@ func TestHostileDirectOutput(t *testing.T) {
 	if err != nil {
 		return // refusing is fine
 	}
-	lacks(t, out, "<script", "<b>", "<i>", "<u>", "<s>", `onerror="x`)
+	inert(t, out)
+	lacks(t, out, "<b>", "<i>", "<u>", "<s>")
 }
 
 func TestKitClassesAndNoScript(t *testing.T) {

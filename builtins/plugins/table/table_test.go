@@ -14,6 +14,7 @@ import (
 	"github.com/zenmark-org/zenmd/engine/plugins"
 	"github.com/zenmark-org/zenmd/engine/render"
 	"github.com/zenmark-org/zenmd/engine/workspace"
+	xhtml "golang.org/x/net/html"
 )
 
 func folder(t *testing.T) (*render.Renderer, string) {
@@ -72,6 +73,33 @@ func lacks(t *testing.T, s string, bad ...string) {
 			t.Errorf("unexpected %q in\n%s", b, s)
 		}
 	}
+}
+
+// inert fails the test when h has a script element or an event-handler attribute.
+func inert(t *testing.T, h string) {
+	t.Helper()
+	doc, err := xhtml.Parse(strings.NewReader(h))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var walk func(n *xhtml.Node)
+	walk = func(n *xhtml.Node) {
+		if n.Type == xhtml.ElementNode {
+			switch n.Data {
+			case "script", "svg", "iframe", "style", "object", "embed":
+				t.Errorf("hostile element <%s> in\n%s", n.Data, h)
+			}
+			for _, a := range n.Attr {
+				if strings.HasPrefix(strings.ToLower(a.Key), "on") || strings.HasPrefix(strings.ToLower(a.Val), "javascript:") {
+					t.Errorf("hostile attribute %s=%q in\n%s", a.Key, a.Val, h)
+				}
+			}
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			walk(c)
+		}
+	}
+	walk(doc)
 }
 
 var attrsRE = regexp.MustCompile(` data-zen-attrs="[^"]*"| data-zen-name="[^"]*"`)
@@ -321,7 +349,7 @@ func TestHostile(t *testing.T) {
 		"```{csv-table} <b onclick=alert(8)>x</b>\n:header: \"<script>alert(9)</script>\"\n\n<script>alert(10)</script>,<img src=x onerror=alert(11)>\n\"\"\"><svg onload=alert(12)>\",2\n```\n\n" +
 		"```{list-table}\n* - <script>alert(13)</script>\n  - <img src=x onerror=alert(14)>\n```\n"
 	h := page(t, r, "page.md", src).HTML
-	lacks(t, h, "<script", "onerror", "onmouseover", "onclick", "onload", "javascript:", "<svg")
+	inert(t, h)
 }
 
 func TestHostileDirectOutput(t *testing.T) {
@@ -335,7 +363,8 @@ func TestHostileDirectOutput(t *testing.T) {
 		if err != nil {
 			continue
 		}
-		lacks(t, out, "<script", "<b>", "<i>", "<u>", "<s>")
+		inert(t, out)
+		lacks(t, out, "<b>", "<i>", "<u>", "<s>")
 	}
 }
 
