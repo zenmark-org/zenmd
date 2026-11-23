@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | in progress: phases 1 and 2 done (2026-11-23); 3, 4 and 5 to do |
+| Status | in progress: phases 1 and 2 done (2026-11-23), 3 running; 4 and 5 to do |
 | Target version | 0.8.0 |
 | Branch | one per phase: `feature/myst-<phase>` (phases below) |
 | Wave | 36–40, one phase per wave |
@@ -96,6 +96,8 @@ sections as Integration lines.
 | `math` directive, and `$$ … $$` blocks (dialect syntax) | display math; `:label:` numbers it and makes a target |
 | `{math}` role, and `$ … $` inline (dialect syntax, only when the folder turns on MyST's `dollarmath`) | inline math |
 | `{eq}` role | a link to a labelled equation, showing its number |
+
+**Split (decided 2026-11-23):** phase 3 builds the `math` directive, `$$ … $$` blocks and `:label:` targets. The `{math}` and `{eq}` roles and `$ … $` inline need the dialect's inline scan, so they're built in phase 5 with `ScanInline`, owned by the same `math` built-in.
 
 **Rendering: KaTeX, vendored** (decided 2026-11-21).
 - **Where it lives:** the files go in `builtins/plugins/math/assets/`, as mermaid's do: `katex.min.js`, `katex.min.css` and the fonts. A `VENDOR.md` records the version, the source and the licence (MIT).
