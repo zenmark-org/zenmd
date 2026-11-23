@@ -22,7 +22,7 @@ func TestDefaultSets(t *testing.T) {
 	for _, l := range Layouts("test").All() {
 		layouts = append(layouts, l.Manifest().ID)
 	}
-	if want := []string{"article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "release", "slides", "course"}; !reflect.DeepEqual(layouts, want) {
+	if want := []string{"article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "release", "troubleshooting", "slides", "course"}; !reflect.DeepEqual(layouts, want) {
 		t.Errorf("layouts = %v, want %v", layouts, want)
 	}
 
@@ -94,7 +94,7 @@ func TestFor(t *testing.T) {
 	if l, _ = LayoutsFor("1", []string{"docs", "article"}); l.All()[0].Manifest().ID != "docs" {
 		t.Error("a listed article keeps its place")
 	}
-	if _, err := LayoutsFor("1", []string{"nope"}); err == nil || !strings.Contains(err.Error(), "article, docs, post, landing, wide, handout, term, glossary, release, slides, course") {
+	if _, err := LayoutsFor("1", []string{"nope"}); err == nil || !strings.Contains(err.Error(), "article, docs, post, landing, wide, handout, term, glossary, release, troubleshooting, slides, course") {
 		t.Errorf("unknown layout: %v", err)
 	}
 

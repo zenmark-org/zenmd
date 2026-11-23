@@ -53,7 +53,7 @@ func TestBuiltInsLoad(t *testing.T) {
 	has("slides", false, true)
 	has("course", false, true)
 	has("glossary", true, true)
-	for _, id := range []string{"docs", "post", "landing", "wide", "handout", "term", "release"} {
+	for _, id := range []string{"docs", "post", "landing", "wide", "handout", "term", "release", "troubleshooting"} {
 		has(id, true, false)
 	}
 }
@@ -372,5 +372,29 @@ func TestRelease(t *testing.T) {
 	p = page(t, nil, "---\nlayout: release\nversion: 0.2.0\ndate: 2026-12-01\n---\n## Fixed\n")
 	if strings.Contains(p.HTML, "zl-release-name") {
 		t.Errorf("no name, no name line:\n%s", p.HTML)
+	}
+}
+
+// The troubleshooting layout: the H1 is the problem, once; the exact error
+// message is shown as code under it, and the versions it affects and the one
+// that fixes it as a line of notes. Each is left out when the page has none.
+func TestTroubleshooting(t *testing.T) {
+	src := "---\nlayout: troubleshooting\nerror: \"plugin \\\"sandbox\\\": option <images> ignored\"\nversions: \">=0.5.0\"\nfixed-in: \"0.5.2\"\n---\n# Export warns on every page\n\nWhen it happens.\n\n## Symptoms\n\n- A warning\n\n## Solution\n\n1. Update\n"
+	p := page(t, nil, src)
+	mustHave(t, p.HTML, `class="zl-troubleshooting`, `class="zl-troubleshooting-error"`, "plugin &#34;sandbox&#34;: option &lt;images&gt; ignored", "Affects", "&gt;=0.5.0", "Fixed in", "0.5.2", "Symptoms", "Solution")
+	if n := strings.Count(p.HTML, "Export warns on every page"); n != 1 {
+		t.Errorf("the title shows %d times, want once:\n%s", n, p.HTML)
+	}
+	if strings.Contains(p.HTML, "<images>") {
+		t.Errorf("the error text is not escaped:\n%s", p.HTML)
+	}
+	if p.Title != "Export warns on every page" {
+		t.Errorf("title %q", p.Title)
+	}
+	p = page(t, nil, "---\nlayout: troubleshooting\n---\n# Nothing opens\n\n## Cause\n\nText.\n")
+	for _, no := range []string{"zl-troubleshooting-error", "zl-troubleshooting-meta"} {
+		if strings.Contains(p.HTML, no) {
+			t.Errorf("no fields, no %s:\n%s", no, p.HTML)
+		}
 	}
 }
