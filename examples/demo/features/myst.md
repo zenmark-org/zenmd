@@ -270,6 +270,43 @@ outside the folder:
 
 All of them also work as `:::figure{src=…}`, `:::table{title=…}` and so on, without MyST.
 
+## Math
+
+A display equation is the `math` block. In MyST it is a `{math}` directive, and
+in a folder that uses MyST it can also sit between `$$` lines. Add a `:label:`
+and the equation is numbered on its page and becomes a link target.
+
+````markdown
+```{math}
+:label: eq:energy
+
+E = mc^2
+```
+
+$$
+\int_0^1 x^2\,dx = \frac13
+$$ (eq:integral)
+````
+
+```{math}
+:label: eq:energy
+
+E = mc^2
+```
+
+$$
+\int_0^1 x^2\,dx = \frac13
+$$ (eq:integral)
+
+Without MyST it is `:::math{label=euler}`:
+
+:::math{label=euler}
+e^{i\pi} + 1 = 0
+:::
+
+An equation with no label is not numbered. A wrong one keeps its TeX, with the
+message under it.
+
 ## Code
 
 `{code-block} lang`, `{code} lang` and `{code-cell} lang` are plain fenced code
