@@ -68,11 +68,15 @@ func run(t *testing.T, cwd string, launchErr error, args ...string) result {
 	return r
 }
 
-// home makes a fake home directory and returns it.
+// home makes a fake home directory and returns it. On Linux the config
+// folder comes from XDG_CONFIG_HOME when it is set (GitHub's runners set
+// it), so that is moved into the fake home too; otherwise a test's global
+// config.yml would land in the runner's real one and reach other tests.
 func home(t *testing.T) string {
 	t.Helper()
 	h := t.TempDir()
 	t.Setenv("HOME", h)
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(h, ".config"))
 	return h
 }
 
