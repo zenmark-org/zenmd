@@ -69,6 +69,115 @@ lines at the top of the body:
 
 A name that no plugin owns stays code, and nothing is reported.
 
+## Callouts
+
+A note, a tip or a warning sets a thought apart from the text. The text after the
+name is the title, and each kind has its own title and a coloured rule on the left.
+
+````markdown
+```{note}
+A note keeps its default title, "Note".
+```
+````
+
+```{note}
+A note keeps its default title, "Note".
+```
+
+```{tip} A title of your own
+The text after the name replaces the default title.
+```
+
+```{hint}
+A hint, like a tip, has a blue rule.
+```
+
+```{important}
+An important callout has a blue rule too.
+```
+
+```{seealso}
+Other pages worth a look: [Markdown](markdown.md).
+```
+
+`warning`, `caution` and `attention` have an amber rule:
+
+```{warning}
+A warning.
+```
+
+```{caution}
+A caution.
+```
+
+```{attention}
+An attention callout.
+```
+
+`danger` and `error` have a red rule:
+
+```{danger}
+A danger callout.
+```
+
+```{error}
+An error callout.
+```
+
+`admonition` takes any title, so it is required. It is blue unless you add
+`:class:` with another kind, such as `warning`:
+
+````markdown
+```{admonition} Your own title
+:class: warning
+An admonition coloured like a warning.
+```
+````
+
+```{admonition} Your own title
+:class: warning
+An admonition coloured like a warning.
+```
+
+Add `:class: dropdown` to fold a callout. It opens by click or Enter, and
+`:open:` starts it open:
+
+````markdown
+```{note} Fold me
+:class: dropdown
+Hidden until you open it.
+```
+````
+
+```{note} Fold me
+:class: dropdown
+Hidden until you open it.
+```
+
+```{tip} Open at first
+:class: dropdown
+:open:
+This one starts open.
+```
+
+`versionadded`, `versionchanged` and `deprecated` take a version and make a
+one-line note:
+
+```{versionadded} 0.7
+The MyST dialect.
+```
+
+```{versionchanged} 0.8
+Callouts became a built-in.
+```
+
+```{deprecated} 1.0
+This example is only here to show the note.
+```
+
+Every callout also works without MyST, as `:::note` with the title as an
+attribute, such as `:::note{title="Remember" class=dropdown open}`.
+
 ## Code
 
 `{code-block} lang`, `{code} lang` and `{code-cell} lang` are plain fenced code

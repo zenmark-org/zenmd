@@ -259,3 +259,31 @@ func TestKitClasses(t *testing.T) {
 	got := page(t, plain(t), ":::tip\nx\n:::\n")
 	has(t, got, `class="zen-block zen-callout zen-callout-suggestion"`, `class="zen-block-head zen-callout-head"`)
 }
+
+// The demo's MyST page shows every kind live, with the dialect on and no warnings.
+func TestDemoPage(t *testing.T) {
+	src, err := os.ReadFile("../../../examples/demo/features/myst.md")
+	if err != nil {
+		t.Skip(err)
+	}
+	p, err := mystRenderer(t).Render("features/myst.md", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range []string{"note", "tip", "hint", "important", "seealso", "warning", "caution", "attention", "danger", "error", "admonition", "versionadded", "versionchanged", "deprecated"} {
+		if !strings.Contains(p.HTML, `data-zen-name="`+c+`"`) {
+			t.Errorf("no live %s callout in the demo", c)
+		}
+	}
+	if strings.Count(p.HTML, "<details") != 2 || strings.Count(p.HTML, "<details open") != 1 {
+		t.Errorf("dropdowns: %d", strings.Count(p.HTML, "<details"))
+	}
+	for _, w := range p.Warnings {
+		if strings.Contains(w, "callout") {
+			t.Errorf("warning %q", w)
+		}
+	}
+	if strings.Contains(p.HTML, "zen-block-status") || strings.Contains(p.HTML, "zen-plugin-error") {
+		t.Error("a callout of the demo warns or fails")
+	}
+}
