@@ -147,6 +147,9 @@ export const editorFeature: Feature = {
       inspector = createInspector({
         doc: document, host: api,
         onSelectIssue: (_a: Alert, i: number) => lintView.select(i),
+        // Structure problems and page warnings of the unsaved text, from its preview (#48).
+        pageWarnings: true,
+        onSelectLine: (line) => selectLine(line),
         onOpenChange: (open) => { if (open) refreshStats(true); else statsSeq++; },
       });
     }
@@ -179,6 +182,25 @@ export const editorFeature: Feature = {
       onLink: (url) => void api.openExternal(url).catch(() => undefined),
     });
     panes.append(lintView.el);
+    /** Selects the 1-based line of the source (without its line break) and scrolls it into view. */
+    function selectLine(line: number): void {
+      const text = ta.value;
+      let start = 0;
+      for (let n = 1; n < line; n++) {
+        const nl = text.indexOf("\n", start);
+        if (nl < 0) { start = text.length; break; }
+        start = nl + 1;
+      }
+      const nl = text.indexOf("\n", start);
+      const end = nl < 0 ? text.length : nl;
+      ta.focus();
+      ta.setSelectionRange(start, end);
+      const lh = parseFloat(getComputedStyle(ta).lineHeight) || 20;
+      if (ta.clientHeight > 0) {
+        const top = (line - 1) * lh;
+        if (top < ta.scrollTop || top > ta.scrollTop + ta.clientHeight - lh) ta.scrollTop = Math.max(0, top - ta.clientHeight / 3);
+      }
+    }
     // Inspector statistics. The page it knows until the first render is an empty one, so the button shows at once.
     let statsSeq = 0;
     let statsTimer: ReturnType<typeof setTimeout> | undefined;
