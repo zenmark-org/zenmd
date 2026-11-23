@@ -119,7 +119,7 @@ func TestPluginsHelpAndAdds(t *testing.T) {
 		t.Errorf("codeblock options are sorted by name: %+v", cb.Options)
 	}
 	// The demo folder's plugins document themselves too.
-	for _, id := range []string{"note", "calc", "progress", "callout", "wordcount"} {
+	for _, id := range []string{"banner", "calc", "progress", "remark", "wordcount"} {
 		p := shape[by[id]]
 		if p.Help.Summary == "" || len(p.Help.Snippets) == 0 {
 			t.Errorf("demo plugin %s has no help", id)

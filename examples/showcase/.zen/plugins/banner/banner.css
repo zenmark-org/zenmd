@@ -1,0 +1,15 @@
+/* .zen/plugins/banner/banner.css — uses zen's own colour and spacing tokens. */
+[data-zen-plugin="banner"] {
+  margin: 0 0 1em;
+}
+[data-zen-plugin="banner"] .banner,
+[data-zen-plugin="banner"] .alert {
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-subtle);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--fg-muted);
+  border-radius: var(--radius);
+  white-space: pre-wrap;
+}
+[data-zen-plugin="banner"] .alert { border-left-color: var(--fg); }
+[data-zen-plugin="banner"] strong { display: block; margin-bottom: var(--space-1); }

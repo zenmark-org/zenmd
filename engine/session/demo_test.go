@@ -50,15 +50,15 @@ func TestShowcaseFolder(t *testing.T) {
 	if got := layoutOf(t, z, "memo"); got.Status != "on" || got.Source != "folder" || !got.HasTemplate || len(got.Fields) != 3 {
 		t.Errorf("demo layout memo: %+v", got)
 	}
-	if len(dialogs.Asked) != 2 || !strings.Contains(dialogs.Asked[0], "note") || !strings.Contains(dialogs.Asked[0], "./note.sh") ||
+	if len(dialogs.Asked) != 2 || !strings.Contains(dialogs.Asked[0], "banner") || !strings.Contains(dialogs.Asked[0], "./banner.sh") ||
 		!strings.Contains(dialogs.Asked[0], "calc") || !strings.Contains(dialogs.Asked[0], "bc -l") ||
 		!strings.Contains(dialogs.Asked[0], "progress") || !strings.Contains(dialogs.Asked[0], "scripts in the page") ||
-		!strings.Contains(dialogs.Asked[0], "callout") || !strings.Contains(dialogs.Asked[0], "wordcount") ||
+		!strings.Contains(dialogs.Asked[0], "remark") || !strings.Contains(dialogs.Asked[0], "wordcount") ||
 		!strings.Contains(dialogs.Asked[0], "renders blocks inside zen; cannot read files, run programs or use the network") ||
 		!strings.Contains(dialogs.Asked[0], "reads files in this folder") {
 		t.Fatalf("trust prompt: %q", dialogs.Asked)
 	}
-	for id, kind := range map[string]string{"note": "program", "calc": "program", "progress": "page", "callout": "script", "wordcount": "script"} {
+	for id, kind := range map[string]string{"banner": "program", "calc": "program", "progress": "page", "remark": "script", "wordcount": "script"} {
 		if got := infoOf(t, z, id); got.Status != "on" || got.Source != "folder" || got.Kind != kind {
 			t.Errorf("demo plugin %s: %+v", id, got)
 		}
@@ -174,14 +174,14 @@ func TestShowcaseFolder(t *testing.T) {
 	if dg, _ := z.Page("plugins/diagram.md"); strings.Count(dg.HTML, `class="zen-diagram"`) != 3 {
 		t.Error("diagram page should have three diagrams")
 	}
-	// The external demo plugins: :::note on the directives page goes through
-	// note.sh; calc pipes a fence through bc.
+	// The external demo plugins: :::banner on the directives page goes through
+	// banner.sh; calc pipes a fence through bc.
 	dir, _ := z.Page("plugins/directives.md")
-	if !strings.Contains(dir.HTML, `data-zen-plugin="note" data-zen-name="note"`) || !strings.Contains(dir.HTML, `<div class="note"><strong>Remember</strong>`) {
-		t.Errorf("note plugin did not render the container: %s", dir.HTML)
+	if !strings.Contains(dir.HTML, `data-zen-plugin="banner" data-zen-name="banner"`) || !strings.Contains(dir.HTML, `<div class="banner"><strong>Remember</strong>`) {
+		t.Errorf("banner plugin did not render the container: %s", dir.HTML)
 	}
-	if !strings.Contains(strings.Join(dir.Assets.CSS, ","), "/_plugins/note/note.css") {
-		t.Errorf("note assets: %+v", dir.Assets)
+	if !strings.Contains(strings.Join(dir.Assets.CSS, ","), "/_plugins/banner/banner.css") {
+		t.Errorf("banner assets: %+v", dir.Assets)
 	}
 	// The how-to shows the real plugins at work: bc's answer, a ticked-able
 	// checklist rendered by the frontend-only progress plugin.
@@ -201,25 +201,25 @@ func TestShowcaseFolder(t *testing.T) {
 	if docs, err := z.Page("layouts/docs.md"); err != nil || !strings.Contains(docs.HTML, `data-zen-action="edit"`) {
 		t.Errorf("docs layout edit link missing: %v", err)
 	}
-	// The Tengo samples: callout (one file, inline CSS, zen.markdown) and
+	// The Tengo samples: remark (one file, inline CSS, zen.markdown) and
 	// wordcount (folder form, read permission, zen.pages and zen.read).
-	if !strings.Contains(how.HTML, `data-zen-plugin="callout" data-zen-name="tip"`) || !strings.Contains(how.HTML, `<div class="callout tip">`) {
-		t.Errorf("callout tip did not render on the how-to: %s", how.HTML)
+	if !strings.Contains(how.HTML, `data-zen-plugin="remark" data-zen-name="remark"`) || !strings.Contains(how.HTML, `<div class="remark remark">`) {
+		t.Errorf("remark did not render on the how-to: %s", how.HTML)
 	}
-	if !strings.Contains(strings.Join(how.Assets.CSS, ","), "/_plugins/callout/inline.css") {
-		t.Errorf("callout css not offered: %+v", how.Assets)
+	if !strings.Contains(strings.Join(how.Assets.CSS, ","), "/_plugins/remark/inline.css") {
+		t.Errorf("remark css not offered: %+v", how.Assets)
 	}
 	// The title has its own block wrapper (kept by the sanitiser); bold text in
 	// the body stays inline in its paragraph, and no style targets every
-	// <strong> in a callout (that pushed bold body text onto its own line).
-	if !strings.Contains(how.HTML, `<div class="callout-title"><strong>One file</strong></div>`) {
-		t.Errorf("callout title wrapper missing: %s", how.HTML)
+	// <strong> in a remark (that pushed bold body text onto its own line).
+	if !strings.Contains(how.HTML, `<div class="remark-title"><strong>One file</strong></div>`) {
+		t.Errorf("remark title wrapper missing: %s", how.HTML)
 	}
 	if !strings.Contains(how.HTML, `<p>A <strong>Tengo</strong> script`) {
-		t.Errorf("bold text in a callout body must stay inline in its paragraph: %s", how.HTML)
+		t.Errorf("bold text in a remark body must stay inline in its paragraph: %s", how.HTML)
 	}
-	if css, _ := os.ReadFile(filepath.Join(demo, ".zen", "plugins", "callout.tengo")); strings.Contains(string(css), "callout strong") {
-		t.Error("callout.tengo styles every <strong> in a callout")
+	if css, _ := os.ReadFile(filepath.Join(demo, ".zen", "plugins", "remark.tengo")); strings.Contains(string(css), "remark strong") {
+		t.Error("remark.tengo styles every <strong> in a remark")
 	}
 	src, _ := z.ws.Read("plugins/writing-plugins.md")
 	if !strings.Contains(string(src), "The simplest plugin: one Tengo file") ||
@@ -238,14 +238,14 @@ func TestShowcaseFolder(t *testing.T) {
 	if err != nil || strings.Count(everyPage.HTML, "<li>") != len(files) || !strings.Contains(everyPage.HTML, "reading/navigation.md") {
 		t.Errorf("wordcount pages without a limit: %v %d items for %d pages", err, strings.Count(everyPage.HTML, "<li>"), len(files))
 	}
-	caution, err := z.Preview("plugins/directives.md", ":::caution{title=\"Careful\"}\nMind the *gap* <i onclick=\"x()\">x</i>.\n:::\n")
-	if err != nil || !strings.Contains(caution.HTML, `<div class="callout caution">`) || !strings.Contains(caution.HTML, "Careful") ||
-		!strings.Contains(caution.HTML, "<em>gap</em>") || strings.Contains(caution.HTML, "onclick") {
-		t.Errorf("caution block: %v %s", err, caution.HTML)
+	pitfall, err := z.Preview("plugins/directives.md", ":::pitfall{title=\"Careful\"}\nMind the *gap* <i onclick=\"x()\">x</i>.\n:::\n")
+	if err != nil || !strings.Contains(pitfall.HTML, `<div class="remark pitfall">`) || !strings.Contains(pitfall.HTML, "Careful") ||
+		!strings.Contains(pitfall.HTML, "<em>gap</em>") || strings.Contains(pitfall.HTML, "onclick") {
+		t.Errorf("pitfall block: %v %s", err, pitfall.HTML)
 	}
-	warn, err := z.Preview("plugins/directives.md", ":::warning\nMind the <gap> & co.\n:::\n")
-	if err != nil || !strings.Contains(warn.HTML, `<div class="warning"><strong>Warning</strong>`) || !strings.Contains(warn.HTML, "Mind the &lt;gap&gt; &amp; co.") {
-		t.Errorf("warning block: %v %s", err, warn.HTML)
+	warn, err := z.Preview("plugins/directives.md", ":::alert\nMind the <gap> & co.\n:::\n")
+	if err != nil || !strings.Contains(warn.HTML, `<div class="alert"><strong>Alert</strong>`) || !strings.Contains(warn.HTML, "Mind the &lt;gap&gt; &amp; co.") {
+		t.Errorf("alert block: %v %s", err, warn.HTML)
 	}
 	calc, err := z.Preview("plugins/directives.md", "```calc\n2 + 3 * 4\n```\n")
 	if err != nil || !strings.Contains(calc.HTML, `<pre class="zen-plugin-output">14`) || len(calc.Warnings) != 0 {
