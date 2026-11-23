@@ -170,3 +170,36 @@ test("the welcome hint names Open…", async () => {
   expect(hint).toContain("Open…");
   expect(hint).not.toContain("Open Folder");
 });
+
+// issue #50: closing a window makes no call for a page; the folder is gone, and Go answers "no folder is open".
+test("closing a one-file window makes no page calls afterwards", async () => {
+  const a = api();
+  await boot(a);
+  const before = a.callsTo("page").length;
+  expect(before).toBeGreaterThan(0);
+  a.emit("menu:close-folder", undefined);
+  await tick();
+  await tick();
+  expect(root.querySelector(".zen-welcome")).not.toBeNull();
+  // Go's events after a close (a late page:changed, a reload of plugins) must not ask for the page either.
+  a.emit("plugins:changed", undefined);
+  a.emit("layouts:changed", undefined);
+  a.emit("page:changed", { path: "notes.md" });
+  await tick();
+  expect(a.callsTo("page")).toHaveLength(before);
+});
+
+test("closing a folder makes no page calls afterwards", async () => {
+  const a = createFakeApi({ startup: { workspace: sampleWorkspace(), page: "README.md", mode: "read" } });
+  await boot(a);
+  const before = a.callsTo("page").length;
+  expect(before).toBeGreaterThan(0);
+  a.emit("menu:close-folder", undefined);
+  await tick();
+  await tick();
+  a.emit("plugins:changed", undefined);
+  a.emit("layouts:changed", undefined);
+  a.emit("page:changed", { path: "README.md" });
+  await tick();
+  expect(a.callsTo("page")).toHaveLength(before);
+});

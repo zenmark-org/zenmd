@@ -287,3 +287,76 @@ func TestSingleFileTrust(t *testing.T) {
 		t.Fatalf("another folder's plugin was not asked about: %q", dl3.Asked)
 	}
 }
+
+// issue #50: closing a window leaves nothing to refresh. plugins:changed and layouts:changed make the open page render
+// again (runtime/src/plugins.ts), so one sent while closing asks Go for a page of a folder that is gone.
+func TestCloseSendsNoRefreshEvents(t *testing.T) {
+	for _, single := range []bool{true, false} {
+		dir := tree(t, map[string]string{"notes.md": "# Notes\n", "b.md": "# B\n"})
+		var z *Session
+		var ev *sink
+		if single {
+			z, ev, _ = openFileZen(t, filepath.Join(dir, "notes.md"), t.TempDir(), false)
+		} else {
+			ev = &sink{}
+			var err error
+			z, err = newZen(zenOptions{Registry: plugins.NewRegistry(), ConfigDir: t.TempDir(), Events: ev, Dialogs: &fakeDialogs{}, DeferOpen: true})
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Cleanup(z.close)
+			if err := z.Open(dir); err != nil {
+				t.Fatal(err)
+			}
+		}
+		if _, err := z.Page("notes.md"); err != nil {
+			t.Fatal(err)
+		}
+		ev.reset()
+		if err := z.Open(""); err != nil {
+			t.Fatal(err)
+		}
+		for _, e := range ev.all() {
+			if e.name == EventPluginsChanged || e.name == EventLayoutsChanged || e.name == EventPageChanged {
+				t.Errorf("single=%v: closing sent %s", single, e.name)
+			}
+		}
+		if _, err := z.Page("notes.md"); err == nil {
+			t.Errorf("single=%v: a page of a closed folder", single)
+		}
+	}
+}
+
+// issue #50: the log says "file" for one file: opened, switched, closed.
+func TestFileLogging(t *testing.T) {
+	h := capture(t)
+	dir := tree(t, map[string]string{"notes.md": "# Notes\n", "other.md": "# Other\n", "f/index.md": "# F\n"})
+	z, _, _ := openFileZen(t, filepath.Join(dir, "notes.md"), t.TempDir(), false)
+	mustContain(t, h.all(), "INFO file opened", "name=notes.md", "pages=1")
+	if strings.Contains(h.all(), "folder opened") {
+		t.Errorf("a file logged as a folder:\n%s", h.all())
+	}
+
+	if err := z.OpenFile(filepath.Join(dir, "other.md")); err != nil {
+		t.Fatal(err)
+	}
+	mustContain(t, h.all(), "INFO file switched", "name=other.md", "from=notes.md")
+
+	if err := z.Open(filepath.Join(dir, "f")); err != nil { // a file, then a folder
+		t.Fatal(err)
+	}
+	mustContain(t, h.all(), "INFO folder switched", "name=f", "from=other.md")
+
+	if err := z.OpenFile(filepath.Join(dir, "notes.md")); err != nil { // a folder, then a file
+		t.Fatal(err)
+	}
+	mustContain(t, h.all(), "INFO file switched", "name=notes.md", "from=f")
+
+	if err := z.Open(""); err != nil {
+		t.Fatal(err)
+	}
+	mustContain(t, h.all(), "INFO file closed", "name=notes.md")
+	if strings.Contains(h.all(), "folder closed") {
+		t.Errorf("a file closed as a folder:\n%s", h.all())
+	}
+}

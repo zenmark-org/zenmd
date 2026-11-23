@@ -87,15 +87,15 @@ func TestOpenPicksMode(t *testing.T) {
 		t.Fatalf("a folder opens as a folder: %+v", got)
 	}
 
-	// A file inside a project folder: the folder at that page, as zenmd does.
+	// A file inside a project folder opens alone too: only the command line applies the project rule.
 	ev.reset()
 	pd.path = filepath.Join(h, "proj", "docs", "guide.md")
 	if err := z.openPicked(); err != nil {
 		t.Fatal(err)
 	}
 	got = openedEvents(ev)
-	if len(got) != 1 || got[0].Workspace.Single || got[0].Workspace.Name != "proj" || got[0].Page != "docs/guide.md" {
-		t.Fatalf("a file of a project opens the project: %+v", got)
+	if len(got) != 1 || !got[0].Workspace.Single || got[0].Workspace.File != "guide.md" || got[0].Page != "guide.md" {
+		t.Fatalf("a file of a project opens alone: %+v", got)
 	}
 
 	// Cancel changes nothing; neither does a file that is not markdown.
@@ -108,7 +108,7 @@ func TestOpenPicksMode(t *testing.T) {
 	if err := z.openPicked(); err == nil || len(openedEvents(ev)) != 0 {
 		t.Fatalf("a png: %v", err)
 	}
-	if w := z.Startup().Workspace; w == nil || w.Name != "proj" {
+	if w := z.Startup().Workspace; w == nil || w.File != "guide.md" {
 		t.Fatalf("a refused file replaced the window: %+v", w)
 	}
 
@@ -139,7 +139,7 @@ func TestOpenPicksMode(t *testing.T) {
 		t.Fatalf("Open With a file: %+v %v", st, err)
 	}
 	st, err = z.openAny(filepath.Join(h, "proj", "docs", "guide.md"))
-	if err != nil || st.Workspace == nil || st.Workspace.Single || st.Page != "docs/guide.md" {
+	if err != nil || st.Workspace == nil || !st.Workspace.Single || st.Page != "guide.md" {
 		t.Fatalf("Open With a project's file: %+v %v", st, err)
 	}
 	st, err = z.openAny(filepath.Join(h, "folder"))
@@ -275,5 +275,79 @@ func TestMenuStateSingle(t *testing.T) {
 	z.folderOpened(true)
 	if !a.enabled || !b.enabled || c.enabled {
 		t.Fatalf("after a folder: %v %v %v", a.enabled, b.enabled, c.enabled)
+	}
+}
+
+// issue #50: a markdown file from Finder (Open With, a double-click, the Dock) or from File › Open… opens alone,
+// whatever folder it is in; a folder still opens as a folder. The command line keeps the project rule.
+func TestFinderOpensFileAlone(t *testing.T) {
+	h := homeTree(t, map[string]string{
+		"repo/.git/HEAD":         "ref: refs/heads/main\n",
+		"repo/README.md":         "# Repo\n",
+		"repo/docs/guide.md":     "# Guide\n",
+		"proj/.zenmd.yml":        "version: 1\n",
+		"proj/README.md":         "# Project\n",
+		"proj/sub/page.markdown": "# Page\n",
+		"legacy/.zen.yml":        "version: 1\n",
+		"legacy/a.md":            "# A\n",
+	})
+	z, ev, dl, _ := newTestZen(t, "", "", "")
+	pd := &pathDialogs{fakeDialogs: *dl}
+	z.dialogs = pd
+
+	files := []struct{ path, name, dir string }{
+		{"repo/README.md", "README.md", "repo"},
+		{"repo/docs/guide.md", "guide.md", "repo/docs"},
+		{"proj/README.md", "README.md", "proj"},
+		{"proj/sub/page.markdown", "page.markdown", "proj/sub"},
+		{"legacy/a.md", "a.md", "legacy"},
+	}
+	for _, f := range files {
+		abs := filepath.Join(h, filepath.FromSlash(f.path))
+		// Open With.
+		st, err := z.openAny(abs)
+		if err != nil || st.Workspace == nil || !st.Workspace.Single || st.Workspace.File != f.name || st.Page != f.name ||
+			st.Workspace.Root != filepath.Join(h, filepath.FromSlash(f.dir)) {
+			t.Errorf("Open With %s: %+v %v", f.path, st, err)
+		}
+		// File › Open….
+		ev.reset()
+		pd.path = abs
+		if err := z.openPicked(); err != nil {
+			t.Fatal(err)
+		}
+		got := openedEvents(ev)
+		if len(got) != 1 || !got[0].Workspace.Single || got[0].Workspace.File != f.name || len(got[0].Workspace.Tree) != 1 {
+			t.Errorf("Open… %s: %+v", f.path, got)
+		}
+	}
+
+	// A folder still opens as a folder, a project folder too.
+	for _, d := range []string{"repo", "proj", "legacy"} {
+		abs := filepath.Join(h, d)
+		st, err := z.openAny(abs)
+		if err != nil || st.Workspace == nil || st.Workspace.Single || st.Workspace.Name != d {
+			t.Errorf("Open With folder %s: %+v %v", d, st, err)
+		}
+		ev.reset()
+		pd.path = abs
+		if err := z.openPicked(); err != nil {
+			t.Fatal(err)
+		}
+		if got := openedEvents(ev); len(got) != 1 || got[0].Workspace.Single || got[0].Workspace.Name != d {
+			t.Errorf("Open… folder %s: %+v", d, got)
+		}
+	}
+
+	// Open Enclosing Folder keeps the project rule: the folder at that page.
+	if _, err := z.openAny(filepath.Join(h, "proj", "sub", "page.markdown")); err != nil {
+		t.Fatal(err)
+	}
+	ev.reset()
+	if err := z.OpenEnclosingFolder(); err != nil {
+		t.Fatal(err)
+	}
+	if got := openedEvents(ev); len(got) != 1 || got[0].Workspace.Single || got[0].Workspace.Name != "proj" || got[0].Page != "sub/page.markdown" {
+		t.Errorf("Open Enclosing Folder: %+v", got)
 	}
 }
