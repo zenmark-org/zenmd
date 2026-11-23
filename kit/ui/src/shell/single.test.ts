@@ -2,6 +2,7 @@
 // One markdown file on its own (app/single-file): the sidebar shows its outline in place of the tree.
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { createFakeApi } from "../../../../apps/zenmark/frontend/src/api/fake";
 import type { Page, Workspace } from "../host";
 import { createSettingsFrame } from "./settings";
@@ -43,7 +44,8 @@ const button = () => host.querySelector<HTMLButtonElement>("button.zen-sidebar-b
 test("the one-file state is told by the workspace", () => {
   expect(isSingle(single())).toBe(true);
   expect(isSingle({ ...single(), single: false })).toBe(false);
-  expect(isSingle({ root: "/x", name: "x", home: "", tree: [] })).toBe(false);
+  const folder: Workspace = { root: "/x", name: "x", home: "", tree: [] };
+  expect(isSingle(folder)).toBe(false);
   expect(isSingle(null)).toBe(false);
 });
 
@@ -156,10 +158,10 @@ test("a greyed item says why: the Settings frame takes a tip for a disabled row"
 });
 
 test("black and white tokens only", () => {
-  const css = readFileSync(new URL("./single.css", import.meta.url), "utf8");
+  const css = readFileSync(resolve(__dirname, "single.css"), "utf8");
   expect(css).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i);
   expect(css).toMatch(/var\(--/);
-  expect(css).toMatch(/prefers-reduced-motion|^(?![\s\S]*transition)/);
+  expect(css).not.toMatch(/transition|animation/); // nothing moves, so prefers-reduced-motion has nothing to respect
 });
 
 vi.setConfig({ testTimeout: 10000 });

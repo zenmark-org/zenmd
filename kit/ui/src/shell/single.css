@@ -1,0 +1,28 @@
+/* One file on its own (app/single-file): the sidebar's outline and Open Enclosing Folder. The rows are the
+   tree's own (.zen-nav-row, nav.css); this only turns a button into one. Tokens only (docs/wiki/UI.md). */
+
+.zen-single { display: flex; flex-direction: column; }
+.zen-single-outline { flex: 1; min-height: 0; }
+
+/* A row of the outline is a button that looks like a tree row. */
+.zen-single-row {
+  width: 100%;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.zen-single-row:hover { background: var(--bg-subtle); }
+.zen-nav-item[aria-current="location"] > .zen-single-row { background: var(--btn-bg); font-weight: 600; }
+
+/* The quiet button under the outline: the sidebar header buttons' ghost style, as wide as its words. */
+.zen-single-foot { flex: none; padding: var(--space-3) var(--space-2) var(--space-2); }
+.zen-sidebar-btn.zen-single-folder {
+  width: auto;
+  height: 28px;
+  padding: 0 var(--space-2);
+  font: 12px var(--font-ui);
+  white-space: nowrap;
+}

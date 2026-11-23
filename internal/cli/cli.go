@@ -203,8 +203,8 @@ Options:
 
 Opening:
   --file              open one markdown file on its own, without its folder
-                      (the default for a file with no .zenmd.yml, .zen.yml or
-                      .git in a folder above it); with a folder it is an error
+                      (the default for a file with no .zenmd.yml or .git
+                      in a folder above it); with a folder it is an error
   --folder            open the file's project folder at that page, even when
                       no folder above it has a marker
 

@@ -18,6 +18,7 @@ vi.mock("../../bindings/github.com/zenmark-org/zenmd/apps/zenmark/index.js", () 
   Zen: {
     Startup: binding("Startup"),
     PickFolder: binding("PickFolder"),
+    OpenEnclosingFolder: binding("OpenEnclosingFolder"),
     Page: binding("Page"),
     Source: binding("Source"),
     Preview: binding("Preview"),
@@ -182,6 +183,19 @@ describe("wails api", () => {
     ]);
     results.SetDialect = new Error("this app is read-only");
     await expect(api.setDialect("myst", true)).rejects.toThrow("read-only");
+  });
+
+  it("maps a file opened on its own, and Open Enclosing Folder (app/single-file)", async () => {
+    const api = (await import("./wails")).default;
+    const one = { root: "/r", name: "notes.md", home: "notes.md", tree: [{ title: "Notes", path: "notes.md", kind: "page", children: [] }] };
+    results.Startup = { workspace: { ...one, single: true, file: "notes.md" }, page: "notes.md", mode: "read" };
+    expect((await api.startup()).workspace).toMatchObject({ single: true, file: "notes.md" });
+    results.Startup = { workspace: { ...one, single: false, file: "x.md" }, page: "", mode: "read" };
+    expect((await api.startup()).workspace).not.toHaveProperty("single");
+    results.OpenEnclosingFolder = undefined;
+    calls.length = 0;
+    await api.openEnclosingFolder();
+    expect(calls).toEqual([{ name: "OpenEnclosingFolder", args: [] }]);
   });
 
   it("is the default export and maps every call", async () => {

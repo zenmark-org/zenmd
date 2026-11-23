@@ -67,7 +67,7 @@ func (z *Zen) openAny(path string) (Startup, error) {
 }
 
 // Open opens a folder or a markdown file: a file opens alone, without its
-// folder, unless it is in a project folder (a .zenmd.yml, .zen.yml or .git
+// folder, unless it is in a project folder (a .zenmd.yml or .git
 // above it), then the folder opens at that page. path is absolute. The window
 // gets workspace:opened. A newer open that replaces this one is not an error.
 func (z *Zen) Open(path string) (err error) {
@@ -101,7 +101,7 @@ func (z *Zen) openPicked() error {
 
 // OpenEnclosingFolder opens the project folder of the file that is open on
 // its own, at that page: the nearest folder above it with a .zenmd.yml,
-// .zen.yml or .git, else the file's own folder (`zenmd <file> --folder`).
+// or .git, else the file's own folder (`zenmd <file> --folder`).
 // Editor windows close first, each asking about unsaved changes; the window
 // gets workspace:opened.
 func (z *Zen) OpenEnclosingFolder() (err error) {

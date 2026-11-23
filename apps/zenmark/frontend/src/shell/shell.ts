@@ -4,7 +4,7 @@
 // editor under a small header.
 import type { Api, NavNode, Workspace } from "../api";
 import {
-  applyAppTheme, button, closeWindowKey, createHistory, createInspector, INSPECTOR_CONSOLE, createLayout, createOpening, createStore, developerEnabled, el, followDeveloper, hasFeature, mountPreview, reloadKey, shellAction,
+  applyAppTheme, button, closeWindowKey, createHistory, createInspector, fileName, INSPECTOR_CONSOLE, createLayout, createOpening, createStore, developerEnabled, el, followDeveloper, hasFeature, isSingle, mountPreview, mountSingleSidebar, reloadKey, shellAction, windowTitle,
   type Ctx, type Feature, type Inspector, type Layout, type Store,
 } from "@zenmd/kit";
 import { navSideRow } from "@zenmd/kit/shell/layout";
@@ -65,8 +65,11 @@ const CONFIG_TITLES: Record<string, string> = {
   "zen:config/workspace": ".zenmd.yml — settings for this folder",
 };
 
-/** What the sidebar header shows: the folder's logo and its title (the folder's name when it has none). */
-const identity = (w: Workspace) => ({ logo: w.logo ?? "", title: w.title || w.name });
+/**
+ * What the sidebar header shows: the folder's logo and its title (the folder's name when it has none). A file
+ * opened on its own has no folder to name: the header is the mark and the name of the file shown (`path`).
+ */
+const identity = (w: Workspace, path = "") => isSingle(w) ? { logo: "", title: fileName(path || w.file || w.name) } : { logo: w.logo ?? "", title: w.title || w.name };
 
 function findTitle(nodes: NavNode[], path: string): string {
   for (const n of nodes) {
@@ -239,7 +242,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
   let newPage: NewPageDialog | null = null;
   /** File › New Page… (⌘N): ask for a name and layout, then open the new page in the editor. */
   function showNewPage(inFolder?: string): void {
-    if (kind.kind !== "main" || !layout || newPage || !hasFeature(api, "editor")) return;
+    if (kind.kind !== "main" || !layout || newPage || !hasFeature(api, "editor") || isSingle(store.get().workspace)) return; // one file has no folder to add a page to
     const path = store.get().path;
     const folder = inFolder ?? (path.includes("/") ? path.slice(0, path.lastIndexOf("/") + 1) : "");
     newPage = openNewPage({
@@ -255,7 +258,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
   let newTerm: NewTermDialog | null = null;
   /** New Term… (the glossary page's button, the sidebar menu): ask for the term, then open the new page in the editor. */
   function showNewTerm(folder: string): void {
-    if (kind.kind !== "main" || !layout || newTerm || !hasFeature(api, "editor")) return;
+    if (kind.kind !== "main" || !layout || newTerm || !hasFeature(api, "editor") || isSingle(store.get().workspace)) return;
     newTerm = openNewTerm({
       api, doc, folder,
       onCreated: (path) => {
@@ -273,7 +276,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
   const siteApi: SiteApi | null = api;
   let newSite: NewSiteDialog | null = null;
   function showNewSite(preselect?: string): void {
-    if (kind.kind !== "main" || !siteApi || newSite || !has("newsite")) return;
+    if (kind.kind !== "main" || !siteApi || newSite || !has("newsite") || isSingle(store.get().workspace)) return;
     newSite = openNewSite({
       api: siteApi, doc, preselect,
       onCreated: (s) => { if (!destroyed && s.workspace) showFrame(s.workspace, s.page); },
@@ -301,6 +304,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
     }
     settings = createSettingsView({
       api, hasWorkspace: () => store.get().workspace !== null,
+      single: () => isSingle(store.get().workspace),
       build: api, root: () => store.get().workspace?.root ?? "", configFile: () => store.get().workspace?.configFile ?? "", ...settingsWiring,
       appearanceExtra: has("nav") ? [navSideRow(doc)] : [],
     });
@@ -358,7 +362,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
       const ws = api.reload ? await api.reload() : (await api.startup()).workspace;
       if (!destroyed && layout && ws && ws.root === root && store.get().workspace?.root === root) {
         store.set({ workspace: ws });
-        layout.setIdentity(identity(ws));
+        layout.setIdentity(identity(ws, store.get().path));
       }
     } catch (err) {
       console.error("zen: reloading the folder failed", err);
@@ -390,8 +394,13 @@ export function createShell(root: HTMLElement, { api, features, search, random =
       // Another button of the view group was turned on (the Inspector, in the top bar): Settings closes, so the two never overlap.
       onCloseView: (v) => { if (v === "settings") closeSettings(); },
     });
-    layout.setIdentity(identity(workspace));
+    layout.setIdentity(identity(workspace, store.get().path));
     root.replaceChildren(layout.el);
+    // One file on its own closes as a file, and has no folder behind the sidebar's header.
+    if (isSingle(workspace)) {
+      const close = layout.el.querySelector<HTMLElement>(".zen-sidebar-close");
+      if (close) close.title = "Close File ⇧⌘W";
+    }
     // What the build leaves out leaves no trace: no sidebar without nav, no Inspector button (top bar) without the inspector feature.
     if (!has("nav")) {
       layout.toggleSidebar();
@@ -418,11 +427,21 @@ export function createShell(root: HTMLElement, { api, features, search, random =
       syncConsole();
     }
     doc.title = `${workspace.name} — ${BRAND}`;
-    unmountNav = feature("nav")?.mount(layout.slots, ctx) ?? null;
+    const l = layout;
+    if (isSingle(workspace)) {
+      // No tree: the page's outline and Open Enclosing Folder (kit shell/single.ts).
+      unmountNav = has("nav") ? mountSingleSidebar(l.slots.nav, { ctx, openEnclosing: () => void openEnclosingFolder() }) : null;
+    } else unmountNav = feature("nav")?.mount(layout.slots, ctx) ?? null;
     syncMain();
     unsubscribeStore = store.subscribe((st) => {
       syncMain();
       if (st.workspace && st.path) rememberPage({ root: st.workspace.root, path: st.path, anchor: st.anchor });
+      // The title of a one-file window is the page's title, then its file's name; the header names the file shown
+      // (a link may have moved to a sibling).
+      if (isSingle(st.workspace) && st.path) {
+        l.setIdentity(identity(st.workspace!, st.path));
+        if (st.page && st.page.path === st.path) doc.title = windowTitle(st.page.title, st.path);
+      }
     });
   }
 
@@ -470,7 +489,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
     // Points up to the menu bar (top-left of the screen on macOS).
     const menuHint = el("p", "zen-welcome-menuhint zen-welcome-later");
     menuHint.append(
-      el("span", "", `↖ File menu: Open Folder… · ${has("newsite") ? "New Site… (⇧⌘N) · " : ""}`),
+      el("span", "", `↖ File menu: Open… (⌘O) · ${has("newsite") ? "New Site… (⇧⌘N) · " : ""}`),
       button("Settings", () => openSettings(), { className: "link zen-welcome-settings", text: "Settings ⌘," }),
     );
     const status = el("p", "zen-welcome-status");
@@ -680,7 +699,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
   const offWorkspace = api.on("workspace:changed", (workspace) => {
     if (!store.get().workspace) return;
     store.set({ workspace });
-    layout?.setIdentity(identity(workspace));
+    layout?.setIdentity(identity(workspace, store.get().path));
     if (editorTitle) titleEditor(workspace, store.get().path);
   });
   // Go closes the editor windows before it opens another folder.
@@ -704,6 +723,16 @@ export function createShell(root: HTMLElement, { api, features, search, random =
     }
   }
   const offCloseFolder = api.on("menu:close-folder", () => void closeFolder());
+  /** Open Enclosing Folder (the sidebar button, ⇧⌘O): Go opens the project folder of the file shown, then sends workspace:opened. */
+  async function openEnclosingFolder(): Promise<void> {
+    if (kind.kind !== "main" || !isSingle(store.get().workspace)) return;
+    try {
+      await api.openEnclosingFolder();
+    } catch (err) {
+      console.error("zen: opening the enclosing folder failed", err);
+      if (!destroyed) opening.fail(message(err));
+    }
+  }
   // File › Build Website… (⇧⌘B) and Settings › Website (ui/static-build). Pages with unsaved text
   // in an editor window are named in the dialog: the website uses the saved files.
   const drafts = new Set<string>();

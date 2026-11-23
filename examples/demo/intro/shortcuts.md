@@ -7,7 +7,8 @@ Only the keys Zenmark has today. What each one does is on its page in
 
 | Keys | Action |
 |---|---|
-| <kbd>⌘O</kbd> | open a folder |
+| <kbd>⌘O</kbd> | open a folder or a markdown file |
+| <kbd>⇧⌘O</kbd> | open the enclosing folder of a file that is open alone |
 | <kbd>⌘N</kbd> | a new page |
 | <kbd>⌘P</kbd> | print the page |
 | <kbd>⇧⌘B</kbd> | export the folder as a website |

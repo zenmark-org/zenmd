@@ -5,6 +5,7 @@ What this build of Zenmark can do, one page each, in the order of the build.
 | Feature | What it does |
 |---|---|
 | [Reader](reader.md) | shows a page, keeps it up to date and renders all the markdown |
+| [Open one file](open-a-file.md) | opens a single markdown file without its folder |
 | [Navigation](navigation.md) | the sidebar, links and breadcrumbs built from your pages |
 | [Find](find.md) | looks for text in the open page with <kbd>⌘F</kbd> |
 | [Editor](editor.md) | edits a page in its own window, and adds new pages |

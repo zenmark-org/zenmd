@@ -19,6 +19,7 @@ export { applyAppTheme, buildSection } from "./shell/addons";
 export { A11Y_DEFAULTS, ZOOM_STEPS, applyAccessibility, followAccessibility, reducedMotion, resetAccessibility, setAccessibility, stepZoom, storedAccessibility, zoomStep, type Accessibility } from "./shell/a11y";
 export { accessibilitySection, appearanceSection, createSettingsFrame, developerSection, reloadSettings, type SettingsItem, type SettingsSection, type SettingsView } from "./shell/settings";
 export { createStore } from "./shell/store";
+export { FOLDER_ONLY_TIP, fileName, isSingle, mountSingleSidebar, outlineOf, windowTitle, type OutlineItem } from "./shell/single";
 export { applyTheme, followTheme, setTheme, storedTheme, THEME_KEY, type Theme } from "./shell/theme";
 export { FEATURE_IDS, type AppState, type Ctx, type Feature, type FeatureId, type Slots, type Store } from "./shell/types";
 export { navFeature } from "./nav";

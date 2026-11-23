@@ -3,7 +3,7 @@
 import { FEATURE_IDS, type LogEntry } from "@zenmd/kit";
 import type { AddonInfo, Api, BuildInfo, BuildProgress, Crumb, DialectInfo, Draft, SiteTemplate, PageTemplate, TemplateUpdate, LayoutInfo, LintResult, NavNode, OpenProgress, Page, PdfExported, PdfOptions, PluginInfo, PluginStreamEvent, Startup, Workspace } from "./index";
 
-type Method = "startup" | "appReady" | "pickFolder" | "cancelOpen" | "closeFolder" | "reload"
+type Method = "startup" | "appReady" | "pickFolder" | "cancelOpen" | "closeFolder" | "openEnclosingFolder" | "reload"
   | "siteTemplates" | "pickSiteFolder" | "createSite" | "revealTemplates" | "templatesDir"
   | "pageTemplates" | "updateTemplate" | "revealPageTemplates" | "copyPageTemplate" | "openPageTemplate"
   | "buildOptions" | "buildWebsite" | "cancelBuild" | "saveBuildDefaults" | "pickBuildFolder" | "openBuiltSite" | "revealBuiltSite"
@@ -350,6 +350,7 @@ export function createFakeApi(options: FakeOptions = {}): FakeApi {
     cancelOpen: () => call("cancelOpen", [], () => undefined),
     reload: () => call("reload", [], () => (startup.workspace ? { ...base, tree: copyTree(tree) } : null)),
     closeFolder: () => call("closeFolder", [], () => { startup.workspace = null; startup.page = ""; return true; }),
+    openEnclosingFolder: () => call("openEnclosingFolder", [], () => undefined),
     siteTemplates: () => call("siteTemplates", [], () => (options.templates ?? SAMPLE_TEMPLATES).map((t) => ({ ...t, ask: t.ask.map((a) => ({ ...a })) }))),
     pickSiteFolder: () => call("pickSiteFolder", [], () => "/Users/me/new-site"),
     createSite: (id, dir, values) => call("createSite", [id, dir, values], () => {

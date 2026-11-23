@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 // The window of one markdown file on its own (app/single-file): the shell's one-file state.
 import { afterEach, beforeEach, expect, test } from "vitest";
-import { navFeature, pageFeature, type Workspace } from "@zenmd/kit";
+import { navFeature, pageFeature } from "@zenmd/kit";
+import type { Workspace } from "../api";
 import { createFakeApi, sampleWorkspace, type FakeApi } from "../api/fake";
 import { createShell, type Shell } from "./shell";
 

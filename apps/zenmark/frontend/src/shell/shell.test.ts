@@ -69,7 +69,7 @@ test("welcome has a hint pointing up to the menu bar, and Settings stays reachab
   expect(hint).not.toBeNull();
   expect(hint.textContent).toContain("↖");
   expect(hint.textContent).toContain("File menu");
-  expect(hint.textContent).toContain("Open Folder");
+  expect(hint.textContent).toContain("Open…");
   expect(hint.textContent).toContain("New Site");
   expect(hint.textContent).toContain("⇧⌘N");
   expect(hint.querySelector("button.zen-welcome-settings")?.textContent).toContain("Settings");
