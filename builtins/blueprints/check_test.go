@@ -9,8 +9,8 @@ import (
 	enginetemplates "github.com/zenmark-org/zenmd/engine/sitetemplates"
 )
 
-// Every built-in blueprint starts a folder that passes zenmd check: no errors, and no structure
-// problem at all except suggestions (the demo of what a fresh folder looks like is clean).
+// Every built-in blueprint starts a folder that passes zenmd check: no errors and no warnings,
+// so nobody opens Problems on day one and finds it full. Suggestions are allowed.
 func TestBlueprintsStartClean(t *testing.T) {
 	home := t.TempDir() // the check reads the settings folder: never the real one
 	t.Setenv("HOME", home)
@@ -31,8 +31,8 @@ func TestBlueprintsStartClean(t *testing.T) {
 			}
 			for _, r := range rep.Results {
 				for _, p := range r.Problems {
-					if p.Severity == "error" {
-						t.Errorf("%s:%d: error %s: %s", r.Path, p.Line, p.Rule, p.Message)
+					if p.Severity == "error" || p.Severity == "warning" {
+						t.Errorf("%s:%d: %s %s: %s", r.Path, p.Line, p.Severity, p.Rule, p.Message)
 					} else {
 						t.Logf("%s:%d: %s %s: %s", r.Path, p.Line, p.Severity, p.Rule, p.Message)
 					}

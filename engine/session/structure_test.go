@@ -36,6 +36,9 @@ func structureFolder(t *testing.T) *Session {
 		"guides/ok.md":             "# Ok\n\n## Steps\n\n1. a\n",
 		"blog/x.md":                "---\nlayout: post\n---\n# X\n\nSummary.\n",
 		"plain.md":                 "# Plain\n\ntext\n",
+		"guides/index.md":          "# Guides\n\ntext\n",
+		"guides/README.md":         "# Guides home\n",
+		"guides/x/index.md":        "---\ntemplate: guide\n---\n# X\n",
 	})
 	z, err := newZen(zenOptions{Registry: plugins.NewRegistry(), ConfigDir: t.TempDir(), Dir: dir, Events: &sink{}, Dialogs: &fakeDialogs{}})
 	if err != nil {
@@ -89,6 +92,15 @@ func TestStructureTemplateChoice(t *testing.T) {
 	// A page that follows its template is clean.
 	if p := page("guides/ok.md"); len(p.Structure) != 0 {
 		t.Errorf("ok: %+v", p.Structure)
+	}
+	// A folder's home is not an entry: the path rule skips index.md and README.md, but template: still applies.
+	for _, path := range []string{"guides/index.md", "guides/README.md"} {
+		if p := page(path); len(p.Structure) != 0 {
+			t.Errorf("%s follows no path rule: %+v", path, p.Structure)
+		}
+	}
+	if s := sources(page("guides/x/index.md")); !s["template guide|section|error"] {
+		t.Errorf("template: on an index.md: %v", s)
 	}
 	// With no template, the layout's own structure.
 	if s := sources(page("blog/x.md")); !s["layout post|fields|error"] {

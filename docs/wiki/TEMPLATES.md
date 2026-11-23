@@ -17,6 +17,14 @@ zenmd init --update techdocs          # a newer built-in, written next to yours 
 The old spellings still work: `zenmd init site --techdocs`, `--template <id>`,
 `template.yml` and the assembly key `templates:`.
 
+## Path rules skip a folder's home
+
+A path rule such as `"releases/**": release-notes` is for the pages of a folder, not for its home. It does not
+apply to the folder's `index.md`, or to the `README.md` that stands in for it: that page is a list page, so a fresh
+`releases/index.md` is not asked for a version and a date. A page's own `template:` in its frontmatter still
+applies to it. The engine does this (`engine/session/structure.go`), so every blueprint gets it without writing
+`template: false` on its index pages. New Page in a folder still starts from the rule's template.
+
 ## Where templates live
 
 One folder holds both kinds of template, next to `config.yml`:

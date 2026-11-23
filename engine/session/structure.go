@@ -73,7 +73,10 @@ func (e structEnv) check(path string, src []byte) []StructureProblem {
 			id = strings.TrimSpace(v)
 		}
 	}
-	if id == "" && !optOut && e.cfg != nil {
+	// A path rule such as releases/** is for the pages of the folder; the folder's own index.md (or the
+	// README.md that stands in for it) is its home, a list page, and follows no entry template unless
+	// its frontmatter says template:.
+	if base := strings.ToLower(path[strings.LastIndex(path, "/")+1:]); id == "" && !optOut && e.cfg != nil && base != "index.md" && base != "readme.md" {
 		for _, r := range e.cfg.TemplateRules() {
 			if layouts.Match(r.Pattern, path) {
 				id = r.Name

@@ -19,12 +19,16 @@ Three parts make a habit stick:
 2. A **routine**, the small action itself, such as writing one line in a notebook.
 3. A **reward**, something that feels good right after, such as ticking a box.
 
-Read the three parts again, then go on to the quiz. The next step opens when you
-press Next.
+Read the three parts again, then tick the box to go on to the quiz.
+
+:::check
+- [ ] I read the cue, the routine and the reward
+:::
 
 ## Check your understanding
 
-Answer the questions. You may try again, and your best score is saved.
+Answer the questions. You may try again, and your best score is saved. Tick the
+box when you are done.
 
 :::quiz{id=first-path-quiz title="Habits" pass=70}
 1. What does a cue do?
@@ -40,6 +44,10 @@ Answer the questions. You may try again, and your best score is saved.
    > A big goal on its own gives you nothing to do at a set moment.
 3. Which part of a habit is the action you repeat? = routine
    > The routine is the small action itself.
+:::
+
+:::check
+- [ ] I answered the questions
 :::
 
 ## Try it
