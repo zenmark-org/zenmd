@@ -8,7 +8,7 @@ func TestFolderOnlyLabels(t *testing.T) {
 			t.Errorf("%q should need an open folder", l)
 		}
 	}
-	for _, l := range []string{labelNewSite, labelOpenFolder, labelSettings, "Quit Zenmark", "Copy"} {
+	for _, l := range []string{labelNewSite, labelOpen, labelSettings, "Quit Zenmark", "Copy"} {
 		if folderOnly(l) {
 			t.Errorf("%q should stay enabled without a folder", l)
 		}

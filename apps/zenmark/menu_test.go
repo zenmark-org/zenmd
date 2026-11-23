@@ -63,7 +63,8 @@ func TestMenuSpecProduction(t *testing.T) {
 		"New from Blueprint… [CmdOrCtrl+Shift+N]",
 		"-",
 		"New Page… [CmdOrCtrl+N]",
-		"Open Folder… [CmdOrCtrl+O]",
+		"Open… [CmdOrCtrl+O]",
+		"Open Enclosing Folder [CmdOrCtrl+Shift+O]",
 		"Close Folder [CmdOrCtrl+Shift+W]",
 		"-",
 		"Print Page… [CmdOrCtrl+P]",
@@ -138,7 +139,7 @@ func TestMenuRolesAndCustomItems(t *testing.T) {
 		"About Zenmark": "About", "Hide Zenmark": "Hide", "Hide Others": "HideOthers", "Show All": "UnHide", "Quit Zenmark": "Quit",
 		"Undo": "Undo", "Redo": "Redo", "Cut": "Cut", "Copy": "Copy", "Paste": "Paste", "Select All": "SelectAll",
 		"Minimise": "Minimise", "Zoom": "Zoom",
-		"Settings…": "", "New Page…": "", "Open Folder…": "", "Close Folder": "",
+		"Settings…": "", "New Page…": "", "Open…": "", "Open Enclosing Folder": "", "Close Folder": "",
 	} {
 		if got, ok := roles[label]; !ok || got != role {
 			t.Errorf("%s: role %q (present %v), want %q", label, got, ok, role)
@@ -149,26 +150,27 @@ func TestMenuRolesAndCustomItems(t *testing.T) {
 func TestMenuActions(t *testing.T) {
 	var calls []string
 	act := menuActions{
-		NewPage:      func() { calls = append(calls, "new") },
-		OpenFolder:   func() { calls = append(calls, "open") },
-		Settings:     func() { calls = append(calls, "settings") },
-		NewSite:      func() { calls = append(calls, "site") },
-		BuildWebsite: func() { calls = append(calls, "build") },
-		PrintPage:    func() { calls = append(calls, "print-page") },
-		PrintSite:    func() { calls = append(calls, "print-site") },
-		CloseFolder:  func() { calls = append(calls, "close") },
-		Find:         func() { calls = append(calls, "find") },
-		FindNext:     func() { calls = append(calls, "find-next") },
-		FindPrevious: func() { calls = append(calls, "find-previous") },
+		NewPage:       func() { calls = append(calls, "new") },
+		Open:          func() { calls = append(calls, "open") },
+		OpenEnclosing: func() { calls = append(calls, "enclosing") },
+		Settings:      func() { calls = append(calls, "settings") },
+		NewSite:       func() { calls = append(calls, "site") },
+		BuildWebsite:  func() { calls = append(calls, "build") },
+		PrintPage:     func() { calls = append(calls, "print-page") },
+		PrintSite:     func() { calls = append(calls, "print-site") },
+		CloseFolder:   func() { calls = append(calls, "close") },
+		Find:          func() { calls = append(calls, "find") },
+		FindNext:      func() { calls = append(calls, "find-next") },
+		FindPrevious:  func() { calls = append(calls, "find-previous") },
 	}
-	for _, label := range []string{"New Page…", "Open Folder…", "Settings…", "New from Blueprint…", "Website…", "Print Page…", "PDF…", "Close Folder", "Find…", "Find Next", "Find Previous"} {
+	for _, label := range []string{"New Page…", "Open…", "Open Enclosing Folder", "Settings…", "New from Blueprint…", "Website…", "Print Page…", "PDF…", "Close Folder", "Find…", "Find Next", "Find Previous"} {
 		f := act.forLabel(label)
 		if f == nil {
 			t.Fatalf("no action for %s", label)
 		}
 		f()
 	}
-	if got := strings.Join(calls, ","); got != "new,open,settings,site,build,print-page,print-site,close,find,find-next,find-previous" {
+	if got := strings.Join(calls, ","); got != "new,open,enclosing,settings,site,build,print-page,print-site,close,find,find-next,find-previous" {
 		t.Fatalf("calls = %s", got)
 	}
 	if act.forLabel("Quit Zenmark") != nil {
@@ -454,7 +456,8 @@ func TestMenuBareShell(t *testing.T) {
 		"-",
 		"Quit Zenmark [CmdOrCtrl+Q]",
 		"# File",
-		"Open Folder… [CmdOrCtrl+O]",
+		"Open… [CmdOrCtrl+O]",
+		"Open Enclosing Folder [CmdOrCtrl+Shift+O]",
 		"Close Folder [CmdOrCtrl+Shift+W]",
 		"# Edit",
 		"Undo [CmdOrCtrl+Z]",
