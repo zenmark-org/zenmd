@@ -32,7 +32,7 @@ release and says it is going away.
    - Every command example in the README, docs, the demo and the site templates becomes `zenmd …`.
    - Running text that names the product stays "zen.md".
    - The `.zen.yml` and `.zen/` file names are unchanged: they are the format, and renaming them is out of scope.
-8. Nothing else changes: the config folder (`…/Application Support/zen/`), trust and plugin data, `window.zen`, the Tengo `zen` module, the `zen` code style, and the `ZEN_*` environment variables plugins receive.
+8. Nothing else changes: the config folder (`…/Application Support/zen/` until 0.8.0, see #45), trust and plugin data, `window.zen`, the Tengo `zen` module, the `zen` code style, and the `ZEN_*` environment variables plugins receive.
 
 ## Architecture
 

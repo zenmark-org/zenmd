@@ -137,8 +137,8 @@ listing them in `blocks`. An app reads only the dialects in its build
 Order of precedence, last wins:
 
 1. Plugin default (`Manifest.Default`, option defaults)
-2. Global config — `<user config dir>/zen/config.yml`
-   (macOS: `~/Library/Application Support/zen/config.yml`)
+2. Global config — `<user config dir>/zenmark/config.yml`
+   (macOS: `~/Library/Application Support/zenmark/config.yml`)
 3. Workspace config — `.zenmd.yml` in the opened folder
 4. Page frontmatter
 
@@ -231,7 +231,7 @@ zen looks in two places:
 | Where | For |
 |---|---|
 | `<folder>/.zen/plugins/` (`<id>.tengo`, `<id>/plugin.tengo` or `<id>/plugin.yml`) | plugins that travel with a folder of documents |
-| `<user config dir>/zen/plugins/` (macOS: `~/Library/Application Support/zen/plugins/`) | your own plugins, for every folder |
+| `<user config dir>/zenmark/plugins/` (macOS: `~/Library/Application Support/zenmark/plugins/`) | your own plugins, for every folder |
 
 ### Script plugins (Tengo)
 
@@ -607,7 +607,7 @@ names the new place, `.zen/layouts/<id>/layout.yml`. See [LAYOUTS.md](LAYOUTS.md
 Plugins run programs and scripts, so **zen asks before using a plugin for
 the first time**, naming what it will run. The answer is remembered for that
 exact version of the plugin's files in
-`<user config dir>/zen/trusted-plugins.yml`: the hash covers every file of the
+`<user config dir>/zenmark/trusted-plugins.yml`: the hash covers every file of the
 folder (a symlink by its target's content), except Finder's `.DS_Store`
 files, which Finder rewrites whenever you look at the folder; a plugin can
 never run, pass or serve a `.DS_Store` (the manifest is refused). It is taken

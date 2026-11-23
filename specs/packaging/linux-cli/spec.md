@@ -48,7 +48,7 @@ DMG. The Zenmark app and PDF export stay macOS only.
    line)`. The app's `zenmd` keeps printing `zenmd 0.8.0`. Both take the version
    from `-ldflags -X …/internal/cli.Version`.
 7. **The config folder follows the platform.** On Linux the global config is
-   `$XDG_CONFIG_HOME/zen/config.yml`, or `~/.config/zen/config.yml` when
+   `$XDG_CONFIG_HOME/zenmark/config.yml`, or `~/.config/zenmark/config.yml` when
    `XDG_CONFIG_HOME` is unset, through `os.UserConfigDir` as today. The
    templates folder sits next to it. `zenmd templates --dir` prints it.
 8. **Script plugins work on linux/arm64.** The script helper

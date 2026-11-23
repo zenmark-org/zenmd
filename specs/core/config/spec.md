@@ -16,7 +16,7 @@ the global file, the workspace file and the page's frontmatter.
 
 ## Behaviour
 
-1. `GlobalPath()` returns `<os.UserConfigDir()>/zen/config.yml`.
+1. `GlobalPath()` returns `<os.UserConfigDir()>/zenmark/config.yml`.
 2. `Load(globalPath, workspaceRoot)` reads the global file and `<root>/.zen.yml`. A missing file is not an error; an unreadable or invalid file yields defaults for that layer plus a warning.
 3. Schema (YAML): `version: 1`, `theme: system|light|dark`, `plugins: { <id>: bool | map }`. Unknown top-level keys are kept in `Extra` and produce a warning.
 4. `SplitFrontmatter(src)` returns the YAML mapping between a leading `---` line and the next `---` or `...` line, and the remaining body. No frontmatter returns an empty map and the unchanged source. Invalid YAML returns an empty map, the body without the block, and a warning. Frontmatter larger than 64 KB is treated as body.

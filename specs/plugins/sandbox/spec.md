@@ -56,7 +56,7 @@ platform, `/opt/homebrew/bin/container` here, version 1.6), not Docker.
 ## Steps
 
 1. Core: `stream` hook, `ctx.stream`/`ctx.cancel`, `scope: user` options (spec `core/plugin-streams`).
-2. Plugin backend as a small Go program in `plugins-src/sandbox` built into `Contents/Helpers/zen-sandbox` and listed in `resources.yml`; the plugin folder ships in `<user config dir>/zen/plugins/sandbox` on first use.
+2. Plugin backend as a small Go program in `plugins-src/sandbox` built into `Contents/Helpers/zen-sandbox` and listed in `resources.yml`; the plugin folder ships in `<user config dir>/zenmark/plugins/sandbox` on first use.
 3. Frontend console (ANSI colours → classes, 1 MB output cap, auto-scroll, copy).
 4. Settings section for images: list, Pull, remove; status of the container service.
 5. Demo page `examples/demo/plugins/sandbox.md`.

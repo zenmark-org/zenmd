@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -17,7 +18,16 @@ func TestMain(m *testing.M) {
 		main()
 		return
 	}
-	os.Exit(m.Run())
+	// cli.Run moves the old settings folder: never the real one.
+	home, err := os.MkdirTemp("", "zenmd-home")
+	if err != nil {
+		panic(err)
+	}
+	os.Setenv("HOME", home)
+	os.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
+	code := m.Run()
+	os.RemoveAll(home)
+	os.Exit(code)
 }
 
 // The script helper runs under the zen alias too (the pool starts the same

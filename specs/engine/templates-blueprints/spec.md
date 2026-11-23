@@ -186,7 +186,7 @@ The structures are built in, and each one is small, so a page that follows no te
 One folder holds both kinds of template, each in a subfolder you can open, read and edit:
 
 ```
-~/Library/Application Support/zen/templates/
+~/Library/Application Support/zenmark/templates/
   blueprints/        one folder per blueprint (techdocs/, learning/, planner/, your own)
     .zen-templates.yml
   pages/             one file per page template (how-to.yml, term.yml, …, your own)

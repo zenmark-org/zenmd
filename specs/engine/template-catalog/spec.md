@@ -22,7 +22,7 @@ app release, and anyone can publish their own catalog.
 
 Today the templates are embedded in the binary (`builtins/blueprints`,
 `builtins/pagetemplates`). An install copies them to
-`~/Library/Application Support/zen/templates/`, and only a new app version
+`~/Library/Application Support/zenmark/templates/`, and only a new app version
 brings a newer copy. Removing the slides from techdocs (2.4.0) reaches users
 only with the next release. And an edited copy only gets an `<id>.new` beside
 it, which you have to swap by hand.
@@ -362,4 +362,4 @@ phase 2, and the user to create the repository and the key.
 > - Write the tests first and commit them failing, including every archive edge case and every Security row of your phase.
 > - Use only the standard library for archives, hashing, signatures and HTTP. Tests use `httptest` and a test key pair made in the test, never the network.
 > - Only the Owns paths. List anything needed in a shared file as an Integration line in your report.
-> - No new dependencies or downloads. Don't launch the app, run task package/install/release, push or touch main. Never write to `~/Library/Application Support/zen` or the user's cache folder; tests use temporary folders.
+> - No new dependencies or downloads. Don't launch the app, run task package/install/release, push or touch main. Never write to `~/Library/Application Support/zenmark` or the user's cache folder; tests use temporary folders.

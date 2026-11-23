@@ -45,7 +45,7 @@ that is signed and updates.
      characters, via `\\?\`) open.
    - Folder containment compares case-insensitively and rejects `..`,
      another drive, and junctions or symlinks that lead outside, as on Unix.
-5. **Config.** The global config lives at `%AppData%\zen\config.yml`, via
+5. **Config.** The global config lives at `%AppData%\zenmark\config.yml`, via
    `os.UserConfigDir`, with the templates folder next to it. The project
    markers (`.zenmd.yml`, `.git`) are found the same way. The upward search
    stops at the user's profile folder.

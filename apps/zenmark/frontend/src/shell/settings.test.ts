@@ -58,7 +58,7 @@ const PAGES: PageTemplate[] = [
     skeleton: "# {{title}}\n\n## Steps\n\n1. One\n", update: "", error: "", rules: ["lessons/**", "course/**"],
   },
   {
-    id: "how-to", name: "How-to guide", description: "Steps to one result", version: "1.0.0", layout: "docs", source: "yours", path: "/Users/me/Library/Application Support/zen/templates/pages/how-to.yml",
+    id: "how-to", name: "How-to guide", description: "Steps to one result", version: "1.0.0", layout: "docs", source: "yours", path: "/Users/me/Library/Application Support/zenmark/templates/pages/how-to.yml",
     fields: [{ name: "title", type: "string", required: true, default: "" }], outline: [], skeleton: "# {{title}}\n\nText\n", update: "1.1.0", error: "", rules: [],
   },
   {

@@ -203,13 +203,17 @@ func (s Settings) Layouts() LayoutDefaults {
 	return LayoutDefaults{Default: s.layouts.Default, Rules: append([]LayoutRule(nil), s.layouts.Rules...)}
 }
 
-// GlobalPath returns <os.UserConfigDir()>/zen/config.yml.
+// FolderName is the global settings folder inside os.UserConfigDir(). Until
+// 0.8.0 it was "zen", which collided with the Zen browser (see Migrate).
+const FolderName = "zenmark"
+
+// GlobalPath returns <os.UserConfigDir()>/zenmark/config.yml.
 func GlobalPath() (string, error) {
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, "zen", "config.yml"), nil
+	return filepath.Join(dir, FolderName, "config.yml"), nil
 }
 
 // Default returns the built-in configuration.

@@ -109,11 +109,22 @@ func main() {
 	if b, err := build.CombinedOutput(); err != nil {
 		t.Fatalf("go build: %v\n%s", err, b)
 	}
-	got, err := exec.Command(bin, "--version").Output()
+	run := exec.Command(bin, "--version")
+	run.Env = fakeHomeEnv(t) // cli.Run migrates the settings folder: never the real one
+	got, err := run.Output()
 	if err != nil {
 		t.Fatalf("run stamped binary: %v", err)
 	}
 	if string(got) != "zenmd "+version+"\n" {
 		t.Fatalf("--version printed %q, want %q", got, "zenmd "+version+"\n")
 	}
+}
+
+// fakeHomeEnv is the environment for a program that goes through cli.Run: a
+// temporary HOME and XDG_CONFIG_HOME, so its start-up migration of the
+// settings folder never touches the real one.
+func fakeHomeEnv(t *testing.T) []string {
+	t.Helper()
+	h := t.TempDir()
+	return append(os.Environ(), "HOME="+h, "XDG_CONFIG_HOME="+filepath.Join(h, ".config"))
 }
