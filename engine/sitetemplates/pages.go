@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -370,4 +371,33 @@ func UpdatePage(dir string, builtins fs.FS, id string) (UpdateResult, error) {
 		return UpdateResult{Path: newPath}, err
 	}
 	return UpdateResult{Path: newPath}, nil
+}
+
+var pageIDRE = regexp.MustCompile(`^[a-z][a-z0-9-]{0,63}$`)
+
+// FindPage reads the file of the page template id, for checking a page against it: the open
+// folder's own .zen/templates/<id>.yml (folder is its root, "" for none), then <dir>/pages/<id>.yml
+// (dir "" for none), then the built-in one. source is SourceFolder, SourceCustom or SourceBuiltin.
+// It reads three files at most, installs nothing and never follows a link. An id that is not a
+// plain template id (it may come from a page's frontmatter) finds nothing.
+func FindPage(dir string, builtins fs.FS, folder, id string) (data []byte, source string, ok bool) {
+	if !pageIDRE.MatchString(id) {
+		return nil, "", false
+	}
+	if folder != "" {
+		if b, ok := readPageFile(filepath.Join(folder, ".zen", "templates", id+".yml")); ok {
+			return b, SourceFolder, true
+		}
+	}
+	if dir != "" {
+		if b, ok := readPageFile(filepath.Join(PagesDir(dir), id+".yml")); ok {
+			return b, SourceCustom, true
+		}
+	}
+	if builtins != nil {
+		if b, err := fs.ReadFile(builtins, id+".yml"); err == nil {
+			return b, SourceBuiltin, true
+		}
+	}
+	return nil, "", false
 }

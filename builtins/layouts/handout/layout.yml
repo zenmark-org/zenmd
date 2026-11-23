@@ -8,6 +8,13 @@ fields:
   author: { type: string, description: Name shown in the header }
 options:
   paper: { type: string, default: a4, description: "Sheet size: a4 or letter" }
+structure:
+  fields:
+    date:   { type: date }
+    author: { type: string }
+  rules:
+    max-words: { words: 600, severity: suggestion }
+    image-alt: true
 help:
   summary: "A printable one-pager: on screen the page sits on a white sheet (A4 or Letter) with a header and a footer showing the title and date; File, Print prints just the sheet at the right size. Frontmatter fields: date and author. Option: paper (a4 or letter)."
   snippets:

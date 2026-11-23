@@ -45,6 +45,7 @@ var codeNames = map[string]bool{"code-block": true, "code": true, "code-cell": t
 // Scan finds the directives of src, outside ordinary code fences.
 func (dialect) Scan(src []byte) []dialects.Span {
 	var out []dialects.Span
+	noCloser := false // no line from some point on ends with $$: later $$ openers cannot close either
 	for pos := 0; pos < len(src); {
 		ls := pos
 		text, next := cutLine(src, pos)
@@ -54,6 +55,19 @@ func (dialect) Scan(src []byte) []dialects.Span {
 			ind++
 		}
 		rest := text[ind:]
+		if bytes.HasPrefix(rest, []byte("$$")) {
+			if !noCloser {
+				sp, after, found, dead := dollarBlock(src, ls, ind, next)
+				if dead {
+					noCloser = true
+				}
+				if found {
+					out = append(out, sp)
+					pos = after
+				}
+			}
+			continue
+		}
 		if len(rest) == 0 || (rest[0] != '`' && rest[0] != '~' && rest[0] != ':') {
 			continue
 		}
@@ -114,6 +128,65 @@ func (dialect) Scan(src []byte) []dialects.Span {
 		pos = after
 	}
 	return out
+}
+
+// labelRE is the (label) MyST's dollarmath allows after the closing $$.
+var labelRE = regexp.MustCompile(`[ \t]*\(([A-Za-z0-9_:.-]{1,100})\)[ \t]*$`)
+
+// closing reports whether line ends a $$ block: it ends with $$, optionally
+// followed by a (label). It returns the text before the $$ and the label.
+func closing(line []byte) (before []byte, label string, ok bool) {
+	line = bytes.TrimRight(line, " \t")
+	if m := labelRE.FindSubmatchIndex(line); m != nil && bytes.HasSuffix(bytes.TrimRight(line[:m[0]], " \t"), []byte("$$")) {
+		label = string(line[m[2]:m[3]])
+		line = bytes.TrimRight(line[:m[0]], " \t")
+	}
+	if !bytes.HasSuffix(line, []byte("$$")) {
+		return nil, "", false
+	}
+	return line[:len(line)-2], label, true
+}
+
+// dollarBlock reads a $$ display math block whose first line starts at ls
+// (the $$ after ind spaces). It is a block when a line ending with $$ closes
+// it; the text between is the TeX, never empty and with no $$ inside. dead
+// reports that no later line ends with $$, so the caller need not look again.
+func dollarBlock(src []byte, ls, ind, next int) (sp dialects.Span, after int, found, dead bool) {
+	first, _ := cutLine(src, ls)
+	first = first[ind+2:]
+	var parts [][]byte
+	var label string
+	end := 0
+	if before, l, ok := closing(first); ok && len(bytes.TrimSpace(before)) > 0 {
+		parts, label, end, after, found = [][]byte{before}, l, ls+len(trimEOL(src[ls:next])), next, true
+	} else if bytes.Contains(first, []byte("$$")) {
+		return sp, 0, false, false
+	} else {
+		parts = [][]byte{first}
+		for j := next; j < len(src); {
+			cs := j
+			t, nx := cutLine(src, j)
+			if before, l, ok := closing(t); ok {
+				parts, label = append(parts, before), l
+				end, after, found = cs+len(trimEOL(src[cs:nx])), nx, true
+				break
+			}
+			parts = append(parts, t)
+			j = nx
+		}
+		if !found {
+			return sp, 0, false, true
+		}
+	}
+	body := bytes.TrimSpace(bytes.Join(parts, []byte("\n")))
+	if len(body) == 0 || bytes.Contains(body, []byte("$$")) {
+		return sp, 0, false, false
+	}
+	attrs := map[string]string{}
+	if label != "" {
+		attrs["label"] = label
+	}
+	return dialects.Span{Span: plugins.Span{Start: ls, End: end, Name: "math", Body: string(body), Attrs: attrs}}, after, true, false
 }
 
 func trimmedLen(src []byte) int { return len(trimEOL(src)) }

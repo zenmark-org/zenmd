@@ -113,6 +113,9 @@ type Page struct {
 	Breadcrumb  []Crumb        `json:"breadcrumb"`
 	Assets      PageAssets     `json:"assets"`
 	Warnings    []string       `json:"warnings"`
+	// Structure is what the page lacks against its page template and its layout's structure
+	// (engine/structure), for Problems › Structure; empty when it follows them.
+	Structure []StructureProblem `json:"structure"`
 }
 
 // AddonInfo is one add-on of an app's build as the frontend sees it (kit/addons).
@@ -619,10 +622,11 @@ type renderSnap struct {
 	navWarn   []string
 	idxWarn   []string
 	crumbs    []Crumb
+	structure structEnv
 }
 
 func (s *Session) snapLocked(path string) renderSnap {
-	sn := renderSnap{r: s.r, root: s.ws.Root()}
+	sn := renderSnap{r: s.r, root: s.ws.Root(), structure: s.structEnvLocked()}
 	if s.ext != nil {
 		sn.extWarns = append(sn.extWarns, s.ext.warns...)
 	}
@@ -645,8 +649,9 @@ func (sn renderSnap) render(path string, src []byte) (Page, error) {
 	p := Page{
 		Path: path, Title: rp.Title, HTML: rp.HTML, Layout: PageLayout{Name: rp.Layout.Name, Source: rp.Layout.Source},
 		Frontmatter: rp.Frontmatter, Breadcrumb: sn.crumbs,
-		Assets:   PageAssets{CSS: rp.Assets.CSS, JS: rp.Assets.JS},
-		Warnings: rp.Warnings,
+		Assets:    PageAssets{CSS: rp.Assets.CSS, JS: rp.Assets.JS},
+		Warnings:  rp.Warnings,
+		Structure: sn.structure.check(path, src),
 	}
 	if p.Path == "" {
 		p.Path = path

@@ -9,3 +9,4 @@ tagline: Steps for one real task
 - [Export a PDF](export-a-pdf.md)
 - [Open one file](open-one-file.md)
 - [Add a glossary term](add-a-glossary-term.md)
+- [Build docs in CI](build-docs-in-ci.md)

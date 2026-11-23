@@ -97,6 +97,8 @@ From strongest to weakest:
 2. a path rule in `.zenmd.yml`, as for layouts: `templates: { "guides/**": how-to, "blog/**": post }`;
 3. the page's layout's own `structure:`.
 
+A path rule is for the entries of a folder, not for its home: it does not apply to a folder's `index.md`, or to the `README.md` that stands in for it. That page is a list page (a landing page or an index), so `releases/**` targets the release pages and not `releases/index.md`. `template:` in the page's own frontmatter still applies to it.
+
 A page follows at most one template, plus the structure of its layout. Both are checked, and the template's rules win where the two disagree.
 
 ### 4. Each layout's structure

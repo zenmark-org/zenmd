@@ -1,6 +1,12 @@
 id: article
 version: 0.1.0
 description: The reading view (the default)
+structure:
+  body:
+    - heading: { level: 1, count: 1, severity: suggestion }
+  rules:
+    heading-order: true
+    image-alt: true
 help:
   summary: The default reading column, a narrow serif page. Every page without a layout of its own uses it, and it adds nothing around the page.
   snippets:

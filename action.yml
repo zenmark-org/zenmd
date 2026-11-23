@@ -1,0 +1,68 @@
+name: zenmd docs
+description: Build a folder of markdown into a website with zenmd on a Linux runner, with an optional check and the warnings as annotations.
+branding:
+  icon: book-open
+  color: black
+
+inputs:
+  folder:
+    description: The docs folder.
+    default: "."
+  output:
+    description: Where the site is written (zenmd export site -o).
+    default: "_site"
+  version:
+    description: "An exact zenmd version such as 0.8.0 (never latest). Empty: the action's own version."
+    default: ""
+  hosted:
+    description: Plain links for a web server (zenmd export site --hosted); false is --portable.
+    default: "true"
+  drafts:
+    description: Include pages with draft true (--drafts).
+    default: "false"
+  scheme:
+    description: "The website's colours: light, dark or auto (--scheme). Empty: the folder's setting."
+    default: ""
+  clean:
+    description: Empty the output folder first (--clean).
+    default: "true"
+  print:
+    description: Write print.html, the whole site as one page; false is --no-print.
+    default: "true"
+  check:
+    description: Run zenmd check first and fail on errors. Needs a zenmd that has it (0.8.0 or later).
+    default: "false"
+
+outputs:
+  output:
+    description: The site's folder.
+    value: ${{ steps.run.outputs.output }}
+  pages:
+    description: The number of pages built.
+    value: ${{ steps.run.outputs.pages }}
+  warnings:
+    description: The number of build warnings.
+    value: ${{ steps.run.outputs.warnings }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install zenmd
+      shell: sh
+      env:
+        ZM_VERSION: ${{ inputs.version }}
+        ACTION_REF: ${{ github.action_ref }}
+      run: sh "$GITHUB_ACTION_PATH/.github/actions/install.sh"
+    - name: Build the docs
+      id: run
+      shell: sh
+      env:
+        ZM_FOLDER: ${{ inputs.folder }}
+        ZM_OUTPUT: ${{ inputs.output }}
+        ZM_HOSTED: ${{ inputs.hosted }}
+        ZM_DRAFTS: ${{ inputs.drafts }}
+        ZM_SCHEME: ${{ inputs.scheme }}
+        ZM_CLEAN: ${{ inputs.clean }}
+        ZM_PRINT: ${{ inputs.print }}
+        ZM_CHECK: ${{ inputs.check }}
+      run: sh "$GITHUB_ACTION_PATH/.github/actions/run.sh"

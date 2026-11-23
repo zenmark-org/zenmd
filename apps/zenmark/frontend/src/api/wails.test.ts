@@ -218,14 +218,19 @@ describe("wails api", () => {
 
     results.Page = page;
     const p = await api.page("a.md");
-    expect(p).toEqual({ ...page, frontmatter: {}, breadcrumb: [], assets: { css: [], js: [] }, warnings: [], layout: { name: "article", source: "" } });
+    expect(p).toEqual({ ...page, frontmatter: {}, breadcrumb: [], assets: { css: [], js: [] }, warnings: [], structure: [], layout: { name: "article", source: "" } });
+    const row = { rule: "section", message: "Missing section", fix: "Add it", severity: "warning", line: 2, anchor: "", source: "layout post" };
+    results.Page = { ...page, structure: [row] };
+    expect((await api.page("a.md")).structure).toEqual([row]);
+    results.Page = { ...page, structure: "nope" };
+    expect((await api.page("a.md")).structure).toEqual([]);
     results.Page = { ...page, layout: { name: "post", source: "folder" } };
     expect((await api.page("a.md")).layout).toEqual({ name: "post", source: "folder" });
     results.Page = { ...page, layout: { name: "x", source: "elsewhere" } };
     expect((await api.page("a.md")).layout).toEqual({ name: "x", source: "" });
     results.Page = { ...page, layout: "slides" }; // an older Go side: a plain name
     expect((await api.page("a.md")).layout).toEqual({ name: "slides", source: "" });
-    calls.splice(-3); // the extra Page calls above are not part of the list below
+    calls.splice(-5); // the extra Page calls above are not part of the list below
 
     results.Source = "# a";
     expect(await api.source("a.md")).toBe("# a");

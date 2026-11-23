@@ -16,7 +16,7 @@ import { icon } from "../shell/icons";
 import { INSPECTOR_CLOSE, INSPECTOR_CONSOLE, INSPECTOR_MARK, INSPECTOR_STATE, INSPECTOR_TOGGLE, inspectorLabel, type InspectorState } from "./events";
 import { buildItems } from "./build";
 import { formatDate, formatSize, readingLabel } from "./format";
-import { brokenLinks, failedAlready, isCheck, missingImage, problemTarget, sameProblem, spellingProblems, warningProblems, type Filter, type Problem } from "./problems";
+import { brokenLinks, failedAlready, isCheck, missingImage, problemTarget, sameProblem, spellingProblems, structureProblems, warningProblems, type Filter, type Problem } from "./problems";
 import { pageStats, type PageStats } from "./stats";
 
 export { pageStats, type PageStats } from "./stats";
@@ -82,7 +82,7 @@ export function inspectorKey(e: KeyboardEvent): boolean {
 }
 
 const SOURCE_LABEL: Record<string, string> = { builtin: "built-in", folder: "folder", user: "user" };
-const KIND_LABEL: Record<Problem["kind"], string> = { link: "Link", image: "Image", spelling: "Spelling", warning: "Warning" };
+const KIND_LABEL: Record<Problem["kind"], string> = { link: "Link", image: "Image", spelling: "Spelling", warning: "Warning", structure: "Structure" };
 
 type FileState =
   | { status: "loading" }
@@ -254,6 +254,7 @@ export function createInspector(o: InspectorOptions): InspectorPanel {
     return [...brokenLinks(checkRoot), ...imgs];
   };
   const warnings = (): Problem[] => (o.pageWarnings && page ? warningProblems(page.warnings) : []);
+  const structure = (): Problem[] => (o.pageWarnings && page ? structureProblems(page.structure) : []);
   const spelling = (): Problem[] => (lintOn && Array.isArray(alerts) ? spellingProblems(alerts) : []);
   let all: Problem[] = [];
 
@@ -273,7 +274,7 @@ export function createInspector(o: InspectorOptions): InspectorPanel {
 
   function renderProblems(): void {
     if (!problems) return;
-    all = [...warnings(), ...checks(), ...spelling()];
+    all = [...warnings(), ...structure(), ...checks(), ...spelling()];
     const before = selected;
     if (selected) selected = all.find((p) => sameProblem(p, selected!)) ?? null;
     if (before && !selected) showInPage(null); // the problem is gone: so is its mark
@@ -327,7 +328,7 @@ export function createInspector(o: InspectorOptions): InspectorPanel {
       return;
     }
     const box = el("div", "zen-problem-details");
-    box.append(rows([["Message", "message", p.message], ...(p.fix ? [["Fix", "fix", p.fix] as [string, string, string]] : []), ["Where", "where", p.where], ["Rule", "rule", p.rule, true]]));
+    box.append(rows([["Message", "message", p.message], ...(p.fix ? [["Fix", "fix", p.fix] as [string, string, string]] : []), ["Where", "where", p.where], ...(p.source ? [["From", "source", p.source] as [string, string, string]] : []), ["Severity", "severity", p.severity], ["Rule", "rule", p.rule, true]]));
     problemDetails.replaceChildren(box);
   }
 

@@ -10,6 +10,17 @@ fields:
   tags:   { type: list, description: Tags shown under the text }
 options:
   reading: { type: bool, default: true, description: Show the reading time }
+structure:
+  fields:
+    date:   { type: date, required: true, severity: error }
+    author: { type: string, required: true }
+    tags:   { type: list }
+    cover:  { type: image }
+  body:
+    - heading: { level: 1, count: 1, severity: suggestion }
+    - paragraph: { label: Summary, max-words: 60 }
+  rules:
+    image-alt: true
 help:
   summary: "A blog post or a note: an optional cover image, the title, a line with the date, the author and the reading time, the text, the tags, and Previous and Next links in the sidebar order. Frontmatter fields: date, author, cover (an image of the folder) and tags. Option: reading (false hides the reading time)."
   snippets:
