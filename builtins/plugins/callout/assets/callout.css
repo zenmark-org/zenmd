@@ -1,0 +1,19 @@
+/* callouts: only what is the callout's own. The frame, title row, type and body are the plugin kit's
+   (docs/wiki/PLUGIN-UI.md). The one colour is the left rule, from the lint tokens. No animation. */
+.zen-callout { --zc-rule: var(--rule); border-left: 3px solid var(--zc-rule); }
+.zen-callout-suggestion { --zc-rule: var(--lint-suggestion); }
+.zen-callout-warning { --zc-rule: var(--lint-warning); }
+.zen-callout-error { --zc-rule: var(--lint-error); }
+.zen-callout-head { justify-content: flex-start; flex-wrap: nowrap; align-items: center; gap: 8px; }
+.zen-callout-icon { display: inline-flex; flex: none; align-items: center; justify-content: center; box-sizing: border-box; width: 18px; height: 18px; border: 1px solid currentColor; border-radius: 50%; font: 600 11px/1 var(--font-ui); }
+.zen-callout-title { min-width: 0; overflow-wrap: anywhere; }
+.zen-callout .zen-block-body > :first-child { margin-top: 0; }
+.zen-callout .zen-block-body > :last-child { margin-bottom: 0; }
+.zen-callout-version > .zen-callout-head { font-weight: 400; }
+.zen-callout-dropdown > details > summary { display: block; list-style: none; cursor: pointer; }
+.zen-callout-dropdown > details > summary::-webkit-details-marker { display: none; }
+.zen-callout-dropdown > details > summary > .zen-callout-head::after { content: "\25B8"; margin-left: auto; color: var(--fg-muted); }
+.zen-callout-dropdown > details[open] > summary > .zen-callout-head::after { content: "\25BE"; }
+.zen-callout-dropdown > details > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.zen-callout .zen-block-status { margin: 0 0 6px; }
+@media print { .zen-callout-dropdown > details > summary > .zen-callout-head::after { content: none; } }

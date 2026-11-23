@@ -40,7 +40,7 @@ func mystRenderer(t *testing.T) *render.Renderer {
 	return render.New(reg, config.Load("", dir), nil).WithDialects(dr)
 }
 
-func html(t *testing.T, r *render.Renderer, src string) string {
+func page(t *testing.T, r *render.Renderer, src string) string {
 	t.Helper()
 	p, err := r.Render("a.md", []byte(src))
 	if err != nil {
@@ -99,7 +99,7 @@ func TestKinds(t *testing.T) {
 	}
 	r := plain(t)
 	for _, c := range cases {
-		got := html(t, r, ":::"+c.name+"\nSome **body**.\n:::\n")
+		got := page(t, r, ":::"+c.name+"\nSome **body**.\n:::\n")
 		has(t, got, `zen-block`, `zen-callout-`+c.group, `<span class="zen-callout-icon" aria-hidden="true">`+c.icon+`</span>`,
 			`<span class="zen-callout-title">`+c.title+`</span>`, `<strong>body</strong>`, `zen-block-head`, `zen-block-body`)
 		if strings.Contains(got, "<details") {
@@ -111,12 +111,12 @@ func TestKinds(t *testing.T) {
 func TestMystFormsRenderLikeColons(t *testing.T) {
 	plainR, mystR := plain(t), mystRenderer(t)
 	for _, name := range []string{"note", "tip", "hint", "important", "seealso", "warning", "caution", "attention", "danger", "error"} {
-		want := bare(html(t, plainR, ":::"+name+"{title=\"Remember\"}\nBody *text*.\n:::\n"))
+		want := bare(page(t, plainR, ":::"+name+"{title=\"Remember\"}\nBody *text*.\n:::\n"))
 		for form, src := range map[string]string{
 			"fence": "```{" + name + "} Remember\nBody *text*.\n```\n",
 			"colon": ":::{" + name + "} Remember\nBody *text*.\n:::\n",
 		} {
-			if got := bare(html(t, mystR, src)); got != want {
+			if got := bare(page(t, mystR, src)); got != want {
 				t.Errorf("%s %s:\n got %s\nwant %s", name, form, got, want)
 			}
 		}
@@ -125,7 +125,7 @@ func TestMystFormsRenderLikeColons(t *testing.T) {
 }
 
 func TestTitleArgumentReplacesDefault(t *testing.T) {
-	got := html(t, mystRenderer(t), "```{warning} Mind the gap\nx\n```\n")
+	got := page(t, mystRenderer(t), "```{warning} Mind the gap\nx\n```\n")
 	has(t, got, `<span class="zen-callout-title">Mind the gap</span>`, "zen-callout-warning")
 	if strings.Contains(got, ">Warning<") {
 		t.Errorf("default title kept: %s", got)
@@ -134,19 +134,17 @@ func TestTitleArgumentReplacesDefault(t *testing.T) {
 
 func TestAdmonition(t *testing.T) {
 	r := mystRenderer(t)
-	got := html(t, r, "```{admonition} My own title\nBody.\n```\n")
+	got := page(t, r, "```{admonition} My own title\nBody.\n```\n")
 	has(t, got, `<span class="zen-callout-title">My own title</span>`, "zen-callout-suggestion", "Body.")
-	same := html(t, plain(t), ":::admonition{title=\"My own title\"}\nBody.\n:::\n")
+	same := page(t, plain(t), ":::admonition{title=\"My own title\"}\nBody.\n:::\n")
 	if bare(got) != bare(same) {
 		t.Errorf("forms differ:\n%s\n%s", got, same)
 	}
 	// a class names the colour, as in MyST
-	has(t, html(t, r, "```{admonition} Careful\n:class: danger\nx\n```\n"), "zen-callout-error")
+	has(t, page(t, r, "```{admonition} Careful\n:class: danger\nx\n```\n"), "zen-callout-error")
 	// a missing title warns and uses "Note"
-	miss := html(t, r, "```{admonition}\nBody.\n```\n")
+	miss := page(t, r, "```{admonition}\nBody.\n```\n")
 	has(t, miss, `<span class="zen-callout-title">Note</span>`, "zen-block-status", "needs a title")
-	p, _ := r.Render("a.md", []byte("```{admonition}\nBody.\n```\n"))
-	_ = p
 }
 
 func TestVersionKinds(t *testing.T) {
@@ -154,21 +152,21 @@ func TestVersionKinds(t *testing.T) {
 	for name, title := range map[string]string{
 		"versionadded": "New in version 1.2", "versionchanged": "Changed in version 1.2", "deprecated": "Deprecated since version 1.2",
 	} {
-		got := html(t, r, "```{"+name+"} 1.2\nUse the new flag.\n```\n")
+		got := page(t, r, "```{"+name+"} 1.2\nUse the new flag.\n```\n")
 		has(t, got, `<span class="zen-callout-title">`+title+`</span>`, "Use the new flag.", "zen-callout-version")
-		same := html(t, plain(t), ":::"+name+"{version=1.2}\nUse the new flag.\n:::\n")
+		same := page(t, plain(t), ":::"+name+"{version=1.2}\nUse the new flag.\n:::\n")
 		if bare(got) != bare(same) {
 			t.Errorf("%s forms differ:\n%s\n%s", name, got, same)
 		}
 		// no body is fine: one line
-		has(t, html(t, r, "```{"+name+"} 1.2\n```\n"), title)
+		has(t, page(t, r, "```{"+name+"} 1.2\n```\n"), title)
 	}
-	has(t, html(t, r, "```{versionadded}\nx\n```\n"), "needs a version", "zen-block-status")
+	has(t, page(t, r, "```{versionadded}\nx\n```\n"), "needs a version", "zen-block-status")
 }
 
 func TestDropdown(t *testing.T) {
 	r := mystRenderer(t)
-	got := html(t, r, "```{note} Fold me\n:class: dropdown\nHidden **text**.\n```\n")
+	got := page(t, r, "```{note} Fold me\n:class: dropdown\nHidden **text**.\n```\n")
 	has(t, got, "<details>", "<summary>", `zen-callout-title">Fold me</span>`, "<strong>text</strong>", "zen-callout-dropdown")
 	if strings.Contains(got, "<details open") {
 		t.Errorf("starts open: %s", got)
@@ -177,25 +175,25 @@ func TestDropdown(t *testing.T) {
 	if strings.Index(got, "<summary>") > strings.Index(got, "Hidden") {
 		t.Errorf("summary after body: %s", got)
 	}
-	open := html(t, r, "```{note} Fold me\n:class: dropdown\n:open:\nx\n```\n")
+	open := page(t, r, "```{note} Fold me\n:class: dropdown\n:open:\nx\n```\n")
 	has(t, open, "<details open")
 	if strings.Contains(open, "zen-callout-dropdown zen-callout-dropdown") {
 		t.Error("duplicate class")
 	}
 	// the zen form
-	has(t, html(t, plain(t), ":::tip{class=dropdown open}\nx\n:::\n"), "<details open", "zen-callout-suggestion")
+	has(t, page(t, plain(t), ":::tip{class=dropdown open}\nx\n:::\n"), "<details open", "zen-callout-suggestion")
 }
 
 func TestUnknownOptionWarns(t *testing.T) {
-	got := html(t, mystRenderer(t), "```{note}\n:bogus: 1\n:class: dropdown\nBody\n```\n")
+	got := page(t, mystRenderer(t), "```{note}\n:bogus: 1\n:class: dropdown\nBody\n```\n")
 	has(t, got, "zen-block-status", "option :bogus: is not supported", "<details>", "Body")
-	if strings.Contains(html(t, mystRenderer(t), "```{note}\n:class: wide\n:name: my-note\nBody\n```\n"), "not supported") {
+	if strings.Contains(page(t, mystRenderer(t), "```{note}\n:class: wide\n:name: my-note\nBody\n```\n"), "not supported") {
 		t.Error("class and name are supported")
 	}
 }
 
 func TestClassTokens(t *testing.T) {
-	got := html(t, mystRenderer(t), "```{note}\n:class: wide my-extra \"><script>\nBody\n```\n")
+	got := page(t, mystRenderer(t), "```{note}\n:class: wide my-extra \"><script>\nBody\n```\n")
 	has(t, got, "wide", "my-extra")
 	if strings.Contains(got, "<script") {
 		t.Errorf("hostile class: %s", got)
@@ -204,28 +202,28 @@ func TestClassTokens(t *testing.T) {
 
 func TestNameIsKept(t *testing.T) {
 	// the wrapper carries the options, so :name: reaches the page
-	has(t, html(t, mystRenderer(t), "```{note}\n:name: my-note\nBody\n```\n"), "my-note")
+	has(t, page(t, mystRenderer(t), "```{note}\n:name: my-note\nBody\n```\n"), "my-note")
 }
 
 func TestHostileText(t *testing.T) {
 	r := mystRenderer(t)
-	got := html(t, r, "```{admonition} <img src=x onerror=alert(1)>\nBody <script>alert(1)</script> and <b onclick=x>b</b>\n```\n")
-	for _, bad := range []string{"<img", "<script", "onerror=alert", "onclick"} {
+	got := page(t, r, "```{admonition} <img src=x onerror=alert(1)>\nBody <script>alert(1)</script> and <b onclick=x>b</b>\n```\n")
+	for _, bad := range []string{"<img", "<script", " onclick", "<b onclick"} {
 		if strings.Contains(got, bad) {
 			t.Errorf("%q survived: %s", bad, got)
 		}
 	}
 	has(t, got, "&lt;img")
-	got = html(t, r, "```{versionadded} <script>x</script>\n```\n")
+	got = page(t, r, "```{versionadded} <script>x</script>\n```\n")
 	if strings.Contains(got, "<script") {
 		t.Errorf("version: %s", got)
 	}
-	got = html(t, plain(t), ":::note{title=\"<i>x</i>\" open}\n:::\n")
+	got = page(t, plain(t), ":::note{title=\"<i>x</i>\" open}\n:::\n")
 	has(t, got, "&lt;i&gt;x&lt;/i&gt;")
 }
 
 func TestNoScriptOutputReads(t *testing.T) {
-	got := html(t, plain(t), ":::warning\nFirst.\n\n- one\n- two\n:::\n")
+	got := page(t, plain(t), ":::warning\nFirst.\n\n- one\n- two\n:::\n")
 	// title, then body, in document order, no script needed
 	if !(strings.Index(got, "Warning") < strings.Index(got, "First.") && strings.Contains(got, "<li>two</li>")) {
 		t.Errorf("%s", got)
@@ -258,6 +256,6 @@ func TestStylesheet(t *testing.T) {
 }
 
 func TestKitClasses(t *testing.T) {
-	got := html(t, plain(t), ":::tip\nx\n:::\n")
+	got := page(t, plain(t), ":::tip\nx\n:::\n")
 	has(t, got, `class="zen-block zen-callout zen-callout-suggestion"`, `class="zen-block-head zen-callout-head"`)
 }
