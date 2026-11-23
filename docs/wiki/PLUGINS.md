@@ -54,7 +54,8 @@ type Context struct {
     Path      string         // workspace-relative path of the page
     Config    map[string]any // this plugin's effective options for this page
     DataDir   string         // the plugin's writable folder (actions and streams; same place as ZEN_DATA_DIR)
-    Workspace string         // root of the open folder (actions and streams)
+    Workspace string         // root of the open folder (actions, streams, and block and inline hooks while a page renders; "" without a folder)
+    Warn      func(msg string) // adds a warning to the page (block and inline hooks); nil without a page
     Markdown  func(src string) (string, error) // renders markdown through the page's own pipeline (nested plugins, at most 8 levels deep); nil without a page pipeline
 }
 
@@ -75,6 +76,19 @@ type StreamHook interface { // emit is called in order; return when done; stop w
     Stream(c context.Context, ctx Context, payload []byte, emit func(chunk []byte)) error
 }
 ```
+
+`Context.Warn` adds one warning to the page being rendered. It shows with the page's other
+warnings (Problems in the app, the warning lines of `zenmd export site`) as
+`plugin "<id>": <message>`. Use it for what is wrong but not fatal (an unsupported option, a
+missing image) while the hook still returns its HTML; a returned error replaces the block with
+an error box instead. At most 20 per plugin per page, each message is cut to 200 characters,
+control characters are removed and a message already given is dropped. It works from nested
+`ctx.Markdown` rendering and is nil where there is no page.
+
+`Context.Workspace` is also set for block and inline hooks while a page renders: the open
+folder's root, or "" when the renderer has no folder (a lone file, `render.HTML`). A built-in
+that reads a file must check it stays inside that root. `DataDir` is still only for actions
+and streams.
 
 `Option.Type` is `string`, `bool`, `int`, `map` (names to strings, a
 `map[string]string`) or `list` (strings, a `[]string`). An option with

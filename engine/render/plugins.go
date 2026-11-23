@@ -9,6 +9,7 @@ import (
 	"html"
 	"sort"
 	"strings"
+	"unicode"
 
 	"github.com/zenmark-org/zenmd/engine/dialects"
 	"github.com/zenmark-org/zenmd/engine/plugins"
@@ -24,26 +25,72 @@ const maxNesting = 8
 
 // state is the per-render mutable state; one goroutine uses it.
 type state struct {
-	r         *Renderer
-	set       *plugins.Set
-	path      string
-	nonce     string
-	frags     []string // placeholder index -> HTML
-	texts     []string // placeholder index -> plain text (for the title)
-	used      map[string]bool
-	warnings  []string
-	denied    []string // ids of not-allowed plugins the page uses, in order
-	depth     int      // nesting of default-content containers
-	titleOnly bool     // only the title is wanted: run no hooks
-	dialects  []dialects.Dialect // the markdown dialects the folder turned on
+	r           *Renderer
+	set         *plugins.Set
+	path        string
+	nonce       string
+	frags       []string // placeholder index -> HTML
+	texts       []string // placeholder index -> plain text (for the title)
+	used        map[string]bool
+	warnings    []string
+	denied      []string           // ids of not-allowed plugins the page uses, in order
+	depth       int                // nesting of default-content containers
+	titleOnly   bool               // only the title is wanted: run no hooks
+	dialects    []dialects.Dialect // the markdown dialects the folder turned on
+	pluginWarns map[string]int     // plugin id -> Context.Warn warnings kept on this page
+	warnSeen    map[string]bool    // warnings already added through Context.Warn
+	closed      bool               // the page is built: Context.Warn adds nothing
 }
+
+const (
+	maxPluginWarns   = 20  // Context.Warn warnings per plugin per page
+	maxPluginWarnLen = 200 // characters in one of them
+)
+
+// rooter is implemented by a Resolver that knows the open folder's root.
+type rooter interface{ Root() string }
 
 // ctx is the hook context of plugin id: the page's settings and a way to
 // render markdown through this same render (Context.Markdown).
 func (st *state) ctx(id string) plugins.Context {
 	c := st.set.Context(id, st.path)
 	c.Markdown = st.markdown
+	if rt, ok := st.r.links.(rooter); ok {
+		c.Workspace = rt.Root()
+	}
+	c.Warn = func(msg string) { st.pluginWarn(id, msg) }
 	return c
+}
+
+// pluginWarn adds msg to the page's warnings as plugin id's: control
+// characters removed, cut to maxPluginWarnLen characters, a message the page
+// already has dropped, and at most maxPluginWarns per plugin.
+func (st *state) pluginWarn(id, msg string) {
+	if st.closed || st.titleOnly {
+		return
+	}
+	msg = strings.TrimSpace(strings.Map(func(r rune) rune {
+		if unicode.IsControl(r) {
+			return -1
+		}
+		return r
+	}, msg))
+	if rs := []rune(msg); len(rs) > maxPluginWarnLen {
+		msg = string(rs[:maxPluginWarnLen])
+	}
+	if msg == "" {
+		return
+	}
+	w := fmt.Sprintf("plugin %q: %s", id, msg)
+	if st.warnSeen[w] || st.pluginWarns[id] >= maxPluginWarns {
+		return
+	}
+	if st.warnSeen == nil {
+		st.warnSeen, st.pluginWarns = map[string]bool{}, map[string]int{}
+	}
+	st.warnSeen[w] = true
+	st.pluginWarns[id]++
+	st.warnings = append(st.warnings, w)
 }
 
 // markdown renders src as a fragment of the page being rendered, with its
