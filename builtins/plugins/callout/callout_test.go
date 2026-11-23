@@ -200,9 +200,22 @@ func TestClassTokens(t *testing.T) {
 	}
 }
 
-func TestNameIsKept(t *testing.T) {
-	// the wrapper carries the options, so :name: reaches the page
-	has(t, page(t, mystRenderer(t), "```{note}\n:name: my-note\nBody\n```\n"), "my-note")
+func TestNameIsTheID(t *testing.T) {
+	// through the real sanitiser: :name: is the id of the callout, slugged like the figure's
+	r := mystRenderer(t)
+	got := page(t, r, "```{note}\n:name: My Note!\nBody\n```\n")
+	has(t, got, `<div id="my-note" class="zen-block zen-callout`)
+	has(t, page(t, r, "```{note} Fold\n:class: dropdown\n:name: fold-1\nx\n```\n"), `id="fold-1"`)
+	has(t, page(t, plain(t), ":::tip{name=Tip.One}\nx\n:::\n"), `id="tip.one"`)
+	if strings.Contains(page(t, r, "```{note}\nBody\n```\n"), " id=") {
+		t.Error("id without :name:")
+	}
+	// hostile and empty names make no id and say so
+	bad := page(t, r, "```{note}\n:name: \"><script>\nBody\n```\n")
+	if strings.Contains(bad, "<script") || strings.Contains(bad, `id="><`) {
+		t.Errorf("hostile name: %s", bad)
+	}
+	has(t, page(t, r, "```{note}\n:name: ***\nBody\n```\n"), "not supported")
 }
 
 func TestHostileText(t *testing.T) {

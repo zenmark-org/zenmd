@@ -172,6 +172,14 @@ func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) 
 			body = "<p>" + html.EscapeString(strings.TrimSpace(b.Body)) + "</p>"
 		}
 	}
+	idAttr := ""
+	if n := b.Attrs["name"]; n != "" {
+		if id := slug(n); id != "" {
+			idAttr = ` id="` + id + `"`
+		} else {
+			warns = append(warns, "the option :name: has a value that is not supported")
+		}
+	}
 	for _, w := range warns {
 		body = `<div class="zen-block-status">` + html.EscapeString(w) + `</div>` + body
 	}
@@ -187,7 +195,7 @@ func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) 
 	head := `<span class="zen-callout-icon" aria-hidden="true">` + html.EscapeString(icon) + `</span>` +
 		`<span class="zen-callout-title">` + html.EscapeString(title) + `</span>`
 	var sb strings.Builder
-	sb.WriteString(`<div class="` + strings.Join(classes, " ") + `">`)
+	sb.WriteString(`<div` + idAttr + ` class="` + strings.Join(classes, " ") + `">`)
 	if dropdown {
 		sb.WriteString("<details")
 		if open {
@@ -210,3 +218,23 @@ func (plugin) Assets() fs.FS {
 }
 
 func (plugin) Entry() plugins.Assets { return plugins.Assets{CSS: []string{"callout.css"}} }
+
+// slug turns a :name: into an id: lower case, letters, digits and . _ : -
+// (the same as the figure built-in).
+func slug(s string) string {
+	var sb strings.Builder
+	dash := false
+	for _, r := range strings.ToLower(strings.TrimSpace(s)) {
+		if r < 128 && (r >= 'a' && r <= 'z' || r >= '0' && r <= '9' || r == '_' || r == '.' || r == ':') {
+			sb.WriteRune(r)
+			dash = false
+		} else if !dash && sb.Len() > 0 {
+			sb.WriteByte('-')
+			dash = true
+		}
+		if sb.Len() >= 100 {
+			break
+		}
+	}
+	return strings.Trim(sb.String(), "-")
+}
