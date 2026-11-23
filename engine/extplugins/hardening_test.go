@@ -189,7 +189,10 @@ func TestH3ManifestIsLimited(t *testing.T) {
 	})
 }
 
-const escapeScript = "#!/usr/bin/perl\nuse POSIX;\n$|=1; print \"hello\\n\";\nif (fork()==0) { POSIX::setsid(); for (1..80) { print \"x\" x 1000, \"\\n\"; select(undef,undef,undef,0.05);} exit 0; }\nexit 0;\n"
+// escapeScript's parent exits only once the child has left the process group
+// (the child closes its end of the pipe after setsid), so the clean-up that
+// kills the group can never catch the child before it escapes.
+const escapeScript = "#!/usr/bin/perl\nuse POSIX;\n$|=1; print \"hello\\n\";\npipe(my $r, my $w);\nif (fork()==0) { close $r; POSIX::setsid(); close $w; for (1..80) { print \"x\" x 1000, \"\\n\"; select(undef,undef,undef,0.05);} exit 0; }\nclose $w; <$r>;\nexit 0;\n"
 
 // H2/L2: a child that left the process group and keeps stdout open ends at the
 // deadline with a timeout error, never a truncated success.
@@ -213,11 +216,12 @@ func TestH2L2EscapedGrandchildTimesOut(t *testing.T) {
 }
 
 // H2: cancelling a stream whose child escaped the group returns at once and
-// nothing is emitted afterwards.
+// nothing is emitted afterwards. The parent waits for the child's setsid, as
+// in escapeScript.
 func TestH2StreamCancelWithEscapedChild(t *testing.T) {
 	root := t.TempDir()
 	pdir := writePlugin(t, root, "x", "id: x\nversion: 1.0.0\napiVersion: 1\nbackend: {command: [./run.pl], hooks: [stream], timeout: 5s}\n", nil)
-	mkfile(t, pdir, "run.pl", "#!/usr/bin/perl\nuse POSIX;\n$|=1;\nif (fork()==0) { POSIX::setsid(); for (1..80) { print \"tick\\n\"; select(undef,undef,undef,0.05);} exit 0; }\nexit 0;\n", 0o755)
+	mkfile(t, pdir, "run.pl", "#!/usr/bin/perl\nuse POSIX;\n$|=1;\npipe(my $r, my $w);\nif (fork()==0) { close $r; POSIX::setsid(); close $w; for (1..80) { print \"tick\\n\"; select(undef,undef,undef,0.05);} exit 0; }\nclose $w; <$r>;\nexit 0;\n", 0o755)
 	p, err := Load(pdir)
 	if err != nil {
 		t.Fatal(err)
