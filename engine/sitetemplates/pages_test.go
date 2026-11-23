@@ -1,6 +1,7 @@
 package sitetemplates
 
 import (
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -113,18 +114,18 @@ func TestListPagesSources(t *testing.T) {
 	if len(list) != 3 {
 		t.Fatalf("list: %+v", list)
 	}
-	// The order on the left: this folder's own, then yours, then the built-ins, each by name.
+	// The order on the left: this folder's own, then the copies in templates/pages, then the built-ins, each by name.
 	if list[0].ID != "term" || list[1].ID != "how-to" || list[2].ID != "lesson" {
 		t.Errorf("order: %v %v %v", list[0].ID, list[1].ID, list[2].ID)
 	}
 	if by["term"].Source != SourceFolder || by["term"].Name != "Term here" || by["term"].Path != filepath.Join(root, ".zen", "templates", "term.yml") {
 		t.Errorf("term: %+v", by["term"])
 	}
-	// An installed copy sits in templates/pages and is yours to edit, so it is Yours (Built-in is only what has no file).
-	if by["how-to"].Source != SourceYours || by["how-to"].Path != filepath.Join(dir, "pages", "how-to.yml") || by["how-to"].Version != "1.0.0" {
+	// An installed copy nobody edited is Built-in and has its file path; a file you added is Custom.
+	if by["how-to"].Source != SourceBuiltin || by["how-to"].Edited || by["how-to"].Path != filepath.Join(dir, "pages", "how-to.yml") || by["how-to"].Version != "1.0.0" {
 		t.Errorf("how-to: %+v", by["how-to"])
 	}
-	if by["lesson"].Source != SourceYours || by["lesson"].Version != "" {
+	if by["lesson"].Source != SourceCustom || by["lesson"].Edited || by["lesson"].Version != "" {
 		t.Errorf("lesson: %+v", by["lesson"])
 	}
 }
@@ -144,7 +145,7 @@ func TestListPagesBuiltinWhenDeleted(t *testing.T) {
 	for _, p := range list {
 		by[p.ID] = p
 	}
-	if by["term"].Source != SourceBuiltin || by["term"].Path != "" || by["how-to"].Source != SourceYours {
+	if by["term"].Source != SourceBuiltin || by["term"].Path != "" || by["how-to"].Source != SourceBuiltin || by["term"].Edited {
 		t.Errorf("list: %+v", list)
 	}
 }
@@ -358,4 +359,95 @@ func TestInstallPagesReleaseNotes(t *testing.T) {
 	if read(t, dir, "pages/release-notes.yml") != string(b["release-notes.yml"].Data) {
 		t.Errorf("not the built-in's content:\n%s", read(t, dir, "pages/release-notes.yml"))
 	}
+}
+
+func TestListPagesEditedAndCustom(t *testing.T) {
+	dir := t.TempDir()
+	b := pagesFS("1.0.0")
+	if err := InstallPages(dir, b); err != nil {
+		t.Fatal(err)
+	}
+	put(t, dir, map[string]string{"pages/term.yml": "id: term\nname: Mine\nversion: 1.0.0\n", "pages/mine.yml": "id: mine\nname: Mine\n"})
+	list, _ := ListPages(dir, b, "")
+	by := map[string]PageTemplate{}
+	for _, p := range list {
+		by[p.ID] = p
+	}
+	if p := by["term"]; p.Source != SourceBuiltin || !p.Edited || p.Path == "" {
+		t.Errorf("edited copy: %+v", p)
+	}
+	if p := by["how-to"]; p.Source != SourceBuiltin || p.Edited {
+		t.Errorf("untouched copy: %+v", p)
+	}
+	if p := by["mine"]; p.Source != SourceCustom || p.Edited {
+		t.Errorf("own file: %+v", p)
+	}
+	// A record without fingerprints cannot show the copy is untouched.
+	d2 := t.TempDir()
+	put(t, d2, map[string]string{"pages/term.yml": "id: term\nname: Term\nversion: 1.0.0\n", "pages/.zen-templates.yml": "installed:\n    term: 1.0.0\n"})
+	l2, _ := ListPages(d2, b, "")
+	for _, p := range l2 {
+		if p.ID == "term" && (p.Source != SourceBuiltin || !p.Edited) {
+			t.Errorf("no fingerprint: %+v", p)
+		}
+	}
+}
+
+// The built-in descriptions lose " (Diátaxis)" in 1.0.1: an unedited 1.0.0 copy follows in place, an edited one stays and offers the update.
+func TestBuiltinPagesDropDiataxisSuffix(t *testing.T) {
+	for _, id := range []string{"explanation", "how-to", "reference", "tutorial"} {
+		p, _, ok := builtinPage(realBuiltins(t), id)
+		if !ok || p.Version != "1.0.1" || strings.Contains(p.Description, "Diátaxis") {
+			t.Errorf("%s: %+v", id, p)
+		}
+	}
+	old := func(id string) string {
+		return "id: " + id + "\nname: " + id + "\ndescription: \"Steps (Diátaxis)\"\nversion: 1.0.0\nlayout: docs\nskeleton: x\n"
+	}
+	dir := t.TempDir()
+	put(t, dir, map[string]string{"pages/how-to.yml": old("how-to"), "pages/tutorial.yml": old("tutorial")})
+	// Install records both as installed 1.0.0 with the fingerprint of the old text.
+	rec := "installed:\n    how-to: 1.0.0\n    tutorial: 1.0.0\nfingerprints:\n    how-to: " + fingerprintBytes([]byte(old("how-to"))) + "\n    tutorial: " + fingerprintBytes([]byte(old("tutorial"))) + "\n"
+	put(t, dir, map[string]string{"pages/.zen-templates.yml": rec})
+	edited := old("tutorial") + "# mine\n"
+	put(t, dir, map[string]string{"pages/tutorial.yml": edited})
+	b := realBuiltins(t)
+	if err := InstallPages(dir, b); err != nil {
+		t.Fatal(err)
+	}
+	got := read(t, dir, "pages/how-to.yml")
+	if !strings.Contains(got, "version: 1.0.1") || strings.Contains(got, "Diátaxis") {
+		t.Errorf("unedited copy not updated:\n%s", got)
+	}
+	if read(t, dir, "pages/tutorial.yml") != edited {
+		t.Error("edited copy changed")
+	}
+	list, _ := ListPages(dir, b, "")
+	for _, p := range list {
+		switch p.ID {
+		case "tutorial":
+			if p.Update != "1.0.1" || !p.Edited || p.Source != SourceBuiltin {
+				t.Errorf("tutorial: %+v", p)
+			}
+		case "how-to":
+			if p.Update != "" || p.Edited {
+				t.Errorf("how-to: %+v", p)
+			}
+		}
+	}
+}
+
+func TestRecordHeaderSaysZenmark(t *testing.T) {
+	dir := t.TempDir()
+	if err := InstallPages(dir, pagesFS("1.0.0")); err != nil {
+		t.Fatal(err)
+	}
+	if rec := read(t, dir, "pages/.zen-templates.yml"); !strings.HasPrefix(rec, "# Written by Zenmark:") {
+		t.Errorf("header:\n%s", rec)
+	}
+}
+
+func realBuiltins(t *testing.T) fs.FS {
+	t.Helper()
+	return os.DirFS("../../builtins/pagetemplates")
 }

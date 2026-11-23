@@ -659,14 +659,14 @@ func TestPageTemplatesService(t *testing.T) {
 		by[p.ID] = p
 	}
 	h := by["how-to"]
-	if h.Source != "yours" || h.Path != filepath.Join(cfg, "templates", "pages", "how-to.yml") || h.Version != "1.0.0" || h.Layout != "docs" || len(h.Fields) != 1 || h.Fields[0].Name != "title" || !h.Fields[0].Required || !strings.Contains(h.Skeleton, "## Steps") {
+	if h.Source != "builtin" || h.Edited || h.Path != filepath.Join(cfg, "templates", "pages", "how-to.yml") || h.Version != "1.0.0" || h.Layout != "docs" || len(h.Fields) != 1 || h.Fields[0].Name != "title" || !h.Fields[0].Required || !strings.Contains(h.Skeleton, "## Steps") {
 		t.Errorf("how-to: %+v", h)
 	}
 	if strings.Join(h.Rules, ",") != "how-tos/**,guides/**" || len(by["term"].Rules) != 0 {
 		t.Errorf("rules: %v %v", h.Rules, by["term"].Rules)
 	}
 	b, _ := json.Marshal(h)
-	for _, want := range []string{`"id":"how-to"`, `"source":"yours"`, `"rules":["how-tos/**","guides/**"]`, `"outline":[]`, `"update":""`, `"error":""`} {
+	for _, want := range []string{`"id":"how-to"`, `"source":"builtin"`, `"edited":false`, `"rules":["how-tos/**","guides/**"]`, `"outline":[]`, `"update":""`, `"error":""`} {
 		if !strings.Contains(string(b), want) {
 			t.Errorf("json lacks %s: %s", want, b)
 		}
@@ -796,7 +796,7 @@ func TestTemplatesCommand(t *testing.T) {
 	if len(lines) != 9 || !strings.HasPrefix(lines[0], "lesson") || !strings.Contains(lines[0], "this folder") {
 		t.Errorf("list:\n%s", out)
 	}
-	if !strings.Contains(out, "how-to") || !strings.Contains(out, "yours") || !strings.Contains(out, "1.0.0") {
+	if !strings.Contains(out, "how-to") || !strings.Contains(out, "built-in") || strings.Contains(out, "yours") || !strings.Contains(out, "1.0.0") {
 		t.Errorf("list lacks the installed ones:\n%s", out)
 	}
 	out, _, err = run(cli.Init{Show: true, Template: "how-to"})
@@ -834,5 +834,22 @@ func TestCreateSiteProductFollowsTitle(t *testing.T) {
 	b, err := os.ReadFile(filepath.Join(target, "index.md"))
 	if err != nil || !strings.Contains(string(b), "Acme is") {
 		t.Errorf("%v\n%s", err, b)
+	}
+}
+
+func TestPageSourceLabel(t *testing.T) {
+	for _, c := range []struct {
+		src    string
+		edited bool
+		want   string
+	}{
+		{sitetemplates.SourceBuiltin, false, "built-in"},
+		{sitetemplates.SourceBuiltin, true, "built-in, edited"},
+		{sitetemplates.SourceCustom, false, "custom"},
+		{sitetemplates.SourceFolder, false, "this folder"},
+	} {
+		if got := sourceLabel(c.src, c.edited); got != c.want {
+			t.Errorf("%s %v: %q, want %q", c.src, c.edited, got, c.want)
+		}
 	}
 }
