@@ -317,8 +317,8 @@ func TestCloseSendsNoRefreshEvents(t *testing.T) {
 			t.Fatal(err)
 		}
 		for _, e := range ev.all() {
-			if e.name == EventPluginsChanged || e.name == EventLayoutsChanged || e.name == EventPageChanged {
-				t.Errorf("single=%v: closing sent %s", single, e.name)
+			if e.Name == EventPluginsChanged || e.Name == EventLayoutsChanged || e.Name == EventPageChanged {
+				t.Errorf("single=%v: closing sent %s", single, e.Name)
 			}
 		}
 		if _, err := z.Page("notes.md"); err == nil {

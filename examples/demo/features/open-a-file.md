@@ -11,9 +11,11 @@ scanned, so a file in `~/Downloads` does not make Zenmark read all of Downloads.
   the default app for it, or drop it on the Dock icon.
 - In a terminal: `zenmd notes.md`.
 
-A file inside a project folder, one with a `.zenmd.yml` or a `.git` above it, still opens that folder at the page, as before. In a terminal
-`zenmd notes.md --file` forces the file alone and `zenmd notes.md --folder`
-forces the folder.
+In the app a file always opens alone, even inside a project folder (one with a
+`.zenmd.yml` or a `.git` above it): use **Open Enclosing Folder** when you want
+the folder. In a terminal, `zenmd notes.md` in a project still opens that folder
+at the page; `zenmd notes.md --file` forces the file alone and
+`zenmd notes.md --folder` forces the folder.
 
 ## What the window shows
 

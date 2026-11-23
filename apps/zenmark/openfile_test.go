@@ -307,7 +307,7 @@ func TestFinderOpensFileAlone(t *testing.T) {
 		// Open With.
 		st, err := z.openAny(abs)
 		if err != nil || st.Workspace == nil || !st.Workspace.Single || st.Workspace.File != f.name || st.Page != f.name ||
-			st.Workspace.Root != filepath.Join(h, filepath.FromSlash(f.dir)) {
+			st.Workspace.Root != realPath(t, filepath.Join(h, filepath.FromSlash(f.dir))) {
 			t.Errorf("Open With %s: %+v %v", f.path, st, err)
 		}
 		// File › Open….
@@ -350,4 +350,14 @@ func TestFinderOpensFileAlone(t *testing.T) {
 	if got := openedEvents(ev); len(got) != 1 || got[0].Workspace.Single || got[0].Workspace.Name != "proj" || got[0].Page != "sub/page.markdown" {
 		t.Errorf("Open Enclosing Folder: %+v", got)
 	}
+}
+
+// realPath is p with its links resolved, as a workspace root is.
+func realPath(t *testing.T, p string) string {
+	t.Helper()
+	r, err := filepath.EvalSymlinks(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return r
 }
