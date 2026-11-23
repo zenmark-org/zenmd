@@ -16,7 +16,7 @@ templates; the old names still work.)
 
 | Blueprint | Id | For |
 |---|---|---|
-| Technical documentation | `techdocs` | an overview, getting started, how-tos, explanation, reference, a glossary and releases, after [Diátaxis](https://diataxis.fr) |
+| Technical documentation | `techdocs` | an overview, getting started, how-tos, explanation, reference, releases and a glossary, after [Diátaxis](https://diataxis.fr) |
 | Learning path | `learning` | courses with steps, quizzes and checklists, and a glossary |
 | Planner | `planner` | a roadmap, weekly plans, decision records and meeting notes |
 

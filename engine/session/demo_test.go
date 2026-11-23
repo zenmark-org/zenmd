@@ -307,6 +307,7 @@ func TestDemoFolder(t *testing.T) {
 		"layouts/index.md":          "layouts/article.md,layouts/docs.md,layouts/post.md,layouts/landing.md,layouts/wide.md,layouts/handout.md,layouts/slides.md,layouts/course.md,layouts/glossary/index.md",
 		"layouts/glossary/index.md": "", // the terms are not in the sidebar: layout: term hides them
 		"configuration/settings.md": "configuration/reference.md",
+		"features/blueprints.md":    "features/blueprint-yml.md",
 	}
 	var check func([]NavNode)
 	check = func(ns []NavNode) {
@@ -431,7 +432,9 @@ func TestDemoFeaturesMatchAssembly(t *testing.T) {
 			have[id] = true
 		}
 	}
-	want := map[string]bool{"index.md": true, "markdown.md": true, "myst.md": true}
+	// Sub-pages of a feature's page come and go with it.
+	subPages := map[string][]string{"reader": {"markdown.md", "myst.md"}, "newsite": {"blueprint-yml.md"}}
+	want := map[string]bool{"index.md": true}
 	for id := range have {
 		p, ok := page[id]
 		if !ok {
@@ -439,6 +442,9 @@ func TestDemoFeaturesMatchAssembly(t *testing.T) {
 			continue
 		}
 		want[p] = true
+		for _, sp := range subPages[id] {
+			want[sp] = true
+		}
 	}
 	entries, err := os.ReadDir(filepath.Join(demoDir(), "features"))
 	if err != nil {

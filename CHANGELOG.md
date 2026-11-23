@@ -7,6 +7,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/VERSIONING.md).
 ## [Unreleased]
 
 ### Added
+- The demo guide has a blueprint.yml reference: every key, the questions, the home page and the sections.
 - Reload button in the sidebar header (and ⌘R in the packaged app): scans the folder again, reloads plugin scripts and styles, and renders the page again in place, keeping the scroll position and any editor draft (#27).
 - Settings › Templates lists the page templates (built-in, yours and this folder's) with their fields and a preview of the page they start, and `zenmd templates list|show|update|--dir` does the same; templates live in `templates/blueprints/` and `templates/pages/` of the settings folder.
 - New Page starts a page from the page template of its folder's path rule (a new page in how-tos/ is a how-to); in a releases folder it suggests the next version, `v0.2.0`, and fills the version and date.
@@ -40,6 +41,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/VERSIONING.md).
 - Find in page: ⌘F (Edit › Find) opens a find bar in the reader and the editor with a match count, next/previous (⌘G, ⇧⌘G) and a match-case toggle (#4).
 
 ### Changed
+- The Technical documentation blueprint (2.5.0) puts the Glossary last, after Releases.
 - The Technical documentation blueprint (2.4.0) no longer makes `presentation.md` slides; the home page is the overview.
 - A page's title is its first H1; frontmatter `title:` is used only when there is none, and a page with both gets a note under Problems. Layouts that draw the title themselves no longer show the page's H1 a second time.
 - The blueprints folder moves from `templates/sites` to `templates/blueprints`; installed copies you have not edited follow the built-in ones by themselves.

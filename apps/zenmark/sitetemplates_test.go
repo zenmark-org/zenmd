@@ -355,7 +355,7 @@ func TestInitSite(t *testing.T) {
 	for _, id := range []string{"techdocs", "learning", "planner"} {
 		data, _ := fs.ReadFile(siteBuiltins, id+"/blueprint.yml")
 		if id == "techdocs" {
-			data = []byte(strings.Replace(string(data), "version: 2.3.0", "version: 2.4.0", 1))
+			data = []byte(regexp.MustCompile(`(?m)^version: .*$`).ReplaceAllString(string(data), "version: 98.0.0"))
 		}
 		newer[id+"/blueprint.yml"] = &fstest.MapFile{Data: data}
 	}
@@ -364,7 +364,7 @@ func TestInitSite(t *testing.T) {
 	if out, _, _ := run(cli.Init{List: true}); strings.Contains(out, "update available") {
 		t.Errorf("update marker on an untouched copy: %q", out)
 	}
-	if b, _ := os.ReadFile(filepath.Join(cfg, "templates", "blueprints", "techdocs", "blueprint.yml")); !strings.Contains(string(b), "version: 2.4.0") {
+	if b, _ := os.ReadFile(filepath.Join(cfg, "templates", "blueprints", "techdocs", "blueprint.yml")); !strings.Contains(string(b), "version: 98.0.0") {
 		t.Errorf("untouched copy not updated:\n%s", b)
 	}
 	if _, _, err := run(cli.Init{Update: true, Template: "techdocs"}); err == nil {
@@ -374,7 +374,7 @@ func TestInitSite(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(cfg, "templates", "blueprints", "techdocs", "mine.md"), []byte("mine"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	newer["techdocs/blueprint.yml"] = &fstest.MapFile{Data: []byte(strings.Replace(string(newer["techdocs/blueprint.yml"].Data), "version: 2.4.0", "version: 2.5.0", 1))}
+	newer["techdocs/blueprint.yml"] = &fstest.MapFile{Data: []byte(strings.Replace(string(newer["techdocs/blueprint.yml"].Data), "version: 98.0.0", "version: 99.0.0", 1))}
 	out, _, err = run(cli.Init{Update: true, Template: "techdocs"})
 	if err != nil || !strings.Contains(out, filepath.Join(cfg, "templates", "blueprints", "techdocs.new")) || !strings.Contains(out, "has edits") {
 		t.Errorf("update of an edited copy: %q %v", out, err)

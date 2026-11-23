@@ -50,7 +50,7 @@ func readFile(t *testing.T, root, rel string) string {
 
 func TestTechdocsHasSixSectionsInOrder(t *testing.T) {
 	root := fresh(t, "techdocs")
-	want := []string{"getting-started", "how-tos", "explanation", "reference", "glossary", "releases"}
+	want := []string{"getting-started", "how-tos", "explanation", "reference", "releases", "glossary"}
 	home := readFile(t, root, "index.md")
 	links := regexp.MustCompile(`\]\(([a-z-]+)/index\.md\)`).FindAllStringSubmatch(home, -1)
 	var got []string
@@ -122,7 +122,7 @@ func TestTechdocsPagesAndRules(t *testing.T) {
 	for _, r := range cfg.TemplateRules() {
 		rules = append(rules, r.Pattern+"="+r.Name)
 	}
-	wantRules := "getting-started/**=tutorial,how-tos/**=how-to,explanation/**=explanation,reference/**=reference,glossary/**=term,releases/**=release-notes"
+	wantRules := "getting-started/**=tutorial,how-tos/**=how-to,explanation/**=explanation,reference/**=reference,releases/**=release-notes,glossary/**=term"
 	if strings.Join(rules, ",") != wantRules {
 		t.Errorf("rules %v", rules)
 	}

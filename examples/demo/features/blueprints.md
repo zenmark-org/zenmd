@@ -7,7 +7,7 @@ questions (the title, the author) and pick an empty folder.
 
 | Blueprint | Gives you |
 |---|---|
-| Technical documentation | An overview home page, Getting started, How-tos, Explanation, Reference, Glossary and Releases |
+| Technical documentation | An overview home page, Getting started, How-tos, Explanation, Reference, Releases and Glossary |
 | Learning path | courses with steps, quizzes and checklists, and a glossary |
 | Planner | a roadmap, meeting notes and decisions |
 
@@ -50,3 +50,4 @@ zenmd blueprint new my-docs --from techdocs   # your own, to edit
 A blueprint of your own is a folder with a `blueprint.yml` in the blueprints
 folder (Settings › Blueprints shows where). It lists its sections, and
 Zenmark makes the folders, their first pages and the links between them.
+Every key is in the [blueprint.yml reference](blueprint-yml.md).
