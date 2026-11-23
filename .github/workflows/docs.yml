@@ -29,4 +29,4 @@ jobs:
         with:
           folder: docs/public/zenmd
           output: ${{ runner.temp }}/site
-          # check: true   # once docs/public/zenmd passes zenmd check (#34)
+          check: true
