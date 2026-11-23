@@ -312,7 +312,7 @@ func TestInitSite(t *testing.T) {
 	t.Cleanup(func() { os.RemoveAll(target) })
 	rel := filepath.Base(target)
 	out, _, err = run(cli.Init{Dir: target, Template: "techdocs", Values: map[string]string{"title": "T"}})
-	if err != nil || out != "Created 26 files in "+rel+" (Technical documentation). Open it with: zenmd "+rel+"\n" {
+	if err != nil || out != "Created 25 files in "+rel+" (Technical documentation). Open it with: zenmd "+rel+"\n" {
 		t.Fatalf("create: %q %v", out, err)
 	}
 	// A clash is an error that lists the files; nothing is overwritten.
@@ -386,7 +386,7 @@ func TestInitSite(t *testing.T) {
 func presetFiles(id, date string) []string {
 	files := map[string][]string{
 		"techdocs": {".zen/templates/explanation.yml", ".zen/templates/how-to.yml", ".zen/templates/overview.yml", ".zen/templates/reference.yml", ".zen/templates/release-notes.yml",
-			".zen/templates/term.yml", ".zen/templates/troubleshooting.yml", ".zen/templates/tutorial.yml", ".zenmd.yml", "CONTRIBUTING.md", "index.md",
+			".zen/templates/term.yml", ".zen/templates/troubleshooting.yml", ".zen/templates/tutorial.yml", ".zenmd.yml", "index.md",
 			"explanation/architecture.md", "explanation/index.md", "getting-started/first-steps.md", "getting-started/index.md", "getting-started/installation.md",
 			"glossary/example-term.md", "glossary/index.md", "how-tos/example-task.md", "how-tos/index.md",
 			"reference/configuration.md", "reference/index.md", "troubleshooting/example-problem.md", "troubleshooting/index.md", "releases/index.md", "releases/v0.1.0.md"},
@@ -414,7 +414,7 @@ func ignoreMissingLayouts(ws []string) []string {
 func TestPresets(t *testing.T) {
 	date := time.Now().Format("2006-01-02")
 	layoutsWant := map[string]map[string]string{
-		"techdocs": {"index.md": "docs", "getting-started/index.md": "landing", "getting-started/installation.md": "docs", "CONTRIBUTING.md": "docs", "explanation/architecture.md": "docs"},
+		"techdocs": {"index.md": "docs", "getting-started/index.md": "landing", "getting-started/installation.md": "docs", "explanation/architecture.md": "docs"},
 		"learning": {"index.md": "landing", "paths/first-path/index.md": "course", "glossary.md": "article", "authoring.md": "article"},
 		"planner":  {"index.md": "landing", "roadmap.md": "wide", "weeks/" + date + ".md": "article", "decisions/0001-record-decisions.md": "article"},
 	}

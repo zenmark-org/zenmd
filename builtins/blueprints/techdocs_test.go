@@ -74,7 +74,7 @@ func TestTechdocsHasSevenSectionsInOrder(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(root, "overview")); err == nil {
 		t.Error("overview/ folder written; the overview is the home")
 	}
-	for _, f := range []string{"getting-started/installation.md", "getting-started/first-steps.md", "how-tos/example-task.md", "explanation/architecture.md", "reference/configuration.md", "troubleshooting/example-problem.md", "glossary/example-term.md", "CONTRIBUTING.md"} {
+	for _, f := range []string{"getting-started/installation.md", "getting-started/first-steps.md", "how-tos/example-task.md", "explanation/architecture.md", "reference/configuration.md", "troubleshooting/example-problem.md", "glossary/example-term.md"} {
 		if _, err := os.Stat(filepath.Join(root, f)); err != nil {
 			t.Errorf("missing %s", f)
 		}
