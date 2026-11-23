@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -590,5 +591,31 @@ func TestLogo(t *testing.T) {
 	var nilCfg *Config
 	if nilCfg.Logo() != "" {
 		t.Error("nil config")
+	}
+}
+
+// On Linux the global config follows XDG: $XDG_CONFIG_HOME/zenmark/config.yml,
+// else ~/.config/zenmark/config.yml. A relative XDG_CONFIG_HOME is not used:
+// os.UserConfigDir reports an error, so there is no global file.
+func TestGlobalPathXDG(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("XDG_CONFIG_HOME is Linux's; os.UserConfigDir ignores it on", runtime.GOOS)
+	}
+	h := t.TempDir()
+	t.Setenv("HOME", h)
+	t.Setenv("XDG_CONFIG_HOME", "")
+	got, err := GlobalPath()
+	if want := filepath.Join(h, ".config", "zenmark", "config.yml"); err != nil || got != want {
+		t.Errorf("unset: %q, %v; want %q", got, err, want)
+	}
+	x := filepath.Join(h, "xdg")
+	t.Setenv("XDG_CONFIG_HOME", x)
+	got, err = GlobalPath()
+	if want := filepath.Join(x, "zenmark", "config.yml"); err != nil || got != want {
+		t.Errorf("set: %q, %v; want %q", got, err, want)
+	}
+	t.Setenv("XDG_CONFIG_HOME", "relative/dir")
+	if got, err = GlobalPath(); err == nil {
+		t.Errorf("relative XDG_CONFIG_HOME: %q, want an error", got)
 	}
 }
