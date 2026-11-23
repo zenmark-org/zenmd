@@ -1,0 +1,49 @@
+id: troubleshooting
+name: Troubleshooting
+description: "One problem per page: what the reader sees, why it happens, and how to fix it"
+version: 1.0.0
+layout: docs
+fields:
+  title:    { required: true }                 # the symptom, in the reader's words: "Export warns on every page"
+  error:    { type: string }                   # the exact message, so search finds the page
+  versions: { type: string }                   # where it happens, such as ">=0.5.0" or "0.5.1 only"
+  fixed-in: { type: string }                   # the version that fixes it, if any
+  tags:     { type: list }
+structure:
+  - heading: { level: 1, count: 1 }
+  - paragraph: { min: 1, max-words: 60, label: When it happens }
+  - section:
+      heading: Symptoms
+      contains: [ { list: unordered, min-items: 1 } ]
+  - section: { heading: Cause }
+  - section:
+      heading: Solution
+      contains: [ { list: ordered, min-items: 1 } ]
+  - section: { heading: Check that it's fixed, optional: true }
+  - section: { heading: Related, optional: true }
+  - end: {}
+skeleton: |
+  # {{title}}
+
+  One paragraph: when this happens, and who it happens to.
+
+  ## Symptoms
+
+  - What the reader sees, such as the exact message or what doesn't work
+
+  ## Cause
+
+  Why it happens, in plain words. One cause per page; a second cause is a second page.
+
+  ## Solution
+
+  1. The first step
+  2. The second step
+
+  ## Check that it's fixed
+
+  How the reader can tell it worked.
+
+  ## Related
+
+  - Links to the how-to or reference page this problem comes from

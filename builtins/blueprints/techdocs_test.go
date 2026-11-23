@@ -48,9 +48,9 @@ func readFile(t *testing.T, root, rel string) string {
 	return string(b)
 }
 
-func TestTechdocsHasSixSectionsInOrder(t *testing.T) {
+func TestTechdocsHasSevenSectionsInOrder(t *testing.T) {
 	root := fresh(t, "techdocs")
-	want := []string{"getting-started", "how-tos", "explanation", "reference", "releases", "glossary"}
+	want := []string{"getting-started", "how-tos", "explanation", "reference", "troubleshooting", "releases", "glossary"}
 	home := readFile(t, root, "index.md")
 	links := regexp.MustCompile(`\]\(([a-z-]+)/index\.md\)`).FindAllStringSubmatch(home, -1)
 	var got []string
@@ -74,7 +74,7 @@ func TestTechdocsHasSixSectionsInOrder(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(root, "overview")); err == nil {
 		t.Error("overview/ folder written; the overview is the home")
 	}
-	for _, f := range []string{"getting-started/installation.md", "getting-started/first-steps.md", "how-tos/example-task.md", "explanation/architecture.md", "reference/configuration.md", "glossary/example-term.md", "CONTRIBUTING.md"} {
+	for _, f := range []string{"getting-started/installation.md", "getting-started/first-steps.md", "how-tos/example-task.md", "explanation/architecture.md", "reference/configuration.md", "troubleshooting/example-problem.md", "glossary/example-term.md", "CONTRIBUTING.md"} {
 		if _, err := os.Stat(filepath.Join(root, f)); err != nil {
 			t.Errorf("missing %s", f)
 		}
@@ -122,7 +122,7 @@ func TestTechdocsPagesAndRules(t *testing.T) {
 	for _, r := range cfg.TemplateRules() {
 		rules = append(rules, r.Pattern+"="+r.Name)
 	}
-	wantRules := "getting-started/**=tutorial,how-tos/**=how-to,explanation/**=explanation,reference/**=reference,releases/**=release-notes,glossary/**=term"
+	wantRules := "getting-started/**=tutorial,how-tos/**=how-to,explanation/**=explanation,reference/**=reference,troubleshooting/**=troubleshooting,releases/**=release-notes,glossary/**=term"
 	if strings.Join(rules, ",") != wantRules {
 		t.Errorf("rules %v", rules)
 	}

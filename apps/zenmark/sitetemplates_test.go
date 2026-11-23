@@ -312,7 +312,7 @@ func TestInitSite(t *testing.T) {
 	t.Cleanup(func() { os.RemoveAll(target) })
 	rel := filepath.Base(target)
 	out, _, err = run(cli.Init{Dir: target, Template: "techdocs", Values: map[string]string{"title": "T"}})
-	if err != nil || out != "Created 23 files in "+rel+" (Technical documentation). Open it with: zenmd "+rel+"\n" {
+	if err != nil || out != "Created 26 files in "+rel+" (Technical documentation). Open it with: zenmd "+rel+"\n" {
 		t.Fatalf("create: %q %v", out, err)
 	}
 	// A clash is an error that lists the files; nothing is overwritten.
@@ -386,10 +386,10 @@ func TestInitSite(t *testing.T) {
 func presetFiles(id, date string) []string {
 	files := map[string][]string{
 		"techdocs": {".zen/templates/explanation.yml", ".zen/templates/how-to.yml", ".zen/templates/overview.yml", ".zen/templates/reference.yml", ".zen/templates/release-notes.yml",
-			".zen/templates/term.yml", ".zen/templates/tutorial.yml", ".zenmd.yml", "CONTRIBUTING.md", "index.md",
+			".zen/templates/term.yml", ".zen/templates/troubleshooting.yml", ".zen/templates/tutorial.yml", ".zenmd.yml", "CONTRIBUTING.md", "index.md",
 			"explanation/architecture.md", "explanation/index.md", "getting-started/first-steps.md", "getting-started/index.md", "getting-started/installation.md",
 			"glossary/example-term.md", "glossary/index.md", "how-tos/example-task.md", "how-tos/index.md",
-			"reference/configuration.md", "reference/index.md", "releases/index.md", "releases/v0.1.0.md"},
+			"reference/configuration.md", "reference/index.md", "troubleshooting/example-problem.md", "troubleshooting/index.md", "releases/index.md", "releases/v0.1.0.md"},
 		"learning": {".zenmd.yml", "index.md", "authoring.md", "glossary.md", "paths/first-path/index.md"},
 		"planner": {".zenmd.yml", "index.md", "decisions/0001-record-decisions.md", "decisions/template.md", "ideas.md", "meetings/template.md", "roadmap.md",
 			"weeks/" + date + ".md"},
