@@ -477,7 +477,7 @@ func TestPresets(t *testing.T) {
 				}
 				return nil
 			})
-			if want := len(presetFiles(id, date)) - map[string]int{"techdocs": 8, "learning": 1, "planner": 1}[id]; len(files) != want { // the .zenmd.yml and the page templates are not pages
+			if want := len(presetFiles(id, date)) - map[string]int{"techdocs": 9, "learning": 1, "planner": 1}[id]; len(files) != want { // the .zenmd.yml and the page templates are not pages
 				t.Errorf("pages: %v", files)
 			}
 			for _, p := range files {
@@ -651,7 +651,7 @@ func TestPageTemplatesService(t *testing.T) {
 	cfg := t.TempDir()
 	z, dir := zenWith(t, cfg, map[string]string{"README.md": "# Home\n", ".zenmd.yml": "templates:\n  \"how-tos/**\": how-to\n  \"guides/**\": how-to\n"})
 	list, err := z.PageTemplates()
-	if err != nil || len(list) != 7 {
+	if err != nil || len(list) != 8 { // the built-in page templates
 		t.Fatalf("list: %d %v", len(list), err)
 	}
 	by := map[string]PageTemplate{}
@@ -793,7 +793,7 @@ func TestTemplatesCommand(t *testing.T) {
 		t.Fatal(err)
 	}
 	lines := strings.Split(strings.TrimSpace(out), "\n")
-	if len(lines) != 8 || !strings.HasPrefix(lines[0], "lesson") || !strings.Contains(lines[0], "this folder") {
+	if len(lines) != 9 || !strings.HasPrefix(lines[0], "lesson") || !strings.Contains(lines[0], "this folder") {
 		t.Errorf("list:\n%s", out)
 	}
 	if !strings.Contains(out, "how-to") || !strings.Contains(out, "yours") || !strings.Contains(out, "1.0.0") {

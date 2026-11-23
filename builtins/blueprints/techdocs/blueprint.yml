@@ -1,7 +1,7 @@
 id: techdocs
 name: Technical documentation
-description: Overview, getting started, how-tos, explanation, reference, releases and glossary
-version: 2.5.0
+description: Overview, getting started, how-tos, explanation, reference, troubleshooting, releases and glossary
+version: 2.6.0
 order: 10
 requires: { layouts: [docs, landing, term, glossary, release], plugins: [codeblock, diagram] }
 ask:
@@ -43,6 +43,13 @@ sections:
     index: { layout: landing, tagline: "Exact facts to look up" }
     pages:
       - { file: configuration.md, title: Configuration }
+  - id: troubleshooting
+    title: Troubleshooting
+    folder: troubleshooting
+    template: troubleshooting
+    index: { layout: landing, tagline: "When something goes wrong" }
+    pages:
+      - { file: example-problem.md, title: Something does not work }
   - id: releases
     title: Releases
     folder: releases
@@ -59,4 +66,4 @@ sections:
     pages:
       - { file: example-term.md, title: Example term }
 files: [CONTRIBUTING.md]
-templates: [overview, tutorial, how-to, explanation, reference, term, release-notes]
+templates: [overview, tutorial, how-to, explanation, reference, troubleshooting, term, release-notes]

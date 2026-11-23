@@ -136,7 +136,7 @@ func TestTechdocsPagesAndRules(t *testing.T) {
 		names = append(names, strings.TrimSuffix(e.Name(), ".yml"))
 	}
 	sort.Strings(names)
-	if strings.Join(names, ",") != "explanation,how-to,overview,reference,release-notes,term,tutorial" {
+	if strings.Join(names, ",") != "explanation,how-to,overview,reference,release-notes,term,troubleshooting,tutorial" {
 		t.Errorf("templates %v", names)
 	}
 	// No placeholder is left in any page.
