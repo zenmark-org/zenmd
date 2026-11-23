@@ -213,11 +213,11 @@ func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) 
 		}
 		fc.WriteString(inline(ctx, caption))
 		if legend != "" {
-			fc.WriteString(`<div class="zf-legend">` + markdown(ctx, legend) + `</div>`)
+			fc.WriteString(`<div class="zf-extra">` + markdown(ctx, legend) + `</div>`)
 		}
 		fc.WriteString(`</figcaption>`)
 	} else if legend != "" {
-		fc.WriteString(`<figcaption><div class="zf-legend">` + markdown(ctx, legend) + `</div></figcaption>`)
+		fc.WriteString(`<figcaption><div class="zf-extra">` + markdown(ctx, legend) + `</div></figcaption>`)
 	}
 	return `<div class="zen-block ` + strings.Join(classes, " ") + `"><div class="zen-block-body"><figure` + idAttr + `>` +
 		imgHTML + missing + fc.String() + `</figure>` + `</div></div>`, nil
