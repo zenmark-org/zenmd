@@ -121,10 +121,20 @@ type Context struct {
 	Path   string         // workspace-relative path of the page
 	Config map[string]any // this plugin's effective options for this page
 	// DataDir is the plugin's writable folder (the same place as an external
-	// plugin's ZEN_DATA_DIR) and Workspace the open folder's root. They are
-	// set for actions and streams; "" when there is no folder or settings dir.
+	// plugin's ZEN_DATA_DIR) and Workspace the open folder's root. Both are
+	// set for actions and streams, "" when there is no folder or settings dir.
+	// Workspace is also set for block and inline hooks while a page renders
+	// (the renderer's resolver supplies it, "" when it has no root); DataDir
+	// is not.
 	DataDir   string
 	Workspace string
+	// Warn adds one warning to the page being rendered, shown with the
+	// page's other warnings (Problems, and the warning lines of a build)
+	// under the plugin's id. At most 20 per plugin per page; each message is
+	// cut to 200 characters, control characters are dropped and a message
+	// already given is dropped. It is set for block and inline hooks while
+	// a page renders, and nil where there is no page.
+	Warn func(msg string)
 	// Markdown renders markdown through the page's own pipeline (nested
 	// plugins included, with a depth limit) and returns HTML that is
 	// sanitised with the rest of the page. It is nil where there is no page

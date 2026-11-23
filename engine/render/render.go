@@ -214,6 +214,7 @@ func (r *Renderer) Render(pagePath string, src []byte) (Page, error) {
 	assets.CSS = append(assets.CSS, lay.assets.CSS...)
 	assets.JS = append(assets.JS, lay.assets.JS...)
 
+	st.closed = true
 	return Page{
 		Path:        pagePath,
 		Title:       title,
