@@ -6,7 +6,7 @@ import { createInspector, type InspectorPanel } from "./index";
 
 const page = (): Page => ({ path: "a.md", title: "Alpha", html: "", frontmatter: {}, breadcrumb: [], assets: { css: [], js: [] }, warnings: [], layout: { name: "article", source: "" } });
 const build = (features: string[], extra: Partial<BuildInfo> = {}): BuildInfo => ({
-  app: "t", features, addons: [{ id: "vale", name: "Vale linting", summary: "Spelling." }], plugins: ["mermaid"], layouts: ["article"], templates: ["blog"], dialects: ["myst"], theme: "mono", version: "1.2.3", ...extra,
+  app: "t", features, addons: [{ id: "vale", name: "Vale linting", summary: "Spelling." }], plugins: ["mermaid"], layouts: ["article"], templates: ["blog"], pageTemplates: ["how-to"], dialects: ["myst"], theme: "mono", version: "1.2.3", ...extra,
 } as BuildInfo);
 const host = (features: string[], extra: Partial<BuildInfo> = {}): KitHost => ({ logs: async () => [], onLog: () => () => {}, build: build(features, extra), addons: build(features).addons }) as unknown as KitHost;
 
@@ -53,13 +53,13 @@ const item = (i: InspectorPanel, id: string) => list(i).querySelector<HTMLElemen
 const right = (i: InspectorPanel) => section(i).querySelector<HTMLElement>(".zen-panel-col-side")!;
 const dev = (extra: Partial<BuildInfo> = {}, features = ["inspector", "developer"]) => { setDeveloperEnabled(true); return make(host(features, extra)); };
 
-test("left column: a list of the eight items with a note each, in order; Version is selected first", () => {
+test("left column: a list of the nine items, top to bottom as pages are made (blueprints, page templates, layouts, plugins) with a note each, in order; Version is selected first", () => {
   const i = dev();
   expect(list(i).getAttribute("role")).toBe("listbox");
-  expect(items(i).map((o) => o.dataset.item)).toEqual(["version", "features", "addons", "plugins", "layouts", "templates", "dialects", "theme"]);
-  expect(items(i).map((o) => o.querySelector(".zen-build-item-name")!.textContent)).toEqual(["Version", "Features", "Add-ons", "Plugins", "Layouts", "Templates", "Dialects", "Theme"]);
-  expect(items(i).map((o) => o.querySelector(".zen-build-item-note")!.textContent)).toEqual(["1.2.3", "2", "1", "1", "1", "1", "1", "1"]);
-  expect(items(i).map((o) => o.getAttribute("aria-selected"))).toEqual(["true", "false", "false", "false", "false", "false", "false", "false"]);
+  expect(items(i).map((o) => o.dataset.item)).toEqual(["version", "features", "addons", "blueprints", "templates", "layouts", "plugins", "dialects", "theme"]);
+  expect(items(i).map((o) => o.querySelector(".zen-build-item-name")!.textContent)).toEqual(["Version", "Features", "Add-ons", "Blueprints", "Page templates", "Layouts", "Plugins", "Dialects", "Theme"]);
+  expect(items(i).map((o) => o.querySelector(".zen-build-item-note")!.textContent)).toEqual(["1.2.3", "2", "1", "1", "1", "1", "1", "2", "1"]); // Dialects counts CommonMark and GFM
+  expect(items(i).map((o) => o.getAttribute("aria-selected"))).toEqual(["true", "false", "false", "false", "false", "false", "false", "false", "false"]);
   expect(section(i).querySelector(".zen-panel-col-main [data-feature]")).toBeNull(); // the details are on the right
 });
 
@@ -84,6 +84,8 @@ test("clicking an item shows its details on the right and marks it selected, as 
   expect(order).toEqual(["inspector", "developer"]); // catalog order
   expect(f.textContent).not.toContain("not in this build");
   expect(f.querySelector(".zen-build-feature-missing")).toBeNull();
+  // one per line, like every other item's list
+  expect(f.querySelector("ul")!.classList.contains("zen-build-names")).toBe(true);
 });
 
 test("the other items list their ids and descriptions", () => {
@@ -91,10 +93,20 @@ test("the other items list their ids and descriptions", () => {
   item(i, "addons").click();
   expect(right(i).querySelector('[data-addon="vale"]')!.textContent).toContain("Vale linting");
   expect(right(i).querySelector('[data-addon="vale"]')!.textContent).toContain("Spelling.");
-  for (const [id, text] of [["plugins", "mermaid"], ["layouts", "article"], ["templates", "blog"], ["dialects", "myst"], ["theme", "mono"]]) {
+  for (const [id, text] of [["plugins", "mermaid"], ["layouts", "article"], ["blueprints", "blog"], ["templates", "how-to"], ["dialects", "myst"], ["theme", "mono"]]) {
     item(i, id).click();
     expect(right(i).textContent).toContain(text);
   }
+});
+
+test("Dialects lists CommonMark and GFM first, always on, as Settings › Reader does", () => {
+  const i = dev({ dialects: [] });
+  expect(item(i, "dialects").querySelector(".zen-build-item-note")!.textContent).toBe("1");
+  item(i, "dialects").click();
+  expect(Array.from(right(i).querySelectorAll("li")).map((l) => l.textContent)).toEqual(["CommonMark and GFM"]);
+  const j = dev();
+  item(j, "dialects").click();
+  expect(Array.from(right(j).querySelectorAll("li")).map((l) => l.textContent)).toEqual(["CommonMark and GFM", "myst"]);
 });
 
 test("an empty item says None in this build., and its note is 0", () => {

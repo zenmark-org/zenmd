@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/zenmark-org/zenmd/builtins/pagetemplates"
 	"github.com/zenmark-org/zenmd/kit/addons"
 )
 
@@ -74,5 +75,13 @@ func TestBuildInfoVersion(t *testing.T) {
 	t.Cleanup(func() { cli.Version = old })
 	if got := buildInfo().Version; got != "1.2.3" {
 		t.Fatalf("version %q", got)
+	}
+}
+
+// The Inspector's Build tab lists the page templates beside the blueprints (assembly templates:).
+func TestBuildInfoPageTemplates(t *testing.T) {
+	b := buildInfo()
+	if !reflect.DeepEqual(b.PageTemplates, pagetemplates.IDs) {
+		t.Errorf("page templates = %v, want %v", b.PageTemplates, pagetemplates.IDs)
 	}
 }
