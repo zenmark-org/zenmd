@@ -6,6 +6,9 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 
 ## [Unreleased]
 
+### Changed
+- The settings folder is now `zenmark` instead of `zen`, which clashed with the Zen browser's folder (`~/Library/Application Support/zenmark`, `$XDG_CONFIG_HOME/zenmark`). An existing `zen` folder with Zenmark's files is moved there once at startup; a failed move prints a warning and doesn't stop the command (#45).
+
 ## [0.7.0] - 2026-11-23
 
 Zenmark rebuilt from a bare shell, one feature at a time: the built-in plugins and layouts, find, the editor, printing, MyST, export to a website and a PDF, and blueprints with page templates. Every option is a `zenmd` flag first.
