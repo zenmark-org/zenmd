@@ -20,16 +20,16 @@ text; without one, zen renders the markdown and the plugin's script works on
 the result.
 
 ```markdown
-:::note{title="Remember"}
+:::banner{title="Remember"}
 Containers start and end with three colons.
 :::
 ```
 
-:::note{title="Remember"}
+:::banner{title="Remember"}
 Containers start and end with three colons.
 :::
 
-The box comes from `note`, one of the plugins in this folder's `.zen/plugins/`
+The box comes from `banner`, one of the plugins in this folder's `.zen/plugins/`
 (see [Writing your own plugin](writing-plugins.md)). Until you allow it, the
 block shows as plain text.
 

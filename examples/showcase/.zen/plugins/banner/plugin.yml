@@ -1,0 +1,31 @@
+id: banner
+version: 0.1.0
+apiVersion: 1
+description: Banner boxes
+default: true
+
+blocks: [banner, alert, notice]
+
+help:
+  summary: Banner boxes. A banner block draws a banner, an alert block an alert, a notice block a notice; title sets the heading (the default is Banner, Alert or Notice). The body is plain text turned into HTML by banner.sh.
+  snippets:
+    - title: A banner
+      markdown: |
+        :::banner{title="Remember"}
+        A backend gets the text of the block and prints HTML.
+        :::
+    - title: An alert
+      markdown: |
+        :::alert
+        Back up the folder first.
+        :::
+
+allow:
+  - { element: div, attrs: [class] }
+
+backend:
+  command: ["./banner.sh"]
+  hooks: [block]
+
+frontend:
+  css: [banner.css]

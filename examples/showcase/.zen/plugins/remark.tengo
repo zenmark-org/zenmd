@@ -1,0 +1,28 @@
+// .zen/plugins/remark.tengo: :::remark and :::pitfall boxes, in one file.
+plugin := {
+    version: "0.1.0",
+    description: "Remark and pitfall boxes",
+    blocks: ["remark", "pitfall"],
+    help: {
+        summary: "Remark and pitfall boxes in one Tengo file. The body is markdown, so **bold** and links work inside. title sets the heading (the default is Remark or Pitfall).",
+        snippets: [
+            {title: "A remark", markdown: `:::remark{title="One file"}
+A **Tengo** script gets the text of the block and returns HTML.
+:::`},
+            {title: "A pitfall", markdown: `:::pitfall
+Back up the folder first.
+:::`}
+        ]
+    },
+    css: "div.remark { margin: 0 0 1em; padding: 0.6em 1em; border: 1px solid var(--rule); " +
+         "border-left-width: 4px; border-radius: var(--radius) } " +
+         "div.remark.pitfall { border-left-color: var(--fg) } " +
+         "div.remark-title { margin-bottom: 0.25em }"
+}
+
+if hook == "block" {
+    title := attrs.title || (name == "pitfall" ? "Pitfall" : "Remark")
+    out = zen.html("div", {class: "remark " + name},
+        zen.html("div", {class: "remark-title"}, zen.html("strong", {}, title)),
+        zen.markdown(body))
+}

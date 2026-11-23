@@ -24,22 +24,25 @@ import (
 	"github.com/zenmark-org/zenmd/builtins/dialects/myst"
 	"github.com/zenmark-org/zenmd/builtins/layouts"
 	"github.com/zenmark-org/zenmd/builtins/pagetemplates"
+	"github.com/zenmark-org/zenmd/builtins/plugins/callout"
 	"github.com/zenmark-org/zenmd/builtins/plugins/check"
 	"github.com/zenmark-org/zenmd/builtins/plugins/codeblock"
 	"github.com/zenmark-org/zenmd/builtins/plugins/diagram"
+	"github.com/zenmark-org/zenmd/builtins/plugins/figure"
 	"github.com/zenmark-org/zenmd/builtins/plugins/quiz"
 	"github.com/zenmark-org/zenmd/builtins/plugins/rating"
 	"github.com/zenmark-org/zenmd/builtins/plugins/sandbox"
+	"github.com/zenmark-org/zenmd/builtins/plugins/table"
 	"github.com/zenmark-org/zenmd/engine/dialects"
 	enginelayouts "github.com/zenmark-org/zenmd/engine/layouts"
 	"github.com/zenmark-org/zenmd/engine/plugins"
 )
 
 // Plugins returns a registry with every built-in plugin, in order: codeblock,
-// diagram, check, quiz, sandbox, rating. Each call returns a fresh registry.
+// diagram, check, quiz, sandbox, rating, callout, figure, table. Each call returns a fresh registry.
 func Plugins() *plugins.Registry {
 	r := plugins.NewRegistry()
-	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), rating.New()} {
+	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), rating.New(), callout.New(), figure.New(), table.New()} {
 		if err := r.Register(p); err != nil {
 			panic(err) // the built-ins are fixed: a clash is a programming error
 		}
@@ -68,7 +71,7 @@ func PageTemplates() fs.FS {
 }
 
 // PluginIDs lists the built-in plugins in the order Plugins registers them.
-var PluginIDs = []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating"}
+var PluginIDs = []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating", "callout", "figure", "table"}
 
 func newPlugin(id string) plugins.Plugin {
 	switch id {
@@ -84,6 +87,12 @@ func newPlugin(id string) plugins.Plugin {
 		return sandbox.New()
 	case "rating":
 		return rating.New()
+	case "callout":
+		return callout.New()
+	case "figure":
+		return figure.New()
+	case "table":
+		return table.New()
 	}
 	return nil
 }

@@ -247,9 +247,9 @@ func TestDemoDialectsPage(t *testing.T) {
 		t.Errorf("warnings: %v", pg.Warnings)
 	}
 	for _, want := range []string{
-		`data-zen-plugin="note" data-zen-name="note"`, `<strong>Remember</strong>`,
-		`data-zen-plugin="note" data-zen-name="important"`, `<strong>Back up first</strong>`,
-		`data-zen-plugin="callout" data-zen-name="tip"`, `class="chroma"`,
+		`data-zen-plugin="callout" data-zen-name="note"`, `<span class="zen-callout-title">Remember</span>`,
+		`data-zen-plugin="callout" data-zen-name="important"`, `<span class="zen-callout-title">Back up first</span>`,
+		`data-zen-plugin="remark" data-zen-name="remark"`, `class="chroma"`,
 	} {
 		if !strings.Contains(pg.HTML, want) {
 			t.Errorf("missing %q in\n%s", want, pg.HTML)

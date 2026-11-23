@@ -39,10 +39,10 @@ five in `.zen/plugins/`:
 
 | Plugin | Does | Made of |
 |---|---|---|
-| `note` | callout boxes | a shell script |
+| `banner` | banner and alert boxes | a shell script |
 | `calc` | sums, worked out by `bc` | a `plugin.yml` only |
 | `progress` | checklists that remember what you ticked | JavaScript and CSS |
-| `callout` | tip and caution boxes | one Tengo file |
+| `remark` | remark and pitfall boxes | one Tengo file |
 | `wordcount` | the words of a page, and a list of every page | a Tengo file that reads the folder |
 
 zen asks before it uses them for the first time. The settings page (the cog)

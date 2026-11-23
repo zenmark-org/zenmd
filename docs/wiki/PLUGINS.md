@@ -143,7 +143,8 @@ A folder can turn on a **dialect**, another way to write the same containers, in
 ```` ```{note} Title ```` and `:::{note} Title` mean `:::note{title="Title"}`,
 `:key: value` lines at the top become attributes, and `{code-block} lang` is a
 highlighted code block. A plugin answers to MyST names (`tip`, `important`, …) by
-listing them in `blocks`. An app reads only the dialects in its build
+listing them in `blocks`; the built-in `callout` plugin owns the admonition names, so a
+folder plugin must not list them. An app reads only the dialects in its build
 (`dialects:` in `app-assembly.yml`). See specs/engine/dialects.
 
 ## Enabling, disabling, configuring
@@ -250,24 +251,24 @@ zen looks in two places:
 ### Script plugins (Tengo)
 
 A script plugin is one file, written in [Tengo](https://github.com/d5/tengo)
-(`github.com/d5/tengo/v2`, a small Go-like language): `.zen/plugins/note.tengo`,
-or `.zen/plugins/note/plugin.tengo` with other files beside it. zen compiles it
+(`github.com/d5/tengo/v2`, a small Go-like language): `.zen/plugins/banner.tengo`,
+or `.zen/plugins/banner/plugin.tengo` with other files beside it. zen compiles it
 once per content, runs a fresh copy for every call, and gives it a hard time
 and allocation budget and nothing else: **no files, no programs, no network**,
 unless the plugin asks for the `read` permission, and then only the markdown
 and text files of the open folder.
 
 ```go
-// .zen/plugins/note.tengo
+// .zen/plugins/banner.tengo
 plugin := {
     version: "0.1.0",
     description: "Callout boxes",
-    blocks: ["note", "warning"],
-    css: "div.note { border-left: 3px solid; padding: .5em 1em }"   // optional inline CSS
+    blocks: ["banner", "alert"],
+    css: "div.banner { border-left: 3px solid; padding: .5em 1em }"   // optional inline CSS
 }
 
 if hook == "block" {
-    title := attrs.title || (name == "warning" ? "Warning" : "Note")
+    title := attrs.title || (name == "alert" ? "Alert" : "Banner")
     out = zen.html("div", {class: name}, zen.html("div", {class: "callout-title"}, zen.html("strong", {}, title)), zen.markdown(body))
 }
 ```
@@ -397,16 +398,16 @@ A plugin can have any mix of three parts:
 #### plugin.yml
 
 ```yaml
-id: note                      # [a-z][a-z0-9-]*, must equal the folder name
+id: banner                   # [a-z][a-z0-9-]*, must equal the folder name
 version: 0.1.0                # SemVer
 apiVersion: 1
 description: Callout boxes
 default: true                 # on unless config switches it off (also when omitted)
 
-blocks: [note, warning]       # ```note fences and :::note containers
+blocks: [banner, alert]       # ```banner fences and :::banner containers
 inlines: [badge]              # :badge[text]{attrs}
 
-options:                      # read from config / frontmatter `plugins.note.*`
+options:                      # read from config / frontmatter `plugins.banner.*`
   icon: { type: bool, default: true, description: Show an icon }
   images: { type: map, scope: user }   # map (string to string) and list (strings) are also types;
                                        # scope: user = only the global config.yml may set it
@@ -415,23 +416,23 @@ allow:                        # extra HTML the sanitiser keeps for this plugin
   - { element: div, attrs: [class] }
 
 help:                         # shown in Settings › Plugins (optional, see "Help")
-  summary: Callout boxes, a note or a warning.
+  summary: Banner boxes, a banner or an alert.
   snippets:
-    - title: A note
+    - title: A banner
       markdown: |
-        :::note{title="Remember"}
+        :::banner{title="Remember"}
         Text.
         :::
 
 backend:
-  command: ["./note.sh"]      # relative to the plugin folder, or a program on PATH
+  command: ["./banner.sh"]    # relative to the plugin folder, or a program on PATH
   hooks: [block, inline]      # any of: source, block, inline, html, action, stream
   output: html                # html (default) or text (escaped and shown in <pre>)
   timeout: 5s                 # default 5s, at most 60s; with the stream hook: default 60s, at most 10m
 
 frontend:
-  js: [note.js]               # ES modules with a default export, loaded only on pages that use the plugin
-  css: [note.css]
+  js: [banner.js]             # ES modules with a default export, loaded only on pages that use the plugin
+  css: [banner.css]
 ```
 
 #### Help
@@ -489,7 +490,7 @@ cap.
 | Variable | Value |
 |---|---|
 | `ZEN_HOOK`, `ZEN_PLUGIN`, `ZEN_API` | hook name, plugin id, `1` |
-| `ZEN_NAME` | block or inline name (`note`) |
+| `ZEN_NAME` | block or inline name (`banner`) |
 | `ZEN_FENCED` | `1` for a ``` fence, `0` for a `:::` container |
 | `ZEN_PAGE` | page path inside the folder (`guides/install.md`) |
 | `ZEN_ATTR_<KEY>` | each `{key=value}` attribute, key upper-cased, anything but `A-Z 0-9 _` → `_`. When two names give the same variable (`a-b` and `a_b`) only one entry is set: the name that sorts last wins. The `*_JSON` variables always carry every name |
@@ -523,9 +524,9 @@ A whole plugin in a shell script:
 
 ```sh
 #!/bin/sh
-# .zen/plugins/note/note.sh — renders :::note{title="..."} containers
-title="${ZEN_ATTR_TITLE:-Note}"
-printf '<div class="note"><strong>%s</strong>' "$title"
+# .zen/plugins/banner/banner.sh — renders :::banner{title="..."} containers
+title="${ZEN_ATTR_TITLE:-Banner}"
+printf '<div class="banner"><strong>%s</strong>' "$title"
 sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g'      # body from stdin, escaped
 printf '</div>'
 ```

@@ -67,12 +67,15 @@ The box above has `class` and `open` set.
 MyST's admonition names (`note`, `tip`, `warning`, `important`, `caution`,
 `attention`, `danger`, `error`, `hint`, `seealso`, `admonition`) are ordinary
 block names. A plugin answers to them by listing them in the `blocks` of its
-manifest; no new field is needed. This folder's `note` plugin lists `note`,
-`warning`, `important`, `attention` and `hint`, and the `callout` plugin lists
-`tip` and `caution`:
+manifest; no new field is needed. The built-in `callout` plugin lists all of
+them, which is why the `note` and `important` fences above are callouts.
 
-```{tip} Same plugin, other syntax
-A tip written the MyST way is drawn by the same plugin as `:::tip`.
+This folder's own plugins answer to names of their own, in either syntax. The
+`banner` plugin lists `banner`, `alert` and `notice`, and the `remark` plugin
+lists `remark` and `pitfall`:
+
+```{remark} Same plugin, other syntax
+A remark written the MyST way is drawn by the same plugin as `:::remark`.
 ```
 
 ## Code

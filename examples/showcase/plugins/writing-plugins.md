@@ -33,38 +33,38 @@ read files, run programs or use the network, unless it asks for the `read`
 permission, and then it only reads the markdown and text files of the open
 folder.
 
-The `callout` plugin is the file `.zen/plugins/callout.tengo`. This markdown:
+The `remark` plugin is the file `.zen/plugins/remark.tengo`. This markdown:
 
 ```markdown
-:::tip{title="One file"}
+:::remark{title="One file"}
 A **Tengo** script gets the text of the block and returns HTML.
 :::
 ```
 
 renders as:
 
-:::tip{title="One file"}
+:::remark{title="One file"}
 A **Tengo** script **gets the text of** the block and returns HTML.
 :::
 
 And the whole plugin is this file:
 
 ```go
-// .zen/plugins/callout.tengo: :::tip and :::caution callouts, in one file.
+// .zen/plugins/remark.tengo: :::remark and :::pitfall boxes, in one file.
 plugin := {
     version: "0.1.0",
-    description: "Tip and caution callouts",
-    blocks: ["tip", "caution"],
-    css: "div.callout { margin: 0 0 1em; padding: 0.6em 1em; border: 1px solid var(--rule); " +
+    description: "Remark and pitfall boxes",
+    blocks: ["remark", "pitfall"],
+    css: "div.remark { margin: 0 0 1em; padding: 0.6em 1em; border: 1px solid var(--rule); " +
          "border-left-width: 4px; border-radius: var(--radius) } " +
-         "div.callout.caution { border-left-color: var(--fg) } " +
-         "div.callout-title { margin-bottom: 0.25em }"
+         "div.remark.pitfall { border-left-color: var(--fg) } " +
+         "div.remark-title { margin-bottom: 0.25em }"
 }
 
 if hook == "block" {
-    title := attrs.title || (name == "caution" ? "Caution" : "Tip")
-    out = zen.html("div", {class: "callout " + name},
-        zen.html("div", {class: "callout-title"}, zen.html("strong", {}, title)),
+    title := attrs.title || (name == "pitfall" ? "Pitfall" : "Remark")
+    out = zen.html("div", {class: "remark " + name},
+        zen.html("div", {class: "remark-title"}, zen.html("strong", {}, title)),
         zen.markdown(body))
 }
 ```
@@ -76,7 +76,7 @@ and the map holds the rest: the version, the blocks it owns, and optional
 runs for each block. `hook` says why it runs, and whatever the script assigns
 to `out` becomes the block.
 
-`zen.markdown(body)` renders the body through zen's own pipeline, so a callout
+`zen.markdown(body)` renders the body through zen's own pipeline, so a box
 can hold lists, code and the blocks of other plugins. `zen.html` escapes the
 text it is given. A plain string is text and is escaped; the result of
 `zen.html` or `zen.markdown` is HTML and is kept as it is.
@@ -132,7 +132,7 @@ Leave out `{limit=5}` to list every page.
 | Global | Value |
 |---|---|
 | `hook` | why the script runs: `"block"`, `"inline"`, `"source"`, `"html"`, `"action"`, or `""` while zen reads the `plugin` map |
-| `name` | the block or inline name (`"tip"`) |
+| `name` | the block or inline name (`"remark"`) |
 | `body` | the text of the block or the inline, the page's markdown for `source`, the page's HTML for `html` |
 | `attrs` | the `{key=value}` attributes, a map of strings |
 | `config` | this plugin's options for the page, a map |
@@ -193,54 +193,55 @@ A plugin can have any mix of these:
 | **tool** | a backend whose command is a program already on your Mac | no code at all: the block's text goes in, the output is shown |
 | **frontend** | JavaScript and CSS loaded on pages that use the plugin | blocks that react to clicks |
 
-## A backend in a shell script: `note`
+## A backend in a shell script: `banner`
 
-The `note` plugin draws callout boxes. This markdown:
+The `banner` plugin draws banner boxes. This markdown:
 
 ```markdown
-:::note{title="Remember"}
+:::banner{title="Remember"}
 A backend gets the text of the block and prints HTML.
 :::
 ```
 
 renders as:
 
-:::note{title="Remember"}
+:::banner{title="Remember"}
 A backend gets the text of the block and prints HTML.
 :::
 
 Its `plugin.yml` names the blocks it owns and the program to run:
 
 ```yaml
-id: note
+id: banner
 version: 0.1.0
 apiVersion: 1
-description: Callout boxes
+description: Banner boxes
 default: true
 
-blocks: [note, warning]
+blocks: [banner, alert, notice]
 
 allow:
   - { element: div, attrs: [class] }
 
 backend:
-  command: ["./note.sh"]
+  command: ["./banner.sh"]
   hooks: [block]
 
 frontend:
-  css: [note.css]
+  css: [banner.css]
 ```
 
-And the whole plugin is this script. It serves both blocks, `note` and
-`warning`, and escapes everything it prints:
+And the whole plugin is this script. It serves all three blocks, `banner`,
+`alert` and `notice`, and escapes everything it prints:
 
 ```sh
 #!/bin/sh
-# .zen/plugins/note/note.sh — renders :::note and :::warning containers
+# .zen/plugins/banner/banner.sh — renders :::banner, :::alert and :::notice containers
 esc() { sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'; }
 case "$ZEN_NAME" in
-  warning) kind=warning title=Warning ;;
-  *) kind=note title=Note ;;
+  alert) kind=alert title=Alert ;;
+  notice) kind=banner title=Notice ;;
+  *) kind=banner title=Banner ;;
 esac
 title="${ZEN_ATTR_TITLE:-$title}"
 printf '<div class="%s"><strong>' "$kind"
@@ -250,12 +251,12 @@ esc                                  # the body arrives on stdin
 printf '</div>'
 ```
 
-Its `note.css` gives the two boxes their look, using zen's own colours.
+Its `banner.css` gives the boxes their look, using zen's own colours.
 
 zen starts the program once for each block, in the plugin folder. The body of
 the block arrives on standard input, the attributes arrive as environment
 variables, and whatever the program prints becomes the block. The script must
-be executable (`chmod +x note.sh`).
+be executable (`chmod +x banner.sh`).
 
 ## A tool, no code at all: `calc`
 
@@ -404,39 +405,39 @@ each list its own `id`.
 Only `id`, `version` and `apiVersion` are required. An unknown key is an error.
 
 ```yaml
-id: note                      # [a-z][a-z0-9-]*, must equal the folder name
+id: banner                    # [a-z][a-z0-9-]*, must equal the folder name
 version: 0.1.0                # SemVer
 apiVersion: 1
-description: Callout boxes
+description: Banner boxes
 default: true                 # on unless config switches it off
 
-blocks: [note, warning]       # ```note fences and :::note containers
+blocks: [banner, alert]       # ```banner fences and :::banner containers
 inlines: [badge]              # :badge[text]{attrs}
 
-options:                      # read from config / frontmatter `plugins.note.*`
+options:                      # read from config / frontmatter `plugins.banner.*`
   icon: { type: bool, default: true, description: Show an icon }
 
 allow:                        # extra HTML the sanitiser keeps for this plugin
   - { element: div, attrs: [class] }
 
 help:                         # shown in Settings, Plugins (optional)
-  summary: Callout boxes, a note or a warning.
+  summary: Banner boxes, a banner or an alert.
   snippets:
-    - title: A note
+    - title: A banner
       markdown: |
-        :::note{title="Remember"}
+        :::banner{title="Remember"}
         Text.
         :::
 
 backend:
-  command: ["./note.sh"]      # relative to the plugin folder, or a program on PATH
+  command: ["./banner.sh"]    # relative to the plugin folder, or a program on PATH
   hooks: [block, inline]      # any of: source, block, inline, html, action
   output: html                # html (default) or text (escaped and shown in <pre>)
   timeout: 5s                 # default 5s, at most 60s
 
 frontend:
-  js: [note.js]               # ES modules, loaded only on pages that use the plugin
-  css: [note.css]
+  js: [banner.js]             # ES modules, loaded only on pages that use the plugin
+  css: [banner.css]
 ```
 
 ### Help for your plugin
@@ -470,7 +471,7 @@ rest of the page still renders.
 | Variable | Value |
 |---|---|
 | `ZEN_HOOK`, `ZEN_PLUGIN`, `ZEN_API` | hook name, plugin id, `1` |
-| `ZEN_NAME` | block or inline name (`note`) |
+| `ZEN_NAME` | block or inline name (`banner`) |
 | `ZEN_FENCED` | `1` for a fence, `0` for a `:::` container |
 | `ZEN_PAGE` | page path inside the folder (`guides/install.md`) |
 | `ZEN_ATTR_<KEY>` | each `{key=value}` attribute, key in capitals, `-` becomes `_` |
@@ -554,8 +555,8 @@ plugin you select.
   file listed under `frontend` or a `./` command that does not exist.
 - **An error box where the block should be.** The backend failed. The box
   shows what the program printed as an error. Try it by hand in the plugin
-  folder: `echo "hello" | ZEN_HOOK=block ZEN_NAME=note ./note.sh`.
-- **Permission denied.** Make the script executable: `chmod +x note.sh`.
+  folder: `echo "hello" | ZEN_HOOK=block ZEN_NAME=banner ./banner.sh`.
+- **Permission denied.** Make the script executable: `chmod +x banner.sh`.
 - **The program is not found.** A backend gets a short `PATH`. Give the full
   path in `command`, or ship a script in the plugin folder.
 - **The block times out.** The default is 5 seconds. Set `timeout`, up to `60s`.
