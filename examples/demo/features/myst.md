@@ -178,6 +178,98 @@ This example is only here to show the note.
 Every callout also works without MyST, as `:::note` with the title as an
 attribute, such as `:::note{title="Remember" class=dropdown open}`.
 
+## Figures, images and tables
+
+A **figure** is a picture with a caption, numbered per page. The picture is found
+the way any page image is, relative to this page's folder. The first paragraph of
+the body is the caption; any paragraphs after it are the legend:
+
+````markdown
+```{figure} ../images/zen-mark.svg
+:alt: The Zenmark mark
+:width: 120
+:align: center
+:name: zen-mark
+
+The Zenmark mark.
+
+The legend is the paragraphs after the caption.
+```
+````
+
+```{figure} ../images/zen-mark.svg
+:alt: The Zenmark mark
+:width: 120
+:align: center
+:name: zen-mark
+
+The Zenmark mark.
+
+The legend is the paragraphs after the caption.
+```
+
+`:name:` gives the figure an id that a link can point to, so [the figure
+above](#zen-mark) is a plain link. The `{image}` directive is the picture alone,
+with the same options and no caption or number:
+
+```{image} ../images/zen-mark.svg
+:alt: The Zenmark mark
+:width: 48
+:align: left
+```
+
+A `{table}` takes its caption as the argument and a markdown table as its body:
+
+```{table} Stock levels
+:name: stock
+:align: center
+
+| Item | In stock |
+|------|----------|
+| Ink  | 3        |
+| Pens | 10       |
+```
+
+A `{list-table}` is a list of lists, one item for each row and one inside it for
+each cell. `:header-rows:`, `:stub-columns:`, `:widths:` and `:align:` work as in
+MyST:
+
+```{list-table} Supplies
+:header-rows: 1
+:stub-columns: 1
+:widths: 30 70
+
+* - Item
+  - Notes
+* - Ink
+  - Black, **refillable**
+* - Pens
+  - Sold in packs of `10`
+```
+
+A `{csv-table}` reads CSV from its body. `:header-rows:`, `:header:` and `:delim:`
+are read too:
+
+```{csv-table} Prices
+:header-rows: 1
+
+Item, Price
+Apple, 1.20
+"Pear, green", 2.50
+```
+
+`:file:` reads a CSV file of the folder instead, at most 1 MB, and never one
+outside the folder:
+
+````markdown
+```{csv-table} Prices
+:file: data/prices.csv
+:header-rows: 1
+```
+````
+
+All of them also work as `:::figure{src=…}`, `:::table{title=…}` and so on, without MyST.
+
 ## Code
 
 `{code-block} lang`, `{code} lang` and `{code-cell} lang` are plain fenced code
