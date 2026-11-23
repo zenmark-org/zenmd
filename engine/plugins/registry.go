@@ -37,6 +37,7 @@ type Registry struct {
 	denied  []Manifest        // plugins the user did not allow
 
 	user     atomic.Pointer[userOptions]
+	global   atomic.Pointer[userOptions]
 	assetVer atomic.Pointer[string]
 }
 
@@ -61,6 +62,21 @@ type userOptions struct {
 // none). Without it those options keep their defaults.
 func (r *Registry) SetUserOptions(get func(id string) map[string]any) {
 	r.user.Store(&userOptions{get: get})
+}
+
+// SetGlobalUserOptions tells the registry which values of user-scoped options
+// the global config holds even when SetUserOptions withholds them (a build).
+// A merged value equal to one of them is not reported as set by a folder or
+// a page; the caller notes the withheld option once instead.
+func (r *Registry) SetGlobalUserOptions(get func(id string) map[string]any) {
+	r.global.Store(&userOptions{get: get})
+}
+
+func (r *Registry) globalUserOptionsOf(id string) map[string]any {
+	if u := r.global.Load(); u != nil && u.get != nil {
+		return u.get(id)
+	}
+	return nil
 }
 
 func (r *Registry) userOptionsOf(id string) map[string]any {
@@ -236,9 +252,10 @@ func (r *Registry) Enabled(lookup func(id string) (bool, map[string]any, bool), 
 			cfg[name] = cloneOption(opt.Default)
 			hasUser = hasUser || opt.Scope == ScopeUser
 		}
-		var user map[string]any
+		var user, withheld map[string]any
 		if hasUser {
 			user = r.userOptionsOf(m.ID)
+			withheld = r.globalUserOptionsOf(m.ID)
 		}
 		names := make([]string, 0, len(opts))
 		for name := range opts {
@@ -254,7 +271,10 @@ func (r *Registry) Enabled(lookup func(id string) (bool, map[string]any, bool), 
 			if opt.Scope == ScopeUser {
 				// Only the global config counts; the merged value is a conflict
 				// unless it is that same value.
-				if uv, set := user[name]; !set || !reflect.DeepEqual(uv, opts[name]) {
+				uv, set := user[name]
+				gv, inGlobal := withheld[name]
+				fromGlobal := (set && reflect.DeepEqual(uv, opts[name])) || (inGlobal && reflect.DeepEqual(gv, opts[name]))
+				if !fromGlobal {
 					warnings = append(warnings, fmt.Sprintf("plugin %q: option %q can only be set in the global config; ignored", m.ID, name))
 				}
 				continue

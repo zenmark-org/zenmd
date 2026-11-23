@@ -85,8 +85,9 @@ func WriteSite(env SiteEnv, b SiteOptions, stdout, stderr io.Writer) error {
 	for _, w := range bwarn {
 		add("%s", w)
 	}
-	in := newBuildInput(st, js, css)
-	for _, w := range in.statusWarnings(config.Load(env.GlobalPath, "")) {
+	global := config.Load(env.GlobalPath, "")
+	in := newBuildInput(st, global, js, css)
+	for _, w := range in.statusWarnings(global) {
 		add("%s", w)
 	}
 
@@ -188,11 +189,18 @@ type buildInput struct {
 	js, css []byte
 }
 
-func newBuildInput(s *Session, js, css []byte) *buildInput {
+func newBuildInput(s *Session, global *config.Config, js, css []byte) *buildInput {
 	// Options with scope user (tokens, images) belong to the reader of the
 	// app, never to a site that is published: render-time plugins get none.
 	s.mu.Lock()
 	s.reg.SetUserOptions(func(string) map[string]any { return nil })
+	// What the global config holds is not a page's doing: statusWarnings
+	// notes it once, so pages do not report it again.
+	gp := global.ForPage(nil)
+	s.reg.SetGlobalUserOptions(func(id string) map[string]any {
+		_, opts, _ := gp.Plugin(id)
+		return opts
+	})
 	s.mu.Unlock()
 	return &buildInput{s: s, js: js, css: css}
 }
