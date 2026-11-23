@@ -50,6 +50,14 @@ jobs:
         run: |
           v="$(cat VERSION)"
           test "$GITHUB_REF_NAME" = "v$v" || { echo "::error::Tag $GITHUB_REF_NAME does not match VERSION $v"; exit 1; }
+      # cmd/zenmd embeds the browser runtime (runtime/dist, git-ignored): build it first.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: build the browser runtime
+        run: |
+          (cd apps/zenmark/frontend && npm ci)
+          (cd runtime && npm run build)
       - run: sh build/cli/release.sh "$(cat VERSION)"
       - uses: actions/upload-artifact@v7
         with:
@@ -58,8 +66,37 @@ jobs:
             dist/*.tar.gz
             dist/SHA256SUMS
 
-  dmg:
+  # This repository's own docs (docs/public/zenmd), built with the action
+  # (specs/packaging/docs-ci), as zenmd-docs-<v>.zip on the release.
+  docs:
     needs: [test, cli]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      # cmd/zenmd embeds the browser runtime (runtime/dist, git-ignored): build it first.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: build the browser runtime
+        run: |
+          (cd apps/zenmark/frontend && npm ci)
+          (cd runtime && npm run build)
+      - uses: ./
+        with:
+          folder: docs/public/zenmd
+          output: dist/docs
+      - name: zip
+        run: cd dist && zip -qr "zenmd-docs-$(cat ../VERSION).zip" docs
+      - uses: actions/upload-artifact@v7
+        with:
+          name: zenmd-docs
+          path: dist/zenmd-docs-*.zip
+
+  dmg:
+    needs: [test, cli, docs]
     runs-on: macos-15
     timeout-minutes: 60
     env:
@@ -133,6 +170,10 @@ jobs:
       - uses: actions/download-artifact@v7
         with:
           name: zenmd-linux
+          path: dist
+      - uses: actions/download-artifact@v7
+        with:
+          name: zenmd-docs
           path: dist
 
       - name: publish

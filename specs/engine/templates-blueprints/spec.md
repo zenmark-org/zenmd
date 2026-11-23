@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | planned |
+| Status | in progress: blueprints, page templates and the structure check (phase 1, #34) done; wave 47–49 parts in progress or to do |
 | Target version | 0.7.0 (blueprints, page templates phase 1), 0.8.0 (the rest) |
 | Branch | `feature/20-blueprints`, then one branch per phase |
 | Wave | 46–49 |

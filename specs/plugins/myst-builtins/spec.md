@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | in progress: phases 1 and 2 done (2026-11-23), 3 running; 4 and 5 to do |
+| Status | in progress: phases 1, 2 and 3 done (2026-11-23); 4 and 5 to do |
 | Target version | 0.8.0 |
 | Branch | one per phase: `feature/myst-<phase>` (phases below) |
 | Wave | 36–40, one phase per wave |
@@ -89,7 +89,7 @@ sections as Integration lines.
 - Images resolve as page images do (folder-relative, missing ones listed in Problems).
 - Numbering (Figure 1, Table 1) is per page, and `:name:` targets show the number.
 
-### Phase 3: math, built-in `math` (wave 38)
+### Phase 3: math, built-in `math` (wave 38) — done (display math; the roles are in phase 5)
 
 | MyST | Renders |
 |---|---|

@@ -11,6 +11,9 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 - MyST callouts (note, tip, warning, …, admonition, versionadded, with `:class: dropdown`) as the `callout` built-in; they also work as `:::note` in plain markdown (#33).
 - MyST figures and tables (`{figure}`, `{image}`, `{table}`, `{list-table}`, `{csv-table}`) as the `figure` and `table` built-ins, numbered per page; `csv-table :file:` reads a file inside the folder only (#33).
 - Block and inline plugin hooks can add warnings to the page (`Context.Warn`), shown in Problems and by `zenmd export site`, and get the open folder's root (`Context.Workspace`) while a page renders (#47).
+- MyST display math (the `math` directive, `$$ … $$` blocks, `:label:` numbering) as the `math` built-in, drawn with vendored KaTeX 0.19.1 (#33).
+- Pages are checked against their page template and their layout's structure: what's missing shows under Problems › Structure, and `zenmd check [folder]` prints the same problems (`<page>:<line>: <severity>: <message>`) and exits 1 on errors. A path rule doesn't apply to a folder's own `index.md`, and every built-in blueprint starts clean (#34).
+- A GitHub Action (`uses: zenmark-org/zenmd@v0.8.0`) that builds a docs folder into a website on Linux CI, with a checked download, an optional `zenmd check`, and warnings as annotations; releases attach this repository's docs as `zenmd-docs-<version>.zip` (#31).
 - Open one markdown file on its own (File › Open…, Finder's Open With, `zenmd notes.md`) without scanning its folder; Open Enclosing Folder (⇧⌘O) opens the folder when you want it (#32).
 
 ### Changed

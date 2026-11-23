@@ -96,6 +96,7 @@ Imports point down: apps, then kit, then engine.
 | [docs/wiki/LAYOUTS.md](docs/wiki/LAYOUTS.md) | Writing layouts: templates, CSS, scripts |
 | [docs/wiki/TEMPLATES.md](docs/wiki/TEMPLATES.md) | Blueprints for `zenmd init` (formerly site templates) |
 | [docs/wiki/BUILD.md](docs/wiki/BUILD.md) | Static websites and `print.html` |
+| [Build docs in CI](docs/public/zenmd/how-tos/build-docs-in-ci.md) | The GitHub Action (`uses: zenmark-org/zenmd@v<version>`) that builds a docs folder on Linux CI |
 | [docs/wiki/DISTRIBUTION.md](docs/wiki/DISTRIBUTION.md) | Signing, notarisation, the DMG and the Mac App Store |
 | [docs/wiki/VERSIONING.md](docs/wiki/VERSIONING.md) | SemVer for the app, the engine, plugins and config |
 | [docs/wiki/UI.md](docs/wiki/UI.md) | The design system |

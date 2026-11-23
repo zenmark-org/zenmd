@@ -1,0 +1,32 @@
+name: docs
+
+# Builds this repository's docs (docs/public/zenmd) with its own action on every
+# pull request that touches them (specs/packaging/docs-ci). CI stays off on main.
+on:
+  pull_request:
+    paths: ['docs/public/**']
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      # cmd/zenmd embeds the browser runtime (runtime/dist, git-ignored): build it first.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: build the browser runtime
+        run: |
+          (cd apps/zenmark/frontend && npm ci)
+          (cd runtime && npm run build)
+      - uses: ./
+        with:
+          folder: docs/public/zenmd
+          output: ${{ runner.temp }}/site
+          # check: true   # once docs/public/zenmd passes zenmd check (#34)

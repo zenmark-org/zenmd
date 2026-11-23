@@ -234,6 +234,8 @@ tasks:
       - gh release upload "v{{.VERSION}}" "{{.BIN_DIR}}/Zenmark-{{.VERSION}}.dmg" "{{.BIN_DIR}}/Zenmark-{{.VERSION}}.dmg.sha256" --clobber
       # The Linux command line (task release:cli, the release workflow's cli job), when it was built.
       - if [ -f dist/SHA256SUMS ]; then gh release upload "v{{.VERSION}}" dist/zenmd_{{.VERSION}}_linux_*.tar.gz dist/SHA256SUMS --clobber; fi
+      # This repository's docs as a website (the release workflow's docs job).
+      - if [ -f "dist/zenmd-docs-{{.VERSION}}.zip" ]; then gh release upload "v{{.VERSION}}" "dist/zenmd-docs-{{.VERSION}}.zip" --clobber; fi
 
   install:cli:
     summary: Links the zenmd command (and the zen alias) from the installed Zenmark.app (INSTALL_DIR, APP_PATH override)
