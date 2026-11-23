@@ -127,9 +127,11 @@ type BuildInfo struct {
 	Addons    []AddonInfo `json:"addons"`
 	Plugins   []string    `json:"plugins"`
 	Layouts   []string    `json:"layouts"`
-	Templates []string    `json:"templates"`
-	Dialects  []string    `json:"dialects"`
-	Theme     string      `json:"theme"`
+	Templates []string    `json:"templates"` // the blueprints (the assembly's templates: key)
+	// PageTemplates are the built-in page templates; the app sets them.
+	PageTemplates []string `json:"pageTemplates,omitempty"`
+	Dialects      []string `json:"dialects"`
+	Theme         string   `json:"theme"`
 	// Version is the app's version ("dev" when unstamped), shown in Zenmark › About; set by the app, not the assembly.
 	Version string `json:"version,omitempty"`
 }

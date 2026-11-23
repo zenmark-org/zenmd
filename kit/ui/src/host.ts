@@ -43,7 +43,7 @@ export type { PluginStreamEvent };
 export type AddonInfo = { id: string; name: string; summary: string };
 
 /** What an app is built from (kit/assembly): shown in Settings › This build; `theme` becomes `data-app-theme` on the root element. */
-export type BuildInfo = { app: string; features: string[]; addons: AddonInfo[]; plugins: string[]; layouts: string[]; templates: string[]; dialects: string[]; theme: string;
+export type BuildInfo = { app: string; features: string[]; addons: AddonInfo[]; plugins: string[]; layouts: string[]; templates: string[]; pageTemplates?: string[]; dialects: string[]; theme: string;
   /** The app's version ("dev" when unstamped), shown in Zenmark › About. */
   version?: string };
 

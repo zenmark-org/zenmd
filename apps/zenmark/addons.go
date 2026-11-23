@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/zenmark-org/zenmd/builtins/pagetemplates"
 	"github.com/zenmark-org/zenmd/engine/session"
 	"github.com/zenmark-org/zenmd/internal/cli"
 	"github.com/zenmark-org/zenmd/kit/addons"
@@ -28,6 +29,7 @@ func buildInfo() *BuildInfo {
 	b := assemblyInfo
 	b.Addons = addonInfos()
 	b.Version = cli.Version
+	b.PageTemplates = append([]string(nil), pagetemplates.IDs...)
 	return &b
 }
 

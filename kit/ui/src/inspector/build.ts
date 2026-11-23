@@ -12,6 +12,7 @@ export type BuildItem = { id: string; name: string; note: string; details(): HTM
 type Extra = BuildInfo & { engineVersion?: string; channel?: string };
 
 const NONE = "None in this build.";
+const COMMONMARK = "CommonMark and GFM";
 
 function names(ids: readonly string[]): HTMLElement {
   if (ids.length === 0) return el("p", "zen-build-none", NONE);
@@ -20,11 +21,11 @@ function names(ids: readonly string[]): HTMLElement {
   return list;
 }
 
-/** The features the build has, in catalog order: like every other item, only what is there. */
+/** The features the build has, in catalog order, one per line: like every other item, only what is there. */
 function features(have: readonly string[]): HTMLElement {
-  const list = el("ul", "zen-build-features");
+  const list = el("ul", "zen-build-names");
   for (const id of FEATURE_IDS.filter((f) => have.includes(f))) {
-    const li = el("li", "zen-build-feature", id);
+    const li = el("li", "zen-build-name", id);
     li.dataset.feature = id;
     list.append(li);
   }
@@ -63,10 +64,13 @@ export function buildItems(host: Pick<KitHost, "addons" | "build">): BuildItem[]
         return box;
       },
     },
-    simple("plugins", "Plugins", list(b?.plugins)),
+    // Top to bottom, as pages are made: a blueprint is made of page templates, each for a layout, using plugins.
+    simple("blueprints", "Blueprints", list(b?.templates)), // the assembly's templates: key holds the blueprints
+    simple("templates", "Page templates", list(b?.pageTemplates)),
     simple("layouts", "Layouts", list(b?.layouts)),
-    simple("templates", "Templates", list(b?.templates)),
-    simple("dialects", "Dialects", list(b?.dialects)),
+    simple("plugins", "Plugins", list(b?.plugins)),
+    // CommonMark and GFM are always on (Settings › Reader); the dialects are added to them.
+    simple("dialects", "Dialects", [COMMONMARK, ...list(b?.dialects)]),
     simple("theme", "Theme", b?.theme ? [b.theme] : []),
   ];
 }
