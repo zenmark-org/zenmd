@@ -354,7 +354,7 @@ fields:
 		},
 		{
 			name: "lines count the frontmatter",
-			tpl:  "structure:\n  - section: { heading: A }\n  - paragraph: { max-words: 1, label: Lead }\n",
+			tpl:  "structure:\n  - heading: { level: 2, text: A }\n  - paragraph: { max-words: 1, label: Lead }\n",
 			page: "---\na: 1\nb: 2\n---\n\n## A\n\ntoo many words here\n",
 			want: []want{{"warning", "paragraph", 8, "Lead has 4 words"}}, n: 1,
 		},
