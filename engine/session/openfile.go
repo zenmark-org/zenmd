@@ -27,6 +27,13 @@ var ErrFolderOnly = errors.New("Open a folder to use this")
 // page's frontmatter still does, and plugin trust is asked as for the folder.
 func (s *Session) OpenFile(path string) error { return s.open(path, true) }
 
+// IsSingle reports whether one file is open on its own.
+func (s *Session) IsSingle() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.ws != nil && s.ws.Single()
+}
+
 // isMarkdownFile reports whether path is an existing regular markdown file.
 func isMarkdownFile(path string) bool {
 	if path == "" || !isMarkdownPath(path) {

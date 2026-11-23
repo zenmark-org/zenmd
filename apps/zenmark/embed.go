@@ -19,5 +19,5 @@ func Launch(l cli.Launch) error {
 	if err != nil {
 		return err
 	}
-	return Run(Options{Assets: assets, Dir: l.Dir, Page: l.Page, Mode: l.Mode})
+	return Run(Options{Assets: assets, Dir: l.Dir, Page: l.Page, Mode: l.Mode, File: l.File})
 }

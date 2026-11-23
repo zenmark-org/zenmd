@@ -63,9 +63,9 @@ func TestOpenSingleFile(t *testing.T) {
 		{"--file", "Downloads"},
 		{"Downloads", "--file"},
 		{"edit", "--file", "Downloads"},
-		{"--file"},                            // the current folder is a folder
+		{"--file"},                                   // the current folder is a folder
 		{"--file", "--folder", "Downloads/notes.md"}, // not both
-		{"--file", "Downloads/missing.md"},    // there is no file to open alone
+		{"--file", "Downloads/missing.md"},           // there is no file to open alone
 		{"--file", "Downloads/img.png"},
 	} {
 		write(t, filepath.Join(dl, "img.png"))

@@ -58,6 +58,28 @@ func launchArg(path string, args []string) bool {
 	return false
 }
 
+// handleOpenWith is what Finder's "Open With" does with a file or folder: editor windows close first (one may
+// keep its unsaved changes, which stops it), then the app opens it (OpenWith decides how: a markdown file opens
+// alone, a folder or a file of a project opens the folder) and the window gets what it answers as OpenedEvent.
+// args are the process's own arguments: macOS also reports those as "open file" events (`zenmd edit a.md` ->
+// "edit", "a.md"), which the CLI has handled already; reopening them closed the workspace.
+func handleOpenWith(path string, args []string, o Options, closeEditors func() bool, emit func(string, any), warn func(title, msg string)) {
+	if launchArg(path, args) {
+		return
+	}
+	if !closeEditors() {
+		return // an editor kept its unsaved changes
+	}
+	payload, err := o.OpenWith(path)
+	if err != nil {
+		warn("Could not open", err.Error())
+		return
+	}
+	if payload != nil {
+		emit(o.OpenedEvent, payload)
+	}
+}
+
 // Run creates the application and its main window and blocks until it exits.
 func Run(o Options) error {
 	if o.Sink == nil || o.Dialogs == nil || o.Windows == nil {
@@ -147,26 +169,9 @@ func Run(o Options) error {
 	// the frontend asked for Startup, the frontend simply starts there.
 	if o.OpenWith != nil {
 		a.Event.OnApplicationEvent(events.Common.ApplicationOpenedWithFile, func(e *application.ApplicationEvent) {
-			path := e.Context().Filename()
-			// macOS also reports the process's own command-line arguments as
-			// "open file" events (`zenmd edit a.md` -> "edit", "a.md"). Those are
-			// already handled by the CLI; reopening them closed the workspace.
-			if launchArg(path, os.Args[1:]) {
-				return
-			}
-			go func() {
-				if !windows.CloseEditorsWait() {
-					return // an editor kept its unsaved changes
-				}
-				payload, err := o.OpenWith(path)
-				if err != nil {
-					a.Dialog.Warning().SetTitle("Could not open").SetMessage(err.Error()).Show()
-					return
-				}
-				if payload != nil {
-					o.Sink.Emit(o.OpenedEvent, payload)
-				}
-			}()
+			go handleOpenWith(e.Context().Filename(), os.Args[1:], o, windows.CloseEditorsWait, o.Sink.Emit, func(title, msg string) {
+				a.Dialog.Warning().SetTitle(title).SetMessage(msg).Show()
+			})
 		})
 	}
 

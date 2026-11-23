@@ -759,7 +759,19 @@ func findRoot(start string) (root string, found bool) {
 		return start, false
 	}
 	home = filepath.Clean(home)
-	for d := start; within(d, home); d = filepath.Dir(d) {
+	homes := []string{home}
+	if real, err := filepath.EvalSymlinks(home); err == nil && real != home {
+		homes = append(homes, real) // a path with its links resolved (the session's) is below home too
+	}
+	inHome := func(d string) bool {
+		for _, h := range homes {
+			if within(d, h) {
+				return true
+			}
+		}
+		return false
+	}
+	for d := start; inHome(d); d = filepath.Dir(d) {
 		for _, m := range markers {
 			if _, err := os.Stat(filepath.Join(d, m)); err == nil {
 				return d, true

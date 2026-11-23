@@ -213,9 +213,9 @@ type Session struct {
 
 	noWatch bool // open does not start a watcher (the static build)
 
-	watchMu  sync.Mutex // serialises watcher start/stop
+	watchMu  sync.Mutex          // serialises watcher start/stop
 	w        interface{ Stop() } // *watch.Watcher for a folder, a fileWatcher for one file
-	watchGen int // bumped by every start and stop; a late async start compares it
+	watchGen int                 // bumped by every start and stop; a late async start compares it
 
 	openMu      sync.Mutex
 	openCancel  context.CancelFunc // cancels the open in progress, nil when none

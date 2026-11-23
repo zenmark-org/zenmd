@@ -25,8 +25,19 @@ type Options struct {
 	Dir string
 	// Page is the workspace-relative page to open, "" for the default.
 	Page string
+	// File opens the markdown file Dir/Page on its own, without scanning Dir (zenmd notes.md outside a project).
+	File bool
 	// Mode is "read" or "edit".
 	Mode string
+}
+
+// startDir is what the session opens at launch: the folder, or the file itself
+// when it opens alone (the session's Open takes a markdown file).
+func (o Options) startDir() string {
+	if o.File && o.Dir != "" && o.Page != "" {
+		return filepath.Join(o.Dir, o.Page)
+	}
+	return o.Dir
 }
 
 // Run starts the GUI and blocks until the application exits.
@@ -47,7 +58,7 @@ func Run(opts Options) error {
 	// the application runs.
 	z, err := newZen(zenOptions{
 		Registry: reg, GlobalPath: globalPath,
-		Dir: opts.Dir, Page: opts.Page, Mode: "read",
+		Dir: opts.startDir(), Page: opts.Page, Mode: "read",
 		ConfigDir: configDir,
 		Events:    sink, Dialogs: dialogs, Logs: logs,
 		DeferOpen: true, // opened once the window can show progress
@@ -79,7 +90,7 @@ func Run(opts Options) error {
 			return z.openStartupEditor(opts.Mode)
 		},
 		OpenWith: func(path string) (any, error) {
-			st, err := z.openPath(path)
+			st, err := z.openAny(path) // a file opens alone unless it is in a project folder
 			if errors.Is(err, ErrOpenCancelled) {
 				return nil, nil // stopped from the loader
 			}
@@ -102,15 +113,19 @@ func Run(opts Options) error {
 				Find:         emitAction(sink, EventFind),
 				FindNext:     emitAction(sink, EventFindNext),
 				FindPrevious: emitAction(sink, EventFindPrevious),
-				OpenFolder: func() {
+				// File > Open… (⌘O): a folder or a markdown file; a file opens alone.
+				Open: func() {
 					go func() {
-						ws, err := z.PickFolder()
-						if err != nil {
-							a.Dialog.Warning().SetTitle("Could not open the folder").SetMessage(err.Error()).Show()
-							return
+						if err := z.openPicked(); err != nil {
+							a.Dialog.Warning().SetTitle("Could not open").SetMessage(err.Error()).Show()
 						}
-						if ws != nil {
-							sink.Emit(EventWorkspaceOpened, z.Startup())
+					}()
+				},
+				// File > Open Enclosing Folder (⇧⌘O): the project folder of the file that is open alone.
+				OpenEnclosing: func() {
+					go func() {
+						if err := z.OpenEnclosingFolder(); err != nil {
+							a.Dialog.Warning().SetTitle("Could not open the folder").SetMessage(err.Error()).Show()
 						}
 					}()
 				},
