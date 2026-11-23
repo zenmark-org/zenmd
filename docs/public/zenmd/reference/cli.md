@@ -6,7 +6,7 @@ Every `zenmd` command and what it does. `zenmd help` prints the same.
 
 | Command | What it does |
 |---|---|
-| `zenmd [path]` | Open a folder or markdown file in Zenmark (default: the current folder). A file outside a project folder (no `.zenmd.yml`, `.zen.yml` or `.git` above it) opens alone; `--file` forces one file, `--folder` the folder. macOS app only. |
+| `zenmd [path]` | Open a folder or markdown file in Zenmark (default: the current folder). A file outside a project folder (no `.zenmd.yml` or `.git` above it) opens alone; `--file` forces one file, `--folder` the folder. macOS app only. |
 | `zenmd edit [path]` | Open a page in the editor; a new `.md` file is created on save. macOS app only. |
 | `zenmd export site [folder]` | Write a static website. See [export options](export-options.md). |
 | `zenmd export pdf [folder] [-o file.pdf]` | Write the whole folder as one PDF. macOS app only. |
