@@ -99,3 +99,73 @@ test("a glossary index has New Term…, which runs with its folder; other pages 
   expect(labels(menuEntries(gl, env({ newTerm: undefined, glossary: () => true })))).not.toContain("New Term…");
   expect(labels(menuEntries(gl, env()))).not.toContain("New Term…");
 });
+
+// ---- the Files view (ui/files-view): the same menuEntries, with the file kind and the page marks.
+const f = (title: string, path: string, kind: "page" | "file" | "group" = "page"): NavNode => ({ title, path, kind: kind as NavNode["kind"], children: [] });
+const filesTree: NavNode[] = [
+  g("guides", "guides/", [f("Install", "guides/install.md"), f("notes.md", "guides/notes.md"), f("a b#1.png", "guides/img/a b#1.png", "file")]),
+  f("Home", "README.md"),
+];
+const marks: Record<string, string> = { "guides/install.md": "tree", "guides/notes.md": "hidden", "README.md": "other" };
+function fenv(o: Partial<EntryEnv> = {}) {
+  return env({ tree: filesTree, view: "files", mark: (p: string) => marks[p], show: vi.fn(), ...o });
+}
+
+test("files page menu: no Move, New Page Here in its folder, Hide", () => {
+  const e = fenv();
+  const es = menuEntries(filesTree[0].children[0], e);
+  expect(labels(es)).toEqual(["Open", "Open in Editor", "-", "New Page Here…", "-", "Copy Path", "Copy Link", "Reveal in Finder", "-", "Hide from Sidebar"]);
+  find(es, "New Page Here…").run();
+  expect(e.newPage).toHaveBeenCalledWith("guides/");
+  // an "other" page can be hidden too
+  expect(labels(menuEntries(filesTree[1], fenv()))).toContain("Hide from Sidebar");
+});
+
+test("hidden page has Show in Sidebar", () => {
+  const e = fenv();
+  const es = menuEntries(filesTree[0].children[1], e);
+  expect(labels(es)).toContain("Show in Sidebar");
+  expect(labels(es)).not.toContain("Hide from Sidebar");
+  find(es, "Show in Sidebar").run();
+  expect(e.show).toHaveBeenCalledWith("guides/notes.md");
+  // in the Pages view the item is never there
+  expect(labels(menuEntries(tree[0].children[0], env({ show: vi.fn() })))).not.toContain("Show in Sidebar");
+});
+
+test("folder menu", () => {
+  const e = fenv();
+  const es = menuEntries(filesTree[0], e);
+  expect(labels(es)).toEqual(["New Page Here…", "-", "Copy Path", "Reveal in Finder"]);
+  find(es, "New Page Here…").run();
+  expect(e.newPage).toHaveBeenCalledWith("guides/");
+  find(es, "Copy Path").run();
+  expect(e.copy).toHaveBeenCalledWith("guides/");
+});
+
+test("image menu", () => {
+  const e = fenv();
+  const es = menuEntries(filesTree[0].children[2], e);
+  expect(labels(es)).toEqual(["Open", "-", "Copy Path", "Copy Link", "Reveal in Finder"]);
+  find(es, "Open").run();
+  expect(e.open).toHaveBeenCalledWith("guides/img/a b#1.png");
+});
+
+test("image link is relative and encoded", () => {
+  const img = filesTree[0].children[2];
+  const e = fenv({ current: "guides/install.md" });
+  find(menuEntries(img, e), "Copy Link").run();
+  expect(e.copy).toHaveBeenLastCalledWith("![](img/a%20b%231.png)");
+  const top = fenv({ current: "" });
+  find(menuEntries(img, top), "Copy Link").run();
+  expect(top.copy).toHaveBeenLastCalledWith("![](guides/img/a%20b%231.png)");
+  const up = fenv({ current: "docs/deep/x.md" });
+  find(menuEntries(f("p", "pics/(p).png", "file"), up), "Copy Link").run();
+  expect(up.copy).toHaveBeenLastCalledWith("![](../../pics/%28p%29.png)");
+});
+
+test("read-only files menu: no editing items", () => {
+  const ro = { editor: undefined, newPage: undefined, move: undefined, hide: undefined, show: undefined };
+  expect(labels(menuEntries(filesTree[0].children[0], fenv(ro)))).toEqual(["Open", "-", "Copy Path", "Copy Link", "Reveal in Finder"]);
+  expect(labels(menuEntries(filesTree[0].children[1], fenv(ro)))).toEqual(["Open", "-", "Copy Path", "Copy Link", "Reveal in Finder"]);
+  expect(labels(menuEntries(filesTree[0], fenv(ro)))).toEqual(["Copy Path", "Reveal in Finder"]);
+});
