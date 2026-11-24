@@ -488,3 +488,5 @@ test("reload() renders an unsaved editor draft again, never the file", async () 
   expect(env.slots.main.textContent).toContain("Draft");
   un();
 });
+
+test.todo("installs the table view: needs the page/index.ts Integration (installTableView on the article, destroy on teardown)");

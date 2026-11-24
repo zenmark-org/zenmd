@@ -2,7 +2,7 @@
 // exported site (static.ts) draws its sidebar button from it. A 24x24 viewBox drawn at 16px, stroke currentColor,
 // width 1.5, no fill, round caps and joins. Built with DOM APIs, never innerHTML.
 
-export type IconName = "cog" | "export" | "search" | "pencil" | "panel" | "printer" | "sidebar" | "reload";
+export type IconName = "cog" | "export" | "search" | "pencil" | "panel" | "printer" | "sidebar" | "reload" | "expand";
 
 const SVG = "http://www.w3.org/2000/svg";
 
@@ -44,6 +44,11 @@ const SHAPES: Record<IconName, Shape[]> = {
   reload: [
     { tag: "path", d: "M20 12a8 8 0 1 1-2.6-5.9" },
     { tag: "path", d: "M20 4v4.5h-4.5" },
+  ],
+  // two arrows to opposite corners (expand to the window)
+  expand: [
+    { tag: "path", d: "M14 4h6v6M20 4l-7 7" },
+    { tag: "path", d: "M10 20H4v-6M4 20l7-7" },
   ],
   // a printer: the paper going in at the top, the body, and the printed sheet coming out
   printer: [

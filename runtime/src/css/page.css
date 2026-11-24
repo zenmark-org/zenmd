@@ -117,6 +117,22 @@
 .zen-zoom-btn:hover { background: var(--btn-bg-hover); }
 .zen-zoom-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 .zen-zoom-scale { min-width: 4ch; text-align: center; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+
+/* Table view (plugins/table): the Expand button above a table that overflows, and the table over the window. */
+.zen-table-tools { display: flex; justify-content: flex-end; margin: 0 0 var(--space-1); font: 13px/1.4 var(--font-ui); user-select: none; -webkit-user-select: none; }
+.zen-table-tools .zen-btn { display: inline-flex; align-items: center; gap: var(--space-1); font-size: 13px; }
+.zen-tableview-stage { display: block; padding: 0 0 80px; cursor: default; }
+.zen-tableview-table { display: table; width: max-content; max-width: none; margin: var(--space-4) auto 0; overflow: visible; border-collapse: separate; border-spacing: 0;
+  font-size: calc(var(--zen-table-size, 1) * .92rem); line-height: 1.45; color: var(--fg); background: var(--bg); }
+.zen-tableview-table :is(th, td) { max-width: 40ch; overflow-wrap: anywhere; padding: 6px 12px; text-align: left; vertical-align: top;
+  border: 0; border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule); background: var(--bg); }
+.zen-tableview-table th { font-weight: 600; background: var(--bg); }
+.zen-tableview-table caption { caption-side: top; max-width: 80ch; padding: 0 12px 8px; text-align: left; color: var(--fg-muted); font-size: .9em; }
+.zen-tableview-table a { color: var(--fg); text-underline-offset: 3px; cursor: pointer; }
+.zen-tv-head { position: sticky; top: 0; z-index: 2; border-bottom-color: var(--fg); }
+.zen-tv-stub { position: sticky; left: 0; z-index: 1; }
+.zen-tv-head.zen-tv-stub { z-index: 3; }
+.zen-tableview-stage:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
 .zen-page hr { border: 0; border-top: 1px solid var(--rule); margin: 2em 0; }
 
 .zen-page sup { line-height: 0; }
@@ -139,7 +155,7 @@
    may add their own rules for what they draw. */
 @media print {
   html, body, #app { height: auto; overflow: visible; }
-  .zen-sidebar, .zen-resizer, .zen-top, .zen-actions, .zen-progress, .zen-page-warnings, .zen-page-error, .zen-zoom { display: none !important; }
+  .zen-sidebar, .zen-resizer, .zen-top, .zen-actions, .zen-progress, .zen-page-warnings, .zen-page-error, .zen-zoom, .zen-table-tools, .zen-tableview { display: none !important; }
   .zen-frame, .zen-content, .zen-main { display: block; height: auto; overflow: visible; }
   .zen-page { max-width: none; width: auto; padding: 0; }
   pre, blockquote, table, img { break-inside: avoid; }

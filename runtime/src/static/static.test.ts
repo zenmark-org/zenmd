@@ -422,3 +422,5 @@ test("top bar css: left out when printing", () => {
   expect(print).toMatch(/\.zen-site-top[^{]*\{[^}]*display:\s*none/);
   expect(css()).toMatch(/@media print[^]*\.zen-site-top/);
 });
+
+test.todo("installs the table view: needs the static.ts Integration (installTableView on .zen-page, destroy on teardown)");

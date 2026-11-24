@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | specified |
+| Status | done |
 | Target version | 0.8.0 (MINOR: a new reader feature, nothing changes for authors) |
 | Branch | `feature/plugins-table` |
 | Wave | 59 (with plugins/diagrams: disjoint paths, and the same overlay event) |
