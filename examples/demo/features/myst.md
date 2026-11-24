@@ -78,6 +78,10 @@ name is the title, and each kind has its own title and a coloured rule on the le
 ```{note}
 A note keeps its default title, "Note".
 ```
+
+```{tip} A title of your own
+The text after the name replaces the default title.
+```
 ````
 
 ```{note}
@@ -88,95 +92,9 @@ A note keeps its default title, "Note".
 The text after the name replaces the default title.
 ```
 
-```{hint}
-A hint, like a tip, has a blue rule.
-```
-
-```{important}
-An important callout has a blue rule too.
-```
-
-```{seealso}
-Other pages worth a look: [Markdown](markdown.md).
-```
-
-`warning`, `caution` and `attention` have an amber rule:
-
-```{warning}
-A warning.
-```
-
-```{caution}
-A caution.
-```
-
-```{attention}
-An attention callout.
-```
-
-`danger` and `error` have a red rule:
-
-```{danger}
-A danger callout.
-```
-
-```{error}
-An error callout.
-```
-
-`admonition` takes any title, so it is required. It is blue unless you add
-`:class:` with another kind, such as `warning`:
-
-````markdown
-```{admonition} Your own title
-:class: warning
-An admonition coloured like a warning.
-```
-````
-
-```{admonition} Your own title
-:class: warning
-An admonition coloured like a warning.
-```
-
-Add `:class: dropdown` to fold a callout. It opens by click or Enter, and
-`:open:` starts it open:
-
-````markdown
-```{note} Fold me
-:class: dropdown
-Hidden until you open it.
-```
-````
-
-```{note} Fold me
-:class: dropdown
-Hidden until you open it.
-```
-
-```{tip} Open at first
-:class: dropdown
-:open:
-This one starts open.
-```
-
-`versionadded`, `versionchanged` and `deprecated` take a version and make a
-one-line note:
-
-```{versionadded} 0.7
-The MyST dialect.
-```
-
-```{versionchanged} 0.8
-Callouts became a built-in.
-```
-
-```{deprecated} 1.0
-This example is only here to show the note.
-```
-
-Every callout also works without MyST, as `:::note` with the title as an
-attribute, such as `:::note{title="Remember" class=dropdown open}`.
+`admonition`, the version notes and folding callouts, with an example of every
+name, are on the [callout page](../plugins/callout.md). Every callout also works
+without MyST, as `:::note`.
 
 ## Figures, images and tables
 
@@ -209,20 +127,24 @@ The legend is the paragraphs after the caption.
 ```
 
 `:name:` gives the figure an id that a link can point to, so [the figure
-above](#zen-mark) is a plain link. The `{image}` directive is the picture alone,
-with the same options and no caption or number:
-
-```{image} ../images/zen-mark.svg
-:alt: The Zenmark mark
-:width: 48
-:align: left
-```
+above](#zen-mark) is a plain link. The `{image}` directive is the picture alone.
+See the [figure page](../plugins/figure.md).
 
 A `{table}` takes its caption as the argument and a markdown table as its body:
 
+````markdown
 ```{table} Stock levels
 :name: stock
-:align: center
+
+| Item | In stock |
+|------|----------|
+| Ink  | 3        |
+| Pens | 10       |
+```
+````
+
+```{table} Stock levels
+:name: stock
 
 | Item | In stock |
 |------|----------|
@@ -230,45 +152,8 @@ A `{table}` takes its caption as the argument and a markdown table as its body:
 | Pens | 10       |
 ```
 
-A `{list-table}` is a list of lists, one item for each row and one inside it for
-each cell. `:header-rows:`, `:stub-columns:`, `:widths:` and `:align:` work as in
-MyST:
-
-```{list-table} Supplies
-:header-rows: 1
-:stub-columns: 1
-:widths: 30 70
-
-* - Item
-  - Notes
-* - Ink
-  - Black, **refillable**
-* - Pens
-  - Sold in packs of `10`
-```
-
-A `{csv-table}` reads CSV from its body. `:header-rows:`, `:header:` and `:delim:`
-are read too:
-
-```{csv-table} Prices
-:header-rows: 1
-
-Item, Price
-Apple, 1.20
-"Pear, green", 2.50
-```
-
-`:file:` reads a CSV file of the folder instead, at most 1 MB, and never one
-outside the folder:
-
-````markdown
-```{csv-table} Prices
-:file: data/prices.csv
-:header-rows: 1
-```
-````
-
-All of them also work as `:::figure{src=…}`, `:::table{title=…}` and so on, without MyST.
+`{list-table}` and `{csv-table}` build a table from a list or from CSV. See the
+[table page](../plugins/table.md).
 
 ## Math
 
@@ -309,9 +194,8 @@ message under it.
 
 ## Code
 
-`{code-block} lang`, `{code} lang` and `{code-cell} lang` are plain fenced code
-in `lang`, so the [code colouring](../plugins/codeblock.md) applies. A code cell
-is never run.
+`{code-block} lang` and `{code} lang` are plain fenced code
+in `lang`, so the [code colouring](../plugins/codeblock.md) applies.
 
 ````markdown
 ```{code-block} python
@@ -326,3 +210,19 @@ def greet(name):
 ```
 
 Roles such as `` {ref}`x` ``, cross-references and `{eval-rst}` are not read.
+
+## Every MyST name and its built-in
+
+Each name belongs to one built-in plugin, and each plugin has a page here.
+
+- [`check`](../plugins/check.md): `{check}`
+- [`diagram`](../plugins/diagram.md): `{mermaid}`
+- [`rating`](../plugins/rating.md): `{rating}`, `{rating-results}`
+- [`quiz`](../plugins/quiz.md): `{quiz}`, `{quiz-results}`
+- [`sandbox`](../plugins/sandbox.md): `{sandbox}`
+- [`callout`](../plugins/callout.md): `{note}`, `{tip}`, `{hint}`, `{important}`,
+  `{seealso}`, `{warning}`, `{caution}`, `{attention}`, `{danger}`, `{error}`,
+  `{admonition}`, `{versionadded}`, `{versionchanged}`, `{deprecated}`
+- [`figure`](../plugins/figure.md): `{figure}`, `{image}`
+- [`table`](../plugins/table.md): `{table}`, `{list-table}`, `{csv-table}`
+- [`codeblock`](../plugins/codeblock.md): `{code-block}`, `{code}`

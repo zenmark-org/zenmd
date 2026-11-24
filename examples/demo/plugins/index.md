@@ -15,6 +15,9 @@ page can never inject scripts into it.
 | [quiz](quiz.md) | questions with saved answers and scores | yes |
 | [sandbox](sandbox.md) | runs a code block in a container | yes, after setup |
 | [rating](rating.md) | star ratings kept on this Mac | yes |
+| [callout](callout.md) | notes, tips, warnings and version notes | yes |
+| [figure](figure.md) | a picture with a numbered caption | yes |
+| [table](table.md) | a table with a numbered caption | yes |
 
 Settings has a **Plugins** section that lists them with help and snippets to
 copy into a page; see [Settings](../configuration/settings.md).

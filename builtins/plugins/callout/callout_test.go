@@ -293,13 +293,13 @@ func TestKitClasses(t *testing.T) {
 	has(t, got, `class="zen-block zen-callout zen-callout-suggestion"`, `class="zen-block-head zen-callout-head"`)
 }
 
-// The demo's MyST page shows every kind live, with the dialect on and no warnings.
+// The demo's callout page shows every kind live, with the dialect on and no warnings.
 func TestDemoPage(t *testing.T) {
-	src, err := os.ReadFile("../../../examples/demo/features/myst.md")
+	src, err := os.ReadFile("../../../examples/demo/plugins/callout.md")
 	if err != nil {
 		t.Skip(err)
 	}
-	p, err := mystRenderer(t).Render("features/myst.md", src)
+	p, err := mystRenderer(t).Render("plugins/callout.md", src)
 	if err != nil {
 		t.Fatal(err)
 	}
