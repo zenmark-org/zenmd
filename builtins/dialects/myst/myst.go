@@ -280,6 +280,9 @@ func build(src []byte, start, end, bodyStart, bodyEnd int, name, arg string) dia
 	sp := dialects.Span{Span: plugins.Span{Start: start, End: end, Name: name, Body: string(body), Attrs: attrs}, Warnings: warns}
 	if codeNames[name] {
 		sp.Code = true
+		if name == "code-cell" {
+			sp.Warnings = append(sp.Warnings, "myst: the directive {code-cell} is not supported (nothing runs) and stays as code")
+		}
 		if f := bytes.Fields([]byte(arg)); len(f) > 0 && langRE.Match(f[0]) {
 			sp.Lang = string(f[0])
 		}

@@ -57,6 +57,7 @@ type Context struct {
     Workspace string         // root of the open folder (actions, streams, and block and inline hooks while a page renders; "" without a folder)
     Warn      func(msg string) // adds a warning to the page (block and inline hooks); nil without a page
     Markdown  func(src string) (string, error) // renders markdown through the page's own pipeline (nested plugins, at most 8 levels deep); nil without a page pipeline
+    PageTitle func(path string) (title string, ok bool) // the title of a page of the folder; nil without a folder
 }
 
 type Block  struct{ Name, Body string; Attrs map[string]string; Fenced bool }
@@ -84,6 +85,13 @@ missing image) while the hook still returns its HTML; a returned error replaces 
 an error box instead. At most 20 per plugin per page, each message is cut to 200 characters,
 control characters are removed and a message already given is dropped. It works from nested
 `ctx.Markdown` rendering and is nil where there is no page.
+
+`Context.PageTitle` gives the title of another page of the open folder, by the one rule every
+title follows: the page's first H1, else its frontmatter `title:`, else its file name. `path`
+is relative to the page being rendered, as a link is, and may leave out `.md`. `ok` is false
+when the page is not in the folder, including when the path would leave it. It is set for block
+and inline hooks while a page renders and is nil when there is no folder; a plugin that uses it
+falls back to the file name. It reads the page's source without running any plugin.
 
 `Context.Workspace` is also set for block and inline hooks while a page renders: the open
 folder's root, or "" when the renderer has no folder (a lone file, `render.HTML`). A built-in

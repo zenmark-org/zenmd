@@ -136,6 +136,16 @@ func (r *Renderer) Render(pagePath string, src []byte) (Page, error) {
 			st.warnings = append(st.warnings, fmt.Sprintf("dialect %s is not in this build", id))
 		}
 	}
+	st.subs = substitutionsOf(meta)
+	var fields map[string]string
+	for _, d := range st.dialects {
+		if fl, ok := d.(dialects.FieldLister); ok {
+			if f, rest := fl.Fields(body); len(f) > 0 {
+				fields, body = f, rest
+				break
+			}
+		}
+	}
 
 	// 2 source hooks
 	for _, p := range set.Plugins() {
@@ -157,7 +167,7 @@ func (r *Renderer) Render(pagePath string, src []byte) (Page, error) {
 	body = st.replaceContainers(body)
 	body = st.replaceInlines(body)
 
-	md := newMarkdown(goldmark.WithRendererOptions(
+	md := st.newMarkdown(goldmark.WithRendererOptions(
 		renderer.WithNodeRenderers(util.Prioritized(&nodeRenderer{st: st, r: r}, 100)),
 	))
 	doc := md.Parser().Parse(text.NewReader(body))
@@ -219,11 +229,47 @@ func (r *Renderer) Render(pagePath string, src []byte) (Page, error) {
 		Path:        pagePath,
 		Title:       title,
 		HTML:        out,
-		Frontmatter: meta,
+		Frontmatter: withFields(meta, fields),
 		Assets:      assets,
 		Warnings:    st.warnings,
 		Layout:      lay.ref,
 	}, nil
+}
+
+// substitutionsOf reads the substitutions: mapping of a page's frontmatter:
+// key to text, scalars only.
+func substitutionsOf(meta map[string]any) map[string]string {
+	m, ok := meta["substitutions"].(map[string]any)
+	if !ok {
+		return nil
+	}
+	out := map[string]string{}
+	for k, v := range m {
+		switch x := v.(type) {
+		case string:
+			out[k] = strings.NewReplacer("\r", " ", "\n", " ").Replace(x)
+		case int, int64, uint64, float64, bool:
+			out[k] = fmt.Sprint(x)
+		}
+	}
+	return out
+}
+
+// withFields is the page's frontmatter with the dialect's field list added
+// (for Page Info). A field never replaces a frontmatter key, and the fields
+// are never read as settings: the renderer used meta for those before.
+func withFields(meta map[string]any, fields map[string]string) map[string]any {
+	if len(fields) == 0 {
+		return meta
+	}
+	out := make(map[string]any, len(meta)+len(fields))
+	for k, v := range fields {
+		out[k] = v
+	}
+	for k, v := range meta {
+		out[k] = v
+	}
+	return out
 }
 
 // pageTitle is the one rule for a page's title: the first h1 (plain text);

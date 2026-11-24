@@ -23,7 +23,7 @@ func roleEcho(id string, names ...string) *fakePlugin {
 
 func TestRolesMapToInlinePlugins(t *testing.T) {
 	r := mystRenderer(t, mystOn, roleEcho("echo", "ref", "kbd"))
-	p := render(t, r, "See {ref}`intro` and {kbd}`Ctrl+C`, `{ref}`x`` stays code.\n\n```\n{ref}`in a fence`\n```\n")
+	p := render(t, r, "See {ref}`intro` and {kbd}`Ctrl+C`, `` {ref}`x` `` stays code.\n\n```\n{ref}`in a fence`\n```\n")
 	contains(t, p.HTML, "<b>ref:intro</b>", "<b>kbd:Ctrl+C</b>", "<code>{ref}`x`</code>", "{ref}`in a fence`")
 	lacks(t, p.HTML, "<b>ref:in a fence", "<b>ref:x")
 	if len(p.Warnings) != 0 {
