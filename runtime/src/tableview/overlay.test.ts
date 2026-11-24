@@ -12,11 +12,12 @@ test("registerOverlay: announces itself, closes on another owner's event, not on
   expect(closed).toBe(0);
   document.dispatchEvent(new CustomEvent(OVERLAY_EVENT, { detail: { owner: "other" } }));
   expect(closed).toBe(1);
-  const off2 = registerOverlay(document, () => {});
-  expect(seen[1]).not.toBe(seen[0]); // a new owner every time
+  const off2 = registerOverlay(document, () => {}); // a newer view: the older one is told to close
+  expect(closed).toBe(2);
+  expect(seen[seen.length - 1]).not.toBe(seen[0]); // a new owner every time
   off();
   off2();
   document.dispatchEvent(new CustomEvent(OVERLAY_EVENT, { detail: { owner: "other" } }));
-  expect(closed).toBe(1);
+  expect(closed).toBe(2);
   document.removeEventListener(OVERLAY_EVENT, on);
 });

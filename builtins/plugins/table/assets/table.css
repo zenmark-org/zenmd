@@ -10,3 +10,5 @@
 .zt-label { color: var(--fg); font-weight: 600; }
 .zt-note { margin: 8px 0 0; }
 @media print { .zt { break-inside: avoid; } .zt-scroll { overflow: visible; } }
+/* Room for the Expand button (runtime page.css) above a table that overflows. */
+.zt .zen-block-body > .zen-table-tools { margin: 0 0 var(--space-1); }

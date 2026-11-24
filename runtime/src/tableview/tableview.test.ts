@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll, beforeEach, expect, test } from "vitest";
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { OVERLAY_EVENT } from "./overlay";
 import { expandableTable, fitSize, installTableView, overflows, TABLE_SIZE_MAX, TABLE_SIZE_MIN, type TableView } from "./tableview";
 
@@ -58,11 +59,11 @@ test("expandableTable: which tables", () => {
     `<div data-zen-plugin="quiz">${md()}</div>` +
     `<div data-zen-plugin="table">${md()}</div>` +
     `<a href="x.md">${md()}</a><button>${md()}</button>` +
-    `<table><tbody><tr><td><table id="inner"><tbody><tr><td>n</td></tr></tbody></table></td></tr></tbody></table>` +
+    `<table id="outer"><tbody><tr><td><table id="inner"><tbody><tr><td>n</td></tr></tbody></table></td></tr></tbody></table>` +
     md(WIDE, " data-zen-nozoom");
   const tables = Array.from(root.querySelectorAll("table"));
   const ok = tables.filter((t) => expandableTable(t, root));
-  expect(ok.map((t) => t.id || t.closest("[data-zen-plugin]")?.getAttribute("data-zen-plugin") || "md")).toEqual(["md", "t1", "table"]);
+  expect(ok.map((t) => t.id || t.closest("[data-zen-plugin]")?.getAttribute("data-zen-plugin") || "md")).toEqual(["md", "t1", "table", "outer"]);
   expect(expandableTable(root.querySelector("#inner")!, root)).toBeNull();
   expect(expandableTable(document.createElement("table"), root)).toBeNull(); // not in root
   expect(expandableTable(root.querySelector("tr")!, root)).toBeNull(); // not a table
@@ -106,7 +107,7 @@ test("the button follows overflow", () => {
   expect(root.querySelectorAll(".zen-table-expand")).toHaveLength(1);
   tv.refresh(); // no second button
   expect(root.querySelectorAll(".zen-table-expand")).toHaveLength(1);
-  t.setAttribute("data-test-sw", "500");
+  t.setAttribute("data-test-sw", "400");
   tv.refresh();
   expect(root.querySelector(".zen-table-tools")).toBeNull();
 });
@@ -163,7 +164,7 @@ test("opening shows a copy of the table", () => {
 });
 
 test("the module builds the view without parsing strings", () => {
-  const src = readFileSync(new URL("./tableview.ts", import.meta.url), "utf8");
+  const src = readFileSync(resolve(__dirname, "tableview.ts"), "utf8");
   expect(src).not.toMatch(/innerHTML|insertAdjacentHTML|outerHTML|DOMParser|createContextualFragment/);
 });
 
@@ -207,9 +208,9 @@ test("the bar sets the size", () => {
   for (let i = 0; i < 30; i++) key("-");
   expect(scale()).toBe(`${TABLE_SIZE_MIN * 100}%`);
   key("1");
-  click(bar("Zoom in"));
+  click(bar("Larger"));
   expect(scale()).toBe("125%");
-  click(bar("Zoom out"));
+  click(bar("Smaller"));
   click(bar("Fit"));
   expect(scale()).toBe("83%");
   const pinch = new WheelEvent("wheel", { deltaY: -50, bubbles: true, cancelable: true });
@@ -307,15 +308,21 @@ test("one overlay at a time", () => {
   expect(document.querySelectorAll(".zen-zoom")).toHaveLength(1);
   expect(view()).not.toBe(first);
   // Another view over the window (the image zoom, a plugin's) announces itself with the shared event.
-  let owner = "";
-  document.addEventListener(OVERLAY_EVENT, (e) => { owner = (e as CustomEvent).detail.owner; }, { once: true });
+  const owners: string[] = [];
+  const on = (e: Event) => owners.push((e as CustomEvent).detail.owner);
+  document.addEventListener(OVERLAY_EVENT, on);
   tv.close();
   click(expand(0));
+  document.removeEventListener(OVERLAY_EVENT, on);
+  expect(owners).toHaveLength(1);
+  const owner = owners[0];
   expect(owner).toMatch(/\S/);
   document.dispatchEvent(new CustomEvent(OVERLAY_EVENT, { detail: { owner: "someone-else" } }));
   expect(tv.isOpen).toBe(false);
+  document.addEventListener(OVERLAY_EVENT, on);
   click(expand(0));
-  document.dispatchEvent(new CustomEvent(OVERLAY_EVENT, { detail: { owner } })); // its own event is ignored
+  document.removeEventListener(OVERLAY_EVENT, on);
+  document.dispatchEvent(new CustomEvent(OVERLAY_EVENT, { detail: { owner: owners[owners.length - 1] } })); // its own event is ignored
   expect(tv.isOpen).toBe(true);
   // destroy closes and disconnects
   tv.destroy();
@@ -334,6 +341,21 @@ test("the view closes when the page is re-rendered", async () => {
   await frame();
   expect(tv.isOpen).toBe(false);
   expect(view()).toBeNull();
+});
+
+test("a spec-shaped table: many rows, long cells with code and links", () => {
+  const rows = Array.from({ length: 40 }, (_, i) =>
+    `<tr><td><code>runtime/src/file${i}.ts</code></td><td>Opens the table <a href="../spec${i}.md">spec ${i}</a> over the window, with a long explanation that has to wrap at forty characters.</td><td>x</td></tr>`).join("");
+  set(`<table ${WIDE}><thead><tr><th>Owns</th><th>Behaviour</th><th>Test</th></tr></thead><tbody>${rows}</tbody></table>`);
+  const clicked: string[] = [];
+  root.addEventListener("click", (e) => { const a = (e.target as Element).closest("a"); if (a) { clicked.push(a.getAttribute("href")!); e.preventDefault(); } });
+  click(expand());
+  const copy = view()!.querySelector("table")!;
+  expect(copy.querySelectorAll("tbody tr")).toHaveLength(40);
+  expect(copy.querySelectorAll("thead th.zen-tv-head")).toHaveLength(3);
+  click(copy.querySelectorAll("a")[7]);
+  expect(clicked).toEqual(["../spec7.md"]);
+  expect(tv.isOpen).toBe(false);
 });
 
 test.todo("one overlay at a time with installImageZoom: needs the zoom.ts Integration (registerOverlay in open and close)");

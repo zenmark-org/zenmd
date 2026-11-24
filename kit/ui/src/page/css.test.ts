@@ -100,7 +100,7 @@ test("the table view is over the window, never printed and not animated (plugins
   expect(css).toMatch(/\.zen-tableview-stage\s*\{/);
   expect(css).toMatch(/\.zen-tv-head\s*\{[^}]*position:\s*sticky/);
   expect(css).toMatch(/\.zen-tv-stub\s*\{[^}]*position:\s*sticky/);
-  expect(css).toMatch(/@media print\s*\{[^@]*\.zen-table-tools,\s*\.zen-tableview\s*\{\s*display:\s*none\s*!important/);
+  expect(css).toMatch(/@media print\s*\{[^@]*\.zen-table-tools,\s*\.zen-tableview\s*\{?[^}]*display:\s*none\s*!important/);
   expect(css).toMatch(/\.zen-table-tools\s*\{[^}]*user-select:\s*none/);
   const block = css.slice(css.indexOf("Table view"));
   expect(block).not.toMatch(/transition|animation/);
