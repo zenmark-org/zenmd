@@ -12,7 +12,7 @@
 				<key>LSHandlerRank</key>
 				<string>Alternate</string>
 				<key>CFBundleTypeIconFile</key>
-				<string>icons</string>
+				<string>md-document</string>
 				<key>CFBundleTypeExtensions</key>
 				<array>
 					<string>md</string>

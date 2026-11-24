@@ -10,7 +10,7 @@
 					<string>md</string>
 				</array>
 				<key>CFBundleTypeIconFile</key>
-				<string>icons</string>
+				<string>md-document</string>
 				<key>CFBundleTypeMimeType</key>
 				<string>text/markdown</string>
 				<key>CFBundleTypeName</key>
@@ -24,7 +24,7 @@
 					<string>markdown</string>
 				</array>
 				<key>CFBundleTypeIconFile</key>
-				<string>icons</string>
+				<string>md-document</string>
 				<key>CFBundleTypeMimeType</key>
 				<string>text/markdown</string>
 				<key>CFBundleTypeName</key>

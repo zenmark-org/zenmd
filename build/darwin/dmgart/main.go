@@ -5,7 +5,9 @@
 //	go run ./build/darwin/dmgart [-name Zenmark] [-svg build/appicon.svg] [-icon build/appicon.png] [-out build/darwin]
 //
 // It writes dmg-background.png (540x380), dmg-background@2x.png (1080x760) and
-// dmg-file-icon.icns. The background is black type and an arrow on white; the
+// dmg-file-icon.icns (the .dmg file) and md-document.icns (the Finder icon of
+// Markdown files: a white page with a folded corner, the app mark and "MD").
+// The background is black type and an arrow on white; the
 // SVG is rasterised with macOS QuickLook (qlmanage), like `task icon` does.
 // The icon is composed and scaled with the standard library only.
 package main
@@ -128,7 +130,14 @@ func run(o options) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(o.out, "dmg-file-icon.icns"), data, 0o644)
+	if err := os.WriteFile(filepath.Join(o.out, "dmg-file-icon.icns"), data, 0o644); err != nil {
+		return err
+	}
+	md, err := mdIcns(src)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(o.out, "md-document.icns"), md, 0o644)
 }
 
 // rasterise renders svg with QuickLook at size x size.
@@ -235,21 +244,44 @@ func scale(img image.Image, size int) *image.NRGBA {
 	return out
 }
 
+type icnsType struct {
+	typ  string
+	size int
+}
+
 // icns builds a macOS icon file with PNG images at the standard sizes from a
 // 1024 px source.
 func icns(src image.Image) ([]byte, error) {
-	types := []struct {
-		typ  string
-		size int
-	}{{"ic11", 32}, {"ic12", 64}, {"ic07", 128}, {"ic08", 256}, {"ic13", 256}, {"ic09", 512}, {"ic14", 512}, {"ic10", 1024}}
+	return buildICNS([]icnsType{{"ic11", 32}, {"ic12", 64}, {"ic07", 128}, {"ic08", 256}, {"ic13", 256}, {"ic09", 512}, {"ic14", 512}, {"ic10", 1024}},
+		func(n int) image.Image {
+			if src.Bounds().Dx() == n {
+				return src
+			}
+			return scale(src, n)
+		})
+}
+
+// mdIcns is the Markdown document icon at every size from 16 to 1024 px. The
+// 16 and 32 px images come from the simplified page (no mark, thick outline).
+func mdIcns(tile image.Image) ([]byte, error) {
+	full, small := docIcon(tile, false), docIcon(tile, true)
+	return buildICNS([]icnsType{{"icp4", 16}, {"ic11", 32}, {"icp5", 32}, {"ic12", 64}, {"ic07", 128}, {"ic08", 256}, {"ic13", 256}, {"ic09", 512}, {"ic14", 512}, {"ic10", 1024}},
+		func(n int) image.Image {
+			switch {
+			case n == 1024:
+				return full
+			case n <= 32:
+				return scale(small, n)
+			}
+			return scale(full, n)
+		})
+}
+
+func buildICNS(types []icnsType, get func(size int) image.Image) ([]byte, error) {
 	var body bytes.Buffer
 	for _, t := range types {
-		var img image.Image = src
-		if src.Bounds().Dx() != t.size {
-			img = scale(src, t.size)
-		}
 		var p bytes.Buffer
-		if err := png.Encode(&p, img); err != nil {
+		if err := png.Encode(&p, get(t.size)); err != nil {
 			return nil, err
 		}
 		body.WriteString(t.typ)
@@ -261,4 +293,114 @@ func icns(src image.Image) ([]byte, error) {
 	_ = binary.Write(&out, binary.BigEndian, uint32(body.Len()+8))
 	out.Write(body.Bytes())
 	return out.Bytes(), nil
+}
+
+// Page geometry on the 1024 px canvas.
+const (
+	pgL, pgR, pgT, pgB = 192, 832, 64, 960
+	pgRad, pgFold      = 56, 210
+)
+
+var (
+	black = color.NRGBA{0, 0, 0, 255}
+	white = color.NRGBA{255, 255, 255, 255}
+)
+
+// inPage reports whether (x,y) is inside the page shape shrunk by inset:
+// a rounded rectangle with the top-right corner cut off diagonally.
+func inPage(x, y, inset int) bool {
+	l, r, t, b, rad := pgL+inset, pgR-inset, pgT+inset, pgB-inset, max(pgRad-inset, 0)
+	if x < l || x >= r || y < t || y >= b {
+		return false
+	}
+	cx, cy := min(max(x, l+rad), r-1-rad), min(max(y, t+rad), b-1-rad)
+	if (x-cx)*(x-cx)+(y-cy)*(y-cy) > rad*rad {
+		return false
+	}
+	// The cut corner: dx, dy measured from the fold's inner corner.
+	dx, dy := x-(pgR-pgFold), (pgT+pgFold)-y
+	return !(dx > 0 && dy > 0 && float64(dx+dy) > float64(pgFold)-float64(inset)*1.4143)
+}
+
+// docIcon draws the Markdown document icon on a 1024 px canvas: a white page
+// with a dark outline and a folded corner, the app mark and "MD". The small
+// variant (for 16 and 32 px) drops the mark and thickens outline and letters.
+func docIcon(tile image.Image, small bool) *image.NRGBA {
+	const n = 1024
+	out := image.NewNRGBA(image.Rect(0, 0, n, n))
+	w := 18
+	if small {
+		w = 56
+	}
+	for y := pgT; y < pgB; y++ {
+		for x := pgL; x < pgR; x++ {
+			switch {
+			case inPage(x, y, w):
+				out.SetNRGBA(x, y, white)
+			case inPage(x, y, 0):
+				out.SetNRGBA(x, y, black)
+			}
+		}
+	}
+	// The fold: a white flap outlined in black.
+	fx, fy := pgR-pgFold, pgT+pgFold
+	for y := pgT; y <= fy; y++ {
+		for x := fx; x < pgR; x++ {
+			dx, dy := x-fx, fy-y
+			if dx+dy > pgFold || !inPage(x, y, 0) {
+				continue
+			}
+			c := white
+			if dx < w || dy < w || pgFold-(dx+dy) < int(float64(w)*0.7) {
+				c = black
+			}
+			out.SetNRGBA(x, y, c)
+		}
+	}
+	if small {
+		letters(out, 512, 410, 240)
+	} else {
+		// The mark: the tile without its transparent margin.
+		const m, ms = 100, 340
+		crop := image.NewNRGBA(image.Rect(0, 0, 824, 824))
+		draw.Draw(crop, crop.Bounds(), tile, image.Pt(m, m), draw.Src)
+		draw.Draw(out, image.Rect(512-ms/2, 190, 512+ms/2, 190+ms), scale(crop, ms), image.Point{}, draw.Over)
+		letters(out, 512, 640, 200)
+	}
+	return out
+}
+
+// letters draws "MD" in black, centred on cx, top at y, h pixels tall, from
+// strokes and rounded rectangles (no fonts).
+func letters(dst *image.NRGBA, cx, y, h int) {
+	st := h / 5
+	wm, wd, gap := h*85/100, h*78/100, h*28/100
+	x := cx - (wm+gap+wd)/2
+	// M: two stems and a V between them.
+	fillRound(dst, image.Rect(x, y, x+st, y+h), 0, black)
+	fillRound(dst, image.Rect(x+wm-st, y, x+wm, y+h), 0, black)
+	mid := x + wm/2
+	line(dst, float64(x+st/2), float64(y+st/2), float64(mid), float64(y+h*62/100), float64(st)*0.55)
+	line(dst, float64(x+wm-st/2), float64(y+st/2), float64(mid), float64(y+h*62/100), float64(st)*0.55)
+	// D: a stem and a bowl.
+	dx := x + wm + gap
+	fillRound(dst, image.Rect(dx, y, dx+wd, y+h), h*38/100, black)
+	fillRound(dst, image.Rect(dx, y, dx+h*30/100, y+h), 0, black)
+	fillRound(dst, image.Rect(dx+st, y+st, dx+wd-st, y+h-st), max(h*38/100-st, 0), white)
+	fillRound(dst, image.Rect(dx+st, y+st, dx+st+h*20/100, y+h-st), 0, white)
+}
+
+// line fills a thick segment (radius r) in black.
+func line(dst *image.NRGBA, x0, y0, x1, y1, r float64) {
+	dx, dy := x1-x0, y1-y0
+	l2 := dx*dx + dy*dy
+	for y := int(min(y0, y1) - r); y <= int(max(y0, y1)+r); y++ {
+		for x := int(min(x0, x1) - r); x <= int(max(x0, x1)+r); x++ {
+			t := min(max(((float64(x)-x0)*dx+(float64(y)-y0)*dy)/l2, 0), 1)
+			px, py := x0+t*dx-float64(x), y0+t*dy-float64(y)
+			if px*px+py*py <= r*r {
+				dst.SetNRGBA(x, y, black)
+			}
+		}
+	}
 }

@@ -150,7 +150,7 @@ func TestNoWailsBranding(t *testing.T) {
 	// 3. What a user can see: the plist templates, the privacy manifest, the
 	// generated art, and (when built) the bundle's Resources and Info.plist.
 	var files []string
-	for _, g := range []string{"Info.plist", "Info.dev.plist", "PrivacyInfo.xcprivacy", "dmg-*", "icons.icns", "*.entitlements*.plist", "entitlements*.plist"} {
+	for _, g := range []string{"Info.plist", "Info.dev.plist", "PrivacyInfo.xcprivacy", "dmg-*", "icons.icns", "md-document.icns", "*.entitlements*.plist", "entitlements*.plist"} {
 		m, _ := filepath.Glob(g)
 		files = append(files, m...)
 	}
@@ -206,8 +206,10 @@ func TestIconAssets(t *testing.T) {
 
 	// The bundle: icns always; Assets.car compiled from appicon.icon.
 	requireBundle(t)
-	if _, err := os.Stat(filepath.Join(bundle, "Contents/Resources/icons.icns")); err != nil {
-		t.Error(err)
+	for _, f := range []string{"icons.icns", "md-document.icns"} {
+		if _, err := os.Stat(filepath.Join(bundle, "Contents/Resources", f)); err != nil {
+			t.Error(err)
+		}
 	}
 	car := filepath.Join(bundle, "Contents/Resources/Assets.car")
 	if _, err := os.Stat(car); err != nil {
