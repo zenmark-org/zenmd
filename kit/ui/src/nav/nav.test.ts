@@ -313,7 +313,8 @@ test("files loading", async () => {
   expect(note().textContent).toBe("Loading files…");
   resolve(specsTree());
   await tick();
-  expect(filesHost(m.nav).querySelector(".zen-nav-empty")).toBeNull();
+  expect(note().hidden).toBe(true);
+  expect(note().textContent).toBe("");
 });
 
 test("files empty", async () => {

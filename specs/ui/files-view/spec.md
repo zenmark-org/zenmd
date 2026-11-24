@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | specified |
+| Status | done |
 | Target version | 0.8.0 |
 | Branch | `feature/ui-files-view` |
 | Wave | 60 |
