@@ -203,7 +203,7 @@ tasks:
         fi
 
   art:
-    summary: Regenerates the DMG art (dmg-background*.png, dmg-file-icon.icns) from build/appicon.svg and appicon.png
+    summary: Regenerates the DMG art (dmg-background*.png, dmg-file-icon.icns, md-document.icns) from build/appicon.svg and appicon.png
     platforms: [darwin]
     cmds:
       - go run ./build/darwin/dmgart
@@ -251,6 +251,7 @@ tasks:
           ARCH: '{{.HELPER_ARCH}}'
       - go run ./build/darwin/resources -manifest resources.yml -arch "{{.HELPER_ARCH}}" -addons "{{.ADDONS}}" -dest "{{.BUNDLE}}/Contents/Helpers" -licenses "{{.BUNDLE}}/Contents/Resources/licenses"
       - cp build/darwin/icons.icns "{{.BUNDLE}}/Contents/Resources"
+      - cp build/darwin/md-document.icns "{{.BUNDLE}}/Contents/Resources"
       - cp build/darwin/PrivacyInfo.xcprivacy "{{.BUNDLE}}/Contents/Resources/PrivacyInfo.xcprivacy"
       - task: icon:assets
       - cp "{{.BIN_DIR}}/{{.APP_NAME}}" "{{.BUNDLE}}/Contents/MacOS/{{.APP_NAME}}"
@@ -324,7 +325,7 @@ tasks:
       - ZEN_CHANNEL="{{.CHANNEL}}" ZEN_ADHOC="{{.ADHOC}}" ZEN_UNIVERSAL="{{if or (eq .CHANNEL "appstore") (eq .ARCH "universal")}}1{{end}}" ZEN_REQUIRE_BUNDLE=1 go test -count=1 ./build/darwin
 
   icon:
-    summary: Regenerates build/appicon.png from build/appicon.svg (macOS QuickLook) and the DMG art; `task package` then rebuilds icons.icns
+    summary: Regenerates build/appicon.png from build/appicon.svg (macOS QuickLook) and the DMG art and md-document.icns (the Finder icon of Markdown files); `task package` then rebuilds icons.icns
     platforms: [darwin]
     cmds:
       - rm -rf .task/appicon && mkdir -p .task/appicon
@@ -358,6 +359,7 @@ tasks:
       - mkdir -p "{{.BIN_DIR}}/{{.APP_NAME}}.dev.app/Contents/MacOS"
       - mkdir -p "{{.BIN_DIR}}/{{.APP_NAME}}.dev.app/Contents/Resources"
       - cp build/darwin/icons.icns "{{.BIN_DIR}}/{{.APP_NAME}}.dev.app/Contents/Resources"
+      - cp build/darwin/md-document.icns "{{.BIN_DIR}}/{{.APP_NAME}}.dev.app/Contents/Resources"
       - |
         if [ -f build/darwin/Assets.car ]; then
           cp build/darwin/Assets.car "{{.BIN_DIR}}/{{.APP_NAME}}.dev.app/Contents/Resources"
