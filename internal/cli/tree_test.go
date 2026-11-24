@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/zenmark-org/zenmd/engine/workspace"
 )
 
 // treeFolder is shaped like the repo's specs/ folder: scope folders with feature folders holding a spec.md,
@@ -47,7 +49,7 @@ func TestTreePages(t *testing.T) {
 		"  Files view (ui/files-view/spec.md)\n",
 		"Other pages\n",
 		"  UI notes (ui.md)\n",
-		"  Niño (café/niño #1.md)\n",
+		"Niño (café/niño #1.md)\n",
 	} {
 		if !strings.Contains(out, want) {
 			t.Errorf("missing %q in:\n%s", want, out)
@@ -96,9 +98,9 @@ ui.md (other)
 
 func TestTreeFilesOmitted(t *testing.T) {
 	dir := treeFolder(t)
-	old := fileTreeCap
-	t.Cleanup(func() { fileTreeCap = old })
-	fileTreeCap = 6
+	old := workspace.MaxFileTreeEntries
+	t.Cleanup(func() { workspace.MaxFileTreeEntries = old })
+	workspace.MaxFileTreeEntries = 6
 	code, out, _ := runTreeCmd(dir, "--files")
 	lines := strings.Split(strings.TrimRight(out, "\n"), "\n")
 	if code != 0 || !strings.HasSuffix(lines[len(lines)-1], "more files not shown") || !strings.HasPrefix(lines[len(lines)-1], "… ") {
