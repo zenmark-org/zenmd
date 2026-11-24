@@ -1,0 +1,18 @@
+/* tab sets: only what is the tabs' own; the frame, type and buttons are the plugin kit's (docs/wiki/PLUGIN-UI.md).
+   Without the script every panel shows under its title, so the title row of an item is the kit's block head. */
+.zen-tabs-body > [data-zen-plugin]:not(:first-child) > .zen-tab-item > .zen-tab-title { border-top: 1px solid var(--rule); }
+.zen-tab-panel > :first-child { margin-top: 0; }
+.zen-tab-panel > :last-child { margin-bottom: 0; }
+/* with the script: a tab row over one panel */
+.zen-tabs-js .zen-tab-title { display: none; }
+.zen-tabs-js .zen-tabs-body > [data-zen-plugin]:not(:first-child) > .zen-tab-item > .zen-tab-title { border-top: 0; }
+.zen-tab-list { display: flex; flex-wrap: nowrap; gap: 4px; padding: 6px 8px 0; overflow-x: auto; border-bottom: 1px solid var(--rule); }
+.zen-tab-list > .zen-btn { flex: none; border-radius: var(--radius) var(--radius) 0 0; border-bottom: 2px solid transparent; white-space: nowrap; }
+.zen-tab-list > .zen-btn[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--fg); font-weight: 600; }
+.zen-tab-list > .zen-btn:focus-visible { outline-offset: -2px; }
+.zen-tabs-js .zen-tab-panel[hidden] { display: none; }
+@media print {
+  .zen-tab-list { display: none; }
+  .zen-tabs-js .zen-tab-title { display: block; }
+  .zen-tabs-js .zen-tab-panel[hidden] { display: block; }
+}

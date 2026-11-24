@@ -1,0 +1,120 @@
+/* cards, grids, link buttons and badges: only what is their own. The frame, title row, type and buttons are the
+   plugin kit's (docs/wiki/PLUGIN-UI.md). Columns follow the width of the reading column (a container query),
+   not the window: sm from 480px, md from 640px, lg from 800px. No animation. */
+.zen-grid { container-type: inline-size; margin: 1em 0; }
+.zen-grid-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.zen-grid-row > [data-zen-plugin] { display: flex; min-width: 0; }
+.zen-grid-row > [data-zen-plugin] > * { flex: 1 1 auto; min-width: 0; margin: 0; }
+.zen-grid-row > .zen-card, .zen-grid-row > .zen-grid-item { min-width: 0; }
+.zen-grid-row .zen-card { margin: 0; }
+.zen-grid-row .zen-grid-item > :first-child { margin-top: 0; }
+.zen-grid-row .zen-grid-item > :last-child { margin-bottom: 0; }
+
+.zen-grid-xs-1 > .zen-grid-row { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.zen-grid-xs-2 > .zen-grid-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.zen-grid-xs-3 > .zen-grid-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.zen-grid-xs-4 > .zen-grid-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.zen-grid-xs-5 > .zen-grid-row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.zen-grid-xs-6 > .zen-grid-row { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.zen-grid-xs-7 > .zen-grid-row { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.zen-grid-xs-8 > .zen-grid-row { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+.zen-grid-xs-9 > .zen-grid-row { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+.zen-grid-xs-10 > .zen-grid-row { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+.zen-grid-xs-11 > .zen-grid-row { grid-template-columns: repeat(11, minmax(0, 1fr)); }
+.zen-grid-xs-12 > .zen-grid-row { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.zen-gutter-0, .zen-gutter-xs-0 { gap: 0px; }
+.zen-gutter-1, .zen-gutter-xs-1 { gap: 4px; }
+.zen-gutter-2, .zen-gutter-xs-2 { gap: 8px; }
+.zen-gutter-3, .zen-gutter-xs-3 { gap: 16px; }
+.zen-gutter-4, .zen-gutter-xs-4 { gap: 24px; }
+.zen-gutter-5, .zen-gutter-xs-5 { gap: 48px; }
+@container (min-width: 480px) {
+  .zen-grid-sm-1 > .zen-grid-row { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  .zen-grid-sm-2 > .zen-grid-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .zen-grid-sm-3 > .zen-grid-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .zen-grid-sm-4 > .zen-grid-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .zen-grid-sm-5 > .zen-grid-row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .zen-grid-sm-6 > .zen-grid-row { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .zen-grid-sm-7 > .zen-grid-row { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .zen-grid-sm-8 > .zen-grid-row { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .zen-grid-sm-9 > .zen-grid-row { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+  .zen-grid-sm-10 > .zen-grid-row { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+  .zen-grid-sm-11 > .zen-grid-row { grid-template-columns: repeat(11, minmax(0, 1fr)); }
+  .zen-grid-sm-12 > .zen-grid-row { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .zen-gutter-sm-0 { gap: 0px; }
+  .zen-gutter-sm-1 { gap: 4px; }
+  .zen-gutter-sm-2 { gap: 8px; }
+  .zen-gutter-sm-3 { gap: 16px; }
+  .zen-gutter-sm-4 { gap: 24px; }
+  .zen-gutter-sm-5 { gap: 48px; }
+}
+@container (min-width: 640px) {
+  .zen-grid-md-1 > .zen-grid-row { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  .zen-grid-md-2 > .zen-grid-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .zen-grid-md-3 > .zen-grid-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .zen-grid-md-4 > .zen-grid-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .zen-grid-md-5 > .zen-grid-row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .zen-grid-md-6 > .zen-grid-row { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .zen-grid-md-7 > .zen-grid-row { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .zen-grid-md-8 > .zen-grid-row { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .zen-grid-md-9 > .zen-grid-row { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+  .zen-grid-md-10 > .zen-grid-row { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+  .zen-grid-md-11 > .zen-grid-row { grid-template-columns: repeat(11, minmax(0, 1fr)); }
+  .zen-grid-md-12 > .zen-grid-row { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .zen-gutter-md-0 { gap: 0px; }
+  .zen-gutter-md-1 { gap: 4px; }
+  .zen-gutter-md-2 { gap: 8px; }
+  .zen-gutter-md-3 { gap: 16px; }
+  .zen-gutter-md-4 { gap: 24px; }
+  .zen-gutter-md-5 { gap: 48px; }
+}
+@container (min-width: 800px) {
+  .zen-grid-lg-1 > .zen-grid-row { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  .zen-grid-lg-2 > .zen-grid-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .zen-grid-lg-3 > .zen-grid-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .zen-grid-lg-4 > .zen-grid-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .zen-grid-lg-5 > .zen-grid-row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .zen-grid-lg-6 > .zen-grid-row { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .zen-grid-lg-7 > .zen-grid-row { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .zen-grid-lg-8 > .zen-grid-row { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .zen-grid-lg-9 > .zen-grid-row { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+  .zen-grid-lg-10 > .zen-grid-row { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+  .zen-grid-lg-11 > .zen-grid-row { grid-template-columns: repeat(11, minmax(0, 1fr)); }
+  .zen-grid-lg-12 > .zen-grid-row { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .zen-gutter-lg-0 { gap: 0px; }
+  .zen-gutter-lg-1 { gap: 4px; }
+  .zen-gutter-lg-2 { gap: 8px; }
+  .zen-gutter-lg-3 { gap: 16px; }
+  .zen-gutter-lg-4 { gap: 24px; }
+  .zen-gutter-lg-5 { gap: 48px; }
+}
+
+/* a card: header, body, footer */
+.zen-card { position: relative; display: flex; flex-direction: column; }
+.zen-card-header { padding: 8px 12px; border-bottom: 1px solid var(--rule); font-weight: 600; }
+.zen-card-body { flex: 1 1 auto; }
+.zen-card-footer { padding: 8px 12px; border-top: 1px solid var(--rule); color: var(--fg-muted); font-size: 13px; }
+.zen-card-header > :first-child, .zen-card-footer > :first-child, .zen-card-body > :first-child { margin-top: 0; }
+.zen-card-header > :last-child, .zen-card-footer > :last-child, .zen-card-body > :last-child { margin-bottom: 0; }
+.zen-card-title { margin: 0 0 6px; font-weight: 600; overflow-wrap: anywhere; }
+.zen-card-center { text-align: center; }
+.zen-card-right { text-align: right; }
+.zen-card-left { text-align: left; }
+/* a card that is a link: the title's link covers the whole card */
+.zen-card-link:hover { border-color: var(--fg-muted); }
+.zen-card-stretch { color: inherit; text-decoration: none; }
+.zen-card-stretch::after { content: ""; position: absolute; inset: 0; border-radius: var(--radius); }
+.zen-card-stretch:hover { text-decoration: underline; }
+.zen-card-stretch:focus-visible { outline: none; }
+.zen-card-stretch:focus-visible::after { outline: 2px solid var(--focus); outline-offset: 2px; }
+.zen-card-linktext { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* a button that is a link: the kit's button on an anchor */
+.zen-linkbtn-row { margin: 1em 0; }
+.zen-linkbtn-center { text-align: center; }
+.zen-linkbtn-right { text-align: right; }
+.zen-linkbtn { display: inline-block; text-decoration: none; }
+.zen-linkbtn:hover { text-decoration: none; }
+.zen-linkbtn-expand > .zen-linkbtn { display: block; text-align: center; }
+/* a badge: the same muted style whatever its colour */
+.zen-badge { display: inline-block; box-sizing: border-box; padding: 0 7px; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--bg-subtle); color: var(--fg-muted); font: 600 12px/1.6 var(--font-ui); vertical-align: baseline; white-space: nowrap; }
+.zen-badge-line { background: transparent; }

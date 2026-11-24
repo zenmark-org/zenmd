@@ -1,0 +1,13 @@
+/* dropdowns: only what is the dropdown's own. The frame, title row and body are the plugin kit's
+   (docs/wiki/PLUGIN-UI.md). A plain details element: it opens by click, Enter or Space with no script. */
+.zen-dropdown > details > summary { display: block; list-style: none; cursor: pointer; }
+.zen-dropdown > details > summary::-webkit-details-marker { display: none; }
+.zen-dropdown-head { justify-content: flex-start; flex-wrap: nowrap; align-items: center; }
+.zen-dropdown-title { min-width: 0; overflow-wrap: anywhere; }
+.zen-dropdown-head::after { content: "\25B8"; margin-left: auto; color: var(--fg-muted); }
+.zen-dropdown > details[open] > summary > .zen-dropdown-head::after { content: "\25BE"; }
+.zen-dropdown > details > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.zen-dropdown > details[open] > summary { border-bottom: 1px solid var(--rule); }
+.zen-dropdown .zen-block-body > :first-child { margin-top: 0; }
+.zen-dropdown .zen-block-body > :last-child { margin-bottom: 0; }
+@media print { .zen-dropdown-head::after { content: none; } }

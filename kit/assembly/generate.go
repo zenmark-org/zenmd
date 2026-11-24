@@ -23,6 +23,9 @@ var pluginPackages = map[string]string{
 	"figure":    "builtins/plugins/figure",
 	"table":     "builtins/plugins/table",
 	"math":      "builtins/plugins/math",
+	"tabs":      "builtins/plugins/tabs",
+	"dropdown":  "builtins/plugins/dropdown",
+	"cards":     "builtins/plugins/cards",
 	"xref":      "builtins/plugins/xref",
 }
 
