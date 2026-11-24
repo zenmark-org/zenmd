@@ -11,6 +11,7 @@ import (
 	"compress/gzip"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -64,7 +65,7 @@ func plist(t *testing.T, key string) string {
 func TestBundleLayout(t *testing.T) {
 	requireBundle(t)
 
-	for _, p := range []string{"Contents/MacOS/zenmd", "Contents/Info.plist", "Contents/Resources/icons.icns"} {
+	for _, p := range []string{"Contents/MacOS/zenmd", "Contents/Info.plist", "Contents/Resources/icons.icns", "Contents/Resources/md-document.icns"} {
 		fi, err := os.Stat(filepath.Join(bundle, p))
 		if err != nil || fi.IsDir() {
 			t.Errorf("missing file %s", p)
@@ -575,4 +576,50 @@ func fakeHomeEnv(t *testing.T) []string {
 	t.Helper()
 	h := t.TempDir()
 	return append(os.Environ(), "HOME="+h, "XDG_CONFIG_HOME="+filepath.Join(h, ".config"))
+}
+
+// TestMarkdownDocumentIcon: the Markdown document type has its own Finder
+// icon (md-document.icns), in both plist templates; the Folder type keeps the app icon.
+func TestMarkdownDocumentIcon(t *testing.T) {
+	for _, f := range []string{"Info.plist", "Info.dev.plist"} {
+		out, err := exec.Command("plutil", "-convert", "json", "-o", "-", f).Output()
+		if err != nil {
+			t.Skipf("plutil: %v", err)
+		}
+		var doc struct {
+			Types []struct {
+				Name string   `json:"CFBundleTypeName"`
+				Icon string   `json:"CFBundleTypeIconFile"`
+				Exts []string `json:"CFBundleTypeExtensions"`
+			} `json:"CFBundleDocumentTypes"`
+		}
+		if err := json.Unmarshal(out, &doc); err != nil {
+			t.Fatal(err)
+		}
+		md := 0
+		for _, ty := range doc.Types {
+			isMD := strings.HasPrefix(ty.Name, "Markdown")
+			if isMD {
+				md++
+				if ty.Icon != "md-document" {
+					t.Errorf("%s: %s type icon = %q, want md-document", f, ty.Name, ty.Icon)
+				}
+			} else if ty.Icon == "md-document" {
+				t.Errorf("%s: %s type must not use the Markdown icon", f, ty.Name)
+			}
+		}
+		if md == 0 {
+			t.Errorf("%s: no Markdown document type", f)
+		}
+	}
+	if _, err := os.Stat("md-document.icns"); err != nil {
+		t.Error(err)
+	}
+	tf, err := os.ReadFile("Taskfile.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if n := strings.Count(string(tf), "cp build/darwin/md-document.icns"); n < 2 {
+		t.Errorf("Taskfile copies md-document.icns %d times, want the bundle and the dev bundle", n)
+	}
 }
