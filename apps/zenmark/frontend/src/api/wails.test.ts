@@ -125,6 +125,14 @@ describe("wails api", () => {
     expect(api.build).toBeUndefined();
   });
 
+  it("startup carries the build's page templates (the Inspector's Build tab counts them)", async () => {
+    const api = (await import("./wails")).default;
+    results.Startup = { workspace: null, page: "", mode: "read", build: { app: "zenmark", features: [], pageTemplates: ["overview", 3, "tutorial"] } };
+    expect((await api.startup()).build?.pageTemplates).toEqual(["overview", "tutorial"]);
+    results.Startup = { workspace: null, page: "", mode: "read", build: { app: "zenmark", features: [] } };
+    expect((await api.startup()).build?.pageTemplates).toBeUndefined();
+  });
+
   it("startup carries the version of the build, when it is text", async () => {
     const api = (await import("./wails")).default;
     results.Startup = { workspace: null, page: "", mode: "read", build: { app: "zenmark", features: [], version: "0.7.0" } };
