@@ -69,7 +69,7 @@ func TestOptions(t *testing.T) {
 		t.Errorf("nothing was selected: %s", got)
 	}
 	// a user class cannot take a zen- name
-	hasNot(t, page(t, r, ":::tab-set{class=zen-evil}\n:::tab-item{title=A}\nx\n:::\n:::\n"), "zen-evil")
+	hasNot(t, bare(page(t, r, ":::tab-set{class=zen-evil}\n:::tab-item{title=A}\nx\n:::\n:::\n")), "zen-evil")
 }
 
 func TestMissingTitleWarns(t *testing.T) {
@@ -96,5 +96,22 @@ func TestAssets(t *testing.T) {
 	e := New().(plugins.AssetProvider).Entry()
 	if len(e.CSS) != 1 || len(e.JS) != 1 {
 		t.Errorf("entry = %+v", e)
+	}
+}
+
+// Every snippet of the help renders without a warning or an error, and draws the plugin's own markup.
+func TestHelpSnippetsRender(t *testing.T) {
+	for _, s := range New().Manifest().Help.Snippets {
+		r := mystRenderer(t)
+		got := page(t, r, s.Markdown)
+		if w := warnings(t, r, s.Markdown); w != "" {
+			t.Errorf("snippet %q warns: %s", s.Title, w)
+		}
+		if !strings.Contains(got, `data-zen-plugin="`+New().Manifest().ID+`"`) {
+			t.Errorf("snippet %q was not drawn by the plugin: %s", s.Title, got)
+		}
+		if strings.Contains(got, "<p>:::") || strings.Contains(got, "{") && strings.Contains(got, "```") {
+			t.Errorf("snippet %q left its syntax as text: %s", s.Title, got)
+		}
 	}
 }

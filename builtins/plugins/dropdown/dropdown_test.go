@@ -58,7 +58,7 @@ func TestColorAndIconWarnAndAreIgnored(t *testing.T) {
 	src := ":::dropdown{title=A color=primary icon=star}\nx\n:::\n"
 	w := warnings(t, r, src)
 	has(t, w, "dropdown", ":color:", ":icon:", "ignored")
-	got := page(t, r, src)
+	got := bare(page(t, r, src))
 	hasNot(t, got, "primary", "star")
 	has(t, warnings(t, r, ":::dropdown{title=A animate=fade-in}\nx\n:::\n"), ":animate:")
 }
@@ -71,7 +71,7 @@ func TestHostileText(t *testing.T) {
 	got := page(t, plain(t), ":::dropdown{title=\"<img src=x onerror=alert(1)>\"}\n<script>alert(1)</script>\n:::\n")
 	hasNot(t, got, "<img", "<script")
 	has(t, got, "&lt;img")
-	hasNot(t, page(t, plain(t), ":::dropdown{title=A class=\"x\\\" onclick=\\\"y\"}\nx\n:::\n"), "onclick")
+	hasNot(t, bare(page(t, plain(t), ":::dropdown{title=A class=\"x\\\" onclick=\\\"y\"}\nx\n:::\n")), "onclick")
 }
 
 func TestNestedDropdown(t *testing.T) {
@@ -83,5 +83,22 @@ func TestAssets(t *testing.T) {
 	e := New().(plugins.AssetProvider).Entry()
 	if len(e.CSS) != 1 || len(e.JS) != 0 {
 		t.Errorf("entry = %+v", e)
+	}
+}
+
+// Every snippet of the help renders without a warning or an error, and draws the plugin's own markup.
+func TestHelpSnippetsRender(t *testing.T) {
+	for _, s := range New().Manifest().Help.Snippets {
+		r := mystRenderer(t)
+		got := page(t, r, s.Markdown)
+		if w := warnings(t, r, s.Markdown); w != "" {
+			t.Errorf("snippet %q warns: %s", s.Title, w)
+		}
+		if !strings.Contains(got, `data-zen-plugin="`+New().Manifest().ID+`"`) {
+			t.Errorf("snippet %q was not drawn by the plugin: %s", s.Title, got)
+		}
+		if strings.Contains(got, "<p>:::") || strings.Contains(got, "{") && strings.Contains(got, "```") {
+			t.Errorf("snippet %q left its syntax as text: %s", s.Title, got)
+		}
 	}
 }

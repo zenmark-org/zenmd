@@ -7,7 +7,7 @@ import (
 	"github.com/zenmark-org/zenmd/engine/plugins"
 )
 
-var colours = []string{"primary", "secondary", "success", "info", "warning", "danger", "light", "dark"}
+var wantColours = []string{"primary", "secondary", "success", "info", "warning", "danger", "light", "dark"}
 
 func TestManifest(t *testing.T) {
 	m := New().Manifest()
@@ -18,7 +18,7 @@ func TestManifest(t *testing.T) {
 		t.Errorf("blocks = %v", m.Blocks)
 	}
 	want := []string{"bdg"}
-	for _, c := range colours {
+	for _, c := range wantColours {
 		want = append(want, "bdg-"+c, "bdg-"+c+"-line")
 	}
 	if strings.Join(m.Inlines, ",") != strings.Join(want, ",") {
@@ -85,9 +85,9 @@ func TestCardLinkMakesTheWholeCardALink(t *testing.T) {
 	}
 	// an internal page goes through the page's own link handling
 	got = page(t, plain(t), ":::card{title=Next link=other.md link-type=doc}\nBody\n:::\n")
-	has(t, got, "zen-card-stretch", "other.md")
+	has(t, got, "zen-card-stretch", `data-path="other.md"`)
 	got = page(t, plain(t), ":::card{title=Next link=other link-type=doc}\nBody\n:::\n")
-	has(t, got, "other.md")
+	has(t, got, `data-path="other.md"`)
 	got = page(t, plain(t), ":::card{title=Next link=my-label link-type=ref}\nBody\n:::\n")
 	has(t, got, `href="#my-label"`)
 	// link-alt names the link when there is no title
@@ -97,7 +97,7 @@ func TestCardLinkMakesTheWholeCardALink(t *testing.T) {
 
 func TestCardLinkIsSafe(t *testing.T) {
 	r := plain(t)
-	got := page(t, r, ":::card{title=X link=\"javascript:alert(1)\"}\nBody\n:::\n")
+	got := bare(page(t, r, ":::card{title=X link=\"javascript:alert(1)\"}\nBody\n:::\n"))
 	hasNot(t, got, "javascript:")
 	got = page(t, r, ":::card{title=\"A [b](http://evil.example) c\" link=\"https://example.com\"}\nBody\n:::\n")
 	if n := strings.Count(got, "<a "); n != 1 {
@@ -119,7 +119,7 @@ func TestCardOptions(t *testing.T) {
 }
 
 func TestCardHostileText(t *testing.T) {
-	got := page(t, plain(t), ":::card{title=\"<img src=x onerror=alert(1)>\"}\n<script>alert(1)</script>\n^^^\n<b onclick=\"x\">h</b>\n:::\n")
+	got := bare(page(t, plain(t), ":::card{title=\"<img src=x onerror=alert(1)>\"}\n<script>alert(1)</script>\n^^^\n<b onclick=\"x\">h</b>\n:::\n"))
 	hasNot(t, got, "<img", "<script", "onclick")
 	has(t, got, "&lt;img")
 }
@@ -186,14 +186,14 @@ func TestGridItemCardOptionsLikeCard(t *testing.T) {
 func TestGridHostileText(t *testing.T) {
 	got := page(t, plain(t), ":::grid{columns=\"1\"}\n:::grid-item\n<script>alert(1)</script>\n:::\n:::\n")
 	hasNot(t, got, "<script")
-	hasNot(t, page(t, plain(t), ":::grid{columns=\"1\" class=\"a\\\" onclick=\\\"b\"}\n:::grid-item\nx\n:::\n:::\n"), "onclick")
+	hasNot(t, bare(page(t, plain(t), ":::grid{columns=\"1\" class=\"a\\\" onclick=\\\"b\"}\n:::grid-item\nx\n:::\n:::\n")), "onclick")
 }
 
 // ---- buttons ----
 
 func TestButtonLink(t *testing.T) {
 	got := page(t, plain(t), ":::button-link{href=\"https://example.com\"}\nGo there\n:::\n")
-	has(t, got, "zen-btn", "zen-button-link", `href="https://example.com"`, ">Go there<")
+	has(t, got, "zen-btn", "zen-linkbtn", `href="https://example.com"`, ">Go there<")
 	hasNot(t, got, "<button", "zen-btn-primary")
 	// MyST: the argument is the URL, the body the text
 	want := bare(got)
@@ -213,7 +213,7 @@ func TestButtonRef(t *testing.T) {
 	got := page(t, mystRenderer(t), "```{button-ref} my-label\n:ref-type: ref\nSee it\n```\n")
 	has(t, got, "zen-btn", `href="#my-label"`, ">See it<")
 	got = page(t, mystRenderer(t), "```{button-ref} other\n:ref-type: doc\nOther page\n```\n")
-	has(t, got, "other.md", ">Other page<")
+	has(t, got, `data-path="other.md"`, ">Other page<")
 	got = page(t, plain(t), ":::button-ref{ref=lab}\nText\n:::\n")
 	has(t, got, `href="#lab"`)
 }
@@ -221,7 +221,7 @@ func TestButtonRef(t *testing.T) {
 func TestButtonOptions(t *testing.T) {
 	r := plain(t)
 	got := page(t, r, ":::button-link{href=\"https://example.com\" align=center expand class=wide name=B}\nHi\n:::\n")
-	has(t, got, "zen-button-center", "zen-button-expand", "wide", `id="b"`)
+	has(t, got, "zen-linkbtn-center", "zen-linkbtn-expand", "wide", `id="b"`)
 	if w := warnings(t, r, ":::button-link{href=\"https://example.com\" align=right expand class=c name=n}\nHi\n:::\n"); w != "" {
 		t.Errorf("supported options warned: %s", w)
 	}
@@ -232,17 +232,20 @@ func TestButtonOptions(t *testing.T) {
 
 func TestButtonIsSafeAndEscaped(t *testing.T) {
 	r := plain(t)
-	got := page(t, r, ":::button-link{href=\"javascript:alert(1)\"}\nClick\n:::\n")
+	got := bare(page(t, r, ":::button-link{href=\"javascript:alert(1)\"}\nClick\n:::\n"))
 	hasNot(t, got, "javascript:")
-	got = page(t, r, ":::button-link{href=\"https://example.com\"}\n<img src=x onerror=alert(1)> [x](http://evil.example) *em*\n:::\n")
-	hasNot(t, got, "<img", "evil.example", "<em>")
+	got = bare(page(t, r, ":::button-link{href=\"https://example.com\"}\n<img src=x onerror=alert(1)> [x](http://evil.example) *em*\n:::\n"))
+	hasNot(t, got, "<img", "<em>", "href=\"http://evil")
+	if n := strings.Count(got, "<a "); n != 1 {
+		t.Errorf("the text must not add links: %s", got)
+	}
 	has(t, got, "&lt;img")
 }
 
 // ---- badges ----
 
 func TestBadges(t *testing.T) {
-	for _, c := range colours {
+	for _, c := range wantColours {
 		for _, suffix := range []string{"", "-line"} {
 			name := "bdg-" + c + suffix
 			got := page(t, plain(t), "See :"+name+"[Beta] here.\n")
@@ -279,5 +282,22 @@ func TestAssets(t *testing.T) {
 	e := New().(plugins.AssetProvider).Entry()
 	if len(e.CSS) != 1 || len(e.JS) != 0 {
 		t.Errorf("entry = %+v", e)
+	}
+}
+
+// Every snippet of the help renders without a warning or an error, and draws the plugin's own markup.
+func TestHelpSnippetsRender(t *testing.T) {
+	for _, s := range New().Manifest().Help.Snippets {
+		r := mystRenderer(t)
+		got := page(t, r, s.Markdown)
+		if w := warnings(t, r, s.Markdown); w != "" {
+			t.Errorf("snippet %q warns: %s", s.Title, w)
+		}
+		if !strings.Contains(got, `data-zen-plugin="`+New().Manifest().ID+`"`) {
+			t.Errorf("snippet %q was not drawn by the plugin: %s", s.Title, got)
+		}
+		if strings.Contains(got, "<p>:::") || strings.Contains(got, "{") && strings.Contains(got, "```") {
+			t.Errorf("snippet %q left its syntax as text: %s", s.Title, got)
+		}
 	}
 }

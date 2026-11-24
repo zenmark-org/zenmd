@@ -1,5 +1,8 @@
 // The built-in tabs plugin's frontend (builtins/plugins/tabs/assets/tabs.js), mounted on the markup its Go
 // block hooks emit, with the last synced choice kept through the fake storage api.
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, expect, test } from "vitest";
 import { createFakeApi, type FakeApi } from "../../apps/zenmark/frontend/src/api/fake";
 import { installRuntime } from "../src/plugins";
@@ -188,9 +191,8 @@ test("an item alone is left alone", async () => {
   expect(root.querySelector('[role="tab"]')).toBeNull();
 });
 
-test("the reduced-motion and focus rules are in the stylesheet", async () => {
-  const fs = await import("node:fs");
-  const css = fs.readFileSync("builtins/plugins/tabs/assets/tabs.css", "utf8");
+test("the stylesheet keeps the focus ring and uses tokens only", async () => {
+  const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "../../builtins/plugins/tabs/assets/tabs.css"), "utf8");
   expect(css).toMatch(/focus-visible/);
   expect(css).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i);
 });

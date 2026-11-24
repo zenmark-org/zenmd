@@ -12,6 +12,7 @@ import (
 	"github.com/zenmark-org/zenmd/engine/dialects"
 	"github.com/zenmark-org/zenmd/engine/plugins"
 	"github.com/zenmark-org/zenmd/engine/render"
+	"github.com/zenmark-org/zenmd/engine/workspace"
 )
 
 func plain(t *testing.T) *render.Renderer {
@@ -20,7 +21,17 @@ func plain(t *testing.T) *render.Renderer {
 	if err := reg.Register(New()); err != nil {
 		t.Fatal(err)
 	}
-	return render.New(reg, nil, nil)
+	return render.New(reg, nil, pages{})
+}
+
+// pages resolves every relative link as a page of the folder.
+type pages struct{}
+
+func (pages) ResolveLink(_, href string) workspace.Link {
+	if strings.Contains(href, ":") {
+		return workspace.Link{Path: href, Kind: "external"}
+	}
+	return workspace.Link{Path: href, Kind: "internal"}
 }
 
 func mystRenderer(t *testing.T) *render.Renderer {
@@ -37,7 +48,7 @@ func mystRenderer(t *testing.T) *render.Renderer {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return render.New(reg, config.Load("", dir), nil).WithDialects(dr)
+	return render.New(reg, config.Load("", dir), pages{}).WithDialects(dr)
 }
 
 func page(t *testing.T, r *render.Renderer, src string) string {
