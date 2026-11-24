@@ -1,8 +1,8 @@
 // Package aside renders the side content directives of MyST and Sphinx
 // (sidebar, margin and topic) and the same blocks written as :::sidebar,
 // :::margin and :::topic. Each is an aside in the plugin kit's frame with an
-// optional title, floated to the right of the text when the page is wide
-// enough and full width when it is narrow. It is rendered in Go and needs no
+// optional title, floated to the right of the text (sidebar and margin) when the page is wide
+// enough and full width when it is narrow; a topic stays in the flow, full width. It is rendered in Go and needs no
 // script.
 package aside
 
@@ -43,7 +43,7 @@ func (plugin) Manifest() plugins.Manifest {
 		Blocks:      blockNames,
 		Allow:       []plugins.AllowRule{{Element: "aside"}},
 		Help: plugins.Help{
-			Summary: "Content beside the text. sidebar and topic take a title, margin has none; each floats to the right when the page is wide enough and fills the width when it is narrow. sidebar also takes a subtitle. They read the same in markdown written for MyST, Jupyter Book or Sphinx.",
+			Summary: "Content beside the text. sidebar and topic take a title, margin has none; sidebar and margin float to the right when the page is wide enough and fill the width when it is narrow; topic stays in the flow of the text, full width. sidebar also takes a subtitle. They read the same in markdown written for MyST, Jupyter Book or Sphinx.",
 			Snippets: []plugins.Snippet{
 				{Title: "A sidebar", Markdown: ":::sidebar{title=\"Did you know?\"}\nThe body is markdown.\n:::\n"},
 				{Title: "The MyST form", Markdown: "```{sidebar} Did you know?\n:subtitle: A side note\n\nThe body is markdown.\n```\n\n```{margin}\nA short note in the margin.\n```\n"},

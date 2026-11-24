@@ -1,9 +1,9 @@
 # aside
 
 The `aside` plugin draws content that sits beside the text: a sidebar, a note
-in the margin and a topic. Each is an `aside` in the plugin kit's frame. On a
-wide page it floats to the right of the text; on a narrow page it takes the full
-width, where it stands.
+in the margin and a topic. Each is an `aside` in the plugin kit's frame. A `sidebar`
+or `margin` floats to the right of the text on a wide page and takes the full
+width on a narrow one. A `topic` stays in the flow of the text, full width.
 
 ## What it owns
 

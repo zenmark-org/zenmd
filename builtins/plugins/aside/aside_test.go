@@ -85,7 +85,8 @@ func TestManifest(t *testing.T) {
 		t.Error("help shows both forms")
 	}
 	css, _ := fs.ReadFile(ap.Assets(), "aside.css")
-	contains(t, string(css), "float: right", "@media")
+	contains(t, string(css), ".zen-aside-sidebar, .zen-aside-margin { float: right", "@media", ".zen-aside-topic { clear: both")
+	lacks(t, string(css), ".zen-aside-topic { float")
 	lacks(t, string(css), "#", "rgb(", "hsl(")
 }
 
