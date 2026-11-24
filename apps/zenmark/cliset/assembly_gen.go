@@ -8,6 +8,7 @@ import (
 	"github.com/zenmark-org/zenmd/builtins/blueprints"
 	"github.com/zenmark-org/zenmd/builtins/dialects/myst"
 	"github.com/zenmark-org/zenmd/builtins/layouts"
+	"github.com/zenmark-org/zenmd/builtins/plugins/aside"
 	"github.com/zenmark-org/zenmd/builtins/plugins/callout"
 	"github.com/zenmark-org/zenmd/builtins/plugins/cards"
 	"github.com/zenmark-org/zenmd/builtins/plugins/check"
@@ -15,12 +16,16 @@ import (
 	"github.com/zenmark-org/zenmd/builtins/plugins/diagram"
 	"github.com/zenmark-org/zenmd/builtins/plugins/dropdown"
 	"github.com/zenmark-org/zenmd/builtins/plugins/figure"
+	"github.com/zenmark-org/zenmd/builtins/plugins/include"
 	"github.com/zenmark-org/zenmd/builtins/plugins/math"
 	"github.com/zenmark-org/zenmd/builtins/plugins/quiz"
+	"github.com/zenmark-org/zenmd/builtins/plugins/quote"
 	"github.com/zenmark-org/zenmd/builtins/plugins/rating"
 	"github.com/zenmark-org/zenmd/builtins/plugins/sandbox"
 	"github.com/zenmark-org/zenmd/builtins/plugins/table"
 	"github.com/zenmark-org/zenmd/builtins/plugins/tabs"
+	"github.com/zenmark-org/zenmd/builtins/plugins/terms"
+	"github.com/zenmark-org/zenmd/builtins/plugins/text"
 	"github.com/zenmark-org/zenmd/builtins/plugins/xref"
 	"github.com/zenmark-org/zenmd/engine/dialects"
 	enginelayouts "github.com/zenmark-org/zenmd/engine/layouts"
@@ -31,7 +36,7 @@ import (
 // assemblyPlugins is the registry of the built-in plugins this app includes.
 func assemblyPlugins() *plugins.Registry {
 	r := plugins.NewRegistry()
-	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New(), tabs.New(), dropdown.New(), cards.New(), xref.New()} {
+	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New(), tabs.New(), dropdown.New(), cards.New(), text.New(), quote.New(), aside.New(), include.New(), terms.New(), xref.New()} {
 		if err := r.Register(p); err != nil {
 			panic(err)
 		}
@@ -68,7 +73,7 @@ func assemblyDialects() *dialects.Registry {
 var assemblyInfo = session.BuildInfo{
 	App:       "zenmark",
 	Features:  []string{"reader", "nav", "inspector", "developer", "find", "editor", "print", "export", "newsite"},
-	Plugins:   []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating", "callout", "figure", "table", "math", "tabs", "dropdown", "cards", "xref"},
+	Plugins:   []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating", "callout", "figure", "table", "math", "tabs", "dropdown", "cards", "text", "quote", "aside", "include", "terms", "xref"},
 	Layouts:   []string{"article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "release", "troubleshooting", "slides", "course"},
 	Templates: []string{"techdocs", "learning", "planner"},
 	Dialects:  []string{"myst"},

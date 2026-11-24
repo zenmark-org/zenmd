@@ -1,0 +1,8 @@
+### Included from a file
+
+This text lives in `plugins/include/snippet.txt`. The page that includes it
+renders it, so it can have **bold** words, a list and a link to the
+[plugins](index.md):
+
+- one
+- two

@@ -24,6 +24,7 @@ import (
 	"github.com/zenmark-org/zenmd/builtins/dialects/myst"
 	"github.com/zenmark-org/zenmd/builtins/layouts"
 	"github.com/zenmark-org/zenmd/builtins/pagetemplates"
+	"github.com/zenmark-org/zenmd/builtins/plugins/aside"
 	"github.com/zenmark-org/zenmd/builtins/plugins/callout"
 	"github.com/zenmark-org/zenmd/builtins/plugins/cards"
 	"github.com/zenmark-org/zenmd/builtins/plugins/check"
@@ -31,12 +32,16 @@ import (
 	"github.com/zenmark-org/zenmd/builtins/plugins/diagram"
 	"github.com/zenmark-org/zenmd/builtins/plugins/dropdown"
 	"github.com/zenmark-org/zenmd/builtins/plugins/figure"
+	"github.com/zenmark-org/zenmd/builtins/plugins/include"
 	"github.com/zenmark-org/zenmd/builtins/plugins/math"
 	"github.com/zenmark-org/zenmd/builtins/plugins/quiz"
+	"github.com/zenmark-org/zenmd/builtins/plugins/quote"
 	"github.com/zenmark-org/zenmd/builtins/plugins/rating"
 	"github.com/zenmark-org/zenmd/builtins/plugins/sandbox"
 	"github.com/zenmark-org/zenmd/builtins/plugins/table"
 	"github.com/zenmark-org/zenmd/builtins/plugins/tabs"
+	"github.com/zenmark-org/zenmd/builtins/plugins/terms"
+	"github.com/zenmark-org/zenmd/builtins/plugins/text"
 	"github.com/zenmark-org/zenmd/builtins/plugins/xref"
 	"github.com/zenmark-org/zenmd/engine/dialects"
 	enginelayouts "github.com/zenmark-org/zenmd/engine/layouts"
@@ -44,10 +49,10 @@ import (
 )
 
 // Plugins returns a registry with every built-in plugin, in order: codeblock,
-// diagram, check, quiz, sandbox, rating, callout, figure, table, math, tabs, dropdown, cards, xref. Each call returns a fresh registry.
+// diagram, check, quiz, sandbox, rating, callout, figure, table, math, tabs, dropdown, cards, text, quote, aside, include, terms, xref. Each call returns a fresh registry.
 func Plugins() *plugins.Registry {
 	r := plugins.NewRegistry()
-	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New(), tabs.New(), dropdown.New(), cards.New(), xref.New()} {
+	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New(), tabs.New(), dropdown.New(), cards.New(), text.New(), quote.New(), aside.New(), include.New(), terms.New(), xref.New()} {
 		if err := r.Register(p); err != nil {
 			panic(err) // the built-ins are fixed: a clash is a programming error
 		}
@@ -76,7 +81,7 @@ func PageTemplates() fs.FS {
 }
 
 // PluginIDs lists the built-in plugins in the order Plugins registers them.
-var PluginIDs = []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating", "callout", "figure", "table", "math", "tabs", "dropdown", "cards", "xref"}
+var PluginIDs = []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating", "callout", "figure", "table", "math", "tabs", "dropdown", "cards", "text", "quote", "aside", "include", "terms", "xref"}
 
 func newPlugin(id string) plugins.Plugin {
 	switch id {
@@ -108,6 +113,16 @@ func newPlugin(id string) plugins.Plugin {
 		return cards.New()
 	case "xref":
 		return xref.New()
+	case "text":
+		return text.New()
+	case "quote":
+		return quote.New()
+	case "aside":
+		return aside.New()
+	case "include":
+		return include.New()
+	case "terms":
+		return terms.New()
 	}
 	return nil
 }

@@ -1,0 +1,8 @@
+/* include and literalinclude: only what is theirs. The frame, head, body and type are the plugin kit's
+   (docs/wiki/PLUGIN-UI.md); tokens only. Included markdown is the page's own text and has no frame. */
+.zen-include-code pre { margin: 0; padding: 0; border: 0; background: transparent; overflow-x: auto; font: 13px/1.5 var(--font-mono); color: var(--fg); }
+.zen-include-code code { font: inherit; background: transparent; padding: 0; }
+.zen-include-n { display: inline-block; min-width: 3ch; margin-right: 1ch; padding-right: 1ch; border-right: 1px solid var(--rule); color: var(--fg-muted); text-align: right; user-select: none; -webkit-user-select: none; }
+.zen-include-markdown > :first-child { margin-top: 0; }
+.zen-include-markdown > :last-child { margin-bottom: 0; }
+@media print { .zen-include-code pre { white-space: pre-wrap; } }

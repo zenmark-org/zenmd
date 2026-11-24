@@ -1,0 +1,13 @@
+/* epigraph, pull-quote and highlights: only what is theirs. The frame, body and type are the plugin kit's
+   (docs/wiki/PLUGIN-UI.md); tokens only, no animation. */
+.zen-quote { border-left: 3px solid var(--rule); }
+.zen-quote blockquote { margin: 0; padding: 0; border: 0; background: transparent; color: var(--fg); font: inherit; }
+.zen-quote blockquote > :first-child { margin-top: 0; }
+.zen-quote blockquote > :last-child { margin-bottom: 0; }
+.zen-quote-by { margin-top: 6px; color: var(--fg-muted); font: 13px/1.4 var(--font-ui); }
+.zen-quote-by::before { content: "\2014\00a0"; }
+.zen-quote-epigraph blockquote { font-style: italic; }
+.zen-quote-pull-quote { border-left-width: 5px; }
+.zen-quote-pull-quote blockquote { font-size: 16px; font-weight: 600; line-height: 1.5; }
+.zen-quote-highlights blockquote ul, .zen-quote-highlights blockquote ol { margin: 0; padding-left: 1.2em; }
+@media print { .zen-quote { break-inside: avoid; } }
