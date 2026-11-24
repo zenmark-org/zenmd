@@ -32,11 +32,6 @@ export function folderChain(path: string): string[] {
   return parts.map((_, i) => parts.slice(0, i + 1).join("/") + "/");
 }
 
-/** The folders that start open: the top level ones. */
-export function topFolders(tree: NavNode[]): Set<string> {
-  return new Set(tree.filter((n) => n.kind === "group").map((n) => n.path));
-}
-
 /** Where an image of the folder is served: only listed paths go in, each segment encoded. */
 export function imageSrc(path: string): string {
   return "/_ws/" + path.split("/").map(encodeURIComponent).join("/");

@@ -22,10 +22,10 @@ async function boot(page = "README.md", mode: "read" | "edit" = "read") {
 beforeEach(() => { localStorage.clear(); sessionStorage.clear(); root = document.createElement("div"); document.body.append(root); });
 afterEach(() => { shell?.destroy(); root.remove(); });
 
-test("shows the tree, with no second heading; first-level nodes start expanded", async () => {
+test("shows the tree, with no second heading; it starts collapsed", async () => {
   await boot();
   expect(root.querySelector(".zen-nav-ws")).toBeNull();
-  expect(visible(nav())).toEqual(["README.md", "guides", "guides/install.md", "guides/adv", "api.md", "api/auth.md"]);
+  expect(visible(nav())).toEqual(["README.md", "guides", "api.md"]);
 });
 
 test("clicking a page navigates via the shell", async () => {
@@ -37,26 +37,26 @@ test("clicking a page navigates via the shell", async () => {
 
 test("expansion persists per workspace root", async () => {
   await boot();
-  item(nav(), "guides").querySelector<HTMLElement>(".zen-nav-row")!.click();
-  expect(visible(nav())).not.toContain("guides/install.md");
+  item(nav(), "guides").querySelector<HTMLElement>(".zen-nav-row")!.click(); // open guides
+  expect(visible(nav())).toContain("guides/install.md");
   shell.destroy();
   root.replaceChildren();
   await boot();
-  expect(visible(nav())).not.toContain("guides/install.md");
+  expect(visible(nav())).toContain("guides/install.md");
   expect(localStorage.length).toBeGreaterThan(0);
 });
 
 test("workspace:changed keeps expansion and focus", async () => {
   await boot();
   item(nav(), "api.md").querySelector<HTMLElement>(".zen-nav-row")!.click(); // page with children: navigates
-  item(nav(), "guides").querySelector<HTMLElement>(".zen-nav-row")!.click(); // collapse guides
+  item(nav(), "guides").querySelector<HTMLElement>(".zen-nav-row")!.click(); // open guides
   item(nav(), "api.md").querySelector<HTMLElement>("[tabindex]")!.focus();
   const tree = deepTree();
   tree.push({ title: "New", path: "new.md", kind: "page", children: [] });
   api.emit("workspace:changed", deepWorkspace(tree));
   await tick();
   expect(visible(nav())).toContain("new.md");
-  expect(visible(nav())).not.toContain("guides/install.md");
+  expect(visible(nav())).toContain("guides/install.md");
   expect((document.activeElement as HTMLElement).closest<HTMLElement>("[role=treeitem]")!.dataset.path).toBe("api.md");
 });
 

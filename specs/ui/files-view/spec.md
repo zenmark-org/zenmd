@@ -82,8 +82,7 @@ prints the same listing.
 13. **The rows.** Files uses the same tree component as Pages (`renderTree`):
     the same rows, chevrons, indentation, keyboard, focus and current-page
     mark.
-    - Folders are rows of kind `group`, collapsed by default except the top
-      level.
+    - Folders are rows of kind `group`, all collapsed by default.
     - The folders of the open page are expanded when the view first shows.
     - Expanded folders are remembered per folder
       (`zen.files.expanded:<root>`), separately from the Pages tree.

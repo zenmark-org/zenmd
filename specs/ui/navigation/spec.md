@@ -16,7 +16,7 @@ The sidebar tree and the breadcrumb: how the user moves between pages.
 ## Behaviour
 
 1. Renders `workspace.name` and `workspace.tree` in the `nav` slot as a tree (`role="tree"`); nodes with children show a disclosure triangle. Clicking a page navigates; clicking a group or a triangle expands/collapses.
-2. The current page has `aria-current="page"`, its ancestors are expanded, and it is scrolled into view when it changes. Other expansion state is kept per workspace root in `localStorage`; first-level nodes start expanded.
+2. The current page has `aria-current="page"`, its ancestors are expanded, and it is scrolled into view when it changes. Other expansion state is kept per workspace root in `localStorage`; the tree starts collapsed, with only the current page's ancestors open, until the person opens or closes a node.
 3. Keyboard: ↑/↓ move focus through visible nodes, → expands or moves to first child, ← collapses or moves to parent, Enter/Space opens, Home/End jump. One tab stop (roving tabindex).
 4. `workspace:changed` re-renders the tree keeping expansion and focus where the nodes still exist.
 5. Renders the breadcrumb in the `breadcrumb` slot from the current `Page.breadcrumb` (store field `page`): every crumb but the last is a link that navigates; the last is plain text with `aria-current="page"`. When wider than its slot, middle crumbs collapse into a `…` button that lists them in a menu.

@@ -30,6 +30,23 @@ function mount(api: FakeApi) {
   return slots.nav;
 }
 const row = (nav: HTMLElement, path: string) => item(nav, path).querySelector<HTMLElement>(".zen-nav-row")!;
+
+test("the Pages tree starts collapsed; only the open page's parents open", () => {
+  const nav = mount(createFakeApi());
+  expect(item(nav, "README.md").getAttribute("aria-expanded")).toBe("false");
+  unmount?.(); document.body.replaceChildren();
+  const store = createStore({ workspace: ws(), path: "guides/alpha.md" });
+  const slot = () => document.body.appendChild(document.createElement("div"));
+  const slots: Slots = { nav: slot(), breadcrumb: slot(), actions: slot(), main: slot() };
+  unmount = navFeature.mount(slots, { api: createFakeApi(), store, brand: "Zenmark", navigate: (path) => store.set({ path }) });
+  expect(item(slots.nav, "README.md").getAttribute("aria-expanded")).toBe("true");
+});
+
+test("a folder's stored choice wins over the collapsed default", () => {
+  localStorage.setItem("zen.nav.expanded:/docs", JSON.stringify(["README.md"]));
+  const nav = mount(createFakeApi());
+  expect(item(nav, "README.md").getAttribute("aria-expanded")).toBe("true");
+});
 const labels = () => Array.from(document.querySelectorAll("[role=menuitem]")).map((i) => i.textContent);
 
 test("read-only sidebar", () => {
@@ -152,7 +169,7 @@ test("the choice is remembered per folder", async () => {
   expect(other.nav.querySelector("[role=radio][aria-checked=true]")!.textContent).toBe("Pages");
 });
 
-test("files view uses the same tree: rows, folders collapsed except the top level, tree label", async () => {
+test("files view uses the same tree: rows, every folder collapsed by default, tree label", async () => {
   const m = mountFiles(filesApi());
   switchTo(m.nav, "Files");
   await tick();
@@ -161,11 +178,12 @@ test("files view uses the same tree: rows, folders collapsed except the top leve
   expect(m.nav.querySelector<HTMLElement>(".zen-nav-tree")!.hidden).toBe(true);
   expect(host.querySelector("[role=tree]")).not.toBeNull();
   expect(host.querySelector("[role=tree]")!.getAttribute("aria-label")).toBe("Files");
-  // top-level folders are open, nested ones closed
-  expect(item(host, "engine/").getAttribute("aria-expanded")).toBe("true");
-  expect(item(host, "engine/index/").getAttribute("aria-expanded")).toBe("false");
-  expect(item(host, "ui/files-view/").getAttribute("aria-expanded")).toBe("false");
-  expect(fvisible(m.nav)).toEqual(["engine/", "engine/index/", "ui/", "ui/files-view/", "README.md", "ui.md"]);
+  // every folder starts closed (the open page, README.md, is at the top level)
+  expect(item(host, "engine/").getAttribute("aria-expanded")).toBe("false");
+  expect(item(host, "ui/").getAttribute("aria-expanded")).toBe("false");
+  expect(fvisible(m.nav)).toEqual(["engine/", "ui/", "README.md", "ui.md"]);
+  frow(m.nav, "ui/").click();
+  expect(fvisible(m.nav)).toEqual(["engine/", "ui/", "ui/files-view/", "README.md", "ui.md"]);
   // images are announced as images
   expect(item(host, "ui/files-view/shots/a b#1.png").getAttribute("aria-label")).toBe("a b#1.png, image");
 });
@@ -240,11 +258,11 @@ test("folder row toggles", async () => {
   const m = mountFiles(filesApi());
   switchTo(m.nav, "Files");
   await tick();
-  expect(item(filesHost(m.nav), "ui/").getAttribute("aria-expanded")).toBe("true");
-  frow(m.nav, "ui/").click();
   expect(item(filesHost(m.nav), "ui/").getAttribute("aria-expanded")).toBe("false");
-  frow(m.nav, "ui/").dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
+  frow(m.nav, "ui/").click();
   expect(item(filesHost(m.nav), "ui/").getAttribute("aria-expanded")).toBe("true");
+  frow(m.nav, "ui/").dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
+  expect(item(filesHost(m.nav), "ui/").getAttribute("aria-expanded")).toBe("false");
   expect(m.navigate).not.toHaveBeenCalled();
 });
 

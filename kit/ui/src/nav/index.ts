@@ -5,7 +5,7 @@ import { el } from "../shell/dom";
 import type { AppState, Feature } from "../shell/types";
 import { renderBreadcrumb } from "./breadcrumb";
 import { menuEntries, type EntryEnv } from "./entries";
-import { decorateFiles, folderChain, imageSrc, toNavNodes, topFolders, type FileTree } from "./files";
+import { decorateFiles, folderChain, imageSrc, toNavNodes, type FileTree } from "./files";
 import { confirmDialog, openMenu, type MenuHandle } from "./menu";
 import { findNode, movedOrder, siblingGroup } from "./siblings";
 import { focusPath, renderTree } from "./tree";
@@ -18,7 +18,7 @@ const storageKey = (root: string) => `zen.nav.expanded:${root}`;
 const filesKey = (root: string) => `zen.files.expanded:${root}`;
 const STATUS_MS = 6000;
 
-/** The folders of the Files view the person opened, or null while there is no choice (the top level is open). */
+/** The folders of the Files view the person opened, or null while there is no choice (all closed but the open page's). */
 function loadFilesExpanded(root: string): Set<string> | null {
   try {
     const raw = localStorage.getItem(filesKey(root));
@@ -38,7 +38,7 @@ function loadExpanded(w: Workspace): Set<string> {
       if (Array.isArray(list)) return new Set(list.filter((x): x is string => typeof x === "string"));
     }
   } catch { /* fall through to defaults */ }
-  return new Set(w.tree.filter((n: NavNode) => n.children.length).map((n) => n.path));
+  return new Set(); // collapsed by default: only the folders of the open page open (renderTree)
 }
 
 function saveExpanded(root: string, set: Set<string>): void {
@@ -199,8 +199,7 @@ export const navFeature: Feature = {
         return;
       }
       if (!filesExpanded) {
-        filesExpanded = topFolders(tree);
-        for (const f of folderChain(path)) filesExpanded.add(f);
+        filesExpanded = new Set(folderChain(path)); // collapsed by default, but for the open page's folders
       }
       const expanded = filesExpanded;
       renderTree(filesTree, tree, {
