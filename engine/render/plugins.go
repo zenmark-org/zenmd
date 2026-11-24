@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html"
+	"os"
 	"sort"
 	"strings"
 	"unicode"
@@ -14,6 +15,7 @@ import (
 	"github.com/zenmark-org/zenmd/engine/dialects"
 	"github.com/zenmark-org/zenmd/engine/plugins"
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/text"
 	"github.com/yuin/goldmark/util"
@@ -33,14 +35,28 @@ type state struct {
 	texts       []string // placeholder index -> plain text (for the title)
 	used        map[string]bool
 	warnings    []string
-	denied      []string           // ids of not-allowed plugins the page uses, in order
-	depth       int                // nesting of default-content containers
-	titleOnly   bool               // only the title is wanted: run no hooks
-	dialects    []dialects.Dialect // the markdown dialects the folder turned on
-	pluginWarns map[string]int     // plugin id -> Context.Warn warnings kept on this page
-	warnSeen    map[string]bool    // warnings already added through Context.Warn
-	closed      bool               // the page is built: Context.Warn adds nothing
+	denied      []string               // ids of not-allowed plugins the page uses, in order
+	depth       int                    // nesting of default-content containers
+	titleOnly   bool                   // only the title is wanted: run no hooks
+	dialects    []dialects.Dialect     // the markdown dialects the folder turned on
+	pluginWarns map[string]int         // plugin id -> Context.Warn warnings kept on this page
+	warnSeen    map[string]bool        // warnings already added through Context.Warn
+	closed      bool                   // the page is built: Context.Warn adds nothing
+	subs        map[string]string      // the page's frontmatter substitutions (a dialect's {{ key }})
+	exts        dialects.Extensions    // the extensions the folder turned on for the dialects; nil until asked
+	notes       map[string]bool        // dialect warnings already given on this page
+	titles      map[string]titleAnswer // Context.PageTitle answers, by path
+	lookups     int                    // Context.PageTitle lookups made on this page
 }
+
+// titleAnswer is one answer of Context.PageTitle.
+type titleAnswer struct {
+	title string
+	ok    bool
+}
+
+// maxTitleLookups is how many different pages one render may ask the title of.
+const maxTitleLookups = 500
 
 const (
 	maxPluginWarns   = 20  // Context.Warn warnings per plugin per page
@@ -59,7 +75,89 @@ func (st *state) ctx(id string) plugins.Context {
 		c.Workspace = rt.Root()
 	}
 	c.Warn = func(msg string) { st.pluginWarn(id, msg) }
+	if _, ok := st.r.links.(pageReader); ok {
+		c.PageTitle = st.pageTitle
+	}
 	return c
+}
+
+// pageReader is implemented by a Resolver that can read the folder's pages.
+type pageReader interface {
+	Read(rel string) ([]byte, error)
+}
+
+// pageTitle is Context.PageTitle: the title of the folder page that path
+// names, relative to the page being rendered as a link is. It reads the
+// page's source and runs no plugin, and never leaves the folder, because the
+// path is resolved as a link is.
+func (st *state) pageTitle(p string) (string, bool) {
+	rd, ok := st.r.links.(pageReader)
+	p = strings.TrimSpace(p)
+	if !ok || p == "" || len(p) > 500 || strings.ContainsAny(p, "\\\x00\r\n") {
+		return "", false
+	}
+	if a, seen := st.titles[p]; seen {
+		return a.title, a.ok
+	}
+	if st.lookups >= maxTitleLookups {
+		return "", false
+	}
+	st.lookups++
+	var a titleAnswer
+	if l := st.r.resolve(st.path, p); l.Kind == "internal" {
+		if src, err := rd.Read(l.Path); err == nil {
+			a = titleAnswer{st.r.Title(l.Path, src), true}
+		}
+	}
+	if st.titles == nil {
+		st.titles = map[string]titleAnswer{}
+	}
+	st.titles[p] = a
+	return a.title, a.ok
+}
+
+// note adds a page warning once (a dialect's, which has no plugin id).
+func (st *state) note(msg string) {
+	if st.titleOnly || st.notes[msg] {
+		return
+	}
+	if st.notes == nil {
+		st.notes = map[string]bool{}
+	}
+	st.notes[msg] = true
+	st.warnings = append(st.warnings, msg)
+}
+
+// extensions are the optional syntaxes the folder turned on for the page's
+// dialects, read once per page and only when something asks.
+func (st *state) extensions() dialects.Extensions {
+	if st.exts != nil {
+		return st.exts
+	}
+	st.exts = dialects.Extensions{}
+	rt, ok := st.r.links.(rooter)
+	if !ok || rt.Root() == "" {
+		return st.exts
+	}
+	for _, d := range st.dialects {
+		if e, ok := d.(dialects.Extensioner); ok {
+			for k, v := range e.Extensions(os.DirFS(rt.Root())) {
+				st.exts[k] = v
+			}
+		}
+	}
+	return st.exts
+}
+
+// markdown options for the dialects that need goldmark's extras.
+func (st *state) newMarkdown(extra ...goldmark.Option) goldmark.Markdown {
+	for _, d := range st.dialects {
+		if dl, ok := d.(dialects.DefinitionLists); ok && dl.DefinitionLists() {
+			extra = append(extra, goldmark.WithExtensions(extension.DefinitionList))
+			break
+		}
+	}
+	return newMarkdown(extra...)
 }
 
 // pluginWarn adds msg to the page's warnings as plugin id's: control
@@ -213,7 +311,7 @@ func (st *state) inline(p plugins.Plugin, in plugins.Inline) string {
 func (st *state) fragment(src string) string {
 	body := st.replaceContainers([]byte(src))
 	body = st.replaceInlines(body)
-	md := newMarkdown(goldmark.WithRendererOptions(
+	md := st.newMarkdown(goldmark.WithRendererOptions(
 		renderer.WithNodeRenderers(util.Prioritized(&nodeRenderer{st: st, r: st.r}, 100)),
 	))
 	doc := md.Parser().Parse(text.NewReader(body))
@@ -229,12 +327,29 @@ func (st *state) fragment(src string) string {
 // dialects turned on, their directives (MyST's ```{note}) are containers too.
 func (st *state) replaceContainers(src []byte) []byte {
 	if len(st.dialects) > 0 {
-		return st.replaceWithDialects(src)
+		return st.rewrite(st.replaceWithDialects(src))
 	}
 	if !bytes.Contains(src, []byte(":::")) {
 		return src
 	}
 	return st.replaceSpans(src, plugins.ScanContainers(src), nil)
+}
+
+// rewrite lets the dialects turn their syntax that is not a directive
+// (targets, comments, breaks, substitutions) into markdown. It runs after the
+// directives became placeholders, so a directive's body reaches its plugin as
+// written and is rewritten when the plugin renders it as markdown.
+func (st *state) rewrite(src []byte) []byte {
+	for _, d := range st.dialects {
+		if rw, ok := d.(dialects.Rewriter); ok {
+			var warns []string
+			src, warns = rw.Rewrite(src, dialects.Page{Substitutions: st.subs})
+			for _, w := range warns {
+				st.note(w)
+			}
+		}
+	}
+	return src
 }
 
 // replaceSpans replaces the outermost spans of an enabled plugin. dm holds the
@@ -249,7 +364,9 @@ func (st *state) replaceSpans(src []byte, spans []plugins.Span, dm map[int]diale
 		}
 		ds, isDialect := dm[sp.Start]
 		if isDialect && ds.Code {
-			st.warnings = append(st.warnings, ds.Warnings...)
+			for _, w := range ds.Warnings {
+				st.note(w)
+			}
 			out.Write(src[last:sp.Start])
 			out.WriteString(codeFenceText(ds))
 			last = sp.End
@@ -259,10 +376,23 @@ func (st *state) replaceSpans(src []byte, spans []plugins.Span, dm map[int]diale
 		if p == nil {
 			if id := st.set.Denied("block", sp.Name); id != "" {
 				st.deny(id)
+			} else if isDialect && !st.titleOnly {
+				// no plugin owns the directive: it stays code, never run or passed on
+				st.note("myst: the directive {" + sp.Name + "} is not supported and stays as code")
+				shown := ds
+				shown.Lang = ""
+				if b := bodyOf(src, sp); b != "" {
+					shown.Body = b
+				}
+				out.Write(src[last:sp.Start])
+				out.WriteString(codeFenceText(shown))
+				last = sp.End
 			}
 			continue
 		}
-		st.warnings = append(st.warnings, ds.Warnings...)
+		for _, w := range ds.Warnings {
+			st.note(w)
+		}
 		h := st.block(p, plugins.Block{Name: sp.Name, Body: sp.Body, Attrs: sp.Attrs})
 		out.Write(src[last:sp.Start])
 		out.WriteString("\n" + st.placeholder(h, "") + "\n\n")
@@ -366,7 +496,13 @@ func codeFenceText(d dialects.Span) string {
 // fenced code blocks with placeholder tokens.
 func (st *state) replaceInlines(src []byte) []byte {
 	known := func(n string) bool { return st.set.Inline(n) != nil || st.set.Denied("inline", n) != "" }
-	if bytes.IndexByte(src, ':') < 0 {
+	var scanners []dialects.InlineScanner
+	for _, d := range st.dialects {
+		if sc, ok := d.(dialects.InlineScanner); ok {
+			scanners = append(scanners, sc)
+		}
+	}
+	if bytes.IndexByte(src, ':') < 0 && (len(scanners) == 0 || bytes.IndexAny(src, "{$") < 0) {
 		return src
 	}
 	var out bytes.Buffer
@@ -393,10 +529,18 @@ func (st *state) replaceInlines(src []byte) []byte {
 			continue
 		}
 		at := 0
-		for _, sp := range plugins.ScanInlines(line, known) {
+		spans, roles := st.inlineSpans(line, known, scanners)
+		for _, sp := range spans {
+			if sp.Start < at {
+				continue // inside the one before
+			}
 			ip := st.set.Inline(sp.Name)
-			if ip == nil { // a plugin that is not allowed: the text stays literal
-				st.deny(st.set.Denied("inline", sp.Name))
+			if ip == nil { // a plugin that is not allowed or a role nobody owns: the text stays literal
+				if id := st.set.Denied("inline", sp.Name); id != "" {
+					st.deny(id)
+				} else if roles[sp.Start] && line[sp.Start] == '{' && !st.titleOnly {
+					st.note("myst: the role {" + sp.Name + "} is not supported (no plugin owns it) and stays as text")
+				}
 				continue
 			}
 			h := st.inline(ip, plugins.Inline{Name: sp.Name, Text: sp.Body, Attrs: sp.Attrs})
@@ -407,6 +551,28 @@ func (st *state) replaceInlines(src []byte) []byte {
 		out.Write(line[at:])
 	}
 	return out.Bytes()
+}
+
+// inlineSpans are the inline directives of one line: zen's :name[text] and
+// the dialects' roles, in order. roles holds the starts of the dialects' spans.
+func (st *state) inlineSpans(line []byte, known func(string) bool, scanners []dialects.InlineScanner) ([]plugins.Span, map[int]bool) {
+	spans := plugins.ScanInlines(line, known)
+	if len(scanners) == 0 {
+		return spans, nil
+	}
+	roles := map[int]bool{}
+	var ext dialects.Extensions
+	if bytes.IndexByte(line, '$') >= 0 {
+		ext = st.extensions()
+	}
+	for _, sc := range scanners {
+		for _, sp := range sc.ScanInline(line, ext) {
+			roles[sp.Start] = true
+			spans = append(spans, sp)
+		}
+	}
+	sort.SliceStable(spans, func(i, j int) bool { return spans[i].Start < spans[j].Start })
+	return spans, roles
 }
 
 // codeFence mirrors plugins' fence detection: up to three spaces, then three

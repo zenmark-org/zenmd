@@ -37,6 +37,53 @@ type Span struct {
 	Warnings []string
 }
 
+// The rest of a dialect is optional. A dialect only finds syntax and turns it
+// into markdown or into spans of the plugin that owns the name; it never
+// renders anything itself.
+
+// Extensions are the optional syntaxes a folder turned on for a dialect, by
+// name (MyST's "dollarmath").
+type Extensions map[string]bool
+
+// Extensioner reads the extensions a folder turned on, from its root files.
+// It reads text only and runs nothing.
+type Extensioner interface {
+	Extensions(root fs.FS) Extensions
+}
+
+// InlineScanner finds inline syntax in one line of a page outside code spans:
+// MyST's roles, written {name}`content`. A span's Name is the inline plugin's
+// name (the role) and Body its text. The renderer maps a name to the plugin
+// that owns it, and keeps the text when none does.
+type InlineScanner interface {
+	ScanInline(src []byte, ext Extensions) []plugins.Span
+}
+
+// Page is what a Rewriter may know of the page.
+type Page struct {
+	// Substitutions are the page's frontmatter substitutions: key to text.
+	Substitutions map[string]string
+}
+
+// Rewriter turns the dialect's block syntax that is not a directive (target
+// lines, comments, block breaks, substitutions) into plain markdown. It runs
+// on the page after directives were taken out, outside code, and returns
+// warnings for the page.
+type Rewriter interface {
+	Rewrite(src []byte, page Page) (out []byte, warnings []string)
+}
+
+// FieldLister takes a field list off the top of a page. The renderer shows
+// the fields as the page's frontmatter (Page Info) and does not draw them.
+type FieldLister interface {
+	Fields(body []byte) (fields map[string]string, rest []byte)
+}
+
+// DefinitionLists is implemented by a dialect that writes definition lists
+// (a term, then `: definition`). It reports whether the renderer should read
+// them.
+type DefinitionLists interface{ DefinitionLists() bool }
+
 var idRE = regexp.MustCompile(`^[a-z][a-z0-9-]{0,31}$`)
 
 // ValidID reports whether id may name a dialect (the same shape as an add-on id).

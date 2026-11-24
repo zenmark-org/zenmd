@@ -72,9 +72,36 @@ export function renderOne(pre, katex) {
   pre.replaceWith(box);
 }
 
+/** Draws one inline equation (once): in line with the text, or, when it cannot be drawn, the TeX stays with the message as its tooltip. */
+export function renderInline(code, katex) {
+  if (code.dataset.rendered !== undefined) return;
+  code.dataset.rendered = "";
+  const doc = code.ownerDocument || document;
+  const box = doc.createElement("span");
+  box.className = "zm-ieq";
+  const fail = (msg) => {
+    code.setAttribute("title", "math: " + msg);
+    const first = ("math: " + msg).split("\n")[0];
+    console.warn(first.length > 200 ? first.slice(0, 199) + "…" : first);
+  };
+  try {
+    katex.render(code.textContent, box, { ...OPTIONS, displayMode: false });
+  } catch (err) {
+    fail(err && err.message ? err.message : String(err));
+    return;
+  }
+  const bad = box.querySelector(".katex-error");
+  if (bad) {
+    fail(bad.getAttribute("title") || "could not draw the formula");
+    return;
+  }
+  code.replaceWith(box);
+}
+
 /** Draws every not-yet-drawn equation under root. */
 export function renderAll(root, katex) {
   for (const pre of root.querySelectorAll(".zm-tex:not([data-rendered])")) renderOne(pre, katex);
+  for (const code of root.querySelectorAll(".zm-itex:not([data-rendered])")) renderInline(code, katex);
 }
 
 // The page runtime mounts this on every [data-zen-plugin="math"] wrapper.
@@ -90,6 +117,10 @@ export default {
       for (const pre of wrapper.querySelectorAll(".zm-tex:not([data-rendered])")) {
         pre.dataset.rendered = "";
         showError((pre.parentNode && pre.parentNode.parentNode) || pre.parentNode, doc, err.message);
+      }
+      for (const code of wrapper.querySelectorAll(".zm-itex:not([data-rendered])")) {
+        code.dataset.rendered = "";
+        code.setAttribute("title", "math: " + err.message);
       }
       return;
     }

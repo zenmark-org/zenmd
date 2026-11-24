@@ -23,6 +23,7 @@ var pluginPackages = map[string]string{
 	"figure":    "builtins/plugins/figure",
 	"table":     "builtins/plugins/table",
 	"math":      "builtins/plugins/math",
+	"xref":      "builtins/plugins/xref",
 }
 
 // dialectPackages maps a built-in dialect id to its package.

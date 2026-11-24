@@ -12,12 +12,17 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/zenmark-org/zenmd/builtins/plugins/callout"
 	"github.com/zenmark-org/zenmd/builtins/plugins/check"
 	"github.com/zenmark-org/zenmd/builtins/plugins/codeblock"
 	"github.com/zenmark-org/zenmd/builtins/plugins/diagram"
+	"github.com/zenmark-org/zenmd/builtins/plugins/figure"
+	"github.com/zenmark-org/zenmd/builtins/plugins/math"
 	"github.com/zenmark-org/zenmd/builtins/plugins/quiz"
 	"github.com/zenmark-org/zenmd/builtins/plugins/rating"
 	"github.com/zenmark-org/zenmd/builtins/plugins/sandbox"
+	"github.com/zenmark-org/zenmd/builtins/plugins/table"
+	"github.com/zenmark-org/zenmd/builtins/plugins/xref"
 	"github.com/zenmark-org/zenmd/engine/plugins"
 )
 
@@ -29,7 +34,7 @@ func TestShowcaseFolder(t *testing.T) {
 	_, file, _, _ := runtime.Caller(0)
 	demo := filepath.Join(filepath.Dir(file), "..", "..", "examples", "showcase")
 	reg := plugins.NewRegistry()
-	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New()} {
+	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), callout.New(), figure.New(), table.New(), math.New(), xref.New()} {
 		if err := reg.Register(p); err != nil {
 			t.Fatal(err)
 		}
@@ -265,7 +270,7 @@ func demoDir() string {
 func TestDemoFolder(t *testing.T) {
 	demo := demoDir()
 	reg := plugins.NewRegistry()
-	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), rating.New()} {
+	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New(), xref.New()} {
 		if err := reg.Register(p); err != nil {
 			t.Fatal(err)
 		}

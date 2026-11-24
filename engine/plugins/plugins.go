@@ -140,6 +140,13 @@ type Context struct {
 	// sanitised with the rest of the page. It is nil where there is no page
 	// pipeline to call.
 	Markdown func(src string) (string, error)
+	// PageTitle gives the title of a page of the open folder: its first H1,
+	// else its frontmatter title:, else its file name. path is relative to
+	// the page being rendered, the way a link is, and may omit the .md. ok is
+	// false when the page is not in the folder (it is missing, or the path
+	// leaves the folder). It is set for block and inline hooks while a page
+	// renders and is nil when there is no folder.
+	PageTitle func(path string) (title string, ok bool)
 }
 
 // Block is a named fenced or container block handed to a BlockHook.

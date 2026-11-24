@@ -135,7 +135,8 @@ func TestMystUnknown(t *testing.T) {
 	p := render(t, r, "```{mystery} arg\nx\n```\n\n:::{other}\ny\n:::\n")
 	contains(t, p.HTML, "<pre><code", "x")
 	lacks(t, p.HTML, "data-zen-plugin")
-	if len(p.Warnings) != 0 {
+	// each directive nobody owns stays code and warns once, naming it
+	if len(p.Warnings) != 2 || !strings.Contains(p.Warnings[0], "{mystery}") || !strings.Contains(p.Warnings[1], "{other}") {
 		t.Errorf("warnings %v", p.Warnings)
 	}
 }
