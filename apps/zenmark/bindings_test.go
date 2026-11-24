@@ -19,6 +19,7 @@ var serviceMethods = []string{
 	"SetNavHidden", "SiteTemplates", "Source", "Startup", "SuggestPageName", "TemplatesDir",
 	"CopyPageTemplate", "OpenPageTemplate", "PageTemplates", "RevealPageTemplates", "UpdateTemplate",
 	"OpenEnclosingFolder", // app/single-file
+	"FileTree",            // ui/files-view
 }
 
 func TestServiceMethodsUnchanged(t *testing.T) {

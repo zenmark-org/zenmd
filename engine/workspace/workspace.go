@@ -197,10 +197,7 @@ func (w *Workspace) FilesContext(ctx context.Context, onEntry func(int)) ([]stri
 		}
 		name := d.Name()
 		if d.IsDir() {
-			if strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" {
-				return fs.SkipDir
-			}
-			if name == config.ExportsDir && filepath.Dir(p) == w.root { // exports/html and exports/pdf
+			if skipDir(name, filepath.Dir(p) == w.root) {
 				return fs.SkipDir
 			}
 			return nil
@@ -229,6 +226,14 @@ func (w *Workspace) FilesContext(ctx context.Context, onEntry func(int)) ([]stri
 	w.entries = entries
 	w.mu.Unlock()
 	return files, nil
+}
+
+// skipDir reports whether the scan leaves a folder out: dot folders, node_modules, vendor and the top-level
+// exports folder (exports/html and exports/pdf). atRoot is true for a folder directly in the workspace root.
+// FilesContext and FileTree share it so the page scan and the Files view never drift apart.
+func skipDir(name string, atRoot bool) bool {
+	return strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" ||
+		(atRoot && name == config.ExportsDir)
 }
 
 // Entries is the number of files and folders the last walk visited.
