@@ -2,6 +2,8 @@
 // click, + - 0 1 and a pinch zoom, a larger image pans, Esc / ✕ / a click outside close it.
 // Plain DOM, no innerHTML: the copy takes src and alt of an image the sanitiser already allowed.
 
+import { registerOverlay } from "../tableview/overlay";
+
 export const ZOOM_MIN = 0.1;
 export const ZOOM_MAX = 8;
 const STEP = 1.25;
@@ -141,6 +143,7 @@ export function installImageZoom(root: HTMLElement): ImageZoom {
     win.addEventListener("resize", onResize);
 
     doc.body.append(overlay);
+    const unregister = registerOverlay(doc, () => close()); // one view over the window at a time (plugins/table)
     let fitAtOpen = fit();
     setScale(fitAtOpen);
     closeBtn.focus();
@@ -148,6 +151,7 @@ export function installImageZoom(root: HTMLElement): ImageZoom {
     function close(): void {
       if (view !== handle) return;
       view = null;
+      unregister();
       doc.removeEventListener("keydown", onKey, true);
       win.removeEventListener("resize", onResize);
       overlay.remove();

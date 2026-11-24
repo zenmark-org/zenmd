@@ -358,4 +358,18 @@ test("a spec-shaped table: many rows, long cells with code and links", () => {
   expect(tv.isOpen).toBe(false);
 });
 
-test.todo("one overlay at a time with installImageZoom: needs the zoom.ts Integration (registerOverlay in open and close)");
+test("one overlay at a time with installImageZoom", async () => {
+  const { installImageZoom } = await import("../zoom/zoom");
+  set(md() + '<img src="a.png" alt="A" width="400" height="300">');
+  const zoom = installImageZoom(root);
+  click(expand());
+  expect(tv.isOpen).toBe(true);
+  zoom.open(root.querySelector("img")!);
+  expect(tv.isOpen).toBe(false); // the image view closed the table view
+  expect(zoom.isOpen).toBe(true);
+  click(expand());
+  expect(zoom.isOpen).toBe(false); // and the other way round
+  expect(tv.isOpen).toBe(true);
+  tv.close();
+  zoom.destroy();
+});

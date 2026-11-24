@@ -7,6 +7,7 @@ import { bindFind, createFind, domFinder } from "../find";
 import { markText } from "../lint";
 import { installRuntime } from "@zenmd/runtime/plugins";
 import { installImageZoom } from "@zenmd/runtime/zoom/zoom";
+import { installTableView } from "@zenmd/runtime/tableview/tableview";
 import { PRINT_PAGE } from "@zenmd/runtime/print/page";
 import { button, el, iconButton } from "../shell/dom";
 import { reducedMotion as a11yReducedMotion } from "../shell/a11y";
@@ -231,7 +232,7 @@ export const pageFeature: Feature = {
     const find = createFind({
       doc, host: doc.body,
       finder: domFinder(() => (article.hidden ? null : article), {
-        skip: (e) => e.classList.contains("slides-notes") || e.classList.contains("slides-overview"),
+        skip: (e) => e.classList.contains("slides-notes") || e.classList.contains("slides-overview") || e.hasAttribute("data-zen-ui"),
         // A hidden slide or course step is shown by the layout itself; other hidden blocks are just unhidden.
         reveal(block) {
           if (block.classList.contains("slides-slide")) {
@@ -355,6 +356,7 @@ export const pageFeature: Feature = {
     article.addEventListener("click", onClick);
     article.addEventListener("auxclick", onAux);
     const zoom = installImageZoom(article); // a click on an image shows it large (ui/image-zoom)
+    const tables = installTableView(article); // a wide table opens over the window (plugins/table)
 
     const onKey = (e: KeyboardEvent) => {
       if (editable && (e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "e") {
@@ -424,6 +426,7 @@ export const pageFeature: Feature = {
       gone = true;
       seq++;
       zoom.destroy();
+      tables.destroy();
       offFind();
       offFindState();
       find.destroy();

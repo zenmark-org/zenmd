@@ -11,3 +11,5 @@ export type { StaticApi } from "./static/static";
 export type { LayoutCtx, LayoutHandler, PluginCtx, PluginHandler, PluginStreamEvent, RuntimeApi, RuntimeHost } from "./types";
 export { installImageZoom, zoomableImage, ZOOM_MAX, ZOOM_MIN } from "./zoom/zoom";
 export type { ImageZoom } from "./zoom/zoom";
+export { installTableView, expandableTable, TABLE_SIZE_MIN, TABLE_SIZE_MAX } from "./tableview/tableview";
+export type { TableView } from "./tableview/tableview";

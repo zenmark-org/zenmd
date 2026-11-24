@@ -5,6 +5,7 @@
 // exist here, so invoke and stream reject with "runs in the zen app only".
 import { icon } from "../icons";
 import { installImageZoom } from "../zoom/zoom";
+import { installTableView } from "../tableview/tableview";
 import { installRuntime } from "../plugins";
 import type { RuntimeApi } from "../types";
 import "./static.css";
@@ -332,12 +333,14 @@ export function start(doc: Document = document): void {
   doc.addEventListener("click", onClick);
   const root = doc.querySelector<HTMLElement>(".zen-page") ?? doc.body;
   const zoom = installImageZoom(root);
+  const tables = installTableView(root);
   const stopBar = installTopBar(doc, win, page.siteId);
   stopPrevious = () => {
     stopBar();
     doc.removeEventListener("click", onClick);
     win.removeEventListener("hashchange", onHash);
     zoom.destroy();
+    tables.destroy();
     rt.destroy();
   };
 

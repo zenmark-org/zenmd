@@ -1,4 +1,6 @@
 // @vitest-environment happy-dom
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { createFakeApi, ZENMARK_BUILD } from "../../../../apps/zenmark/frontend/src/api/fake";
 import type { Page } from "../host";
@@ -489,4 +491,9 @@ test("reload() renders an unsaved editor draft again, never the file", async () 
   un();
 });
 
-test.todo("installs the table view: needs the page/index.ts Integration (installTableView on the article, destroy on teardown)");
+test("installs the table view on the article and destroys it on unmount (plugins/table)", () => {
+  const src = readFileSync(resolve(import.meta.dirname, "index.ts"), "utf8");
+  expect(src).toMatch(/installTableView\(article\)/);
+  expect(src).toMatch(/tables\.destroy\(\)/);
+  expect(src).toMatch(/hasAttribute\("data-zen-ui"\)/); // Find skips the Expand button
+});

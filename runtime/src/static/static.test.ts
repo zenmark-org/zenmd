@@ -423,4 +423,8 @@ test("top bar css: left out when printing", () => {
   expect(css()).toMatch(/@media print[^]*\.zen-site-top/);
 });
 
-test.todo("installs the table view: needs the static.ts Integration (installTableView on .zen-page, destroy on teardown)");
+test("installs the table view on the page and destroys it on teardown (plugins/table)", () => {
+  const src = readFileSync(resolve(import.meta.dirname, "static.ts"), "utf8");
+  expect(src).toMatch(/installTableView\(root\)/);
+  expect(src).toMatch(/tables\.destroy\(\)/);
+});
