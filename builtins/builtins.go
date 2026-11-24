@@ -34,16 +34,17 @@ import (
 	"github.com/zenmark-org/zenmd/builtins/plugins/rating"
 	"github.com/zenmark-org/zenmd/builtins/plugins/sandbox"
 	"github.com/zenmark-org/zenmd/builtins/plugins/table"
+	"github.com/zenmark-org/zenmd/builtins/plugins/xref"
 	"github.com/zenmark-org/zenmd/engine/dialects"
 	enginelayouts "github.com/zenmark-org/zenmd/engine/layouts"
 	"github.com/zenmark-org/zenmd/engine/plugins"
 )
 
 // Plugins returns a registry with every built-in plugin, in order: codeblock,
-// diagram, check, quiz, sandbox, rating, callout, figure, table, math. Each call returns a fresh registry.
+// diagram, check, quiz, sandbox, rating, callout, figure, table, math, xref. Each call returns a fresh registry.
 func Plugins() *plugins.Registry {
 	r := plugins.NewRegistry()
-	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New()} {
+	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New(), xref.New()} {
 		if err := r.Register(p); err != nil {
 			panic(err) // the built-ins are fixed: a clash is a programming error
 		}
@@ -72,7 +73,7 @@ func PageTemplates() fs.FS {
 }
 
 // PluginIDs lists the built-in plugins in the order Plugins registers them.
-var PluginIDs = []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating", "callout", "figure", "table", "math"}
+var PluginIDs = []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating", "callout", "figure", "table", "math", "xref"}
 
 func newPlugin(id string) plugins.Plugin {
 	switch id {
@@ -96,6 +97,8 @@ func newPlugin(id string) plugins.Plugin {
 		return table.New()
 	case "math":
 		return math.New()
+	case "xref":
+		return xref.New()
 	}
 	return nil
 }

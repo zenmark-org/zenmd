@@ -14,7 +14,7 @@ func TestDefaultSets(t *testing.T) {
 	for _, m := range Plugins().All() {
 		plugins = append(plugins, m.ID)
 	}
-	if want := []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating", "callout", "figure", "table", "math"}; !reflect.DeepEqual(plugins, want) {
+	if want := []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating", "callout", "figure", "table", "math", "xref"}; !reflect.DeepEqual(plugins, want) {
 		t.Errorf("plugins = %v, want %v", plugins, want)
 	}
 

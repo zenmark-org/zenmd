@@ -110,9 +110,11 @@ func slug(s string) string {
 	return strings.Trim(sb.String(), "-")
 }
 
-// safePath reports whether p may name a page or file of the folder: relative,
-// no .. segment, no scheme, no characters that are not file-name text.
-func safePath(p string) bool {
+// safePath reports whether p, written on the page at pagePath, may name a
+// page or file of the folder: relative, no scheme, no characters that are not
+// file-name text, and a path that stays inside the folder (a .. may climb out
+// of the page's own folder, but never out of the open folder).
+func safePath(pagePath, p string) bool {
 	if p == "" || len(p) > 500 || strings.HasPrefix(p, "/") || strings.HasPrefix(p, "~") {
 		return false
 	}
@@ -124,12 +126,11 @@ func safePath(p string) bool {
 			return false
 		}
 	}
-	for _, seg := range strings.Split(p, "/") {
-		if seg == ".." || seg == "" && p != "" && strings.Contains(p, "//") {
-			return false
-		}
+	if strings.Contains(p, "//") {
+		return false
 	}
-	return true
+	joined := path.Join(path.Dir(pagePath), p)
+	return joined != ".." && !strings.HasPrefix(joined, "../") && joined != "."
 }
 
 // fileName is the name a page or file shows without a title: the last
@@ -217,8 +218,8 @@ func (plugin) RenderInline(ctx plugins.Context, in plugins.Inline) (string, erro
 }
 
 func docLink(ctx plugins.Context, title, target string) (string, error) {
-	if !safePath(target) {
-		warn(ctx, "{doc} needs the path of a page of this folder, relative to this page, without .. or a scheme")
+	if !safePath(ctx.Path, target) {
+		warn(ctx, "{doc} needs the path of a page of this folder, relative to this page and inside the folder")
 		return html.EscapeString(firstNonEmpty(title, clip(target))), nil
 	}
 	shown := title
@@ -240,8 +241,8 @@ func docLink(ctx plugins.Context, title, target string) (string, error) {
 }
 
 func downloadLink(ctx plugins.Context, title, target string) (string, error) {
-	if !safePath(target) {
-		warn(ctx, "{download} needs the path of a file of this folder, relative to this page, without .. or a scheme")
+	if !safePath(ctx.Path, target) {
+		warn(ctx, "{download} needs the path of a file of this folder, relative to this page and inside the folder")
 		return html.EscapeString(firstNonEmpty(title, clip(target))), nil
 	}
 	shown := firstNonEmpty(title, path.Base(target))
@@ -450,8 +451,8 @@ func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) 
 			n++
 			continue
 		}
-		if !safePath(dest) {
-			warn(ctx, "toctree: entry "+strconv.Itoa(seen)+" is not a page of this folder (paths are relative to the page, without .. or a scheme)")
+		if !safePath(ctx.Path, dest) {
+			warn(ctx, "toctree: entry "+strconv.Itoa(seen)+" is not a page of this folder (paths are relative to the page and stay in the folder)")
 			continue
 		}
 		shown := title

@@ -33,16 +33,19 @@ var coverage = []row{
 	{2, "table", "table", false}, {2, "list-table", "table", false}, {2, "csv-table", "table", false},
 	// phase 3: math
 	{3, "math", "math", false},
-	// The {math} and {eq} roles belong to phase 5 (ScanInline); add their rows
-	// ({5, "math", "math", true}, {5, "eq", "math", true}) when phase 5 builds them.
+	{5, "math", "math", true}, {5, "eq", "math", true},
 	// phase 4: layout blocks
 	{4, "tab-set", "tabs", false}, {4, "tab-item", "tabs", false}, {4, "dropdown", "dropdown", false},
 	{4, "card", "cards", false}, {4, "grid", "cards", false}, {4, "grid-item", "cards", false},
 	{4, "grid-item-card", "cards", false}, {4, "button-link", "cards", false}, {4, "button-ref", "cards", false},
 	// phase 5: roles and the rest
 	{5, "kbd", "text", true}, {5, "abbr", "text", true}, {5, "sub", "text", true}, {5, "sup", "text", true},
-	{5, "ref", "text", true}, {5, "numref", "text", true}, {5, "doc", "text", true}, {5, "term", "text", true},
-	{5, "download", "text", true}, {5, "mermaid", "diagram", false},
+	{5, "ref", "xref", true}, {5, "numref", "xref", true}, {5, "doc", "xref", true}, {5, "download", "xref", true},
+	{5, "toctree", "xref", false}, {5, "term", "terms", true}, {5, "glossary", "terms", false},
+	{5, "epigraph", "quote", false}, {5, "pull-quote", "quote", false}, {5, "highlights", "quote", false},
+	{5, "sidebar", "aside", false}, {5, "margin", "aside", false}, {5, "topic", "aside", false},
+	{5, "include", "include", false}, {5, "literalinclude", "include", false},
+	{5, "mermaid", "diagram", false},
 }
 
 // leftAsCode are directives no built-in may own: they stay code with a warning.

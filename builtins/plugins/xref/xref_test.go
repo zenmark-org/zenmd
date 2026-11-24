@@ -307,3 +307,18 @@ func TestKitClasses(t *testing.T) {
 	p := page(t, "```{toctree}\nguide/start\n```\n")
 	contains(t, p.HTML, "zen-block")
 }
+
+func TestParentFolderStaysInsideTheFolder(t *testing.T) {
+	r := folder(t)
+	p, err := r.Render("guide/p.md", []byte("{doc}`../plain` {doc}`start` {doc}`../../plain`\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	contains(t, p.HTML, `data-path="plain.md"`, `data-path="guide/start.md"`)
+	if strings.Count(p.HTML, `data-zen-link="internal"`) != 2 {
+		t.Errorf("only the two inside the folder link:\n%s", p.HTML)
+	}
+	if warned(p, "{doc} needs") != 1 {
+		t.Errorf("warnings %v", p.Warnings)
+	}
+}
