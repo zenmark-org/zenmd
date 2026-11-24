@@ -308,7 +308,7 @@ func TestDemoFolder(t *testing.T) {
 	sub := map[string]string{
 		"features/index.md":         "features/reader.md,features/open-a-file.md,features/navigation.md,features/find.md,features/editor.md,features/inspector.md,features/printing.md,features/export.md,features/blueprints.md,features/developer.md",
 		"features/reader.md":        "features/markdown.md,features/myst.md",
-		"plugins/index.md":          "plugins/codeblock.md,plugins/diagram.md,plugins/check.md,plugins/quiz.md,plugins/sandbox.md,plugins/rating.md",
+		"plugins/index.md":          "plugins/codeblock.md,plugins/diagram.md,plugins/check.md,plugins/quiz.md,plugins/sandbox.md,plugins/rating.md,plugins/callout.md,plugins/figure.md,plugins/table.md",
 		"layouts/index.md":          "layouts/article.md,layouts/docs.md,layouts/post.md,layouts/landing.md,layouts/wide.md,layouts/handout.md,layouts/slides.md,layouts/course.md,layouts/glossary/index.md",
 		"layouts/glossary/index.md": "", // the terms are not in the sidebar: layout: term hides them
 		"configuration/settings.md": "configuration/reference.md",
