@@ -1,5 +1,5 @@
 // The nav feature: sidebar tree in the `nav` slot, breadcrumb in `breadcrumb`.
-import { hasFeature, type KitHost, type NavNode, type Workspace } from "../host";
+import { hasFeature, type NavNode, type Workspace } from "../host";
 import { copyText } from "../shell/clipboard";
 import { el } from "../shell/dom";
 import type { AppState, Feature } from "../shell/types";
@@ -17,10 +17,6 @@ export { renderTree } from "./tree";
 const storageKey = (root: string) => `zen.nav.expanded:${root}`;
 const filesKey = (root: string) => `zen.files.expanded:${root}`;
 const STATUS_MS = 6000;
-
-// `fileTree` on the Api and `zoomImage` on the Ctx belong in host.ts and shell/types.ts (Integration).
-type FilesApi = KitHost & { fileTree?(): Promise<FileTree> };
-type ImageCtx = { zoomImage?(src: string, alt: string): void };
 
 /** The folders of the Files view the person opened, or null while there is no choice (the top level is open). */
 function loadFilesExpanded(root: string): Set<string> | null {
@@ -105,7 +101,7 @@ export const navFeature: Feature = {
     };
     const fail = (err: unknown) => say(err instanceof Error ? err.message : String(err), true);
 
-    const api = ctx.api as FilesApi;
+    const api = ctx.api;
     // Without the editor feature (a read-only app) the sidebar only reads: no editing items, no reordering.
     const editable = hasFeature(api, "editor");
     const titleOf = (path: string) => findNode(ctx.store.get().workspace?.tree ?? [], path)?.title ?? path;
@@ -166,7 +162,7 @@ export const navFeature: Feature = {
     /** Opens an image of the Files view in the image view over the window; the row has the focus, so Esc gives it back. */
     const openImage = (path: string) => {
       focusPath(filesTree, path);
-      (ctx as unknown as ImageCtx).zoomImage?.(imageSrc(path), path.slice(path.lastIndexOf("/") + 1));
+      ctx.zoomImage?.(imageSrc(path), path.slice(path.lastIndexOf("/") + 1));
     };
 
     const showViews = () => {

@@ -1,7 +1,7 @@
 // In-memory Api for development in a browser and for tests: a three-page
 // sample workspace, emit() to simulate Go events, and a record of every call.
 import { FEATURE_IDS, type LogEntry } from "@zenmd/kit";
-import type { AddonInfo, Api, BuildInfo, BuildProgress, Crumb, DialectInfo, Draft, SiteTemplate, PageTemplate, TemplateUpdate, LayoutInfo, LintResult, NavNode, OpenProgress, Page, PdfExported, PdfOptions, PluginInfo, PluginStreamEvent, Startup, Workspace } from "./index";
+import type { AddonInfo, Api, FileNode, FileTree, BuildInfo, BuildProgress, Crumb, DialectInfo, Draft, SiteTemplate, PageTemplate, TemplateUpdate, LayoutInfo, LintResult, NavNode, OpenProgress, Page, PdfExported, PdfOptions, PluginInfo, PluginStreamEvent, Startup, Workspace } from "./index";
 
 type Method = "startup" | "appReady" | "pickFolder" | "cancelOpen" | "closeFolder" | "openEnclosingFolder" | "reload"
   | "siteTemplates" | "pickSiteFolder" | "createSite" | "revealTemplates" | "templatesDir"
@@ -9,7 +9,7 @@ type Method = "startup" | "appReady" | "pickFolder" | "cancelOpen" | "closeFolde
   | "buildOptions" | "buildWebsite" | "cancelBuild" | "saveBuildDefaults" | "pickBuildFolder" | "openBuiltSite" | "revealBuiltSite"
   | "printPage" | "printSite" | "printWindow" | "exportPdf" | "revealExport" | "printReady" | "printFailed" | "pdfDefaults" | "savePdfDefaults" | "pickPdfFile" | "runPdfExport" | "previewPdf" | "openExport" | "pdfExportFailed" | "page" | "source" | "preview" | "save" | "openExternal" | "openEditor" | "lint" | "pageInfo" | "revealInFinder" | "openConfig" | "createPage" | "suggestPageName" | "newTerm" | "glossaryFolders"
   | "plugins" | "pluginTrust" | "pluginStorageGet" | "pluginStorageSet" | "pluginInvoke" | "pluginStream" | "pluginCancel" | "pluginStorageKeys"
-  | "reorderNav" | "setNavHidden" | "dialects" | "setDialect" | "dialectHint" | "dismissDialectHint"
+  | "reorderNav" | "setNavHidden" | "fileTree" | "dialects" | "setDialect" | "dialectHint" | "dismissDialectHint"
   | "logs" | "layouts" | "layoutTrust" | "layoutStorageGet" | "layoutStorageSet" | "layoutStorageKeys";
 type Events = { "workspace:changed": Workspace; "page:changed": { path: string; dependent?: boolean }; "workspace:opened": Startup; "page:draft": Draft; "plugin:stream": PluginStreamEvent; "plugins:changed": undefined; "layouts:changed": undefined; "menu:new-page": undefined; "menu:settings": undefined; "menu:close-folder": undefined; "workspace:opening": OpenProgress; "menu:new-site": undefined; "menu:build-website": undefined; "build:progress": BuildProgress; "pdf:export": PdfExported; "menu:print-page": undefined; "menu:find": undefined; "menu:find-next": undefined; "menu:find-previous": undefined; "menu:zoom-in": undefined; "menu:zoom-out": undefined; "menu:zoom-reset": undefined };
 
@@ -466,6 +466,7 @@ export function createFakeApi(options: FakeOptions = {}): FakeApi {
       changed();
     }),
     revealInFinder: (path) => call("revealInFinder", [path], () => undefined),
+    fileTree: () => call("fileTree", [], () => fakeFileTree(Object.keys(sources), tree)),
     draft(path, content) {
       api.broadcasts.push({ event: "editor:draft", payload: { path, content } });
     },
@@ -533,4 +534,39 @@ export function createFakeApi(options: FakeOptions = {}): FakeApi {
     },
   };
   return api;
+}
+
+/** The Files view of the fake folder (ui/files-view): the sample pages where they are, plus one image, each page
+ *  marked by where the tree puts it ("hidden" when the tree has no row for it). */
+function fakeFileTree(pages: string[], tree: NavNode[]): FileTree {
+  const marks = new Map<string, { title: string; nav: "tree" | "other" }>();
+  const walk = (ns: NavNode[], other: boolean) => {
+    for (const n of ns) {
+      if (n.kind === "page") marks.set(n.path, { title: n.title, nav: other ? "other" : "tree" });
+      walk(n.children, other || (n.kind === "group" && n.title === "Other pages"));
+    }
+  };
+  walk(tree, false);
+  const root: FileNode[] = [];
+  const add = (path: string, kind: "page" | "image") => {
+    const parts = path.split("/");
+    let level = root;
+    for (let i = 0; i < parts.length - 1; i++) {
+      const dir = parts.slice(0, i + 1).join("/") + "/";
+      let f = level.find((n) => n.path === dir);
+      if (!f) { f = { name: parts[i], title: parts[i], path: dir, kind: "folder", children: [] }; level.push(f); }
+      level = f.children!;
+    }
+    const name = parts[parts.length - 1];
+    const m = marks.get(path);
+    level.push(kind === "image" ? { name, title: name, path, kind } : { name, title: m?.title ?? name, path, kind, nav: m?.nav ?? "hidden" });
+  };
+  for (const p of pages) add(p, "page");
+  add("images/screenshot.png", "image");
+  const order = (l: FileNode[]): FileNode[] => {
+    l.sort((a, b) => (a.kind === "folder") !== (b.kind === "folder") ? (a.kind === "folder" ? -1 : 1) : a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
+    for (const n of l) if (n.children) order(n.children);
+    return l;
+  };
+  return { nodes: order(root), omitted: 0 };
 }

@@ -10,7 +10,7 @@ import { FEATURE_IDS, type LogEntry } from "@zenmd/kit";
 const windowShown = new Promise<void>((resolve) => {
   const off = Events.On("app:shown", () => { off(); resolve(); });
 });
-import type { AddonInfo, Alert, Api, BuildInfo, BuildOptions, Crumb, DialectInfo, LayoutField, LayoutInfo, LintResult, NavNode, Page, PdfOptions, PluginInfo, PluginOption, PluginSnippet, Startup, Workspace } from "./index";
+import type { AddonInfo, Alert, Api, FileTree, BuildInfo, BuildOptions, Crumb, DialectInfo, LayoutField, LayoutInfo, LintResult, NavNode, Page, PdfOptions, PluginInfo, PluginOption, PluginSnippet, Startup, Workspace } from "./index";
 
 type Raw = Record<string, any> | null | undefined;
 
@@ -383,6 +383,10 @@ const api: Api = {
   },
   async revealInFinder(path) {
     await call(Zen.RevealInFinder(path));
+  },
+  async fileTree() {
+    const t = (await call(Zen.FileTree())) as FileTree | null;
+    return { nodes: t?.nodes ?? [], omitted: t?.omitted ?? 0 };
   },
   async page(path) {
     return page((await call(Zen.Page(path))) as Raw);

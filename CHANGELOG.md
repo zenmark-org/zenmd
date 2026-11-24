@@ -7,6 +7,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 ## [Unreleased]
 
 ### Added
+- The sidebar has a Pages | Files switch: Files shows the folder as it is on disk, its folders, pages and images, and marks the pages the Pages view puts under Other pages or hides. Images open in the image view. `zenmd tree` prints either tree (`--files`, `--json`) (ui/files-view).
 - A table too wide for the reading column gets an Expand button that opens it over the whole window, with the header row and row headers in view, text size and Fit, in the app and in exported websites (plugins/table).
 - Markdown files get their own Finder document icon: a white page with a folded corner, the Zenmark mark and MD (`build/darwin/md-document.icns`, made by `task art` and `task icon`). Finder shows it once Zenmark is the default app for `.md` files (#51).
 - zenmd for Linux (amd64 and arm64): a command-line-only build attached to every release with checksums. It exports websites and runs init and templates; the app and PDF export stay macOS only (#30).

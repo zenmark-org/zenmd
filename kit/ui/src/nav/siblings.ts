@@ -54,7 +54,7 @@ export function dropOrder(pages: string[], path: string, index: number): string[
 }
 
 /** The folder New Page Here uses: a page's own folder, or the folder group itself; "" or ends in "/". */
-export function folderOf(node: { path: string; kind: "page" | "group" }): string {
+export function folderOf(node: { path: string; kind: NavNode["kind"] }): string {
   if (node.kind === "group") return node.path ? `${node.path}/` : "";
   const i = node.path.lastIndexOf("/");
   return i < 0 ? "" : node.path.slice(0, i + 1);

@@ -19,6 +19,8 @@ export type Ctx = {
   newPage?(folder: string): void;
   /** Shows the New Term dialog for a glossary folder ("" for the top level); the glossary page's button and the sidebar menu's New Term… are left out without it. */
   newTerm?(folder: string): void;
+  /** Shows an image of the open folder over the window in the image view (ui/image-zoom); the Files view opens images with it. */
+  zoomImage?(src: string, alt: string): void;
 };
 /** The features an app can have (kit/assembly's catalog, in its order). `reader`, `nav` and `editor` are mounted as features; the others are gated where they act. */
 export const FEATURE_IDS = ["reader", "nav", "find", "editor", "inspector", "print", "export", "newsite", "developer"] as const;

@@ -104,7 +104,7 @@ function onKey(host: HTMLElement, e: KeyboardEvent): void {
 
 function activate(st: State, item: HTMLElement): void {
   const path = item.dataset.path ?? "";
-  if (item.dataset.kind === "page") st.opts.onOpen(path);
+  if (item.dataset.kind === "page" || item.dataset.kind === "file") st.opts.onOpen(path); // "file": an image of the Files view
   else st.opts.onToggle(path, item.getAttribute("aria-expanded") !== "true");
 }
 

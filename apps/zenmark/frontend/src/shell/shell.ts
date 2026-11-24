@@ -17,6 +17,7 @@ import intro2 from "../assets/intro/intro-2.jpg?no-inline";
 import intro3 from "../assets/intro/intro-3.jpg?no-inline";
 import { registerBuildSite } from "./buildsite";
 import { installPagePrint } from "@zenmd/runtime/print/page";
+import { installImageZoom, type ImageZoom } from "@zenmd/runtime/zoom/zoom";
 import { openNewPage, type NewPageDialog } from "./newpage";
 import { openNewTerm, type NewTermDialog } from "./newterm";
 import { openNewSite, type NewSiteDialog, type SiteApi, type SiteTemplate } from "./newsite";
@@ -157,7 +158,18 @@ export function createShell(root: HTMLElement, { api, features, search, random =
     api, store, navigate, brand: BRAND,
     get newPage() { return hasFeature(api, "editor") ? (folder: string) => showNewPage(folder) : undefined; },
     get newTerm() { return hasFeature(api, "editor") ? (folder: string) => showNewTerm(folder) : undefined; },
+    zoomImage,
   };
+
+  // The sidebar's Files view opens an image of the folder in the image view over the window (ui/files-view).
+  let filesZoom: ImageZoom | null = null;
+  function zoomImage(src: string, alt: string): void {
+    const img = document.createElement("img");
+    img.alt = alt;
+    img.src = src;
+    const show = () => { if (!destroyed) (filesZoom ??= installImageZoom(document.body)).open(img); };
+    img.decode().then(show, show); // the view fits the image by its natural size
+  }
 
   function navigate(path: string, anchor = ""): void {
     closeSettings(); // choosing a page leaves Settings
@@ -766,6 +778,7 @@ export function createShell(root: HTMLElement, { api, features, search, random =
     toggleSidebar: () => layout?.toggleSidebar(),
     destroy() {
       destroyed = true;
+      filesZoom?.destroy();
       doc.removeEventListener("keydown", onKey);
       offWorkspace();
       offNewPage();

@@ -1,6 +1,6 @@
 // The typed client for the Go services. Types and the Api interface mirror
 // docs/wiki/PLAN.md "Service API" exactly; UI features import only from here.
-import type { NewTermResult, AddonInfo, Alert, BuildInfo, DialectInfo, Draft, KitHost, LayoutSource, LintResult, OpenProgress, Page, PageInfo, PluginStreamEvent, Workspace as KitWorkspace } from "@zenmd/kit";
+import type { FileTree, NewTermResult, AddonInfo, Alert, BuildInfo, DialectInfo, Draft, KitHost, LayoutSource, LintResult, OpenProgress, Page, PageInfo, PluginStreamEvent, Workspace as KitWorkspace } from "@zenmd/kit";
 import { createFakeApi, sampleWorkspace, type FakeOptions } from "./fake";
 import { inApp, wailsReady } from "./detect";
 
@@ -85,7 +85,7 @@ export type BuildProgress = { done: number; total: number };
 export type PageLayout = string;
 
 /** The data types the kit declares (kit/ui/src/host.ts); the app's api speaks them. */
-export type { AddonInfo, Alert, BuildInfo, Crumb, DialectInfo, Draft, LayoutSource, LintResult, NavNode, OpenProgress, Page, PageInfo, PageLayoutRef, PluginStreamEvent } from "@zenmd/kit";
+export type { AddonInfo, Alert, BuildInfo, Crumb, DialectInfo, Draft, FileNode, FileTree, LayoutSource, LintResult, NavNode, OpenProgress, Page, PageInfo, PageLayoutRef, PluginStreamEvent } from "@zenmd/kit";
 /** The open folder; `title` and `logo` are what the sidebar header shows (ui/nav-panel). */
 export type Workspace = KitWorkspace & {
   /** The home page's first heading, else the folder's name. */
@@ -180,6 +180,8 @@ export interface Api extends KitHost {
   setNavHidden(path: string, hidden: boolean): Promise<void>;
   /** Shows a page or folder of the open folder in Finder. */
   revealInFinder(path: string): Promise<void>;
+  /** The open folder as it is on disk, with each page's place in the Pages tree (ui/files-view). */
+  fileTree(): Promise<FileTree>;
   page(path: string): Promise<Page>;
   source(path: string): Promise<string>;
   preview(path: string, content: string): Promise<Page>; // render unsaved text

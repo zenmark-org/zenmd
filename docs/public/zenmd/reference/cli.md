@@ -20,6 +20,7 @@ Every `zenmd` command and what it does. `zenmd help` prints the same.
 | `zenmd templates update <id>` | Bring a built-in page template to its newer version. |
 | `zenmd templates --dir` | Print the templates folder (`blueprints/`, `pages/`). |
 | `zenmd check [folder]` | Check every page against its page template and its layout's structure, as Problems › Structure does. [Details below](#zenmd-check). |
+| `zenmd tree [folder]` | Print the sidebar's Pages tree, or with `--files` the folder as it is on disk. [Details below](#zenmd-tree). |
 | `zenmd glossary add "<Term>"` | Add a term from the term template. `--folder`, `--definition`, `--open`. |
 | `zenmd glossary list [folder]` | List the terms A to Z with their definitions. |
 | `zenmd version` | Print the version; `--verbose` adds what the build includes. |
@@ -59,6 +60,20 @@ blog/hello.md:1: error: date is required by the post layout
 ```
 
 It exits with 1 when any problem is an error, 0 otherwise, and 2 when the command line is wrong (an unknown `--template` is one). There is no `check:` key in `.zenmd.yml` yet; the options are flags only.
+
+## zenmd tree
+
+```sh
+zenmd tree [folder] [--files] [--json]
+```
+
+It prints the tree the app's sidebar shows for the folder:
+
+- Without options, the Pages tree that the links build: each page's title, then its path in parentheses, two spaces deeper per level, with the pages no link reaches under "Other pages".
+- With `--files`, the folder as it is on disk: its folders (with a trailing `/`), markdown pages and images. A page the Pages tree puts under Other pages ends in `(other)`, and one it hides ends in `(hidden)`. Past 5000 entries the last line says how many more were left out.
+- With `--json`, either tree as JSON.
+
+The choice between the two views is the app's, per machine, so there is no `tree:` key in `.zenmd.yml`. It exits with 1 when the folder cannot be opened and 2 when the command line is wrong.
 
 ## Options for every command
 

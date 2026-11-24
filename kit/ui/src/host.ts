@@ -3,7 +3,11 @@
 // extends KitHost with its own methods; the kit imports nothing from an app.
 import type { PluginStreamEvent, RuntimeHost } from "@zenmd/runtime";
 
-export type NavNode = { title: string; path: string; kind: "page" | "group"; children: NavNode[] };
+export type NavNode = { title: string; path: string; kind: "page" | "group" | "file"; children: NavNode[] }; // "file": an image of the Files view
+/** One row of the sidebar's Files view (ui/files-view): a folder (path ends in "/"), a page or an image as it is on disk. */
+export type FileNode = { name: string; title: string; path: string; kind: "folder" | "page" | "image"; nav?: "tree" | "other" | "hidden"; children?: FileNode[] };
+/** The Files view: the listing, and how many files were left out past the cap. */
+export type FileTree = { nodes: FileNode[]; omitted: number };
 export type Workspace = {
   root: string; name: string; home: string; tree: NavNode[]; // home: "" or "index.md" / "README.md"
   /** The folder's settings file in use: ".zenmd.yml", or the old name while only that file exists. */
@@ -136,6 +140,8 @@ export interface KitHost extends RuntimeHost {
    */
   reorderNav?(parent: string, paths: string[]): Promise<void>;
   setNavHidden?(path: string, hidden: boolean): Promise<void>;
+  /** The open folder as it is on disk, with the Pages tree's mark on each page (ui/files-view); without it there is no Files view. */
+  fileTree?(): Promise<FileTree>;
   revealInFinder?(path: string): Promise<void>;
   /**
    * Glossaries (the glossary layout): the folders that have a glossary index ("" is the top level), and

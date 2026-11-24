@@ -93,7 +93,12 @@ Spacing scale 4/8/12/16/24/32/48. Radius 6px. No shadows except the modal.
   Path, Copy Link, Reveal in Finder, Hide from Sidebar; items the host lacks are
   left out). Pages drag within their siblings (a drop line, Esc cancels) and ⌥↑/⌥↓
   move one place; the order is saved as `nav.order` in the pages' frontmatter
-  (ui/sidebar-menu).
+  (ui/sidebar-menu). With a folder open, a *Pages | Files* switch (the Settings
+  segment control) sits under the header, remembered per folder: Files shows the
+  folder as it is on disk in the same tree rows (folders, pages, images), with a
+  muted "other" or "hidden" badge on pages the Pages view puts under Other pages
+  or hides; images open in the image view, and there is no Move or drag
+  (ui/files-view).
 - **One-file sidebar.** When one markdown file is open alone (`Workspace.single`, specs/app/single-file), the sidebar has no tree: it shows the page's outline in the tree's rows ("No headings" when empty) and a quiet Open Enclosing Folder button (`.zen-sidebar-btn`, ⇧⌘O). New Page, New from Blueprint, Export › Website and This folder's settings are greyed with the tip "Open a folder to use this".
 - **Breadcrumb.** `Page.breadcrumb`, each crumb is a link, last one is plain
   text. Collapses the middle to `…` when it does not fit.
