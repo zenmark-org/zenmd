@@ -7,6 +7,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 ## [Unreleased]
 
 ### Added
+- Markdown files get their own Finder document icon: a white page with a folded corner, the Zenmark mark and MD (`build/darwin/md-document.icns`, made by `task art` and `task icon`). Finder shows it once Zenmark is the default app for `.md` files (#51).
 - zenmd for Linux (amd64 and arm64): a command-line-only build attached to every release with checksums. It exports websites and runs init and templates; the app and PDF export stay macOS only (#30).
 - MyST callouts (note, tip, warning, …, admonition, versionadded, with `:class: dropdown`) as the `callout` built-in; they also work as `:::note` in plain markdown (#33).
 - MyST figures and tables (`{figure}`, `{image}`, `{table}`, `{list-table}`, `{csv-table}`) as the `figure` and `table` built-ins, numbered per page; `csv-table :file:` reads a file inside the folder only (#33).
