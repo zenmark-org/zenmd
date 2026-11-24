@@ -1,0 +1,10 @@
+/* sidebar, margin and topic: only what is theirs. The frame, title row, body and type are the plugin kit's
+   (docs/wiki/PLUGIN-UI.md); tokens only. Floated right when there is room, full width when narrow. */
+.zen-aside { float: right; clear: right; box-sizing: border-box; width: min(22em, 42%); margin: 0.25em 0 1em 1.25em; }
+.zen-aside-margin { width: min(16em, 32%); }
+.zen-aside .zen-block-head { padding-bottom: 0; }
+.zen-aside-subtitle { padding: 0 12px; }
+.zen-aside .zen-block-body > :first-child { margin-top: 0; }
+.zen-aside .zen-block-body > :last-child { margin-bottom: 0; }
+@media (max-width: 700px) { .zen-aside, .zen-aside-margin { float: none; clear: both; width: auto; margin: 1em 0; } }
+@media print { .zen-aside { break-inside: avoid; } }

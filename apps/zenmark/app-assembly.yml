@@ -10,7 +10,7 @@
 app: zenmark
 features: [reader, nav, inspector, developer, find, editor, print, export, newsite]
 addons: []
-plugins: [codeblock, diagram, check, quiz, sandbox, rating, callout, figure, table, math]
+plugins: [codeblock, diagram, check, quiz, sandbox, rating, callout, figure, table, math, text, quote, aside, include, terms]
 layouts: all
 blueprints: all
 dialects: all

@@ -36,6 +36,7 @@ func TestPackageLayout(t *testing.T) {
 		"builtins/plugins/check", "builtins/plugins/codeblock", "builtins/plugins/diagram",
 		"builtins/plugins/quiz", "builtins/plugins/rating", "builtins/plugins/sandbox",
 		"builtins/plugins/callout", "builtins/plugins/figure", "builtins/plugins/table", "builtins/plugins/math",
+		"builtins/plugins/text", "builtins/plugins/quote", "builtins/plugins/aside", "builtins/plugins/include", "builtins/plugins/terms",
 	}
 	internal := []string{"internal/atomicfile", "internal/cli"}
 	apps := []string{"apps/zenmark", "apps/zenmark/cliset"}

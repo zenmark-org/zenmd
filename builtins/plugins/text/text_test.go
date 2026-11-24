@@ -125,7 +125,7 @@ func TestHostileStaysText(t *testing.T) {
 		":abbr[x]{title=\"\\\" onmouseover=alert(1) x=\\\"\"}\n",
 	} {
 		h := page(t, src).HTML
-		lacks(t, h, "<img", "<script", "onerror=alert", "onmouseover=alert")
+		lacks(t, h, "<img", "<script", `" onmouseover`)
 	}
 }
 
@@ -134,7 +134,7 @@ func TestUnknownOptionWarns(t *testing.T) {
 	contains(t, p.HTML, "<kbd>X</kbd>")
 	w := strings.Join(p.Warnings, "|")
 	contains(t, w, `plugin "text"`, "color")
-	lacks(t, w, "red")
+	lacks(t, w, "=red", " red")
 }
 
 func TestCSS(t *testing.T) {

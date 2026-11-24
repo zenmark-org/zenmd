@@ -1,0 +1,5 @@
+/* kbd and abbr: only what is theirs. Tokens only, the UI font, no animation (docs/wiki/PLUGIN-UI.md). */
+[data-zen-plugin="text"] kbd { display: inline-block; box-sizing: border-box; min-width: 1.6em; margin: 0 1px; padding: 0 0.4em; border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: var(--radius); background: var(--bg-subtle); color: var(--fg); font: 0.85em/1.5 var(--font-ui); text-align: center; white-space: nowrap; }
+[data-zen-plugin="text"] abbr[title] { text-decoration: underline dotted; text-underline-offset: 2px; cursor: help; }
+[data-zen-plugin="text"] sub, [data-zen-plugin="text"] sup { line-height: 0; }
+@media print { [data-zen-plugin="text"] abbr[title] { text-decoration: none; } }

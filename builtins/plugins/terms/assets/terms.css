@@ -1,0 +1,13 @@
+/* glossary and term links: only what is theirs. The frame, body and type are the plugin kit's
+   (docs/wiki/PLUGIN-UI.md); tokens only, no animation. */
+.zen-glossary dl { margin: 0; }
+.zen-glossary dt { margin: 10px 0 0; font-weight: 600; scroll-margin-top: 1em; }
+.zen-glossary dt:first-child { margin-top: 0; }
+.zen-glossary dt:target { outline: 2px solid var(--focus); outline-offset: 2px; }
+.zen-glossary dd { margin: 2px 0 0 1.25em; padding: 0; }
+.zen-glossary dd > :first-child { margin-top: 0; }
+.zen-glossary dd > :last-child { margin-bottom: 0; }
+.zen-glossary-class { margin-left: 0.5em; color: var(--fg-muted); font-size: 13px; font-weight: 400; }
+.zen-glossary-class::before { content: ": "; }
+a.zen-term { text-decoration: underline dotted; text-underline-offset: 2px; }
+@media print { .zen-glossary { break-inside: avoid; } }

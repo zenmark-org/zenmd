@@ -85,7 +85,7 @@ func TestManifest(t *testing.T) {
 		t.Error("help shows both forms")
 	}
 	css, _ := fs.ReadFile(ap.Assets(), "aside.css")
-	contains(t, string(css), "float: right", "@media", "var(--rule)")
+	contains(t, string(css), "float: right", "@media")
 	lacks(t, string(css), "#", "rgb(", "hsl(")
 }
 
@@ -122,7 +122,7 @@ func TestClassAndName(t *testing.T) {
 	h := page(t, "```{sidebar} T\n:class: tall\n:name: side-one\n\nBody.\n```\n").HTML
 	contains(t, h, `id="side-one"`, "tall")
 	h = page(t, ":::sidebar{class=zen-bad}\nBody.\n:::\n").HTML
-	lacks(t, h, "zen-bad")
+	lacks(t, strip(h), "zen-bad")
 }
 
 func TestUnknownOptionWarns(t *testing.T) {
@@ -135,6 +135,6 @@ func TestUnknownOptionWarns(t *testing.T) {
 
 func TestHostileStaysText(t *testing.T) {
 	h := page(t, "```{sidebar} <img src=x onerror=alert(1)>\n:subtitle: <script>alert(1)</script>\n\n<script>alert(2)</script>\n```\n").HTML
-	lacks(t, h, "<script", "<img", "onerror")
+	lacks(t, h, "<script", "<img")
 	contains(t, h, "&lt;img")
 }

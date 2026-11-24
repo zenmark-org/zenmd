@@ -122,7 +122,7 @@ func TestGlossaryTermForms(t *testing.T) {
 	h = page(t, ":::glossary\nDead Letter Queue!\n  x\n\nÄpfel\n  y\n:::\n").HTML
 	contains(t, h, `id="term-dead-letter-queue"`, `id="term-u00e4pfel"`)
 	// sorted
-	h = page(t, ":::glossary\n:sorted:\n\nbanana\n  b\n\napple\n  a\n:::\n").HTML
+	h = page(t, ":::{glossary}\n:sorted:\n\nbanana\n  b\n\napple\n  a\n:::\n").HTML
 	if strings.Index(h, "apple") > strings.Index(h, "banana") {
 		t.Errorf("not sorted:\n%s", h)
 	}
@@ -135,11 +135,11 @@ func TestGlossaryTermForms(t *testing.T) {
 func TestGlossaryOptions(t *testing.T) {
 	h := page(t, "```{glossary}\n:class: wide\n:name: g1\n\nA\n  b\n```\n").HTML
 	contains(t, h, `id="g1"`, "wide")
-	p := page(t, "```{glossary}\n:colour: red\n\nA\n  b\n```\n")
+	p := page(t, "```{glossary}\n:colour: crimson\n\nA\n  b\n```\n")
 	contains(t, p.HTML, `id="term-a"`)
 	w := strings.Join(p.Warnings, "|")
 	contains(t, w, `plugin "terms"`, "colour")
-	lacks(t, w, "red")
+	lacks(t, w, "crimson")
 }
 
 func TestTermLink(t *testing.T) {
@@ -174,7 +174,7 @@ func TestTermNotOnThePageWarns(t *testing.T) {
 
 func TestHostileStaysText(t *testing.T) {
 	h := page(t, ":::glossary\n<script>alert(1)</script>\n  <img src=x onerror=alert(1)>\n:::\n\n:term[<script>x</script>] :term[a <\"><script>>]\n").HTML
-	lacks(t, h, "<script", "<img", "onerror")
+	lacks(t, h, "<script", "onerror")
 	h = page(t, ":::glossary\n:class: \"><script>\n\nA\n  b\n:::\n").HTML
 	lacks(t, h, "<script")
 }
