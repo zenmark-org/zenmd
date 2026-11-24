@@ -12,16 +12,24 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/zenmark-org/zenmd/builtins/plugins/aside"
 	"github.com/zenmark-org/zenmd/builtins/plugins/callout"
+	"github.com/zenmark-org/zenmd/builtins/plugins/cards"
 	"github.com/zenmark-org/zenmd/builtins/plugins/check"
 	"github.com/zenmark-org/zenmd/builtins/plugins/codeblock"
 	"github.com/zenmark-org/zenmd/builtins/plugins/diagram"
+	"github.com/zenmark-org/zenmd/builtins/plugins/dropdown"
 	"github.com/zenmark-org/zenmd/builtins/plugins/figure"
+	"github.com/zenmark-org/zenmd/builtins/plugins/include"
 	"github.com/zenmark-org/zenmd/builtins/plugins/math"
 	"github.com/zenmark-org/zenmd/builtins/plugins/quiz"
+	"github.com/zenmark-org/zenmd/builtins/plugins/quote"
 	"github.com/zenmark-org/zenmd/builtins/plugins/rating"
 	"github.com/zenmark-org/zenmd/builtins/plugins/sandbox"
 	"github.com/zenmark-org/zenmd/builtins/plugins/table"
+	"github.com/zenmark-org/zenmd/builtins/plugins/tabs"
+	"github.com/zenmark-org/zenmd/builtins/plugins/terms"
+	"github.com/zenmark-org/zenmd/builtins/plugins/text"
 	"github.com/zenmark-org/zenmd/builtins/plugins/xref"
 	"github.com/zenmark-org/zenmd/engine/plugins"
 )
@@ -34,7 +42,7 @@ func TestShowcaseFolder(t *testing.T) {
 	_, file, _, _ := runtime.Caller(0)
 	demo := filepath.Join(filepath.Dir(file), "..", "..", "examples", "showcase")
 	reg := plugins.NewRegistry()
-	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), callout.New(), figure.New(), table.New(), math.New(), xref.New()} {
+	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), callout.New(), figure.New(), table.New(), math.New(), tabs.New(), dropdown.New(), cards.New(), text.New(), quote.New(), aside.New(), include.New(), terms.New(), xref.New()} {
 		if err := reg.Register(p); err != nil {
 			t.Fatal(err)
 		}
@@ -270,7 +278,7 @@ func demoDir() string {
 func TestDemoFolder(t *testing.T) {
 	demo := demoDir()
 	reg := plugins.NewRegistry()
-	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New(), xref.New()} {
+	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New(), tabs.New(), dropdown.New(), cards.New(), text.New(), quote.New(), aside.New(), include.New(), terms.New(), xref.New()} {
 		if err := reg.Register(p); err != nil {
 			t.Fatal(err)
 		}
@@ -308,7 +316,7 @@ func TestDemoFolder(t *testing.T) {
 	sub := map[string]string{
 		"features/index.md":         "features/reader.md,features/open-a-file.md,features/navigation.md,features/find.md,features/editor.md,features/inspector.md,features/printing.md,features/export.md,features/blueprints.md,features/developer.md",
 		"features/reader.md":        "features/markdown.md,features/myst.md",
-		"plugins/index.md":          "plugins/codeblock.md,plugins/diagram.md,plugins/check.md,plugins/quiz.md,plugins/sandbox.md,plugins/rating.md,plugins/callout.md,plugins/figure.md,plugins/table.md",
+		"plugins/index.md":          "plugins/codeblock.md,plugins/diagram.md,plugins/check.md,plugins/quiz.md,plugins/sandbox.md,plugins/rating.md,plugins/callout.md,plugins/figure.md,plugins/table.md,plugins/math.md,plugins/tabs.md,plugins/dropdown.md,plugins/cards.md,plugins/text.md,plugins/quote.md,plugins/aside.md,plugins/include.md,plugins/terms.md,plugins/xref.md",
 		"layouts/index.md":          "layouts/article.md,layouts/docs.md,layouts/post.md,layouts/landing.md,layouts/wide.md,layouts/handout.md,layouts/slides.md,layouts/course.md,layouts/glossary/index.md",
 		"layouts/glossary/index.md": "", // the terms are not in the sidebar: layout: term hides them
 		"configuration/settings.md": "configuration/reference.md",

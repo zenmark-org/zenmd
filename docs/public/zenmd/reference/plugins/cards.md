@@ -17,7 +17,7 @@ accepted and ignored with a warning.
 | `button-link` | A button that opens a link. |
 | `button-ref` | A button that opens a target in the folder: a label, or a page. |
 | `bdg`, `bdg-primary`, `bdg-secondary`, `bdg-success`, `bdg-info`, `bdg-warning`, `bdg-danger`, `bdg-light`, `bdg-dark` | A small text badge. |
-| the same with `-line`, such as `bdg-primary-line` | The same badge with no fill. |
+| `bdg-primary-line`, `bdg-secondary-line`, `bdg-success-line`, `bdg-info-line`, `bdg-warning-line`, `bdg-danger-line`, `bdg-light-line`, `bdg-dark-line` | The same badge with no fill. |
 
 Every block works as `:::name{...}`, as `:::{name}` and as a fenced
 `` ```{name} `` block. Badges are written `:bdg-primary[text]`.

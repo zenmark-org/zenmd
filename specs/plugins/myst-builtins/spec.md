@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | in progress: phases 1, 2 and 3 done (2026-11-23); 4, 5a, 5b and the docs run as one wave (started 2026-11-24) |
+| Status | done: phases 1–3 on 2026-11-23; 4, 5a, 5b and the docs on 2026-11-24 |
 | Target version | 0.8.0 |
 | Branch | one per phase: `feature/myst-<phase>` (phases below) |
 | Wave | 36–40, one phase per wave |

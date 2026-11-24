@@ -18,6 +18,16 @@ page can never inject scripts into it.
 | [callout](callout.md) | notes, tips, warnings and version notes | yes |
 | [figure](figure.md) | a picture with a numbered caption | yes |
 | [table](table.md) | a table with a numbered caption | yes |
+| [math](math.md) | TeX math: equations, inline math, links to equations | yes |
+| [tabs](tabs.md) | tab sets whose tabs can stay in step | yes |
+| [dropdown](dropdown.md) | a title that opens and closes its text | yes |
+| [cards](cards.md) | cards, grids, link buttons and badges | yes |
+| [text](text.md) | key caps, abbreviations, subscript and superscript | yes |
+| [quote](quote.md) | epigraph, pull quote and highlights | yes |
+| [aside](aside.md) | sidebar, margin and topic beside the text | yes |
+| [include](include.md) | include and literalinclude: files of the folder in a page | yes |
+| [terms](terms.md) | glossary and links to its terms | yes |
+| [xref](xref.md) | cross-references: ref, numref, doc, download, toctree | yes |
 
 Settings has a **Plugins** section that lists them with help and snippets to
 copy into a page; see [Settings](../configuration/settings.md).

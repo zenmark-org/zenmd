@@ -226,3 +226,14 @@ Each name belongs to one built-in plugin, and each plugin has a page here.
 - [`figure`](../plugins/figure.md): `{figure}`, `{image}`
 - [`table`](../plugins/table.md): `{table}`, `{list-table}`, `{csv-table}`
 - [`codeblock`](../plugins/codeblock.md): `{code-block}`, `{code}`
+- [`math`](../plugins/math.md): `{math}` (the directive and the role), `{eq}`
+- [`tabs`](../plugins/tabs.md): `{tab-set}`, `{tab-item}`
+- [`dropdown`](../plugins/dropdown.md): `{dropdown}`
+- [`cards`](../plugins/cards.md): `{card}`, `{grid}`, `{grid-item}`, `{grid-item-card}`,
+  `{button-link}`, `{button-ref}`, the `{bdg-…}` roles
+- [`text`](../plugins/text.md): `{kbd}`, `{abbr}`, `{sub}`, `{sup}`
+- [`quote`](../plugins/quote.md): `{epigraph}`, `{pull-quote}`, `{highlights}`
+- [`aside`](../plugins/aside.md): `{sidebar}`, `{margin}`, `{topic}`
+- [`include`](../plugins/include.md): `{include}`, `{literalinclude}`
+- [`terms`](../plugins/terms.md): `{glossary}`, `{term}`
+- [`xref`](../plugins/xref.md): `{ref}`, `{numref}`, `{doc}`, `{download}`, `{toctree}`

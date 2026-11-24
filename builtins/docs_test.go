@@ -15,7 +15,6 @@ import (
 // the same wave writes. Remove an id when its pages merge: the test fails for
 // an id that is listed here and has its pages, so the entry cannot be left.
 var pendingDocs = map[string]string{
-	"math": "pages come with feature/myst-syntax",
 }
 
 func repoRoot(t *testing.T) string {
