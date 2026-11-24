@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | in progress: phases 1, 2 and 3 done (2026-11-23); 4 and 5 to do |
+| Status | in progress: phases 1, 2 and 3 done (2026-11-23); 4, 5a, 5b and the docs run as one wave (started 2026-11-24) |
 | Target version | 0.8.0 |
 | Branch | one per phase: `feature/myst-<phase>` (phases below) |
 | Wave | 36–40, one phase per wave |
@@ -44,6 +44,22 @@ Each built-in also works without MyST, as a `:::name` container or a
    - the no-script output reads well;
    - the kit classes are present.
 
+8. **Seen in Settings and in the docs (decided 2026-11-24).** Every MyST name has a built-in, and every built-in shows up in three places:
+   - **Settings › Plugins**, through its manifest:
+     - a `Help.Summary` that names the MyST directives and roles it owns;
+     - at least one snippet in the `:::` form and one in the MyST form for each kind of thing it draws;
+     - its `Blocks` and `Inlines`, which Settings lists.
+   - **A public reference page** at `docs/public/zenmd/reference/plugins/<id>.md`:
+     - what it draws;
+     - every name it owns, with both forms;
+     - every option, with what an unsupported one does;
+     - an example.
+
+     Each page also has a row in `docs/public/zenmd/reference/builtins.md`.
+   - **A demo page** at `examples/demo/plugins/<id>.md`, showing each name live, with a row in `examples/demo/plugins/index.md`.
+
+   `builtins/docs_test.go` (`TestEveryBuiltinIsDocumented`) checks all of this for every id in `PluginIDs`, so a new built-in can't ship without it.
+
 ## Phases
 
 **Running phases in parallel (decided 2026-11-23).** Phases 1 and 2 run at the
@@ -60,6 +76,30 @@ merge:
 Phase 1 also owns `builtins/dialects/myst/coverage_test.go` (new) and
 `examples/demo/features/myst.md`. Later phases send their rows and demo
 sections as Integration lines.
+
+**This wave (decided 2026-11-24): four agents at once.**
+
+| Agent | Branch, worktree | Builds | Owns |
+|---|---|---|---|
+| A, phase 4 | `feature/myst-design`, `myst-design` | the built-ins `tabs`, `dropdown` and `cards` (cards also has the `bdg-*` inlines, as `:bdg-primary[text]`; their MyST role form works once B's role mapping is merged) | `builtins/plugins/{tabs,dropdown,cards}/**`, and their reference and demo pages |
+| B, phase 5a | `feature/myst-syntax`, `myst-syntax` | the dialect's `ScanInline` and role mapping; `Context.PageTitle`; the non-directive syntax; the `{math}` and `{eq}` roles and `$…$` in `math`; a new `xref` built-in (`{ref}`, `{numref}`, `{doc}`, `{download}`, `toctree`); the unsupported directives that stay code with a warning | `engine/dialects/**`, `engine/plugins/plugins.go` (the `PageTitle` field only), the resolver lines in `engine/render` that fill it, `builtins/dialects/myst/**` (with `coverage_test.go`), `builtins/plugins/math/**` except the vendored files, `builtins/plugins/xref/**`, and the reference and demo pages for `math` and `xref` |
+| C, phase 5b | `feature/myst-blocks`, `myst-blocks` | the built-ins `text` (`kbd`, `abbr`, `sub`, `sup`), `quote` (`epigraph`, `pull-quote`, `highlights`), `aside` (`sidebar`, `margin`, `topic`), `include` (`include`, `literalinclude`) and `terms` (the `glossary` directive and the `{term}` role, where a term's id is `term-<slug>`) | `builtins/plugins/{text,quote,aside,include,terms}/**`, and their reference and demo pages |
+| D, docs | `docs/myst-docs`, `myst-docs` | the reference and demo pages for the built-ins that are already done (`callout`, `figure` and `table`, plus the six older ones' reference pages); `builtins.md` with a row for every built-in, including those being built now; the demo plugin index; links from the demo's `features/myst.md` to each plugin page; `TestEveryBuiltinIsDocumented` | `docs/public/zenmd/reference/builtins.md`, `docs/public/zenmd/reference/plugins/{codeblock,diagram,check,quiz,sandbox,rating,callout,figure,table}.md`, `examples/demo/plugins/{index,callout,figure,table}.md`, `examples/demo/features/myst.md`, `builtins/docs_test.go` |
+
+**Registration in this wave.** Each of A, B and C registers its own new ids on its branch, so the demo guard and the end-to-end tests can run there:
+- `builtins/builtins.go`;
+- `kit/assembly/generate.go`;
+- `engine/boundary_test.go`;
+- the id lists in `builtins/builtins_test.go` and `kit/assembly/assembly_test.go`;
+- the `plugins:` line of `apps/zenmark/app-assembly.yml`, and the regenerated `apps/zenmark/cliset/assembly_gen.go`.
+
+These are list edits, so the lead resolves the conflicts at merge by taking every id.
+
+**Merge order:** B, then A, then C, then D. D's test passes on its own branch. After all four are merged it covers every id.
+
+**The `{term}` role** renders `<a href="#term-<slug>">` on the same page. A term on another page is found through `{ref}` or `{doc}`. A link to a term that isn't on the page warns.
+
+**`Context.PageTitle func(path string) (string, bool)`** gives the title of a page of the folder. It is set for block and inline hooks while a page renders, and is nil without a folder. `xref` uses it for `{doc}` and `toctree`, and without it falls back to the file's name.
 
 ### Phase 1: callouts, built-in `callout` (wave 36) — done
 
@@ -155,9 +195,12 @@ Without scripts, every tab panel shows in order under its title, and a dropdown 
 
 ```go
 // engine/dialects
-type InlineScanner interface { // optional, phase 5
+type InlineScanner interface { // optional, phase 5a
 	ScanInline(src []byte) []plugins.InlineSpan
 }
+
+// engine/plugins.Context, phase 5a
+PageTitle func(path string) (string, bool) // a folder page's title; nil without a folder
 ```
 
 Each new built-in declares its MyST names in `Blocks` or `Inlines`. The help snippets show the `:::` form and the MyST form.
@@ -172,6 +215,7 @@ Each new built-in declares its MyST names in `Blocks` or `Inlines`. The help sni
 | 4 | No raw HTML, no code runs | `myst_test.go` security cases |
 | 5 | Kit classes, keyboard behaviour (tabs, dropdowns) | the runtime tests per built-in |
 | 6 | The demo's MyST page uses each built-in live and passes the assembly guard | `engine/session/demo_test.go` |
+| 7 | Every built-in has Help with both forms, a reference page naming each of its names and options, a row in builtins.md, and a demo page with a row in the demo index | `builtins/docs_test.go: TestEveryBuiltinIsDocumented` |
 
 ## UI
 
