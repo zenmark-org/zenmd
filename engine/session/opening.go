@@ -147,14 +147,14 @@ func (s *Session) open(dir string, single bool) error {
 	p := &openProgress{s: s, name: name}
 	timeout := s.timeoutOf(l)
 	s.mu.Lock()
-	prevName := ""
+	prevName, prevSingle := "", false
 	if s.ws != nil {
-		prevName = s.ws.Name()
+		prevName, prevSingle = s.ws.Name(), s.ws.Single()
 	}
 	s.mu.Unlock()
 	start := time.Now()
 	err := s.openIn(parent, dir, single, l, timeout, p)
-	s.logOpened(dir, name, prevName, err, time.Since(start))
+	s.logOpened(dir, name, prevName, single, prevSingle, err, time.Since(start))
 	if dir != "" {
 		if err != nil {
 			p.end("failed")
@@ -234,8 +234,11 @@ func (s *Session) openIn(parent context.Context, dir string, single bool, l conf
 		prev.ext.cancel() // calls of the previous folder's plugins end
 	}
 	s.reloadMu.Unlock()
-	s.emit(EventPluginsChanged, nil)
-	s.emit(EventLayoutsChanged, nil)
+	if ws != nil {
+		// Both make the window render its page again; a closed folder has no page, and a call for one fails.
+		s.emit(EventPluginsChanged, nil)
+		s.emit(EventLayoutsChanged, nil)
+	}
 	if ws != nil && !s.noWatch {
 		// Watching a big tree takes seconds: show the folder first.
 		s.watchWorkspace(ws, ws.Entries() >= asyncWatchFrom)
@@ -311,14 +314,22 @@ func (s *Session) OpenError(err error) error {
 }
 
 // logOpened logs how an open went: what was opened, closed or switched to, with
-// the page count and the time it took; a slow index is a warning.
-func (s *Session) logOpened(dir, name, prevName string, err error, took time.Duration) {
+// the page count and the time it took; a slow index is a warning. One file on its own
+// is a "file" in the log, a folder a "folder": single is what opened, prevSingle what was open before.
+func (s *Session) logOpened(dir, name, prevName string, single, prevSingle bool, err error, took time.Duration) {
+	kind, prevKind := "folder", "folder"
+	if single {
+		kind = "file"
+	}
+	if prevSingle {
+		prevKind = "file"
+	}
 	switch {
 	case errors.Is(err, context.Canceled):
-		logApp(slog.LevelInfo, "folder open cancelled", "name", name)
+		logApp(slog.LevelInfo, kind+" open cancelled", "name", name)
 		return
 	case errors.Is(err, context.DeadlineExceeded):
-		logApp(slog.LevelWarn, "folder open timed out", "name", name, "ms", took.Milliseconds())
+		logApp(slog.LevelWarn, kind+" open timed out", "name", name, "ms", took.Milliseconds())
 		return
 	case err != nil:
 		return // the caller reports it to the user, and the service logs it
@@ -328,16 +339,16 @@ func (s *Session) logOpened(dir, name, prevName string, err error, took time.Dur
 		level = slog.LevelDebug // the build's own session, inside an export: not something the user did
 	}
 	if dir == "" {
-		logApp(level, "folder closed", "name", prevName)
+		logApp(level, prevKind+" closed", "name", prevName)
 		return
 	}
 	s.mu.Lock()
 	pages, indexTook := s.pageCount, s.indexTook
 	s.mu.Unlock()
 	if prevName != "" {
-		logApp(level, "folder switched", "name", name, "from", prevName, "pages", pages, "ms", took.Milliseconds())
+		logApp(level, kind+" switched", "name", name, "from", prevName, "pages", pages, "ms", took.Milliseconds())
 	} else {
-		logApp(level, "folder opened", "name", name, "pages", pages, "ms", took.Milliseconds())
+		logApp(level, kind+" opened", "name", name, "pages", pages, "ms", took.Milliseconds())
 	}
 	if indexTook > slowIndex {
 		logApp(slog.LevelWarn, "slow index", "name", name, "pages", pages, "ms", indexTook.Milliseconds())

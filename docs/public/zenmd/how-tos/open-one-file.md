@@ -9,6 +9,7 @@ Read, edit or print a single markdown file without opening its folder.
    zenmd ~/Downloads/notes.md
    ```
    In Zenmark: **File › Open…** (⌘O), or **Open With › Zenmark** in Finder.
+   A file opened in Zenmark always opens alone, whatever folder it is in.
 2. Read it. The sidebar shows the page's outline, not a tree of the folder.
 3. To work on the folder it is in, choose **File › Open Enclosing Folder**
    (⇧⌘O), or run `zenmd ~/Downloads/notes.md --folder`.
@@ -16,11 +17,13 @@ Read, edit or print a single markdown file without opening its folder.
 Nothing else in the folder is scanned, so this is the quick way to look at a
 file in a large folder such as Downloads.
 
-## When it opens the folder instead
+## When the command line opens the folder instead
 
-A file inside a project, with a `.zenmd.yml` or a `.git` in a
+In a terminal, a file inside a project, with a `.zenmd.yml` or a `.git` in a
 folder above it (below your home folder), opens that folder at the page. To
-open the file alone anyway: `zenmd notes.md --file`.
+open the file alone anyway: `zenmd notes.md --file`. Zenmark itself (File ›
+Open…, Open With, a double-click, the Dock) has no such rule: a file opens
+alone, and **Open Enclosing Folder** (⇧⌘O) opens its project.
 
 ## What is not there
 

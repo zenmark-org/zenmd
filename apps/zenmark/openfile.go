@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	"os"
 	"path/filepath"
 
 	"github.com/zenmark-org/zenmd/internal/cli"
@@ -12,15 +13,13 @@ import (
 // pick folders.
 type pathPicker interface{ PickPath() (string, error) }
 
-// launchFor is what `zenmd <path>` (or `zenmd --folder <path>`) would open: the
-// same rules as the command line, so File › Open…, Finder's Open With and the
-// command agree. A markdown file opens alone unless a project folder is above
-// it. Nothing is opened here.
-func launchFor(path string, folder bool) (cli.Launch, error) {
+// launchFor is what `zenmd <path>`, `zenmd --file <path>` or `zenmd --folder <path>`
+// would open: the command line's own resolver. Nothing is opened here.
+func launchFor(path string, file, folder bool) (cli.Launch, error) {
 	if !filepath.IsAbs(path) {
 		return cli.Launch{}, errors.New("not a folder or markdown file")
 	}
-	l, err := cli.Resolve(path, false, folder)
+	l, err := cli.Resolve(path, file, folder)
 	if err != nil {
 		return cli.Launch{}, errors.New("not a folder or markdown file")
 	}
@@ -48,9 +47,15 @@ func (z *Zen) openLaunch(l cli.Launch) (Startup, error) {
 
 // openAny opens a folder or markdown file handed over by macOS (Open With,
 // `open -a Zenmark <path>`) or chosen in File › Open…, and returns what the
-// frontend should show. Not bound to the frontend.
+// frontend should show. A file always opens alone, whatever folder it is in
+// (the project rule is the command line's; Open Enclosing Folder opens the
+// project). Not bound to the frontend.
 func (z *Zen) openAny(path string) (Startup, error) {
-	l, err := launchFor(path, false)
+	file := true
+	if fi, err := os.Stat(path); err == nil && fi.IsDir() {
+		file = false
+	}
+	l, err := launchFor(path, file, false)
 	if err != nil {
 		return Startup{}, err
 	}
@@ -58,8 +63,7 @@ func (z *Zen) openAny(path string) (Startup, error) {
 }
 
 // openAndEmit opens a folder or a markdown file: a file opens alone, without its
-// folder, unless it is in a project folder (a .zenmd.yml or .git
-// above it), then the folder opens at that page. path is absolute. The window
+// folder, whatever folder it is in. path is absolute. The window
 // gets workspace:opened. Not bound: the frontend never hands Go a path to open. A newer open that replaces this one is not an error.
 func (z *Zen) openAndEmit(path string) (err error) {
 	defer z.logCall("Open", &err)
@@ -101,7 +105,7 @@ func (z *Zen) OpenEnclosingFolder() (err error) {
 	if ws == nil || !ws.Single {
 		return errors.New("no file is open on its own")
 	}
-	l, err := launchFor(filepath.Join(ws.Root, ws.File), true)
+	l, err := launchFor(filepath.Join(ws.Root, ws.File), false, true)
 	if err != nil {
 		return err
 	}

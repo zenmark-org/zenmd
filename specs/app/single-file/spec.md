@@ -27,10 +27,13 @@ tree and nothing else in the folder is scanned.
    - `--folder` forces the folder, even with no marker.
 2. **How the app opens one.**
    - **File › Open…** (⌘O) accepts a folder or a `.md`/`.markdown` file. A
-     file opens alone. It replaces Open Folder…, keeping its shortcut.
+     file opens alone, whatever folder it is in (even with `.zenmd.yml`,
+     `.zen.yml` or `.git` above it). It replaces Open Folder…, keeping its
+     shortcut.
    - **Finder.** Open With, a double-click on a `.md` file when Zenmark is
      the default, or dropping a file on the Dock icon also opens the file
-     alone.
+     alone, with no project rule. Open Enclosing Folder (⌘⇧O) opens the
+     project. Only the command line keeps the project rule (behaviour 1).
    - **Recents.** File › Open Recent lists such files with a document icon,
      next to folders. *Not built in 0.8.0: the app has no Open Recent menu
      yet; it comes with that menu.*
