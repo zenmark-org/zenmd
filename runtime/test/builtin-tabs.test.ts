@@ -59,7 +59,7 @@ test("builds an ARIA tab list with one panel per item", async () => {
   const list = w.querySelector('[role="tablist"]')!;
   expect(list).not.toBeNull();
   expect(tabs(w).map((t) => t.textContent)).toEqual(["One", "Two", "Three"]);
-  expect(tabs(w).every((t) => t.tagName === "BUTTON" && t.type === "button")).toBe(true);
+  expect(tabs(w).every((t) => t.tagName === "BUTTON" && (t as HTMLButtonElement).type === "button")).toBe(true);
   expect(panels(w)).toHaveLength(3);
   tabs(w).forEach((t, i) => {
     expect(t.getAttribute("aria-controls")).toBe(panels(w)[i].id);
