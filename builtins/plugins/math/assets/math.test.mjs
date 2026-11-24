@@ -21,6 +21,7 @@ class El {
     const m = {
       ".zm-tex": (e) => e.has("zm-tex"),
       ".zm-tex:not([data-rendered])": (e) => e.has("zm-tex") && !("rendered" in e.dataset),
+      ".zm-itex:not([data-rendered])": (e) => e.has("zm-itex") && !("rendered" in e.dataset),
       ".zm-eq": (e) => e.has("zm-eq"),
       ".zm-row": (e) => e.has("zm-row"),
       ".zen-plugin-error": (e) => e.has("zen-plugin-error"),
@@ -201,4 +202,21 @@ test("mount shows a load failure under the TeX", async () => {
   await p;
   assert.equal(x.w.querySelector(".zm-tex").textContent, "a^2");
   assert.match(x.w.querySelector(".zen-plugin-error").textContent, /^math: could not load KaTeX/);
+});
+
+test("draws inline math in text mode and keeps the TeX, with the message as a tooltip, when it cannot", async () => {
+  const doc = makeDoc();
+  const p = doc.createElement("span"); p.dataset.zenPlugin = "math"; doc.body.append(p);
+  const good = doc.createElement("code"); good.className = "zm-itex"; good.textContent = "x^2";
+  const bad = doc.createElement("code"); bad.className = "zm-itex"; bad.textContent = "\\bad{x}";
+  p.append(good, bad);
+  const k = stub("\\bad");
+  await renderAll(doc.body, k);
+  assert.equal(k.calls[0].opts.displayMode, false, "inline math is not display mode");
+  assert.equal(k.calls[0].opts.trust, false);
+  assert.equal(p.children[0].className, "zm-ieq", "the drawn formula replaces the TeX");
+  assert.equal(p.children[1], bad, "a formula that cannot be drawn stays as its TeX");
+  assert.match(bad.getAttribute("title"), /^math: ParseError/);
+  await renderAll(doc.body, k);
+  assert.equal(k.calls.length, 2, "drawn and failed formulas are skipped");
 });

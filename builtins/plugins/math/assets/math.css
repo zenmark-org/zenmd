@@ -5,4 +5,8 @@
 .zm-eq .katex-display { margin: 0; }
 .zm-num { grid-column: 2; margin-left: 12px; font: 14px/1.4 var(--font-ui); color: var(--fg); white-space: nowrap; }
 .zm .zen-plugin-error { margin: 8px 0 0; }
+/* Inline math: the TeX in monospace until KaTeX draws it (and when it cannot). */
+.zm-itex { font: 13px/1.4 var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+.zm-ieq .katex { font-size: 1.05em; }
+.zm-eqref { white-space: nowrap; }
 @media print { .zm { break-inside: avoid; } .zm-eq { overflow: visible; } }

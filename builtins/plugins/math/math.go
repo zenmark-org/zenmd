@@ -5,11 +5,13 @@
 // Go writes the TeX as escaped text in a kit frame, so a page without scripts
 // reads it, and assets/math.js draws it with the vendored KaTeX bundle (see
 // VENDOR.md) on pages that have math. The inline {math} and {eq} roles and
-// $ … $ belong to a later phase.
+// $ … $ (in a folder that turns on MyST's dollarmath) are inline: the same
+// plugin owns the inline names math and eq, so :math[x] works without MyST.
 package math
 
 import (
 	"embed"
+	"errors"
 	"html"
 	"io/fs"
 	"regexp"
@@ -36,15 +38,20 @@ func (plugin) Manifest() plugins.Manifest {
 		Description: "Display math, drawn with KaTeX",
 		Default:     true,
 		Help: plugins.Help{
-			Summary: "Draws TeX math as a centred equation. Write it as a math block, a MyST {math} directive, or (in a folder that uses the MyST dialect) between $$ lines. A label numbers the equation on its page, (1), (2) and so on, and makes it a link target; a name makes a target without a number. Options follow MyST: label, name, class and nowrap (do not put an equation with \\\\ in aligned). A wrong equation keeps its TeX visible, with KaTeX's message under it. KaTeX is loaded only on pages that have math.",
+			Summary: "Draws TeX math as a centred equation, or inside a line. Write an equation as a math block, a MyST {math} directive, or (in a folder that uses the MyST dialect) between $$ lines. A label numbers the equation on its page, (1), (2) and so on, and makes it a link target; a name makes a target without a number. Options follow MyST: label, name, class and nowrap (do not put an equation with \\\\ in aligned). Inside a line, write the {math} role (or :math[…]); in a folder whose MyST settings turn on dollarmath, $…$ does the same. The {eq} role (or :eq[label]) links to a labelled equation and shows its number. A wrong equation keeps its TeX visible, with KaTeX's message with it. KaTeX is loaded only on pages that have math.",
 			Snippets: []plugins.Snippet{
 				{Title: "An equation", Markdown: ":::math\nE = mc^2\n:::\n"},
 				{Title: "A numbered equation", Markdown: ":::math{label=euler}\ne^{i\\pi} + 1 = 0\n:::\n"},
 				{Title: "The MyST form", Markdown: "```{math}\n:label: eq:pythagoras\n\na^2 + b^2 = c^2\n```\n"},
 				{Title: "Between $$ lines (MyST dialect)", Markdown: "$$\n\\int_0^1 x^2\\,dx = \\frac13\n$$ (eq:integral)\n"},
+				{Title: "Inside a line", Markdown: "The energy is :math[E = mc^2], and the area is :math[\\pi r^2].\n"},
+				{Title: "Inside a line, MyST form", Markdown: "The energy is {math}`E = mc^2`. With dollarmath on, $E = mc^2$ works too.\n"},
+				{Title: "A link to an equation", Markdown: "See :eq[euler] for the identity.\n"},
+				{Title: "A link to an equation, MyST form", Markdown: "See {eq}`euler` for the identity.\n"},
 			},
 		},
-		Blocks: []string{"math"},
+		Blocks:  []string{"math"},
+		Inlines: []string{"math", "eq"},
 	}
 }
 
@@ -69,11 +76,39 @@ const (
 
 var numRE = regexp.MustCompile(`<span class="zm-num">⟦([^⟧]*)⟧</span>`)
 
+// eqMark stands where an {eq} link goes until HTML knows the numbers.
+const eqOpen = "⟦eq|"
+
+var eqRE = regexp.MustCompile(`⟦eq\|([^|⟧]*)\|([^⟧]*)⟧`)
+
 // HTML numbers the labelled equations of the finished page: (1), (2) … in the
-// order they appear. The numbers belong to one render, so a page starts at 1.
+// order they appear, and then turns the {eq} marks into links showing them.
+// The numbers belong to one render, so a page starts at 1.
 func (plugin) HTML(ctx plugins.Context, s string) (string, error) {
-	if !strings.Contains(s, numOpen) {
+	if !strings.Contains(s, numOpen) && !strings.Contains(s, eqOpen) {
 		return s, nil
+	}
+	nums := map[string]int{}
+	s = numberEquations(ctx, s, nums)
+	if !strings.Contains(s, eqOpen) {
+		return s, nil
+	}
+	return eqRE.ReplaceAllStringFunc(s, func(m string) string {
+		sub := eqRE.FindStringSubmatch(m)
+		id, shown := sub[1], sub[2]
+		if n, ok := nums[id]; ok {
+			return `<a class="zm-eqref" href="#` + id + `">(` + strconv.Itoa(n) + `)</a>`
+		}
+		if ctx.Warn != nil {
+			ctx.Warn("{eq} points to " + id + ", which is not a numbered equation of this page (give it a label)")
+		}
+		return shown
+	}), nil
+}
+
+func numberEquations(ctx plugins.Context, s string, nums map[string]int) string {
+	if !strings.Contains(s, numOpen) {
+		return s
 	}
 	seen := map[string]bool{}
 	var sb strings.Builder
@@ -93,12 +128,36 @@ func (plugin) HTML(ctx plugins.Context, s string) (string, error) {
 				sb.WriteString(out[:i] + out[i+len(` id="`+id+`"`):])
 			}
 		}
+		if !seen[id] {
+			nums[id] = n
+		}
 		seen[id] = true
 		sb.WriteString(`<span class="zm-num">(` + strconv.Itoa(n) + `)</span>`)
 		last = m[1]
 	}
 	sb.WriteString(s[last:])
-	return sb.String(), nil
+	return sb.String()
+}
+
+// RenderInline draws the {math} role and the {eq} role.
+func (plugin) RenderInline(ctx plugins.Context, in plugins.Inline) (string, error) {
+	for k := range in.Attrs {
+		if ctx.Warn != nil {
+			ctx.Warn("option " + k + " is not supported on :" + in.Name + "[…] and was ignored")
+		}
+	}
+	text := strings.TrimSpace(in.Text)
+	if in.Name == "eq" {
+		id := slug(text)
+		if id == "" {
+			return "", errors.New("{eq} needs the label of an equation")
+		}
+		return eqOpen + id + "|" + html.EscapeString(strings.NewReplacer("⟦", "", "⟧", "", "|", "").Replace(text)) + "⟧", nil
+	}
+	if text == "" {
+		return "", errors.New("the inline equation is empty: write TeX in the role")
+	}
+	return `<span class="zm-inline"><code class="zm-itex">` + html.EscapeString(text) + `</code></span>`, nil
 }
 
 // known options; anything else is reported and ignored.

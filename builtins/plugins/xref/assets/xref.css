@@ -1,0 +1,4 @@
+/* Cross-references: only what is its own. The frame and type are the plugin kit's (docs/wiki/PLUGIN-UI.md). */
+.zx-toctree .zx-caption { margin: 0 0 6px; font: 600 14px/1.4 var(--font-ui); }
+.zx-toctree ul { margin: 0; padding-left: 20px; }
+.zx-toctree li { margin: 2px 0; }

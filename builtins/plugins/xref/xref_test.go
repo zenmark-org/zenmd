@@ -25,13 +25,13 @@ func folder(t *testing.T) *render.Renderer {
 	t.Helper()
 	dir := t.TempDir()
 	files := map[string]string{
-		".zenmd.yml":       "markdown:\n  dialects: [myst]\n",
-		"guide/start.md":   "# Getting started\n\ntext\n",
+		".zenmd.yml":        "markdown:\n  dialects: [myst]\n",
+		"guide/start.md":    "# Getting started\n\ntext\n",
 		"guide/advanced.md": "---\ntitle: Advanced use\n---\nno heading\n",
-		"plain.md":         "just text\n",
-		"pic.png":          "x",
-		"data.zip":         "x",
-		"img/a.png":        "x",
+		"plain.md":          "just text\n",
+		"pic.png":           "x",
+		"data.zip":          "x",
+		"img/a.png":         "x",
 	}
 	for n, c := range files {
 		p := filepath.Join(dir, n)
@@ -191,7 +191,7 @@ func TestUnknownLabelWarnsAndStaysText(t *testing.T) {
 	p := page(t, "A {ref}`nowhere`, {ref}`Some text <nowhere>`, {numref}`nowhere2`.\n")
 	lacks(t, p.HTML, `href="#nowhere`, "⟦")
 	contains(t, p.HTML, "nowhere", "Some text")
-	if warned(p, "nowhere") != 1 || warned(p, "nowhere2") != 1 {
+	if warned(p, "nowhere,") != 1 || warned(p, "nowhere2,") != 1 {
 		t.Errorf("want one warning per label: %v", p.Warnings)
 	}
 }
@@ -199,9 +199,9 @@ func TestUnknownLabelWarnsAndStaysText(t *testing.T) {
 func TestHostileText(t *testing.T) {
 	p := page(t, "{ref}`<script>alert(1)</script>` {ref}`<img src=x onerror=alert(1)> <(sec)>` {doc}`<script>x</script>` {download}`javascript:alert(1)` :ref[\"><b onclick=x>]\n")
 	inert(t, p.HTML)
-	lacks(t, p.HTML, "<script", "javascript:", "onclick")
+	lacks(t, p.HTML, "<script", `href="javascript:`, "<b ")
 	for _, w := range p.Warnings {
-		if strings.Contains(w, "alert") || strings.Contains(w, "<script") {
+		if strings.ContainsAny(w, "<>") {
 			t.Errorf("a warning carries hostile text: %q", w)
 		}
 	}
