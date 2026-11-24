@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -80,6 +81,7 @@ func TestSkipDirMatchesScan(t *testing.T) {
 		}
 	}
 	walk(es)
+	sort.Strings(got)
 	if !reflect.DeepEqual(got, files) {
 		t.Errorf("tree pages %v, scan %v", got, files)
 	}

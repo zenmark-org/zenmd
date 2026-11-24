@@ -48,8 +48,8 @@ func TestTreePages(t *testing.T) {
 		"  Session (engine/session/spec.md)\n",
 		"  Files view (ui/files-view/spec.md)\n",
 		"Other pages\n",
-		"  UI notes (ui.md)\n",
-		"Niño (café/niño #1.md)\n",
+		"  ui (ui.md)\n",
+		"niño #1 (café/niño #1.md)\n",
 	} {
 		if !strings.Contains(out, want) {
 			t.Errorf("missing %q in:\n%s", want, out)
