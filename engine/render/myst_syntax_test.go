@@ -206,3 +206,18 @@ func TestPageTitleContext(t *testing.T) {
 		t.Error("PageTitle should be nil without a folder")
 	}
 }
+
+func TestCardFooterBreakIsTheCards(t *testing.T) {
+	var got string
+	m := man("cards", true)
+	m.Blocks = []string{"card"}
+	card := &fakePlugin{m: m, block: func(_ plugins.Context, b plugins.Block) (string, error) { got = b.Body; return "<i>card</i>", nil }}
+	r := mystRenderer(t, mystOn, card)
+	p := render(t, r, "```{card} Title\nbody\n+++\nfooter\n```\n\n+++\n\nafter\n")
+	if !strings.Contains(got, "\n+++\nfooter") {
+		t.Errorf("the card lost its +++ line: %q", got)
+	}
+	if strings.Count(p.HTML, "<hr") != 1 {
+		t.Errorf("only the break outside the card is a rule: %s", p.HTML)
+	}
+}
