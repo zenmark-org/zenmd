@@ -95,3 +95,13 @@ test("the image zoom view is on top of everything and never printed (ui/image-zo
   expect(css).toMatch(/\.zen-page img\s*\{\s*cursor:\s*zoom-in/);
   expect(printCss).toMatch(/\.zen-zoom\s*\{\s*display:\s*none\s*!important/);
 });
+
+test("the table view is over the window, never printed and not animated (plugins/table)", () => {
+  expect(css).toMatch(/\.zen-tableview-stage\s*\{/);
+  expect(css).toMatch(/\.zen-tv-head\s*\{[^}]*position:\s*sticky/);
+  expect(css).toMatch(/\.zen-tv-stub\s*\{[^}]*position:\s*sticky/);
+  expect(css).toMatch(/@media print\s*\{[^@]*\.zen-table-tools,\s*\.zen-tableview\s*\{\s*display:\s*none\s*!important/);
+  expect(css).toMatch(/\.zen-table-tools\s*\{[^}]*user-select:\s*none/);
+  const block = css.slice(css.indexOf("Table view"));
+  expect(block).not.toMatch(/transition|animation/);
+});
