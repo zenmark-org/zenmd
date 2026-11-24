@@ -504,12 +504,12 @@ h4.zen-plugin-help-title { font-size: 14px; }
    stylesheet they have. Set on <html> by shell/a11y.ts: data-reduce-motion, data-contrast, data-link-underline
    and the reading variables. */
 
-/* The reader's text. The defaults are today's values; the page itself and the print document keep them. */
+/* The reader's text. The defaults are the page's own, apart from the measure: 94ch on screen in the app (about GitHub's column), while a built site, print and PDF keep 68ch. */
 :root {
   --zen-text-size: 17px;
   --zen-line-height: 1.65;
   --zen-text-font: var(--font-body);
-  --zen-measure: 68ch;
+  --zen-measure: 94ch;
 }
 @media screen {
   /* Not the layouts (a layout page owns its look), not the print document or the print preview. */

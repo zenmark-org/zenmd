@@ -25,7 +25,7 @@ export const A11Y_PREFIX = "zen.a11y.";
 
 const FONTS = { serif: "var(--font-body)", sans: "var(--font-ui)" } as const;
 const SPACING = { normal: "1.65", relaxed: "1.9", loose: "2.2" } as const;
-const WIDTH = { narrow: "60ch", normal: "68ch", wide: "84ch" } as const;
+const WIDTH = { narrow: "68ch", normal: "94ch", wide: "110ch" } as const;
 const KEYS = Object.keys(A11Y_DEFAULTS) as (keyof Accessibility)[];
 
 const clampSize = (n: number) => Math.min(TEXT_SIZE_MAX, Math.max(TEXT_SIZE_MIN, Math.round(n)));

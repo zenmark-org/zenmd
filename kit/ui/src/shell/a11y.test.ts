@@ -102,13 +102,13 @@ test("reading options set the variables", () => {
   expect(root.style.getPropertyValue("--zen-text-size")).toBe("22px");
   expect(root.style.getPropertyValue("--zen-text-font")).toBe("var(--font-ui)");
   expect(root.style.getPropertyValue("--zen-line-height")).toBe("1.9");
-  expect(root.style.getPropertyValue("--zen-measure")).toBe("84ch");
+  expect(root.style.getPropertyValue("--zen-measure")).toBe("110ch");
   expect(root.dataset.linkUnderline).toBe("on");
   setAccessibility({ textSize: 14, font: "serif", lineSpacing: "loose", lineWidth: "narrow", underlineLinks: false }, document);
   expect(root.style.getPropertyValue("--zen-text-size")).toBe("14px");
   expect(root.style.getPropertyValue("--zen-text-font")).toBe(""); // serif is the stylesheet's own
   expect(root.style.getPropertyValue("--zen-line-height")).toBe("2.2");
-  expect(root.style.getPropertyValue("--zen-measure")).toBe("60ch");
+  expect(root.style.getPropertyValue("--zen-measure")).toBe("68ch");
   expect(root.dataset.linkUnderline).toBeUndefined();
   // the text size is kept in 14..28 whole pixels
   expect(setAccessibility({ textSize: 99 }, document).textSize).toBe(28);
@@ -232,8 +232,8 @@ test("the runtime stylesheets, which built sites and print use, are untouched; t
   expect(defaults.decls).toContain("--zen-text-size: 17px");
   expect(defaults.decls).toContain("--zen-line-height: 1.65");
   expect(defaults.decls).toContain("--zen-text-font: var(--font-body)");
-  expect(defaults.decls).toContain("--zen-measure: 68ch");
-  // today's values: page.css has 17px/1.65 var(--font-body) and 68ch
+  expect(defaults.decls).toContain("--zen-measure: 94ch");
+  // the page's own values: page.css has 17px/1.65 var(--font-body) and 68ch (a built site, print and PDF keep 68ch)
   expect(read("runtime/src/css/page.css")).toMatch(/max-width:\s*68ch[\s\S]*font:\s*17px\/1\.65 var\(--font-body\)/);
   // the page reads them on screen only, and not in layout pages, the print document or its preview
   const page = parse(shell, /^@media screen$/).filter((r) => r.decls.includes("var(--zen-text-size)"));

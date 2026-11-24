@@ -37,7 +37,7 @@ person, not the folder, so they are kept per machine and apply to every window.
 5. **Text size**: 14–28 px in steps of 1, default 17. It sets the reader's body text and everything sized in `em` from it: headings, code and tables. The chrome is unaffected.
 6. **Font**: Serif (default, `--font-body`) or Sans (`--font-ui`). These are system fonts only; nothing is downloaded or bundled.
 7. **Line spacing**: Normal (1.65, default), Relaxed (1.9) or Loose (2.2).
-8. **Line width**: Narrow (60ch), Normal (68ch, default) or Wide (84ch).
+8. **Line width**: Narrow (68ch), Normal (94ch, default: about the width of GitHub's text column) or Wide (110ch). Built sites, print and PDF keep the page's own 68ch (rule 10).
 9. **Underline links**: off by default. When on, every link in a page is underlined, including links in plugin output, not only on hover.
 10. The reading options apply to the reader and the editor's preview. They do **not** apply to print, Print Preview, PDF export or built sites, which keep the document's own look. The editor's source text follows Zoom only.
 

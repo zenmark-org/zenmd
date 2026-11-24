@@ -1085,7 +1085,7 @@ describe("Accessibility section", () => {
     radio(group(s, "Line spacing"), "Loose").click();
     expect(a11yRoot().style.getPropertyValue("--zen-line-height")).toBe("2.2");
     radio(group(s, "Line width"), "Narrow").click();
-    expect(a11yRoot().style.getPropertyValue("--zen-measure")).toBe("60ch");
+    expect(a11yRoot().style.getPropertyValue("--zen-measure")).toBe("68ch");
     const under = detail(s, "accessibility").querySelector<HTMLInputElement>("input[type=checkbox]")!;
     expect(under.closest("label")!.textContent).toBe("Underline links");
     under.checked = true;

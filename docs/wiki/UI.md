@@ -21,7 +21,7 @@ for behaviour. Implemented by the `ui/*` specs.
   lint signal colours (wavy squiggles: red error, amber warning, blue suggestion)
   and the code colours (`--code-*`) used for syntax highlighting in the reader
   and the editor.
-- **Editorial.** Body text in a serif at a comfortable measure (max 68ch);
+- **Editorial.** Body text in a serif; the app reads at 94ch by default (about GitHub's column; Settings › Accessibility › Line width), built sites at 68ch;
   chrome in the system sans at small sizes. Generous whitespace, thin rules.
 - **Yin and yang.** Light and dark themes are exact inversions of each
   other; the logo mark is the ☯ idea reduced to two shapes. Follows the
