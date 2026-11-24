@@ -23,6 +23,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 
 ### Fixed
 - The editor's Inspector › Problems lists the page's Structure problems and page warnings, from the preview of the unsaved text; clicking a Structure row selects its line in the source (#48).
+- A markdown file opened from Finder (Open With, a double-click, the Dock) or File › Open… opens alone, whatever folder it is in; closing a one-file window or a folder no longer logs "no folder is open" errors; the log says "file" for a file (#50).
 
 ## [0.7.0] - 2026-11-23
 
