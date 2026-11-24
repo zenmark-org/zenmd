@@ -166,3 +166,19 @@ func TestTreeFlags(t *testing.T) {
 		t.Error("tree wrote a config file")
 	}
 }
+
+// An option of the tree command given without it points at the command.
+func TestTreeOptionHint(t *testing.T) {
+	for _, args := range [][]string{{"--files"}, {"specs", "--files"}, {"--files", "specs"}} {
+		var out, errOut bytes.Buffer
+		code := Run(args, t.TempDir(), &out, &errOut, func(Launch) error { return nil }, nil, nil, nil)
+		if code != 2 || !strings.Contains(errOut.String(), "unknown option --files (did you mean zenmd tree --files?)") {
+			t.Errorf("%v: code %d, stderr %q", args, code, errOut.String())
+		}
+	}
+	var out, errOut bytes.Buffer
+	Run([]string{"--bogus"}, t.TempDir(), &out, &errOut, func(Launch) error { return nil }, nil, nil, nil)
+	if strings.Contains(errOut.String(), "did you mean") {
+		t.Errorf("--bogus got a hint: %q", errOut.String())
+	}
+}

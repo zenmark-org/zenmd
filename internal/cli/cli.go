@@ -236,6 +236,10 @@ type usageError string
 
 func (e usageError) Error() string { return string(e) }
 
+// commandOptions names the command an option belongs to when only that command has it, so the error for the
+// option given without its command can point at it.
+var commandOptions = map[string]string{"--files": "tree"}
+
 // Run executes the command line and returns the process exit code.
 func Run(args []string, cwd string, stdout, stderr io.Writer, launch Launcher, build Builder, initer Initer, pdf PDFExporter) int {
 	// Move the pre-0.8.0 settings folder (zen) to zenmark, once. A failure
@@ -264,6 +268,9 @@ func Run(args []string, cwd string, stdout, stderr io.Writer, launch Launcher, b
 		case flags && arg == "--folder":
 			forceFolder = true
 		case flags && strings.HasPrefix(arg, "-") && arg != "-":
+			if cmd, ok := commandOptions[arg]; ok { // an option of a command given without it
+				return fail(stderr, usageError("unknown option "+arg+" (did you mean zenmd "+cmd+" "+arg+"?)"))
+			}
 			return fail(stderr, usageError("unknown option "+arg))
 		case flags && first && arg == "help":
 			fmt.Fprint(stdout, usage)
