@@ -5,9 +5,11 @@ package lini
 
 import (
 	"embed"
+	"errors"
 	"html"
 	"io/fs"
 	"sort"
+	"strings"
 
 	"github.com/zenmark-org/zenmd/engine/plugins"
 )
@@ -70,7 +72,8 @@ func (plugin) Manifest() plugins.Manifest {
 }
 
 // knownAttrs are the block attributes lini takes.
-var knownAttrs = map[string]bool{"file": true}
+// (arg and title are set by the page, as for every fence).
+var knownAttrs = map[string]bool{"file": true, "arg": true, "title": true}
 
 func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) {
 	if ctx.Warn != nil {
@@ -85,7 +88,27 @@ func (plugin) RenderBlock(ctx plugins.Context, b plugins.Block) (string, error) 
 			ctx.Warn("unknown option :" + k + ":")
 		}
 	}
-	return `<div class="zen-lini"><pre>` + html.EscapeString(b.Body) + `</pre></div>`, nil
+	body := b.Body
+	if p, own, ok := plugins.FileRef(b); ok {
+		if ctx.ReadFile == nil {
+			return "", errors.New("needs an open folder")
+		}
+		data, err := ctx.ReadFile(p)
+		if err != nil {
+			return "", err
+		}
+		if strings.TrimSpace(own) != "" && ctx.Warn != nil {
+			ctx.Warn("the block's own text is ignored because it names a file")
+		}
+		body = strings.ReplaceAll(string(data), "\r\n", "\n")
+		if strings.TrimSpace(body) == "" {
+			if ctx.Warn != nil {
+				ctx.Warn(p + " is empty")
+			}
+			return "", nil
+		}
+	}
+	return `<div class="zen-lini"><pre>` + html.EscapeString(body) + `</pre></div>`, nil
 }
 
 func (plugin) Assets() fs.FS {
