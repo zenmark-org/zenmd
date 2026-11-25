@@ -11,7 +11,7 @@ page can never inject scripts into it.
 |---|---|---|
 | [codeblock](codeblock.md) | colours code blocks, adds Copy and Wrap buttons | yes |
 | [diagram](diagram.md) | draws mermaid diagrams | yes |
-| [lini](lini.md) | draws Lini figures | no |
+| [lini](lini.md) | draws Lini figures | yes |
 | [check](check.md) | a checklist block | yes |
 | [quiz](quiz.md) | questions with saved answers and scores | yes |
 | [sandbox](sandbox.md) | runs a code block in a container | yes, after setup |
