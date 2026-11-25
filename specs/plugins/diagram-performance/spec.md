@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | specified |
+| Status | done |
 | Target version | 0.8.0 (PATCH-sized fix inside a MINOR: no syntax or output change) |
 | Branch | `feature/plugins-diagram-performance` |
 | Wave | 65 (merged before plugins/diagrams, whose branch touches one line of each plugin's JS; the lead resolves that overlap at merge) |

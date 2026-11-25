@@ -358,7 +358,7 @@ test("mount queues the diagram: drawn one at a time, pending until drawn, releas
       assert.equal(d.querySelectorAll(".zen-diagram-svg").length, 1);
       assert.equal(d.hasAttribute("data-zen-pending"), false);
     }
-    assert.deepEqual(m.calls.render.map((c) => c.src.slice(0, 10)), ["graph TD\nA0", "graph TD\nA1", "graph TD\nA2"]);
+    assert.deepEqual(m.calls.render.map((c) => c.src.slice(0, 15)), ["graph TD\nA0-->B", "graph TD\nA1-->B", "graph TD\nA2-->B"]);
     assert.equal(typeof releases[0], "function");
     for (const r of releases) r();
   } finally {
@@ -386,6 +386,13 @@ test("mount waits behind the placeholder until the figure is near", async () => 
   } finally {
     delete globalThis.mermaid;
   }
+});
+
+test("diagram.js holds the text of queue.js (no import: portable builds cannot load one)", () => {
+  const q = readFileSync(new URL("./queue.js", import.meta.url), "utf8").replace(/^export /gm, "");
+  const d = readFileSync(new URL("./diagram.js", import.meta.url), "utf8");
+  assert.ok(d.includes(q), "the copy of queue.js in diagram.js is out of date");
+  assert.doesNotMatch(d, /^\s*import[\s{(*"']/m);
 });
 
 test("the queue copy is the same file as lini's", () => {

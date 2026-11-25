@@ -360,7 +360,7 @@ func TestDemoFolder(t *testing.T) {
 	}
 
 	files, _ := z.ws.Files()
-	if len(files) != len(all)+1+5 { // every page but the hidden one and the five glossary terms is in the sidebar
+	if len(files) != len(all)+2+5 { // every page but the two hidden ones and the five glossary terms is in the sidebar
 		t.Errorf("%d pages, %d in the sidebar", len(files), len(all))
 	}
 	for _, p := range files {
