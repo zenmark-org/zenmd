@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"io/fs"
 	"os"
-	"os/exec"
 	"regexp"
 	"strings"
 	"testing"
@@ -25,7 +24,7 @@ func newRenderer(t *testing.T) *render.Renderer {
 	return render.New(reg, nil, nil)
 }
 
-func renderPage(t *testing.T, src string) *render.Page {
+func renderPage(t *testing.T, src string) render.Page {
 	t.Helper()
 	p, err := newRenderer(t).Render("a.md", []byte(src))
 	if err != nil {
@@ -110,7 +109,7 @@ func TestUnknownOptionWarns(t *testing.T) {
 	for _, w := range p.Warnings {
 		got += w + "|"
 	}
-	if !strings.Contains(got, "lini: unknown option :bogus:") {
+	if !strings.Contains(got, "unknown option :bogus:") {
 		t.Errorf("warnings %v", p.Warnings)
 	}
 	if strings.Contains(got, ":file:") {

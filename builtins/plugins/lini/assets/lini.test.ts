@@ -132,12 +132,10 @@ describe("drawing", () => {
   });
 
   test("a title becomes the label", async () => {
-    install();
-    const e = block('{ title: "Job flow"; }\n|box#a| "A"');
-    const l = await loadLini(url(), "/w.wasm");
-    await renderOne(e, l);
-    // whether or not the compiler emits a title, the label is never empty
-    expect(e.querySelector(".zen-lini-svg")!.getAttribute("aria-label")!.length).toBeGreaterThan(0);
+    setImporter(async () => ({ default: async () => {}, compile: () => `<svg xmlns="http://www.w3.org/2000/svg"><title>Job flow</title><rect width="1" height="1"/></svg>` }));
+    const e = block(SRC);
+    await lini.mount(e, ctxFor(url()));
+    expect(e.querySelector(".zen-lini-svg")!.getAttribute("aria-label")).toBe("Job flow");
   });
 
   test("rendering twice draws once", async () => {
