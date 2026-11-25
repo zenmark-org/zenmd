@@ -45,7 +45,8 @@ semantics and shows the legend as the title row inside the frame; put the conten
    are the signal colours (`--lint-error`, `--code-meta` for "right"). No hex, rgb or hsl in plugin CSS.
 4. **States.** Empty, loading, error and done each look the same in every block: a status line in
    `.zen-block-status` style (muted, 13px); an error in `--lint-error`; "done" or "right" in `--code-meta`. Empty text
-   is plain muted text, never a placeholder graphic. A busy control is disabled, not hidden.
+   is plain muted text, never a placeholder graphic. A busy control is disabled, not hidden. A plugin that draws figures queues them near the screen, one at a time, and marks waiting ones
+   `data-zen-pending` (plugins/diagram-performance).
 5. **Keyboard and focus.** Everything reachable with Tab; native controls (`button`, `input`, `label`) rather than
    clickable `div`s; a visible `:focus-visible` ring (the kit's, never `outline: none` without a replacement);
    move focus to a new result (`tabindex="-1"` and `.focus()`); live updates in `role="status"` or `aria-live="polite"`.

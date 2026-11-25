@@ -34,6 +34,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 - The showcase's example plugins are renamed so they don't clash with the new built-ins: the shell plugin `note` is now `banner`, the Tengo plugin `callout` is now `remark` (#33).
 
 ### Fixed
+- Big diagrams no longer freeze the window: Lini figures compile in a background worker with a 10-second limit, and diagrams draw one at a time as they come near the screen (plugins/diagram-performance).
 - Diagrams (mermaid and Lini) no longer flash their source while they load: a quiet "Drawing diagram…" placeholder stands in until the figure is drawn. Sites with scripts off, print and the Settings previews still show the source.
 - The Inspector's Build tab counted 0 page templates; it now lists the built-in ones, as Settings › Templates does.
 - The editor's Inspector › Problems lists the page's Structure problems and page warnings, from the preview of the unsaved text; clicking a Structure row selects its line in the source (#48).
