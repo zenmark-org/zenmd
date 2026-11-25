@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | specified |
+| Status | done |
 | Target version | 0.8.0 (MINOR: new ways to write a block; existing blocks render as before) |
 | Branch | `feature/plugins-diagram-files` |
 | Wave | 61 |

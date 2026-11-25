@@ -2,6 +2,7 @@ package session
 
 import (
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -14,6 +15,7 @@ import (
 	"github.com/zenmark-org/zenmd/engine/config"
 	"github.com/zenmark-org/zenmd/engine/plugins"
 	"github.com/zenmark-org/zenmd/engine/render"
+	"github.com/zenmark-org/zenmd/engine/workspace"
 )
 
 func builtinPlugins() []plugins.Plugin {
@@ -41,7 +43,19 @@ func TestBuiltinHelp(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			r := render.New(reg, config.Default(), nil)
+			// A folder with the file the help snippets read (diagrams/flow.mmd).
+			dir := t.TempDir()
+			if err := os.MkdirAll(filepath.Join(dir, "diagrams"), 0o755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(dir, "diagrams", "flow.mmd"), []byte("graph LR\n  A --> B\n"), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			ws, err := workspace.Open(dir)
+			if err != nil {
+				t.Fatal(err)
+			}
+			r := render.New(reg, config.Default(), ws)
 			for _, s := range m.Help.Snippets {
 				// A layout snippet is a whole page (frontmatter); the others are fragments.
 				page, err := r.Render("help.md", []byte(s.Markdown))
