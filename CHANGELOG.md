@@ -7,6 +7,7 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 ## [Unreleased]
 
 ### Fixed
+- A page moved with `nav.parent` takes the place of the new parent's link to it in the sidebar, instead of the place where another page's link first reached it.
 - Figures and other single blocks in a grid row (`:::grid` / `grid-item`) stretch to the row's height, so the frames of a row line up whatever the length of their captions.
 
 ## [0.8.0] - 2026-11-25

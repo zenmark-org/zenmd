@@ -250,3 +250,33 @@ func TestParseMeta(t *testing.T) {
 		t.Fatal("100 chars is allowed")
 	}
 }
+
+// A page moved under a parent with nav.parent takes the place of the parent's link to it among the parent's
+// children, not the place where another page's link first reached it (the radio's Test 3, linked early from a test
+// log, belongs between Tests 2 and 4 of the bench tests' table).
+func TestParentKeepsTheParentsLinkOrder(t *testing.T) {
+	files := []string{"README.md", "log.md", "tests/README.md", "tests/one.md", "tests/two.md", "tests/three.md", "tests/four.md", "notes.md"}
+	links := map[string][]string{
+		"README.md":       {"log.md", "tests/README.md"},
+		"log.md":          {"tests/three.md"},
+		"tests/README.md": {"tests/one.md", "tests/two.md", "tests/three.md", "tests/four.md", "notes.md"},
+	}
+	ix := BuildWithMeta(files, "README.md", graph(links), title, metas(map[string]Meta{
+		"tests/three.md": {Parent: "tests/README.md"},
+	}))
+	var kids []string
+	for _, n := range ix.Tree()[0].Children[1].Children {
+		kids = append(kids, n.Path)
+	}
+	if want := []string{"tests/one.md", "tests/two.md", "tests/three.md", "tests/four.md", "notes.md"}; !reflect.DeepEqual(kids, want) {
+		t.Fatalf("children of tests/README.md = %v, want %v", kids, want)
+	}
+	// nav.order still wins over the link order.
+	ix = BuildWithMeta(files, "README.md", graph(links), title, metas(map[string]Meta{
+		"tests/three.md": {Parent: "tests/README.md"},
+		"tests/four.md":  {Order: ip(1)},
+	}))
+	if got := ix.Tree()[0].Children[1].Children[0].Path; got != "tests/four.md" {
+		t.Fatalf("first child = %s, want tests/four.md (nav.order)", got)
+	}
+}

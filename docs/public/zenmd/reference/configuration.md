@@ -28,7 +28,7 @@ it, and a page's frontmatter wins over both.
 | `layout` | layout id | This page's layout. |
 | `nav.title` | text | The page's name in the sidebar. |
 | `nav.order` | number | Its place among its siblings. |
-| `nav.parent` | path or slug | The page it sits under. |
+| `nav.parent` | path or slug | The page it sits under, in the place of that page's link to it (before `nav.order`). |
 | `nav.hidden` | `true`/`false` | Leave it out of the sidebar. |
 | `nav.children` | `folder` | List every page of the folder under this index. |
 | `nav.sort` | `title` or `newest-first` | How those children are sorted. |

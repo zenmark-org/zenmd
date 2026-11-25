@@ -167,6 +167,30 @@ func BuildWithMeta(files []string, home string, links func(path string) []string
 			children[par[i]] = append(children[par[i]], i)
 		}
 	}
+	// A page moved here by nav.parent takes the place of this parent's link to it, not the place where another
+	// page's link first reached it. Only parents that gained a moved child are reordered; pages the parent does not
+	// link to keep their order after the linked ones.
+	for _, i := range moved {
+		p := par[i]
+		if p < 0 || len(children[p]) < 2 {
+			continue
+		}
+		rank := map[string]int{}
+		for k, l := range links(seq[p]) {
+			if c, ok := canon[strings.ToLower(l)]; ok {
+				if _, seen := rank[strings.ToLower(c)]; !seen {
+					rank[strings.ToLower(c)] = k
+				}
+			}
+		}
+		at := func(id int) int {
+			if r, ok := rank[strings.ToLower(seq[id])]; ok {
+				return r
+			}
+			return len(rank)
+		}
+		sort.SliceStable(children[p], func(a, b int) bool { return at(children[p][a]) < at(children[p][b]) })
+	}
 	byOrder := func(ids []int) {
 		sort.SliceStable(ids, func(a, b int) bool { return less(metaOf[ids[a]].Order, metaOf[ids[b]].Order) })
 	}
