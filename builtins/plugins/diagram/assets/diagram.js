@@ -44,7 +44,7 @@ export async function renderOne(el, mermaid) {
   el.dataset.rendered = "";
   const doc = el.ownerDocument || document;
   const pre = el.querySelector("pre");
-  if (!pre) return;
+  if (!pre) { el.dataset.drawn = ""; return; }
   const id = "zen-diagram-" + ++seq;
   mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: mermaidTheme(el, doc) });
   try {
@@ -54,6 +54,7 @@ export async function renderOne(el, mermaid) {
     box.innerHTML = svg; // mermaid output, sanitised by mermaid in strict mode
     pre.remove();
     el.append(box);
+    el.dataset.drawn = ""; // the placeholder of page.css gives way to the figure
   } catch (err) {
     const stray = doc.getElementById && doc.getElementById("d" + id);
     if (stray) stray.remove();
@@ -62,6 +63,7 @@ export async function renderOne(el, mermaid) {
 }
 
 function showError(el, err) {
+  el.dataset.drawn = ""; // the source and the message show instead of the placeholder
   const box = (el.ownerDocument || document).createElement("div");
   box.className = "zen-plugin-error";
   const msg = err && err.message ? err.message : String(err);

@@ -539,6 +539,7 @@ h4.zen-plugin-help-title { font-size: 14px; }
   scroll-behavior: auto !important;
 }
 :root[data-reduce-motion="on"] .zen-progress { animation: none; opacity: .6; }
+:root[data-reduce-motion="on"] .zen-diagram:not([data-drawn])::before, :root[data-reduce-motion="on"] .zen-lini:not([data-drawn])::before { animation: none; }
 
 /* Increase contrast: macOS asks for it (prefers-contrast: more) or the option is On (data-contrast="more"). Muted text becomes
    the text colour, the rules are at least 3:1 against the background in both themes, and focus rings are 3 px. Nothing else

@@ -118,6 +118,26 @@
 .zen-zoom-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 .zen-zoom-scale { min-width: 4ch; text-align: center; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
 
+/* Diagrams (plugins/diagram, plugins/lini): the page's HTML arrives before the plugin's script and stylesheet, so
+   until a figure is drawn a quiet box with a status line stands in for its source, and the page never flashes code.
+   The plugin sets data-drawn when the figure, or its source with an error, is shown. A built site with scripts off
+   (no data-js on its frame), the Settings previews (which mount no plugin) and print show the source as it is. */
+:is(.zen-diagram, .zen-lini):not([data-drawn]) { display: flex; align-items: center; justify-content: center; min-height: 8rem;
+  margin: 1em 0; border: 1px solid var(--rule); border-radius: var(--radius); }
+:is(.zen-diagram, .zen-lini):not([data-drawn]) > pre { display: none; }
+:is(.zen-diagram, .zen-lini):not([data-drawn])::before { content: "Drawing diagram…"; color: var(--fg-muted); font: 13px/1.4 var(--font-ui);
+  animation: zen-drawing 1.6s ease-in-out infinite; }
+@keyframes zen-drawing { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) {
+  .zen-diagram:not([data-drawn])::before, .zen-lini:not([data-drawn])::before { animation: none; }
+}
+.zen-site-frame:not([data-js]) :is(.zen-diagram, .zen-lini):not([data-drawn]) { display: block; min-height: 0; border: 0; }
+.zen-site-frame:not([data-js]) :is(.zen-diagram, .zen-lini):not([data-drawn]) > pre { display: block; }
+.zen-site-frame:not([data-js]) :is(.zen-diagram, .zen-lini):not([data-drawn])::before { content: none; }
+:is(.zen-plugin-snippet-preview, .zen-dialect-preview) :is(.zen-diagram, .zen-lini):not([data-drawn]) { display: block; min-height: 0; border: 0; }
+:is(.zen-plugin-snippet-preview, .zen-dialect-preview) :is(.zen-diagram, .zen-lini):not([data-drawn]) > pre { display: block; }
+:is(.zen-plugin-snippet-preview, .zen-dialect-preview) :is(.zen-diagram, .zen-lini):not([data-drawn])::before { content: none; }
+
 /* Table view (plugins/table): the Expand button above a table that overflows, and the table over the window. */
 .zen-table-tools { display: flex; justify-content: flex-end; margin: 0 0 var(--space-1); font: 13px/1.4 var(--font-ui); user-select: none; -webkit-user-select: none; }
 .zen-table-tools .zen-btn { display: inline-flex; align-items: center; gap: var(--space-1); font-size: 13px; }
@@ -133,6 +153,7 @@
 .zen-tv-stub { position: sticky; left: 0; z-index: 1; }
 .zen-tv-head.zen-tv-stub { z-index: 3; }
 .zen-tableview-stage:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+
 .zen-page hr { border: 0; border-top: 1px solid var(--rule); margin: 2em 0; }
 
 .zen-page sup { line-height: 0; }
@@ -160,4 +181,7 @@
   .zen-page { max-width: none; width: auto; padding: 0; }
   pre, blockquote, table, img { break-inside: avoid; }
   h1, h2, h3, h4, h5, h6 { break-after: avoid; }
+  :is(.zen-diagram, .zen-lini):not([data-drawn]) { display: block; min-height: 0; border: 0; }
+  :is(.zen-diagram, .zen-lini):not([data-drawn]) > pre { display: block; }
+  :is(.zen-diagram, .zen-lini):not([data-drawn])::before { content: none; }
 }

@@ -112,7 +112,9 @@ test("diagrams wait behind a placeholder until drawn, not on sites without scrip
   expect(flat).toMatch(new RegExp(waiting + String.raw`\s*>\s*pre\s*\{[^}]*display:\s*none`));
   expect(flat).toMatch(new RegExp(waiting + String.raw`::before\s*\{[^}]*content:\s*"Drawing diagram…"`));
   expect(flat).toMatch(new RegExp(String.raw`\.zen-site-frame:not\(\[data-js\]\)\s*` + waiting + String.raw`\s*>\s*pre\s*\{[^}]*display:\s*block`));
-  expect(flat).toMatch(/prefers-reduced-motion:\s*reduce\)\s*\{[^@]*:is\(\.zen-diagram, \.zen-lini\)[^{]*::before\s*\{[^}]*animation:\s*none/);
+  // Settings previews mount no plugin: they keep showing the source, never a placeholder that never goes.
+  expect(flat).toMatch(new RegExp(String.raw`:is\(\.zen-plugin-snippet-preview, \.zen-dialect-preview\)\s*` + waiting + String.raw`\s*>\s*pre\s*\{[^}]*display:\s*block`));
+  expect(flat).toMatch(/prefers-reduced-motion:\s*reduce\)\s*\{[^@]*\.zen-diagram:not\(\[data-drawn\]\)::before,\s*\.zen-lini:not\(\[data-drawn\]\)::before\s*\{[^}]*animation:\s*none/);
   const print = flat.slice(flat.lastIndexOf("@media print"));
   expect(print).toMatch(/\.zen-lini\)[^{]*>\s*pre\s*\{[^}]*display:\s*block/);
 });

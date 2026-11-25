@@ -102,6 +102,7 @@ export function watchTheme(doc = document) {
 }
 
 function showError(el, msg) {
+  el.dataset.drawn = ""; // the source and the message show instead of the placeholder
   const box = (el.ownerDocument || document).createElement("div");
   box.className = "zen-plugin-error";
   const first = ("lini: " + msg).split("\n")[0];
@@ -122,9 +123,9 @@ export async function renderOne(el, lini) {
   el.dataset.rendered = "";
   const doc = el.ownerDocument || document;
   const pre = el.querySelector("pre");
-  if (!pre) return;
+  if (!pre) { el.dataset.drawn = ""; return; }
   const src = pre.textContent || "";
-  if (src.trim() === "") return;
+  if (src.trim() === "") { el.dataset.drawn = ""; return; } // nothing to draw: the empty block shows as it is
   if (src.length > MAX_SOURCE) {
     showError(el, "figure too large");
     return;
@@ -152,6 +153,7 @@ export async function renderOne(el, lini) {
   pre.remove();
   el.append(box, details);
   linkScheme(el, doc);
+  el.dataset.drawn = ""; // the placeholder of page.css gives way to the figure
 }
 
 /** Draws every not-yet-drawn figure under root. */
