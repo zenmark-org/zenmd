@@ -3,8 +3,9 @@
 Draws [Lini](https://lini.rs/) figures from a `lini` block: a flow, a tree or
 mindmap, a sequence, a chart, a floor plan or a circuit, written as text. A
 figure follows the light or dark theme. A wrong figure keeps its source
-visible, with the compiler's message under it. **Off by default**: turn it on
-with `plugins: { lini: {} }` in `.zenmd.yml` or a page's frontmatter, or in
+visible, with the compiler's message under it. On by default; the compiler
+(about 2 MB) loads only on a page that has a `lini` block. Turn it off with
+`plugins: { lini: false }` in `.zenmd.yml` or a page's frontmatter, or in
 Settings › Plugins.
 
 ## Names

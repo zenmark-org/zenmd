@@ -22,8 +22,10 @@ SVG whose colours follow the light or dark theme by themselves.
 
 1. The `lini` built-in owns the block name `lini`. A fenced ```` ```lini ````
    block and a `:::lini` container render the same way. It is **off by
-   default** (`Default: false`) until it has been in a release, and turned on
-   with `plugins: { lini: {} }` in `.zenmd.yml` or a page's frontmatter, like
+   default** at first; changed to **on by default** (`Default: true`) after
+   review, since the compiler loads only on a page with a lini block and the
+   page policy change applies either way. It is turned off with
+   `plugins: { lini: false }` in `.zenmd.yml` or a page's frontmatter, like
    any built-in.
 2. Go emits a placeholder that holds the source as escaped text:
    `<div class="zen-lini"><pre>…</pre></div>`. The page without scripts (a
@@ -135,7 +137,7 @@ SVG whose colours follow the light or dark theme by themselves.
 
 ```go
 // builtins/plugins/lini
-func New() plugins.Plugin // ID "lini", Blocks ["lini"], Default false
+func New() plugins.Plugin // ID "lini", Blocks ["lini"], Default true
 ```
 
 ```js

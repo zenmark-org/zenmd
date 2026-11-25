@@ -38,7 +38,7 @@ func renderPage(t *testing.T, src string) render.Page {
 
 func TestManifest(t *testing.T) {
 	m := New().Manifest()
-	if m.ID != "lini" || m.Default || m.APIVersion != plugins.APIVersion || m.Version == "" {
+	if m.ID != "lini" || !m.Default || m.APIVersion != plugins.APIVersion || m.Version == "" {
 		t.Fatalf("manifest %+v", m)
 	}
 	if strings.Join(m.Blocks, ",") != "lini" {
@@ -56,10 +56,17 @@ func TestManifest(t *testing.T) {
 	}
 }
 
-func TestOffByDefault(t *testing.T) {
+func TestOnByDefault(t *testing.T) {
 	p := renderPage(t, "```lini\n|box#a| \"A\"\n```\n")
+	if !strings.Contains(p.HTML, "zen-lini") || len(p.Assets.JS) == 0 {
+		t.Errorf("not rendered with no config: %s %+v", p.HTML, p.Assets)
+	}
+}
+
+func TestTurnedOff(t *testing.T) {
+	p := renderPage(t, "---\nplugins:\n  lini: false\n---\n```lini\n|box#a| \"A\"\n```\n")
 	if strings.Contains(p.HTML, "zen-lini") || len(p.Assets.JS) != 0 {
-		t.Errorf("rendered while off: %s %+v", p.HTML, p.Assets)
+		t.Errorf("rendered while turned off: %s %+v", p.HTML, p.Assets)
 	}
 }
 

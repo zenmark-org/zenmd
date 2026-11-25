@@ -12,7 +12,7 @@ Each plugin has a page with its names, options and an example; the list is in
 |---|---|---|---|
 | [`codeblock`](plugins/codeblock.md) | Colours fenced code, with optional line numbers and wrapping. | a fence with a language, such as `go` | `code-block`, `code` |
 | [`diagram`](plugins/diagram.md) | Draws Mermaid diagrams. | a `mermaid` fence | `mermaid` |
-| [`lini`](plugins/lini.md) | Draws Lini figures. Off by default. | a `lini` fence | `lini` |
+| [`lini`](plugins/lini.md) | Draws Lini figures. | a `lini` fence | `lini` |
 | [`check`](plugins/check.md) | Checklists that remember what you ticked. | `- [ ] item` in `:::check` | `check` |
 | [`quiz`](plugins/quiz.md) | Questions with answers and feedback. | `:::quiz` | `quiz` |
 | [`sandbox`](plugins/sandbox.md) | Code you can run, in a container. | `:::sandbox` | `sandbox` |
