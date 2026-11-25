@@ -202,6 +202,7 @@ export async function renderOne(el, mermaid) {
     box.innerHTML = svg; // mermaid output, sanitised by mermaid in strict mode
     pre.remove();
     el.append(box);
+    box.setAttribute("data-zen-zoomable", ""); // the page runtime adds zoom and pan to a drawn figure (plugins/diagrams)
     el.dataset.drawn = ""; // the placeholder of page.css gives way to the figure
   } catch (err) {
     const stray = doc.getElementById && doc.getElementById("d" + id);

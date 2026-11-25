@@ -402,3 +402,15 @@ test("the queue copy is the same file as lini's", () => {
   assert.doesNotMatch(a, /[a-z][a-z0-9+.-]*:\/\//i);
   assert.doesNotMatch(a, /innerHTML/);
 });
+
+
+test("marks the drawn svg zoomable, and never a failed one (plugins/diagrams)", async () => {
+  const doc = makeDoc();
+  const ok = diagram(doc, "graph TD\nA-->B");
+  const bad = diagram(doc, "graph TD\nBAD");
+  await renderAll(doc.body, stub("BAD"));
+  const box = ok.querySelector(".zen-diagram-svg");
+  assert.equal(box.getAttribute("data-zen-zoomable"), "");
+  assert.equal(bad.querySelector(".zen-diagram-svg"), null);
+  assert.equal(bad.all().some((e) => e.getAttribute("data-zen-zoomable") !== null), false);
+});

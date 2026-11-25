@@ -40,6 +40,42 @@ folder's root; any other path is from this page's folder.
 :file: /plugins/diagrams/flow.mmd
 ```
 
+## Zoom and pan
+
+A large diagram is shrunk to the reading column. Point at it (or Tab to it) to
+get the controls in its corner: zoom in and out, reset, pan, and expand, which
+opens it over the whole window. A pinch (or ⌘ or ⌃ with the wheel) zooms
+around the pointer, and dragging pans once it is zoomed. With the figure
+focused, `+`, `-` and `0` zoom and reset, the arrows pan, and Enter expands.
+
+```mermaid
+graph LR
+  A[Write a page] --> B[Save]
+  B --> C{Valid Markdown?}
+  C -- no --> D[Show the problem]
+  D --> A
+  C -- yes --> E[Render]
+  E --> F[Parse frontmatter]
+  F --> G[Resolve links]
+  G --> H{Plugins on?}
+  H -- yes --> I[Run plugins]
+  H -- no --> J[Plain page]
+  I --> K[Draw diagrams]
+  I --> L[Draw tables]
+  I --> M[Draw figures]
+  K --> N[Sanitise]
+  L --> N
+  M --> N
+  J --> N
+  N --> O[Show the page]
+  O --> P{Export?}
+  P -- site --> Q[Build the site]
+  P -- print --> R[Print or PDF]
+  Q --> S[Publish]
+  R --> S
+  S --> T[Readers open it]
+```
+
 ## When a diagram is wrong
 
 The source stays visible with mermaid's error message under it:

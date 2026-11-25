@@ -495,5 +495,7 @@ test("installs the table view on the article and destroys it on unmount (plugins
   const src = readFileSync(resolve(import.meta.dirname, "index.ts"), "utf8");
   expect(src).toMatch(/installTableView\(article\)/);
   expect(src).toMatch(/tables\.destroy\(\)/);
+  expect(src).toMatch(/installDiagramView\(article\)/); // plugins/diagrams
+  expect(src).toMatch(/figures\.destroy\(\)/);
   expect(src).toMatch(/hasAttribute\("data-zen-ui"\)/); // Find skips the Expand button
 });

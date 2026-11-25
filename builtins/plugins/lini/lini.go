@@ -60,7 +60,7 @@ func (plugin) Manifest() plugins.Manifest {
 		Description: "Lini figures: flows, mindmaps, sequences, charts",
 		Default:     true,
 		Help: plugins.Help{
-			Summary: "Draws a Lini figure from a lini block: a flow, a mindmap, a sequence, a chart, a floor plan or a circuit, written as text. The figure follows the light or dark theme. A wrong figure keeps its source visible, with the compiler's message under it.",
+			Summary: "Draws a Lini figure from a lini block: a flow, a mindmap, a sequence, a chart, a floor plan or a circuit, written as text. The figure follows the light or dark theme. A wrong figure keeps its source visible, with the compiler's message under it. A drawn figure can be zoomed and panned where it sits (corner controls, pinch, drag, keys) and opened over the whole window.",
 			Snippets: []plugins.Snippet{
 				{Title: "A flow", Markdown: plugins.Fences(flowSnippet)},
 				{Title: "A mindmap", Markdown: plugins.Fences(mindmapSnippet)},

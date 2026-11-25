@@ -296,6 +296,7 @@ export async function renderOne(el, lini) {
   pre.remove();
   el.append(box, details);
   linkScheme(el, doc);
+  box.setAttribute("data-zen-zoomable", ""); // the page runtime adds zoom and pan to a drawn figure (plugins/diagrams)
   el.dataset.drawn = ""; // the placeholder of page.css gives way to the figure
 }
 

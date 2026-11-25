@@ -13,3 +13,5 @@ export { installImageZoom, zoomableImage, ZOOM_MAX, ZOOM_MIN } from "./zoom/zoom
 export type { ImageZoom } from "./zoom/zoom";
 export { installTableView, expandableTable, TABLE_SIZE_MIN, TABLE_SIZE_MAX } from "./tableview/tableview";
 export type { TableView } from "./tableview/tableview";
+export { installDiagramView } from "./diagramview/diagramview";
+export type { DiagramView } from "./diagramview/diagramview";

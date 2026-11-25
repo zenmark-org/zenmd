@@ -104,6 +104,7 @@ SVG whose colours follow the light or dark theme by themselves.
 15. `docs/public/zenmd/reference/plugins/lini.md` describes the block, turning
     it on, the theme, the portable-site limit and a link to Lini's own
     language docs. `examples/demo/plugins/lini.md` shows the three snippets.
+16. Zoom and pan: see [plugins/diagrams](../diagrams/spec.md).
 
 ## Architecture
 

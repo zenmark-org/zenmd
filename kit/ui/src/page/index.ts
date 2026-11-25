@@ -8,6 +8,7 @@ import { markText } from "../lint";
 import { installRuntime } from "@zenmd/runtime/plugins";
 import { installImageZoom } from "@zenmd/runtime/zoom/zoom";
 import { installTableView } from "@zenmd/runtime/tableview/tableview";
+import { installDiagramView } from "@zenmd/runtime/diagramview/diagramview";
 import { PRINT_PAGE } from "@zenmd/runtime/print/page";
 import { button, el, iconButton } from "../shell/dom";
 import { reducedMotion as a11yReducedMotion } from "../shell/a11y";
@@ -357,6 +358,7 @@ export const pageFeature: Feature = {
     article.addEventListener("auxclick", onAux);
     const zoom = installImageZoom(article); // a click on an image shows it large (ui/image-zoom)
     const tables = installTableView(article); // a wide table opens over the window (plugins/table)
+    const figures = installDiagramView(article); // diagrams zoom and pan, and open over the window (plugins/diagrams)
 
     const onKey = (e: KeyboardEvent) => {
       if (editable && (e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "e") {
@@ -427,6 +429,7 @@ export const pageFeature: Feature = {
       seq++;
       zoom.destroy();
       tables.destroy();
+      figures.destroy();
       offFind();
       offFindState();
       find.destroy();

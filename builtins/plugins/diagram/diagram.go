@@ -31,7 +31,7 @@ func (plugin) Manifest() plugins.Manifest {
 		Description: "Mermaid diagrams",
 		Default:     true,
 		Help: plugins.Help{
-			Summary: "Draws mermaid diagrams from a mermaid (or diagram) block, written in the page or read from a file of the folder (a :file: line, {file=...} or a path after mermaid; / starts at the folder's root). Diagrams follow the light or dark theme. A wrong diagram keeps its source visible, with mermaid's error under it.",
+			Summary: "Draws mermaid diagrams from a mermaid (or diagram) block, written in the page or read from a file of the folder (a :file: line, {file=...} or a path after mermaid; / starts at the folder's root). Diagrams follow the light or dark theme. A wrong diagram keeps its source visible, with mermaid's error under it. A drawn diagram can be zoomed and panned where it sits (corner controls, pinch, drag, keys) and opened over the whole window.",
 			Snippets: []plugins.Snippet{
 				{Title: "A flowchart", Markdown: plugins.Fences("~~~mermaid\ngraph LR\n  A[Open folder] --> B{README.md?}\n  B -- yes --> C[Show README]\n  B -- no --> D[Pick a page]\n~~~")},
 				{Title: "A sequence diagram", Markdown: plugins.Fences("~~~mermaid\nsequenceDiagram\n  You->>Editor: type\n  You->>Editor: save\n  Editor-->>You: page reloads\n~~~")},

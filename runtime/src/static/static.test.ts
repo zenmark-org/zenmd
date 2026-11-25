@@ -427,4 +427,6 @@ test("installs the table view on the page and destroys it on teardown (plugins/t
   const src = readFileSync(resolve(import.meta.dirname, "static.ts"), "utf8");
   expect(src).toMatch(/installTableView\(root\)/);
   expect(src).toMatch(/tables\.destroy\(\)/);
+  expect(src).toMatch(/installDiagramView\(root\)/); // plugins/diagrams
+  expect(src).toMatch(/figures\.destroy\(\)/);
 });

@@ -56,6 +56,11 @@ semantics and shows the legend as the title row inside the frame; put the conten
 8. **Layouts.** A layout may change the page around blocks (columns, step list, navigation, spacing). It never
    changes a block's controls: its own buttons are `.zen-btn`, its checklists `.zen-block` and `.zen-choice`.
 9. **Print.** Controls are hidden or readable in print; a block never needs the screen to make sense.
+10. **Views over the window.** A view over the whole window reuses `.zen-zoom`, `.zen-zoom-stage`, `.zen-zoom-bar` and
+   `.zen-zoom-btn`; on open it sends `zen:overlay-open` with its own `detail.owner` and closes on another owner's event
+   (the runtime's `registerOverlay` does both); Esc, ✕ or the backdrop closes it; focus is kept inside and returned. A
+   plugin that draws a figure (an `svg`) gets zoom, pan and Expand for free: set `data-zen-zoomable` on the element that
+   holds the one `svg`, once it is drawn (plugins/diagrams).
 
 ## Checklist for review
 
@@ -63,6 +68,7 @@ semantics and shows the legend as the title row inside the frame; put the conten
 - [ ] One `.zen-btn-primary` at most per block; secondary actions are `.zen-btn` or `.zen-btn-quiet`.
 - [ ] No serif, no heading styles, no hex or rgb colours inside a block.
 - [ ] Empty, loading, error and done states are written and use the status style.
+- [ ] A view over the window reuses the `.zen-zoom` classes and `registerOverlay`; a drawn figure sets `data-zen-zoomable`.
 - [ ] Tab reaches every control, the focus ring shows, the result is announced.
 - [ ] `prefers-reduced-motion` is respected.
 - [ ] All text from data goes through `textContent`.

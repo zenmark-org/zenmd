@@ -6,6 +6,7 @@
 import { icon } from "../icons";
 import { installImageZoom } from "../zoom/zoom";
 import { installTableView } from "../tableview/tableview";
+import { installDiagramView } from "../diagramview/diagramview";
 import { installRuntime } from "../plugins";
 import type { RuntimeApi } from "../types";
 import "./static.css";
@@ -334,6 +335,7 @@ export function start(doc: Document = document): void {
   const root = doc.querySelector<HTMLElement>(".zen-page") ?? doc.body;
   const zoom = installImageZoom(root);
   const tables = installTableView(root);
+  const figures = installDiagramView(root);
   const stopBar = installTopBar(doc, win, page.siteId);
   stopPrevious = () => {
     stopBar();
@@ -341,6 +343,7 @@ export function start(doc: Document = document): void {
     win.removeEventListener("hashchange", onHash);
     zoom.destroy();
     tables.destroy();
+    figures.destroy();
     rt.destroy();
   };
 

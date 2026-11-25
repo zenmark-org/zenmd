@@ -51,6 +51,9 @@ in its own file, `plugins/figures/regulator.lini`, and the block only names it:
 ```lini /plugins/figures/regulator.lini
 ```
 
+Zoom in to read it: point at the figure for the corner controls, or pinch, and
+Expand opens it over the whole window.
+
 ## When a figure is wrong
 
 The source stays visible with the compiler's message under it:

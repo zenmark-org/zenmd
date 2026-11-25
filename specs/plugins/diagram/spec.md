@@ -21,6 +21,7 @@
 4. `diagram.js` listens for `zen:page-rendered`, lazy-loads mermaid on first use, initialises it with `startOnLoad: false, securityLevel: "strict"`, theme from `data-theme` (forced to dark/neutral by the app theme), renders each not-yet-rendered `.zen-diagram` into an inline SVG replacing the `<pre>`, and marks it `data-rendered`.
 5. A diagram with a syntax error keeps the source visible and shows mermaid's message in `.zen-plugin-error` below it.
 6. Pages without diagram blocks load none of the assets.
+7. Zoom and pan: see [plugins/diagrams](../diagrams/spec.md).
 
 ## Architecture
 
