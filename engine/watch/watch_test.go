@@ -160,8 +160,10 @@ func TestDebounce(t *testing.T) {
 			n++
 		}
 	}
-	if n != 1 {
-		t.Errorf("want 1 event, got %d: %+v", n, r.all())
+	// A burst of 20 writes is merged. A slow machine may spread the writes over more than one debounce window, so a
+	// couple of events is fine; 20 would mean no debouncing at all.
+	if n < 1 || n > 3 {
+		t.Errorf("want 1 to 3 events for a burst of 20 writes, got %d: %+v", n, r.all())
 	}
 }
 

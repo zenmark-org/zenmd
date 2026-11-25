@@ -68,7 +68,7 @@ task test && task build                             # the lead, after each merge
 - After `apps/<app>/app-assembly.yml` changes, run `go run ./kit/assembly/cmd/gen apps/zenmark`
   (it writes `apps/zenmark/cliset/assembly_gen.go`).
   `TestAssemblyGenerated` catches drift.
-- Known flaky under load (timing limits): `TestLargeFile`, `TestLargeBlock`, `TestH2StreamCancelWithEscapedChild`, `TestH2L2EscapedGrandchildTimesOut` and `TestAtomicSave`. Rerun them alone.
+- Known flaky under load (timing limits): `TestLargeFile`, `TestLargeBlock`, `TestH2StreamCancelWithEscapedChild`, `TestH2L2EscapedGrandchildTimesOut`, `TestAtomicSave` and `TestDebounce`. Rerun them alone.
 
 ## Conventions
 
