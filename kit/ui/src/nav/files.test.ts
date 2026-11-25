@@ -27,10 +27,10 @@ const specsTree = (): FileTree => ({
   ],
 });
 
-test("toNavNodes: folders become groups, pages pages, images the file kind", () => {
+test("toNavNodes: folders become groups, pages pages, images the file kind; rows show file names", () => {
   const { tree, titles } = toNavNodes(specsTree());
   expect(tree.map((n) => [n.kind, n.path, n.title])).toEqual([
-    ["group", "engine/", "engine"], ["group", "ui/", "ui"], ["page", "README.md", "Specs"], ["page", "ui.md", "ui"],
+    ["group", "engine/", "engine"], ["group", "ui/", "ui"], ["page", "README.md", "README.md"], ["page", "ui.md", "ui.md"],
   ]);
   const shots = tree[1].children[0].children[0];
   expect(shots.kind).toBe("group");

@@ -95,7 +95,8 @@ Spacing scale 4/8/12/16/24/32/48. Radius 6px. No shadows except the modal.
   move one place; the order is saved as `nav.order` in the pages' frontmatter
   (ui/sidebar-menu). With a folder open, a *Pages | Files* switch (the Settings
   segment control) sits under the header, remembered per folder: Files shows the
-  folder as it is on disk in the same tree rows (folders, pages, images), with a
+  folder as it is on disk in the same tree rows (folders, pages, images, by file
+  name, a page's title as the row's tooltip), with a
   muted "other" or "hidden" badge on pages the Pages view puts under Other pages
   or hides; images open in the image view, and there is no Move or drag
   (ui/files-view).

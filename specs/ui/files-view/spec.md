@@ -52,7 +52,8 @@ prints the same listing.
    - `"hidden"` when it is in neither (`nav.hidden`, or under a hidden page).
 
    Images and folders have no mark. The page title is the same title the
-   Pages tree shows. Images and folders show their file name.
+   Pages tree shows. Every row of the Files view shows its file name, as on
+   disk; a page's title is its row's tooltip and the text of its Copy Link.
 7. `Session.FileTree` reads the index that the session already built. It
    never renders or reads a page again.
 

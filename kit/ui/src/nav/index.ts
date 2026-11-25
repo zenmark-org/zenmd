@@ -80,6 +80,7 @@ export const navFeature: Feature = {
     let filesExpanded: Set<string> | null = null;
     let filesSeq = 0;
     let filesMarks: Record<string, string> = {};
+    let filesTitles: Record<string, string> = {}; // the pages' titles: the Files rows show file names
     let filesNav: NavNode[] = [];
     let filesImages = new Set<string>();
     /** The page that was just moved: it gets the focus when the new tree is drawn. */
@@ -143,7 +144,7 @@ export const navFeature: Feature = {
         reveal: api.revealInFinder ? (p) => { api.revealInFinder!(p).catch(fail); } : undefined,
         hide: editable && api.setNavHidden ? (n) => hide(n) : undefined,
       };
-      const entries = menuEntries(node, env);
+      const entries = menuEntries(files ? { ...node, title: filesTitles[path] ?? node.title } : node, env); // Copy Link uses the page's title
       if (!entries.length) return;
       menu = openMenu({ doc, entries, x: at.x, y: at.y, returnFocus: row, label: node.title, onClose: () => { menu = null; } });
     };
@@ -187,9 +188,10 @@ export const navFeature: Feature = {
         setNote(filesLoading ? "Loading files…" : "");
         return;
       }
-      const { tree, badges, marks } = toNavNodes(filesData);
+      const { tree, badges, marks, titles } = toNavNodes(filesData);
       filesNav = tree;
       filesMarks = marks;
+      filesTitles = titles;
       filesImages = new Set<string>();
       const walk = (ns: NavNode[]) => ns.forEach((n) => { if ((n.kind as string) === "file") filesImages.add(n.path); walk(n.children); });
       walk(tree);
@@ -215,7 +217,7 @@ export const navFeature: Feature = {
         },
         onContextMenu: (p, at, row) => showMenu(p, at, row, true),
       });
-      decorateFiles(filesTree, marks);
+      decorateFiles(filesTree, marks, titles);
       setNote(filesData.omitted > 0 ? `${filesData.omitted} more files not shown` : "", true);
     };
     /** Asks for the listing; the last one stays on the screen when it fails. */

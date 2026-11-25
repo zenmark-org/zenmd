@@ -357,6 +357,25 @@ test("files omitted line", async () => {
   expect(filesHost(m.nav).querySelector("[role=tree]")).not.toBeNull();
 });
 
+test("files rows show the file name; the tooltip and Copy Link use the page's title", async () => {
+  const writes: string[] = [];
+  vi.stubGlobal("navigator", { clipboard: { writeText: async (t: string) => { writes.push(t); } } });
+  const m = mountFiles(filesApi());
+  switchTo(m.nav, "Files");
+  await tick();
+  frow(m.nav, "ui/").click();
+  frow(m.nav, "ui/files-view/").click();
+  const r = frow(m.nav, "ui/files-view/spec.md");
+  expect(r.querySelector(".zen-nav-label")!.textContent).toBe("spec.md");
+  expect(r.title).toBe("Files view");
+  expect(frow(m.nav, "ui/").querySelector(".zen-nav-label")!.textContent).toBe("ui");
+  r.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: 30, clientY: 40 }));
+  Array.from(document.querySelectorAll<HTMLElement>("[role=menuitem]")).find((i) => i.textContent === "Copy Link")!.click();
+  await tick();
+  expect(writes).toEqual(["[Files view](ui/files-view/spec.md)"]);
+  vi.unstubAllGlobals();
+});
+
 test("files context menu: page, hidden page, no Move; Show in Sidebar", async () => {
   const api = filesApi();
   const m = mountFiles(api);
