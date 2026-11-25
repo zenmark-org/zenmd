@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | specified |
+| Status | done |
 | Target version | 0.8.0 (MINOR: a new reader feature; the blocks' HTML from Go is unchanged) |
 | Branch | `feature/plugins-diagrams` |
 | Wave | 64 (rewritten after plugins/table, plugins/lini and the diagram placeholder were merged) |

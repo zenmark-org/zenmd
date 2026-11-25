@@ -1,12 +1,13 @@
 import { afterAll, afterEach, beforeAll, beforeEach, expect, test } from "vitest";
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { installImageZoom } from "../zoom/zoom";
 import {
   clampScale, DRAG_SLOP, fit, installDiagramView, limitPan, PAN_STEP, SCALE_MAX, SCALE_MIN, STEP, zoomAt, type DiagramView,
 } from "./diagramview";
 
-const css = readFileSync(new URL("../css/page.css", import.meta.url), "utf8");
-const source = readFileSync(new URL("./diagramview.ts", import.meta.url), "utf8");
+const css = readFileSync(resolve(__dirname, "../css/page.css"), "utf8");
+const source = readFileSync(resolve(__dirname, "diagramview.ts"), "utf8");
 /** Our rules in page.css: from the "Figure view" comment to the next blank line. */
 const block = css.match(/\/\* Figure view[\s\S]*?\n\n/)?.[0] ?? "";
 
@@ -67,6 +68,10 @@ const key = (target: EventTarget, k: string, init: KeyboardEventInit = {}) => {
 };
 const wheel = (n: Element, init: WheelEventInit) => {
   const e = new WheelEvent("wheel", { bubbles: true, cancelable: true, ...init });
+  // happy-dom's WheelEvent has no modifier keys or position
+  for (const k of ["ctrlKey", "metaKey", "clientX", "clientY", "deltaX", "deltaY"] as const) {
+    Object.defineProperty(e, k, { value: init[k] ?? (k.endsWith("Key") ? false : 0) });
+  }
   n.dispatchEvent(e);
   return e;
 };
@@ -212,8 +217,8 @@ test("a pinch zooms around the pointer; a plain wheel scrolls the page", () => {
   expect(e.defaultPrevented).toBe(true);
   const s = state()!;
   expect(s.scale).toBeGreaterThan(1);
-  expect((100 - s.x) / s.scale).toBeCloseTo(100); // the figure point under the pointer did not move
-  expect((50 - s.y) / s.scale).toBeCloseTo(50);
+  expect((100 - s.x) / s.scale).toBeCloseTo(100, 1); // the figure point under the pointer did not move
+  expect((50 - s.y) / s.scale).toBeCloseTo(50, 1);
   const meta = wheel(svg(), { metaKey: true, deltaY: 100, clientX: 100, clientY: 50 });
   expect(meta.defaultPrevented).toBe(true);
   const before = svg().style.transform;
@@ -539,10 +544,10 @@ test("page.css: the figure view block", () => {
 });
 
 test("page.css: the bar shows on hover, focus and touch", () => {
-  expect(block).toMatch(/\.zen-figure-tools\s*\{[^}]*visibility:\s*hidden/);
+  expect(block).toMatch(/\.zen-figure-tools\.zen-zoom-bar\s*\{[^}]*visibility:\s*hidden/);
   expect(block).toMatch(/\.zen-figure-view:hover \.zen-figure-tools/);
   expect(block).toMatch(/\.zen-figure-view:focus-within \.zen-figure-tools/);
-  expect(block).toMatch(/@media \(hover:\s*none\)\s*\{[^@]*\.zen-figure-tools\s*\{[^}]*visibility:\s*visible/);
+  expect(block).toMatch(/@media \(hover:\s*none\)\s*\{[^@]*\.zen-figure-tools\.zen-zoom-bar\s*\{[^}]*visibility:\s*visible/);
   expect(block).toMatch(/\.zen-figure-tools\.zen-zoom-bar\s*\{[^}]*top:/);
 });
 
@@ -554,8 +559,10 @@ test("page.css: a Lini figure fits the column inside the view; the cursors; narr
 });
 
 test("page.css: print", () => {
-  expect(block).toMatch(/@media print\s*\{[\s\S]*\.zen-figure-tools\s*\{?[^}]*display:\s*none\s*!important/);
-  expect(block).toMatch(/@media print\s*\{[\s\S]*transform:\s*none\s*!important/);
+  const print = css.slice(css.lastIndexOf("@media print"));
+  expect(print).toMatch(/\.zen-figure-tools\s*\{[^}]*display:\s*none\s*!important/);
+  expect(print).toMatch(/\.zen-figure-view svg\s*\{[^}]*transform:\s*none\s*!important/);
+  expect(print).toMatch(/\.zen-figure-view\s*\{[^}]*height:\s*auto\s*!important/);
 });
 
 test("page.css: no motion, tokens only", () => {

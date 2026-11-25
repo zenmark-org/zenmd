@@ -154,6 +154,23 @@
 .zen-tv-head.zen-tv-stub { z-index: 3; }
 .zen-tableview-stage:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
 
+/* Figure view (plugins/diagrams): a figure marked data-zen-zoomable sits in a viewport with corner controls (zoom, pan,
+   reset, expand). The runtime sets the viewport's height and moves the svg with a transform; Expand reuses .zen-zoom. */
+.zen-figure-view { position: relative; overflow: hidden; margin: 1em 0; }
+.zen-figure-view :is(.zen-diagram, .zen-lini) { margin: 0; }
+.zen-figure-view .zen-lini-svg { overflow: visible; }
+.zen-figure-view .zen-lini-svg > svg { max-width: 100%; }
+.zen-figure-view:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.zen-figure-view[data-zoomed] { cursor: grab; touch-action: none; }
+.zen-figure-view[data-panning] { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+.zen-figure-tools.zen-zoom-bar { left: auto; right: var(--space-2); top: var(--space-2); bottom: auto; transform: none; z-index: 1; visibility: hidden; user-select: none; -webkit-user-select: none; }
+.zen-figure-view:hover .zen-figure-tools, .zen-figure-view:focus-within .zen-figure-tools { visibility: visible; }
+@media (hover: none) { .zen-figure-tools.zen-zoom-bar { visibility: visible; } }
+@media (max-width: 480px) { .zen-figure-pan { display: none; } }
+.zen-figure-zoom .zen-zoom-stage { display: block; position: relative; padding: 0; overflow: hidden; cursor: grab; touch-action: none; }
+.zen-figure-zoom[data-panning] .zen-zoom-stage { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+.zen-figure-placeholder { width: 100%; }
+
 .zen-page hr { border: 0; border-top: 1px solid var(--rule); margin: 2em 0; }
 
 .zen-page sup { line-height: 0; }
@@ -184,4 +201,8 @@
   :is(.zen-diagram, .zen-lini):not([data-drawn]) { display: block; min-height: 0; border: 0; }
   :is(.zen-diagram, .zen-lini):not([data-drawn]) > pre { display: block; }
   :is(.zen-diagram, .zen-lini):not([data-drawn])::before { content: none; }
+  /* figure view (plugins/diagrams): no controls, the figure fitted, with no transform */
+  .zen-figure-tools { display: none !important; }
+  .zen-figure-view { overflow: visible; height: auto !important; }
+  .zen-figure-view svg { position: static !important; transform: none !important; width: auto !important; height: auto !important; max-width: 100% !important; }
 }
