@@ -114,6 +114,25 @@ describe("loading", () => {
 });
 
 describe("drawing", () => {
+  test("data-drawn is set once the figure, an error or a failed load is shown (the placeholder in page.css goes)", async () => {
+    install();
+    const ok = block(SRC);
+    expect("drawn" in ok.dataset).toBe(false);
+    await lini.mount(ok, ctxFor(url()));
+    expect("drawn" in ok.dataset).toBe(true);
+    const bad = block("a => b");
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    await lini.mount(bad, ctxFor(url()));
+    expect("drawn" in bad.dataset).toBe(true);
+    const empty = block("   ");
+    await lini.mount(empty, ctxFor(url()));
+    expect("drawn" in empty.dataset).toBe(true);
+    setImporter(async () => { throw new Error("blocked"); });
+    const failed = block(SRC);
+    await lini.mount(failed, ctxFor(url()));
+    expect("drawn" in failed.dataset).toBe(true);
+  });
+
   test("renders the svg in .zen-lini-svg", async () => {
     install();
     const e = block(SRC);

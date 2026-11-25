@@ -105,3 +105,14 @@ test("the table view is over the window, never printed and not animated (plugins
   const block = css.slice(css.indexOf("Table view"));
   expect(block).not.toMatch(/transition|animation/);
 });
+
+test("diagrams wait behind a placeholder until drawn, not on sites without scripts, not in print (plugins/diagram, plugins/lini)", () => {
+  const flat = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  const waiting = String.raw`:is\(\.zen-diagram, \.zen-lini\):not\(\[data-drawn\]\)`;
+  expect(flat).toMatch(new RegExp(waiting + String.raw`\s*>\s*pre\s*\{[^}]*display:\s*none`));
+  expect(flat).toMatch(new RegExp(waiting + String.raw`::before\s*\{[^}]*content:\s*"Drawing diagram…"`));
+  expect(flat).toMatch(new RegExp(String.raw`\.zen-site-frame:not\(\[data-js\]\)\s*` + waiting + String.raw`\s*>\s*pre\s*\{[^}]*display:\s*block`));
+  expect(flat).toMatch(/prefers-reduced-motion:\s*reduce\)\s*\{[^@]*:is\(\.zen-diagram, \.zen-lini\)[^{]*::before\s*\{[^}]*animation:\s*none/);
+  const print = flat.slice(flat.lastIndexOf("@media print"));
+  expect(print).toMatch(/\.zen-lini\)[^{]*>\s*pre\s*\{[^}]*display:\s*block/);
+});

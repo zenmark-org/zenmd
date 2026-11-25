@@ -78,6 +78,31 @@ test("renders each pending diagram into an svg and marks it", async () => {
   assert.equal(m.calls.render.length, 2, "rendered diagrams are skipped");
 });
 
+test("data-drawn is set once the svg or the error is shown, not before (the placeholder in page.css goes)", async () => {
+  const doc = makeDoc();
+  const ok = diagram(doc, "graph TD\nA-->B");
+  const bad = diagram(doc, "graph TD\nBAD");
+  let drawnDuringRender = null;
+  const m = stub("BAD");
+  const render = m.render;
+  m.render = async (id, src) => { drawnDuringRender ??= "drawn" in ok.dataset; return render(id, src); };
+  await renderAll(doc.body, m);
+  assert.equal(drawnDuringRender, false, "still a placeholder while mermaid draws");
+  assert.equal("drawn" in ok.dataset, true);
+  assert.equal("drawn" in bad.dataset, true);
+});
+
+test("a failed load marks the diagram drawn, so its source and error show", async () => {
+  const mod = await import("./diagram.js");
+  const doc = makeDoc();
+  const d = diagram(doc, "graph TD\n A-->B");
+  const p = mod.default.mount(d, { assetUrl: (f) => "/x/" + f });
+  doc.head.querySelectorAll("script")[0].fire("error");
+  await p;
+  assert.equal("drawn" in d.dataset, true);
+  assert.equal(d.querySelector(".zen-plugin-error").textContent, "diagram: could not load mermaid");
+});
+
 test("syntax error keeps the source and shows the message", async () => {
   const doc = makeDoc();
   const d = diagram(doc, "graph TD\nBAD<b>");
