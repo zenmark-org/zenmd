@@ -5,12 +5,15 @@ import (
 	"encoding/hex"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
 
+	"github.com/zenmark-org/zenmd/engine/config"
 	"github.com/zenmark-org/zenmd/engine/plugins"
 	"github.com/zenmark-org/zenmd/engine/render"
+	"github.com/zenmark-org/zenmd/engine/workspace"
 )
 
 const on = "---\nplugins:\n  lini: {}\n---\n"
@@ -124,12 +127,154 @@ func TestUnknownOptionWarns(t *testing.T) {
 	}
 }
 
-// Behaviour 3a: needs plugins/diagram-files (FileRef, Context.ReadFile).
-func TestFileThreeForms(t *testing.T) { t.Skip("needs plugins/diagram-files") }
-func TestFileRootPath(t *testing.T)   { t.Skip("needs plugins/diagram-files") }
-func TestFileMissing(t *testing.T)    { t.Skip("needs plugins/diagram-files") }
-func TestFileAndBody(t *testing.T)    { t.Skip("needs plugins/diagram-files") }
-func TestFileEmpty(t *testing.T)      { t.Skip("needs plugins/diagram-files") }
+// Behaviour 3a: a figure from a file of the folder (plugins/diagram-files).
+
+func folderRenderer(t *testing.T, files map[string]string) *render.Renderer {
+	t.Helper()
+	dir := t.TempDir()
+	files[".zenmd.yml"] = "plugins:\n  lini: {}\n"
+	for name, body := range files {
+		p := filepath.Join(dir, filepath.FromSlash(name))
+		if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(p, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	ws, err := workspace.Open(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	reg := plugins.NewRegistry()
+	if err := reg.Register(New()); err != nil {
+		t.Fatal(err)
+	}
+	return render.New(reg, config.Load("", dir), ws)
+}
+
+func renderAt(t *testing.T, r *render.Renderer, page, src string) render.Page {
+	t.Helper()
+	p, err := r.Render(page, []byte(src))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return p
+}
+
+func pre(h string) string {
+	i, j := strings.Index(h, "<pre>"), strings.Index(h, "</pre>")
+	if i < 0 || j < i {
+		return ""
+	}
+	return h[i+5 : j]
+}
+
+func TestFileThreeForms(t *testing.T) {
+	r := folderRenderer(t, map[string]string{"figures/a.lini": "|box#a| \"A\"\r\na -> a\r\n"})
+	want := "|box#a| &#34;A&#34;\na -&gt; a\n"
+	for name, src := range map[string]string{
+		"braces":  "```lini {file=figures/a.lini}\n```\n",
+		"quoted":  "```lini {file=\"figures/a.lini\"}\n```\n",
+		"arg":     "```lini figures/a.lini\n```\n",
+		"line":    "```lini\n:file: figures/a.lini\n```\n",
+		"colon":   ":::lini{file=figures/a.lini}\n:::\n",
+		"colonln": ":::lini\n:file: figures/a.lini\n:::\n",
+	} {
+		p := renderAt(t, r, "page.md", src)
+		if got := pre(p.HTML); got != want {
+			t.Errorf("%s: pre %q, want %q in %s", name, got, want, p.HTML)
+		}
+		if !strings.Contains(p.HTML, `class="zen-lini"`) || strings.Contains(p.HTML, "zen-plugin-error") || len(p.Warnings) != 0 {
+			t.Errorf("%s: %s %v", name, p.HTML, p.Warnings)
+		}
+	}
+}
+
+func TestFileRootPath(t *testing.T) {
+	r := folderRenderer(t, map[string]string{"figures/a.lini": "root file", "a/b/figures/x.lini": "near file"})
+	for src, want := range map[string]string{
+		"```lini /figures/a.lini\n```\n":        "root file",
+		"```lini figures/x.lini\n```\n":         "near file",
+		"```lini ../../figures/a.lini\n```\n":   "root file",
+		"```lini {file=/figures/a.lini}\n```\n": "root file",
+	} {
+		p := renderAt(t, r, "a/b/page.md", src)
+		if got := pre(p.HTML); got != want {
+			t.Errorf("%q: %q, want %q (%v)", src, got, want, p.Warnings)
+		}
+	}
+}
+
+func TestFileMissing(t *testing.T) {
+	r := folderRenderer(t, map[string]string{"x.md": ""})
+	for src, msg := range map[string]string{
+		"```lini gone.lini\n```\n":           "gone.lini was not found in the folder",
+		"```lini ../../etc/passwd\n```\n":    "../../etc/passwd is outside the folder",
+		"```lini\n:file: nope/x.lini\n```\n": "nope/x.lini was not found in the folder",
+	} {
+		p := renderAt(t, r, "page.md", src)
+		if !strings.Contains(p.HTML, `class="zen-plugin-error"`) || !strings.Contains(p.HTML, "lini</strong>: "+msg) {
+			t.Errorf("%q: %s", src, p.HTML)
+		}
+		if len(p.Warnings) != 1 || !strings.Contains(p.Warnings[0], msg) {
+			t.Errorf("%q: warnings %v", src, p.Warnings)
+		}
+		if strings.Contains(p.HTML, `<div class="zen-lini"`) {
+			t.Errorf("%q: drew a figure", src)
+		}
+	}
+	// no folder
+	reg := plugins.NewRegistry()
+	_ = reg.Register(New())
+	p := renderAt(t, render.New(reg, nil, nil), "a.md", on+"```lini a.lini\n```\n")
+	if !strings.Contains(p.HTML, "needs an open folder") || len(p.Warnings) != 1 {
+		t.Errorf("no folder: %s %v", p.HTML, p.Warnings)
+	}
+}
+
+func TestFileAndBody(t *testing.T) {
+	r := folderRenderer(t, map[string]string{"a.lini": "FROM FILE"})
+	const note = "the block's own text is ignored because it names a file"
+	for name, src := range map[string]string{
+		"line":   "```lini\n:file: a.lini\n|box| \"x\"\n```\n",
+		"braces": "```lini {file=a.lini}\n|box| \"x\"\n```\n",
+		"arg":    "```lini a.lini\n|box| \"x\"\n```\n",
+	} {
+		p := renderAt(t, r, "page.md", src)
+		if got := pre(p.HTML); got != "FROM FILE" {
+			t.Errorf("%s: file must win, got %q", name, got)
+		}
+		if len(p.Warnings) != 1 || !strings.Contains(p.Warnings[0], note) {
+			t.Errorf("%s: warnings %v", name, p.Warnings)
+		}
+	}
+	if p := renderAt(t, r, "page.md", "```lini a.lini\n\n  \n```\n"); len(p.Warnings) != 0 {
+		t.Errorf("blank body warned: %v", p.Warnings)
+	}
+}
+
+func TestFileEmpty(t *testing.T) {
+	r := folderRenderer(t, map[string]string{"e.lini": "", "w.lini": " \n\r\n"})
+	for _, f := range []string{"e.lini", "w.lini"} {
+		p := renderAt(t, r, "page.md", "```lini "+f+"\n```\n")
+		if strings.Contains(p.HTML, "zen-lini") || strings.Contains(p.HTML, "<pre>") {
+			t.Errorf("%s: drew something: %s", f, p.HTML)
+		}
+		if len(p.Warnings) != 1 || !strings.Contains(p.Warnings[0], f+" is empty") {
+			t.Errorf("%s: warnings %v", f, p.Warnings)
+		}
+	}
+}
+
+func TestArgAndTitleAreKnown(t *testing.T) {
+	r := folderRenderer(t, map[string]string{"a.lini": "x"})
+	for _, src := range []string{"```lini a.lini\n```\n", "```lini {title=\"T\" file=a.lini}\n```\n"} {
+		if p := renderAt(t, r, "page.md", src); len(p.Warnings) != 0 {
+			t.Errorf("%q: %v", src, p.Warnings)
+		}
+	}
+}
 
 func TestAssetsListed(t *testing.T) {
 	fsys := New().(plugins.AssetProvider).Assets()
