@@ -1,10 +1,13 @@
 package lini
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -285,7 +288,7 @@ func TestArgAndTitleAreKnown(t *testing.T) {
 
 func TestAssetsListed(t *testing.T) {
 	fsys := New().(plugins.AssetProvider).Assets()
-	for _, f := range []string{"lini.js", "lini.css", "lini_wasm.js", "lini_wasm_bg.wasm"} {
+	for _, f := range []string{"lini.js", "lini.css", "lini.worker.js", "queue.js", "lini_wasm.js", "lini_wasm_bg.wasm"} {
 		if _, err := fs.Stat(fsys, f); err != nil {
 			t.Errorf("asset %s: %v", f, err)
 		}
@@ -362,5 +365,75 @@ func TestDemoPageHasSnippets(t *testing.T) {
 		if m == nil || !strings.Contains(string(b), m[1]) {
 			t.Errorf("demo page lacks the %q snippet", s.Title)
 		}
+	}
+}
+
+// The two plugins keep one copy each of the queue (plugins cannot import each other).
+func TestQueueCopiesMatch(t *testing.T) {
+	a, err := os.ReadFile("assets/queue.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := os.ReadFile("../diagram/assets/queue.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(a, b) {
+		t.Error("builtins/plugins/lini/assets/queue.js and builtins/plugins/diagram/assets/queue.js differ")
+	}
+}
+
+const stressCompile = `
+import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
+const [dir, page] = process.argv.slice(1);
+const w = await import(pathToFileURL(dir + "/lini_wasm.js").href);
+w.initSync({ module: readFileSync(dir + "/lini_wasm_bg.wasm") });
+const md = readFileSync(page, "utf8");
+let n = 0, parts = 0;
+for (const m of md.matchAll(/~~~lini\n([\s\S]*?)~~~/g)) {
+  const svg = w.compile(m[1]);
+  if (!svg.startsWith("<svg")) throw new Error("not an svg");
+  n++;
+  parts = Math.max(parts, (m[1].match(/^\|[A-Za-z]+#/gm) || []).length);
+}
+console.log(JSON.stringify({ n, parts }));
+`
+
+// Behaviour 12: the stress page of the demo compiles, and is hidden from the sidebar.
+func TestStressPageCompiles(t *testing.T) {
+	node, err := exec.LookPath("node")
+	if err != nil {
+		t.Skip("node not found")
+	}
+	page, err := filepath.Abs("../../../examples/demo/plugins/stress.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir, _ := filepath.Abs("assets")
+	b, err := os.ReadFile(page)
+	if err != nil {
+		t.Fatal(err)
+	}
+	src := string(b)
+	if !strings.HasPrefix(src, "---\nnav:\n  hidden: true\n---\n") {
+		t.Error("stress.md must start with nav: hidden: true")
+	}
+	if n := strings.Count(src, "~~~mermaid\n"); n < 10 {
+		t.Errorf("%d mermaid figures, want small ones and a large one", n)
+	}
+	if n := strings.Count(src, "N5_24"); n < 2 {
+		t.Error("the large flowchart is missing")
+	}
+	out, err := exec.Command(node, "--input-type=module", "-e", stressCompile, dir, page).CombinedOutput()
+	if err != nil {
+		t.Fatalf("the stress page does not compile: %v\n%s", err, out)
+	}
+	var got struct{ N, Parts int }
+	if err := json.Unmarshal(bytes.TrimSpace(out), &got); err != nil {
+		t.Fatalf("%v: %s", err, out)
+	}
+	if got.N < 5 || got.Parts < 55 {
+		t.Errorf("compiled %d figures, the largest has %d parts; want at least 5 and 55", got.N, got.Parts)
 	}
 }

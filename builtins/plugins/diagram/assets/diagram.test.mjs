@@ -3,6 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { MERMAID_URL, loadMermaid, renderAll, mermaidTheme } from "./diagram.js";
+import { NEAR, createQueue, nextIndex } from "./queue.js";
 
 class El {
   constructor(tag, doc) { this.tagName = tag.toUpperCase(); this.ownerDocument = doc; this.children = []; this.dataset = {}; this.attrs = {}; this.className = ""; this.textContent = ""; this.innerHTML = ""; this.listeners = {}; this.parent = null; }
@@ -13,6 +14,9 @@ class El {
   addEventListener(t, f) { (this.listeners[t] ||= []).push(f); }
   fire(t) { for (const f of this.listeners[t] || []) f({ type: t }); }
   all() { return this.children.flatMap((c) => [c, ...c.all()]); }
+  get isConnected() { let e = this; while (e.parent) e = e.parent; return e.tagName === "BODY"; }
+  closest(sel) { let e = this; while (e) { if (sel === ".zen-print-preview" && e.className.split(" ").includes("zen-print-preview")) return e; e = e.parent; } return null; }
+  hasAttribute(k) { return k === "data-zen-pending" ? "zenPending" in this.dataset : k in this.attrs; }
   querySelector(s) { return this.querySelectorAll(s)[0] || null; }
   querySelectorAll(s) {
     const m = {
@@ -241,4 +245,160 @@ test("mount on the renderer's wrapper draws its one diagram once, with the diagr
   } finally {
     delete globalThis.mermaid;
   }
+});
+
+// ---- diagram-performance ----
+
+const tick = () => new Promise((r) => setTimeout(r, 0));
+const noYield = () => Promise.resolve();
+class FakeIO {
+  static all = [];
+  constructor(cb, opts) { this.cb = cb; this.opts = opts; this.els = new Set(); this.gone = false; FakeIO.all.push(this); }
+  observe(e) { this.els.add(e); }
+  unobserve(e) { this.els.delete(e); }
+  disconnect() { this.gone = true; this.els.clear(); }
+  fire(e) { if (this.els.has(e)) this.cb([{ target: e, isIntersecting: true }], this); }
+}
+const holder = (doc) => { const e = doc.createElement("div"); doc.body.append(e); return e; };
+
+test("nextIndex: visible first, then top to bottom", () => {
+  assert.equal(nextIndex([]), -1);
+  assert.equal(nextIndex([{ visible: false, top: 5 }, { visible: true, top: 900 }, { visible: true, top: 100 }]), 2);
+  assert.equal(nextIndex([{ visible: false, top: 900 }, { visible: false, top: -300 }, { visible: false, top: 100 }]), 1);
+  assert.equal(nextIndex([{ visible: true, top: 10 }, { visible: true, top: 10 }]), 0);
+  assert.equal(NEAR, 1000);
+});
+
+test("queue: one at a time, with a yield between", async () => {
+  const doc = makeDoc();
+  const log = [];
+  let live = 0, max = 0;
+  const q = createQueue({ doc, IntersectionObserver: null, yield: async () => { log.push("yield"); } });
+  const draw = (i) => async () => { live++; max = Math.max(max, live); log.push("draw" + i); await tick(); live--; };
+  await Promise.all([0, 1, 2].map((i) => q.add(holder(doc), draw(i))));
+  assert.equal(max, 1);
+  assert.deepEqual(log.slice(0, 5), ["draw0", "yield", "draw1", "yield", "draw2"]);
+  q.destroy();
+});
+
+test("queue: waits for the screen, pending until drawn, drawAll", async () => {
+  const doc = makeDoc();
+  const q = createQueue({ doc, IntersectionObserver: FakeIO, yield: noYield });
+  const io = FakeIO.all.at(-1);
+  assert.equal(io.opts.rootMargin, "1000px 0px");
+  const a = holder(doc), b = holder(doc), c = holder(doc);
+  const calls = [];
+  const pa = q.add(a, async () => calls.push("a"));
+  const pb = q.add(b, async () => calls.push("b"));
+  const pc = q.add(c, async () => { calls.push("c"); throw new Error("x"); });
+  await tick();
+  assert.deepEqual(calls, []);
+  assert.equal(a.hasAttribute("data-zen-pending"), true);
+  io.fire(b);
+  await pb;
+  assert.deepEqual(calls, ["b"]);
+  assert.equal(b.hasAttribute("data-zen-pending"), false);
+  q.drawAll();
+  await Promise.all([pa, pc]);
+  assert.deepEqual(calls.sort(), ["a", "b", "c"]);
+  assert.equal(c.hasAttribute("data-zen-pending"), false, "a failing draw leaves the queue too");
+  q.destroy();
+});
+
+test("queue: no IntersectionObserver draws all, the print preview draws at once, destroy drops", async () => {
+  const doc = makeDoc();
+  const q = createQueue({ doc, IntersectionObserver: null, yield: noYield });
+  const done = [];
+  await Promise.all([0, 1].map((i) => q.add(holder(doc), async () => done.push(i))));
+  assert.deepEqual(done, [0, 1]);
+  q.destroy();
+
+  const q2 = createQueue({ doc, IntersectionObserver: FakeIO, yield: noYield });
+  const frame = holder(doc);
+  frame.className = "zen-print-preview";
+  const inside = doc.createElement("div");
+  frame.append(inside);
+  let drawn = 0;
+  await q2.add(inside, async () => drawn++);
+  assert.equal(drawn, 1);
+  const waiting = q2.add(holder(doc), async () => drawn++);
+  q2.destroy();
+  await waiting;
+  assert.equal(drawn, 1);
+  assert.equal(FakeIO.all.at(-1).gone, true);
+});
+
+test("a diagram over 200 KB is not drawn", async () => {
+  const doc = makeDoc();
+  const warns = [];
+  const orig = console.warn;
+  console.warn = (...a) => warns.push(a.join(" "));
+  try {
+    const d = diagram(doc, "graph TD\n" + "A-->B\n".repeat(40000));
+    const m = stub();
+    await renderAll(doc.body, m);
+    assert.equal(m.calls.render.length, 0);
+    assert.equal(d.querySelector(".zen-plugin-error").textContent, "diagram: the diagram is too large to draw");
+    assert.equal("drawn" in d.dataset, true);
+    assert.ok(d.querySelector("pre"));
+  } finally {
+    console.warn = orig;
+  }
+});
+
+test("mount queues the diagram: drawn one at a time, pending until drawn, released on unmount", async () => {
+  const mod = await import("./diagram.js");
+  const doc = makeDoc();
+  const m = stub();
+  globalThis.mermaid = m;
+  try {
+    const els = [0, 1, 2].map((i) => diagram(doc, "graph TD\nA" + i + "-->B"));
+    const releases = await Promise.all(els.map((d) => mod.default.mount(d)));
+    for (const d of els) {
+      assert.equal(d.querySelectorAll(".zen-diagram-svg").length, 1);
+      assert.equal(d.hasAttribute("data-zen-pending"), false);
+    }
+    assert.deepEqual(m.calls.render.map((c) => c.src.slice(0, 15)), ["graph TD\nA0-->B", "graph TD\nA1-->B", "graph TD\nA2-->B"]);
+    assert.equal(typeof releases[0], "function");
+    for (const r of releases) r();
+  } finally {
+    delete globalThis.mermaid;
+  }
+});
+
+test("mount waits behind the placeholder until the figure is near", async () => {
+  const mod = await import("./diagram.js");
+  const doc = makeDoc();
+  doc.defaultView.IntersectionObserver = FakeIO;
+  const m = stub();
+  globalThis.mermaid = m;
+  try {
+    const d = diagram(doc, "graph TD\nA-->B");
+    const p = mod.default.mount(d);
+    await tick();
+    assert.equal("drawn" in d.dataset, false);
+    assert.equal(d.hasAttribute("data-zen-pending"), true);
+    FakeIO.all.at(-1).fire(d);
+    const release = await p;
+    assert.equal("drawn" in d.dataset, true);
+    release();
+    assert.equal(FakeIO.all.at(-1).gone, true, "the last release takes the observer away");
+  } finally {
+    delete globalThis.mermaid;
+  }
+});
+
+test("diagram.js holds the text of queue.js (no import: portable builds cannot load one)", () => {
+  const q = readFileSync(new URL("./queue.js", import.meta.url), "utf8").replace(/^export /gm, "");
+  const d = readFileSync(new URL("./diagram.js", import.meta.url), "utf8");
+  assert.ok(d.includes(q), "the copy of queue.js in diagram.js is out of date");
+  assert.doesNotMatch(d, /^\s*import[\s{(*"']/m);
+});
+
+test("the queue copy is the same file as lini's", () => {
+  const a = readFileSync(new URL("./queue.js", import.meta.url), "utf8");
+  const b = readFileSync(new URL("../../lini/assets/queue.js", import.meta.url), "utf8");
+  assert.equal(a, b);
+  assert.doesNotMatch(a, /[a-z][a-z0-9+.-]*:\/\//i);
+  assert.doesNotMatch(a, /innerHTML/);
 });

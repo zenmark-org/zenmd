@@ -14,7 +14,7 @@ import (
 	"github.com/zenmark-org/zenmd/engine/plugins"
 )
 
-//go:embed assets/lini.js assets/lini.css assets/lini_wasm.js assets/lini_wasm.d.ts assets/lini_wasm_bg.wasm assets/lini_wasm_bg.wasm.d.ts assets/LICENSE-lini-wasm
+//go:embed assets/lini.js assets/lini.css assets/lini.worker.js assets/queue.js assets/lini_wasm.js assets/lini_wasm.d.ts assets/lini_wasm_bg.wasm assets/lini_wasm_bg.wasm.d.ts assets/LICENSE-lini-wasm
 var assets embed.FS
 
 // The three figures of the help (and of the demo page). They are plain
