@@ -851,6 +851,20 @@ describe("worker", () => {
     expect(typeof sent[5].error).toBe("string");
   });
 
+  test("the worker loads its own files under the app's scheme, and nothing from another host or a data: url", async () => {
+    const run = async (module: string, wasm: string) => {
+      const sent: any[] = [];
+      const scope: any = { location: { href: "wails://wails/_plugins/lini/lini.worker.js", origin: "null" }, postMessage: (m: any) => sent.push(m), onmessage: null };
+      serve(scope, async () => fakeModule().mod);
+      await scope.onmessage({ data: { type: "init", module, wasm } });
+      return sent[0].type;
+    };
+    expect(await run("wails://wails/_plugins/lini/lini_wasm.js", "/_plugins/lini/lini_wasm_bg.wasm")).toBe("ready");
+    expect(await run("wails://evil/x.js", "/_plugins/lini/lini_wasm_bg.wasm")).toBe("init-error");
+    expect(await run("data:text/javascript,1", "/_plugins/lini/lini_wasm_bg.wasm")).toBe("init-error");
+    expect(await run("https://example.com/x.js", "/_plugins/lini/lini_wasm_bg.wasm")).toBe("init-error");
+  });
+
   test("the worker answers a compile before init with an error", async () => {
     const sent: any[] = [];
     const scope: any = { location: { href: "http://localhost/w.js", origin: "http://localhost" }, postMessage: (m: any) => sent.push(m), onmessage: null };

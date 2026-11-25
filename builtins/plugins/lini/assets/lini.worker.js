@@ -13,7 +13,9 @@ export function serve(scope, load = (u) => import(/* @vite-ignore */ u)) {
   const own = (u) => {
     if (!here) return true;
     const url = new URL(String(u), here); // a relative url is the plugin's own
-    return url.origin === here.origin && (url.protocol === "http:" || url.protocol === "https:");
+    // Same scheme and host as the worker itself. Not .origin: the app's own scheme (wails:) and data: both have the
+    // origin "null", which would let any of them through.
+    return url.protocol === here.protocol && url.host === here.host && url.host !== "";
   };
   scope.onmessage = async (ev) => {
     const m = ev.data || {};
