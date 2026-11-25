@@ -5,8 +5,8 @@
 | Status | specified |
 | Target version | 0.8.0 (MINOR: a new built-in plugin; nothing changes for existing pages) |
 | Branch | `feature/plugins-lini` |
-| Wave | 61 |
-| Depends on | plugins/diagram (the pattern it copies), plugins/table (the `zen:overlay-open` event, merged) |
+| Wave | 62 |
+| Depends on | plugins/diagram (the pattern it copies), plugins/table (the `zen:overlay-open` event, merged), plugins/diagram-files (`FileRef`, `Context.ReadFile`) |
 | Owns | `builtins/plugins/lini/` (new: `lini.go`, `lini_test.go`, `assets/lini.js`, `assets/lini.css`, `assets/lini.test.ts`; the vendored files and `VENDOR.md` are added by the lead before the wave), `docs/public/zenmd/reference/plugins/lini.md` (new), `examples/demo/plugins/lini.md` (new), this spec |
 
 ## Purpose
@@ -29,8 +29,21 @@ SVG whose colours follow the light or dark theme by themselves.
    `<div class="zen-lini"><pre>…</pre></div>`. The page without scripts (a
    built site with JavaScript off, print before the script ran, a feed)
    shows the source as a code block.
-3. The block takes no attributes. An unknown attribute gives one page warning
-   through `Context.Warn` ("lini: unknown option :x:"), as callout does.
+3. The block takes one attribute, `file`. An unknown attribute gives one page
+   warning through `Context.Warn` ("lini: unknown option :x:"), as callout
+   does.
+3a. **From a file**, as mermaid does (plugins/diagram-files):
+    - The three forms are ```` ```lini {file=figures/a.lini} ````,
+      ```` ```lini figures/a.lini ```` and a leading `:file:` line, read through
+      `plugins.FileRef` and `ctx.ReadFile`.
+    - `/` means the folder's root; any other path is from the page's folder.
+    - The file's text goes into the same placeholder, so it is drawn as an
+      inline figure is.
+    - A missing or refused file gives the error box `lini: <message>` and a
+      page warning.
+    - Text in the block as well as a file gives one warning ("the block's own
+      text is ignored because it names a file").
+    - An empty file warns.
 
 ### Drawing (browser)
 
@@ -151,6 +164,7 @@ CLI and config: no new flag. The plugin is turned on like any built-in
 | 1 | block name, off by default, fenced and `:::` | `lini_test.go: TestManifest`, `TestRenderBlockFencedAndContainer` |
 | 2 | placeholder escapes the source | `TestRenderBlockEscapes` |
 | 3 | unknown option warns | `TestUnknownOptionWarns` |
+| 3a | from a file: three forms, `/` root, missing, own text plus file, empty | `TestFileThreeForms`, `TestFileRootPath`, `TestFileMissing`, `TestFileAndBody`, `TestFileEmpty` |
 | 4 | compiler loaded once, lazily | `lini.test.ts: loads once for many blocks`, `no block, no load` |
 | 5 | svg replaces the pre | `renders the svg in .zen-lini-svg` |
 | 6 | compile error keeps the source, error box, console line | `a wrong figure keeps its source` |

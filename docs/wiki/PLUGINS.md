@@ -58,6 +58,7 @@ type Context struct {
     Warn      func(msg string) // adds a warning to the page (block and inline hooks); nil without a page
     Markdown  func(src string) (string, error) // renders markdown through the page's own pipeline (nested plugins, at most 8 levels deep); nil without a page pipeline
     PageTitle func(path string) (title string, ok bool) // the title of a page of the folder; nil without a folder
+    ReadFile  func(path string) ([]byte, error) // a text file of the open folder; "/x" from its root, "x" from the page's folder; nil without a folder
 }
 
 type Block  struct{ Name, Body string; Attrs map[string]string; Fenced bool }
@@ -92,6 +93,16 @@ is relative to the page being rendered, as a link is, and may leave out `.md`. `
 when the page is not in the folder, including when the path would leave it. It is set for block
 and inline hooks while a page renders and is nil when there is no folder; a plugin that uses it
 falls back to the file name. It reads the page's source without running any plugin.
+
+`Context.ReadFile` reads a text file of the open folder for a block that names one (a diagram
+from `diagrams/flow.mmd`). A path that starts with `/` is from the folder's root; any other is
+from the page's folder, as a link is, and `..` may climb only to the root. It refuses a path
+that leaves the folder, a symlink whose target is outside it, anything that is not a regular
+file, a file over 1 MB and a file with a NUL byte; its messages name the path as the page wrote
+it, never the place on disk. It is set for block and inline hooks while a page renders and is
+nil without a folder. `plugins.FileRef(b)` finds the path a block names: `Attrs["file"]` (`{file=…}`
+or MyST's `:file:`), else a leading `:file: <path>` line of the body, else `Attrs["arg"]` (the
+words after a fence's language, as MyST passes a directive's argument) (plugins/diagram-files).
 
 `Context.Workspace` is also set for block and inline hooks while a page renders: the open
 folder's root, or "" when the renderer has no folder (a lone file, `render.HTML`). A built-in
