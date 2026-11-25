@@ -150,6 +150,20 @@ describe("drawing", () => {
     expect(e.querySelector(".zen-plugin-error")).toBeNull();
   });
 
+  test("marks the drawn figure zoomable, and never a failed one (plugins/diagrams)", async () => {
+    install();
+    const ok = block(SRC);
+    await lini.mount(ok, ctxFor(url()));
+    expect(ok.querySelector(".zen-lini-svg")!.hasAttribute("data-zen-zoomable")).toBe(true);
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const bad = block("a => b");
+    await lini.mount(bad, ctxFor(url()));
+    expect(bad.querySelector("[data-zen-zoomable]")).toBeNull();
+    const empty = block("   ");
+    await lini.mount(empty, ctxFor(url()));
+    expect(empty.querySelector("[data-zen-zoomable]")).toBeNull();
+  });
+
   test("a title becomes the label", async () => {
     setImporter(async () => ({ default: async () => {}, compile: () => `<svg xmlns="http://www.w3.org/2000/svg"><title>Job flow</title><rect width="1" height="1"/></svg>` }));
     const e = block(SRC);
