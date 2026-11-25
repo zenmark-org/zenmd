@@ -1,0 +1,28 @@
+{
+  layout: schematic;
+  |v5::label| { symbol: power; } [ "5V" ]
+}
+
+// A 3.3 V supply from USB: a regulator, its capacitors, a power LED and a reset button.
+|component#U1| "AMS1117-3.3" [
+  |pin#vin| { side: left; number: 3; }
+  |pin#gnd| { side: bottom; number: 1; }
+  |pin#vout| { side: right; number: 2; }
+]
+|C#C1| "10u"
+|C#C2| "10u"
+|R#R1| "1k"
+|LED#D1| "PWR"
+|R#R2| "10k"
+|SW#SW1| "RST" { symbol: push; }
+|J#J1| "3V3 OUT" { pins: 2; }
+
+U1.vin - |v5|
+U1.vin - C1 - |gnd|
+U1.gnd - |gnd|
+U1.vout - C2 - |gnd|
+U1.vout - J1.p1 "3V3"
+J1.p2 - |gnd|
+U1.vout - R1 - D1 - |gnd|
+U1.vout - R2 - SW1 - |gnd|
+SW1.p1 -> "RESET"

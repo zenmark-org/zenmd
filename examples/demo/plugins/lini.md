@@ -40,6 +40,17 @@ you -> editor "type"
 editor -> you "page reloads"
 ```
 
+## A schematic, from a file
+
+A circuit drawn with `{ layout: schematic; }`: parts with references such as
+`|R#R1| "1k"`, an IC as a `|component|` with numbered pins, and wires between
+pins (`U1.vout - R1 - D1 - |gnd|`). The settings block holds the layout and the
+defines (the `5V` power label); the parts and wires come after it. This one lives
+in its own file, `plugins/figures/regulator.lini`, and the block only names it:
+
+```lini /plugins/figures/regulator.lini
+```
+
 ## When a figure is wrong
 
 The source stays visible with the compiler's message under it:
