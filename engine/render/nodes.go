@@ -47,6 +47,8 @@ func (n *nodeRenderer) fenced(w util.BufWriter, src []byte, node ast.Node, enter
 			if a, err := plugins.ParseAttrs(rest); err == nil {
 				attrs = a
 			}
+		} else if rest != "" {
+			attrs["arg"] = rest
 		}
 		_, _ = w.WriteString(n.st.block(p, plugins.Block{Name: lang, Body: body.String(), Attrs: attrs, Fenced: true}))
 		_ = w.WriteByte('\n')

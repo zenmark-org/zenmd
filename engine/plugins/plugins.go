@@ -147,6 +147,15 @@ type Context struct {
 	// leaves the folder). It is set for block and inline hooks while a page
 	// renders and is nil when there is no folder.
 	PageTitle func(path string) (title string, ok bool)
+	// ReadFile reads a text file of the open folder for the page being
+	// rendered: a path that starts with "/" is from the folder's root, any
+	// other is from the page's folder, and ".." may climb only to the root. It
+	// refuses a path that leaves the folder, a symlink whose target is outside
+	// it, anything that is not a regular file, a file over 1 MB (MaxReadFile)
+	// and a file with a NUL byte. Its messages name the path as the page wrote
+	// it. It is set for block and inline hooks while a page renders and is nil
+	// without a folder.
+	ReadFile func(path string) ([]byte, error)
 }
 
 // Block is a named fenced or container block handed to a BlockHook.
