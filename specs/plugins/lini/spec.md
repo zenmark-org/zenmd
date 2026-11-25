@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | specified |
+| Status | done |
 | Target version | 0.8.0 (MINOR: a new built-in plugin; nothing changes for existing pages) |
 | Branch | `feature/plugins-lini` |
 | Wave | 62 |

@@ -11,13 +11,14 @@ import (
 // csp is the Content-Security-Policy of every page: nothing but the site's
 // own files and https images. Portable pages open from file://, where some
 // browsers (Firefox, Safari) do not match 'self' to local files, so file: is
-// listed too, plus blob: for the module loader.
+// listed too, plus blob: for the module loader. 'wasm-unsafe-eval' lets a plugin compile its own
+// WebAssembly (the lini compiler); it does not allow JavaScript eval.
 func csp(portable bool) string {
 	self := "'self'"
-	script := "script-src 'self'"
+	script := "script-src 'self' 'wasm-unsafe-eval'"
 	if portable {
 		self = "'self' file:"
-		script = "script-src 'self' file: blob:"
+		script = "script-src 'self' file: blob: 'wasm-unsafe-eval'"
 	}
 	return "default-src " + self + "; " + script + "; style-src " + self + " 'unsafe-inline'; img-src " + self + " https:; font-src " + self + "; object-src 'none'; base-uri 'none'"
 }

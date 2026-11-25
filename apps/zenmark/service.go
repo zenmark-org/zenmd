@@ -193,7 +193,7 @@ func (z *Zen) middleware(next http.Handler) http.Handler {
 }
 
 // frontendCSP is sent with everything that is not a workspace or plugin file.
-const frontendCSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; " +
+const frontendCSP = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; " +
 	"img-src 'self' https:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'"
 
 // Startup returns the workspace, the page to show first, the mode and the

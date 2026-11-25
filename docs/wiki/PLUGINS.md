@@ -249,6 +249,7 @@ Unknown plugin ids and unknown options produce a warning in the page
 |---|---|---|---|
 | `codeblock` | alpha | none (HTML hook over every `pre > code`) | syntax colouring in Go (chroma, CSS classes only), plus Copy and Wrap buttons in each block |
 | `diagram` | alpha | `mermaid`, `diagram` | emits a placeholder; a vendored mermaid script renders it in the page |
+| `lini` | alpha | `lini` | emits a placeholder; the vendored lini-wasm compiler draws it in the page (needs `'wasm-unsafe-eval'`) |
 | `polls` | 0.2 | `poll` | renders a list as a poll |
 
 ## Writing your own plugin (external plugins)

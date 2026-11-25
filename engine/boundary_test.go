@@ -33,7 +33,7 @@ func TestPackageLayout(t *testing.T) {
 		"engine/plugins", "engine/render", "engine/scriptplugins", "engine/session",
 		"engine/session/sessiontest", "engine/site", "engine/sitetemplates", "engine/structure", "engine/watch", "engine/workspace",
 		"builtins", "builtins/dialects/myst", "builtins/layouts", "builtins/blueprints", "builtins/pagetemplates",
-		"builtins/plugins/check", "builtins/plugins/codeblock", "builtins/plugins/diagram",
+		"builtins/plugins/check", "builtins/plugins/codeblock", "builtins/plugins/diagram", "builtins/plugins/lini",
 		"builtins/plugins/quiz", "builtins/plugins/rating", "builtins/plugins/sandbox",
 		"builtins/plugins/callout", "builtins/plugins/figure", "builtins/plugins/table", "builtins/plugins/math", "builtins/plugins/tabs", "builtins/plugins/dropdown", "builtins/plugins/cards", "builtins/plugins/text", "builtins/plugins/quote", "builtins/plugins/aside", "builtins/plugins/include", "builtins/plugins/terms", "builtins/plugins/xref",
 	}

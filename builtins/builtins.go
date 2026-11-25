@@ -33,6 +33,7 @@ import (
 	"github.com/zenmark-org/zenmd/builtins/plugins/dropdown"
 	"github.com/zenmark-org/zenmd/builtins/plugins/figure"
 	"github.com/zenmark-org/zenmd/builtins/plugins/include"
+	"github.com/zenmark-org/zenmd/builtins/plugins/lini"
 	"github.com/zenmark-org/zenmd/builtins/plugins/math"
 	"github.com/zenmark-org/zenmd/builtins/plugins/quiz"
 	"github.com/zenmark-org/zenmd/builtins/plugins/quote"
@@ -49,10 +50,10 @@ import (
 )
 
 // Plugins returns a registry with every built-in plugin, in order: codeblock,
-// diagram, check, quiz, sandbox, rating, callout, figure, table, math, tabs, dropdown, cards, text, quote, aside, include, terms, xref. Each call returns a fresh registry.
+// diagram, check, quiz, sandbox, rating, callout, figure, table, math, tabs, dropdown, cards, text, quote, aside, include, terms, xref, lini. Each call returns a fresh registry.
 func Plugins() *plugins.Registry {
 	r := plugins.NewRegistry()
-	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New(), tabs.New(), dropdown.New(), cards.New(), text.New(), quote.New(), aside.New(), include.New(), terms.New(), xref.New()} {
+	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New(), tabs.New(), dropdown.New(), cards.New(), text.New(), quote.New(), aside.New(), include.New(), terms.New(), xref.New(), lini.New()} {
 		if err := r.Register(p); err != nil {
 			panic(err) // the built-ins are fixed: a clash is a programming error
 		}
@@ -81,7 +82,7 @@ func PageTemplates() fs.FS {
 }
 
 // PluginIDs lists the built-in plugins in the order Plugins registers them.
-var PluginIDs = []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating", "callout", "figure", "table", "math", "tabs", "dropdown", "cards", "text", "quote", "aside", "include", "terms", "xref"}
+var PluginIDs = []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating", "callout", "figure", "table", "math", "tabs", "dropdown", "cards", "text", "quote", "aside", "include", "terms", "xref", "lini"}
 
 func newPlugin(id string) plugins.Plugin {
 	switch id {
@@ -89,6 +90,8 @@ func newPlugin(id string) plugins.Plugin {
 		return codeblock.New()
 	case "diagram":
 		return diagram.New()
+	case "lini":
+		return lini.New()
 	case "check":
 		return check.New()
 	case "quiz":

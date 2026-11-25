@@ -28,6 +28,8 @@ export default defineConfig({
       { extends: true, test: { name: "runtime", environment: "happy-dom", include: ["../../../runtime/src/**/*.test.ts", "../../../runtime/test/**/*.test.ts"] } },
       // The kit's UI (kit/ui); its tests borrow the app's fake api, as the runtime's do.
       { extends: true, test: { name: "kit", include: ["../../../kit/ui/src/**/*.test.ts", "../../../kit/ui/test/**/*.test.ts"] } },
+      // Built-in plugins' browser code that has its own tests (plugins/lini).
+      { extends: true, test: { name: "plugins", environment: "happy-dom", include: ["../../../builtins/plugins/lini/assets/*.test.ts"] } },
     ],
   },
 });

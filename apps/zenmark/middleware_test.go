@@ -31,12 +31,12 @@ func TestMiddlewareFrontendAndRoutes(t *testing.T) {
 		t.Fatalf("frontend: %d", r.Code)
 	}
 	csp := r.Header().Get("Content-Security-Policy")
-	for _, want := range []string{"default-src 'self'", "script-src 'self'", "style-src 'self'", "img-src 'self' https:"} {
+	for _, want := range []string{"default-src 'self'", "script-src 'self' 'wasm-unsafe-eval'", "style-src 'self'", "img-src 'self' https:"} {
 		if !strings.Contains(csp, want) {
 			t.Fatalf("csp %q lacks %q", csp, want)
 		}
 	}
-	if strings.Contains(csp, "unsafe-eval") || strings.Contains(csp, "script-src 'self' 'unsafe-inline'") {
+	if strings.Contains(csp, "'unsafe-eval'") || strings.Contains(csp, "script-src 'self' 'unsafe-inline'") {
 		t.Fatalf("csp too loose: %q", csp)
 	}
 	// A file of the folder never gets the frontend's policy: it is sandboxed.

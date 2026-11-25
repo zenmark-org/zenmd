@@ -27,6 +27,7 @@ var pluginPackages = map[string]string{
 	"dropdown":  "builtins/plugins/dropdown",
 	"cards":     "builtins/plugins/cards",
 	"xref":      "builtins/plugins/xref",
+	"lini":      "builtins/plugins/lini",
 	"text":      "builtins/plugins/text",
 	"quote":     "builtins/plugins/quote",
 	"aside":     "builtins/plugins/aside",

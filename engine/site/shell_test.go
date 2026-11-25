@@ -127,9 +127,9 @@ func TestShellCSP(t *testing.T) {
 						t.Errorf("%s: CSP lacks %s: %s", name, want, csp)
 					}
 				}
-				wantScript := "script-src 'self'"
+				wantScript := "script-src 'self' 'wasm-unsafe-eval'"
 				if portable {
-					wantScript = "script-src 'self' file: blob:"
+					wantScript = "script-src 'self' file: blob: 'wasm-unsafe-eval'"
 				}
 				if !portable && strings.Contains(csp, "file:") {
 					t.Errorf("%s: hosted pages must not allow file: %s", name, csp)
@@ -137,7 +137,7 @@ func TestShellCSP(t *testing.T) {
 				if !regexp.MustCompile(`(^|; )` + regexp.QuoteMeta(wantScript) + `(;|$)`).MatchString(csp) {
 					t.Errorf("%s: want %q in %s", name, wantScript, csp)
 				}
-				if strings.Contains(csp, "unsafe-eval") || strings.Contains(csp, "script-src 'self' 'unsafe-inline'") {
+				if strings.Contains(csp, "'unsafe-eval'") || strings.Contains(csp, "script-src 'self' 'unsafe-inline'") {
 					t.Errorf("%s: %s", name, csp)
 				}
 			}

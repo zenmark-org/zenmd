@@ -17,6 +17,7 @@ import (
 	"github.com/zenmark-org/zenmd/builtins/plugins/dropdown"
 	"github.com/zenmark-org/zenmd/builtins/plugins/figure"
 	"github.com/zenmark-org/zenmd/builtins/plugins/include"
+	"github.com/zenmark-org/zenmd/builtins/plugins/lini"
 	"github.com/zenmark-org/zenmd/builtins/plugins/math"
 	"github.com/zenmark-org/zenmd/builtins/plugins/quiz"
 	"github.com/zenmark-org/zenmd/builtins/plugins/quote"
@@ -36,7 +37,7 @@ import (
 // assemblyPlugins is the registry of the built-in plugins this app includes.
 func assemblyPlugins() *plugins.Registry {
 	r := plugins.NewRegistry()
-	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New(), tabs.New(), dropdown.New(), cards.New(), text.New(), quote.New(), aside.New(), include.New(), terms.New(), xref.New()} {
+	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), quiz.New(), sandbox.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New(), tabs.New(), dropdown.New(), cards.New(), text.New(), quote.New(), aside.New(), include.New(), terms.New(), xref.New(), lini.New()} {
 		if err := r.Register(p); err != nil {
 			panic(err)
 		}
@@ -73,7 +74,7 @@ func assemblyDialects() *dialects.Registry {
 var assemblyInfo = session.BuildInfo{
 	App:       "zenmark",
 	Features:  []string{"reader", "nav", "inspector", "developer", "find", "editor", "print", "export", "newsite"},
-	Plugins:   []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating", "callout", "figure", "table", "math", "tabs", "dropdown", "cards", "text", "quote", "aside", "include", "terms", "xref"},
+	Plugins:   []string{"codeblock", "diagram", "check", "quiz", "sandbox", "rating", "callout", "figure", "table", "math", "tabs", "dropdown", "cards", "text", "quote", "aside", "include", "terms", "xref", "lini"},
 	Layouts:   []string{"article", "docs", "post", "landing", "wide", "handout", "term", "glossary", "release", "troubleshooting", "slides", "course"},
 	Templates: []string{"techdocs", "learning", "planner"},
 	Dialects:  []string{"myst"},

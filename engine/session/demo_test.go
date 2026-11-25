@@ -21,6 +21,7 @@ import (
 	"github.com/zenmark-org/zenmd/builtins/plugins/dropdown"
 	"github.com/zenmark-org/zenmd/builtins/plugins/figure"
 	"github.com/zenmark-org/zenmd/builtins/plugins/include"
+	"github.com/zenmark-org/zenmd/builtins/plugins/lini"
 	"github.com/zenmark-org/zenmd/builtins/plugins/math"
 	"github.com/zenmark-org/zenmd/builtins/plugins/quiz"
 	"github.com/zenmark-org/zenmd/builtins/plugins/quote"
@@ -278,7 +279,7 @@ func demoDir() string {
 func TestDemoFolder(t *testing.T) {
 	demo := demoDir()
 	reg := plugins.NewRegistry()
-	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New(), tabs.New(), dropdown.New(), cards.New(), text.New(), quote.New(), aside.New(), include.New(), terms.New(), xref.New()} {
+	for _, p := range []plugins.Plugin{codeblock.New(), diagram.New(), check.New(), rating.New(), callout.New(), figure.New(), table.New(), math.New(), tabs.New(), dropdown.New(), cards.New(), text.New(), quote.New(), aside.New(), include.New(), terms.New(), xref.New(), lini.New()} {
 		if err := reg.Register(p); err != nil {
 			t.Fatal(err)
 		}
@@ -316,7 +317,7 @@ func TestDemoFolder(t *testing.T) {
 	sub := map[string]string{
 		"features/index.md":         "features/reader.md,features/open-a-file.md,features/navigation.md,features/find.md,features/editor.md,features/inspector.md,features/printing.md,features/export.md,features/blueprints.md,features/developer.md",
 		"features/reader.md":        "features/markdown.md,features/myst.md",
-		"plugins/index.md":          "plugins/codeblock.md,plugins/diagram.md,plugins/check.md,plugins/quiz.md,plugins/sandbox.md,plugins/rating.md,plugins/callout.md,plugins/figure.md,plugins/table.md,plugins/math.md,plugins/tabs.md,plugins/dropdown.md,plugins/cards.md,plugins/text.md,plugins/quote.md,plugins/aside.md,plugins/include.md,plugins/terms.md,plugins/xref.md",
+		"plugins/index.md":          "plugins/codeblock.md,plugins/diagram.md,plugins/lini.md,plugins/check.md,plugins/quiz.md,plugins/sandbox.md,plugins/rating.md,plugins/callout.md,plugins/figure.md,plugins/table.md,plugins/math.md,plugins/tabs.md,plugins/dropdown.md,plugins/cards.md,plugins/text.md,plugins/quote.md,plugins/aside.md,plugins/include.md,plugins/terms.md,plugins/xref.md",
 		"layouts/index.md":          "layouts/article.md,layouts/docs.md,layouts/post.md,layouts/landing.md,layouts/wide.md,layouts/handout.md,layouts/slides.md,layouts/course.md,layouts/glossary/index.md",
 		"layouts/glossary/index.md": "", // the terms are not in the sidebar: layout: term hides them
 		"configuration/settings.md": "configuration/reference.md",
