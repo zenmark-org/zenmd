@@ -6,8 +6,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"errors"
 	"html"
+	"io"
+	"io/fs"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"unicode"
@@ -77,6 +81,10 @@ func (st *state) ctx(id string) plugins.Context {
 	c.Warn = func(msg string) { st.pluginWarn(id, msg) }
 	if _, ok := st.r.links.(pageReader); ok {
 		c.PageTitle = st.pageTitle
+	}
+	if rt, ok := st.r.links.(rooter); ok && rt.Root() != "" {
+		root := rt.Root()
+		c.ReadFile = func(p string) ([]byte, error) { return readFolderFile(root, st.path, p) }
 	}
 	return c
 }
@@ -619,4 +627,60 @@ func (st *state) plain(s string) string {
 		pairs = append(pairs, st.token(i), t)
 	}
 	return strings.NewReplacer(pairs...).Replace(s)
+}
+
+// readFolderFile is Context.ReadFile: the text file p, written on page, of the
+// folder at root. Every message names p as the page wrote it, never a place on
+// disk.
+func readFolderFile(root, page, p string) ([]byte, error) {
+	name := strings.TrimSpace(p)
+	rel, err := plugins.ResolvePath(page, p)
+	switch {
+	case errors.Is(err, plugins.ErrOutside):
+		return nil, errors.New(name + " is outside the folder")
+	case err != nil:
+		return nil, errors.New("the file path is not valid")
+	}
+	outside := errors.New(name + " is outside the folder")
+	realRoot, err := filepath.EvalSymlinks(root)
+	if err != nil {
+		return nil, errors.New("the folder cannot be reached")
+	}
+	full := filepath.Join(realRoot, filepath.FromSlash(rel))
+	real, err := filepath.EvalSymlinks(full)
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			if _, lerr := os.Lstat(full); lerr == nil {
+				return nil, outside // a dangling symlink: its target cannot be checked
+			}
+			return nil, errors.New(name + " was not found in the folder")
+		}
+		return nil, errors.New(name + " cannot be read")
+	}
+	if real != realRoot && !strings.HasPrefix(real, realRoot+string(filepath.Separator)) {
+		return nil, outside
+	}
+	f, err := os.Open(real)
+	if err != nil {
+		return nil, errors.New(name + " cannot be read")
+	}
+	defer f.Close()
+	fi, err := f.Stat()
+	if err != nil || !fi.Mode().IsRegular() {
+		return nil, errors.New(name + " is not a file")
+	}
+	if fi.Size() > plugins.MaxReadFile {
+		return nil, errors.New(name + " is larger than 1 MB")
+	}
+	data, err := io.ReadAll(io.LimitReader(f, plugins.MaxReadFile+1))
+	if err != nil {
+		return nil, errors.New(name + " cannot be read")
+	}
+	if len(data) > plugins.MaxReadFile {
+		return nil, errors.New(name + " is larger than 1 MB")
+	}
+	if bytes.IndexByte(data, 0) >= 0 {
+		return nil, errors.New(name + " is not a text file")
+	}
+	return data, nil
 }

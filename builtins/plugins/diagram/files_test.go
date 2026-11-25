@@ -174,7 +174,7 @@ func TestFileMissing(t *testing.T) {
 
 func TestFileAndBody(t *testing.T) {
 	r := folderRenderer(t, map[string]string{"a.mmd": "FROM FILE"}, false)
-	const note = "diagram: the block's own text is ignored because it names a file"
+	const note = "the block's own text is ignored because it names a file"
 	for name, src := range map[string]string{
 		"line":   "```mermaid\n:file: a.mmd\ngraph TD\n  A --> B\n```\n",
 		"braces": "```mermaid {file=a.mmd}\ngraph TD\n```\n",
@@ -208,7 +208,7 @@ func TestFileEmpty(t *testing.T) {
 		if strings.Contains(p.HTML, "zen-diagram") || strings.Contains(p.HTML, "<pre>") {
 			t.Errorf("%s: drew something: %s", f, p.HTML)
 		}
-		if len(p.Warnings) != 1 || !strings.Contains(p.Warnings[0], "diagram: "+f+" is empty") {
+		if len(p.Warnings) != 1 || !strings.Contains(p.Warnings[0], f+" is empty") {
 			t.Errorf("%s: warnings %v", f, p.Warnings)
 		}
 	}

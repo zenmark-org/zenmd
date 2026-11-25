@@ -31,6 +31,15 @@ sequenceDiagram
   Page-->>You: the rendered page
 ```
 
+## A diagram from a file
+
+A diagram can live in its own file. A path that starts with `/` is from the
+folder's root; any other path is from this page's folder.
+
+```mermaid
+:file: /plugins/diagrams/flow.mmd
+```
+
 ## When a diagram is wrong
 
 The source stays visible with mermaid's error message under it:
