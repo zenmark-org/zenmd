@@ -9,6 +9,10 @@
 .zen-grid-row .zen-card { margin: 0; }
 .zen-grid-row .zen-grid-item > :first-child { margin-top: 0; }
 .zen-grid-row .zen-grid-item > :last-child { margin-bottom: 0; }
+/* A grid item that holds one block (a figure, a callout) stretches it to the row's height, so a row's frames line up. */
+.zen-grid-row .zen-grid-item { display: flex; flex-direction: column; }
+.zen-grid-row .zen-grid-item > [data-zen-plugin]:only-child { flex: 1 1 auto; display: flex; flex-direction: column; }
+.zen-grid-row .zen-grid-item > [data-zen-plugin]:only-child > .zen-block { flex: 1 1 auto; margin: 0; }
 
 .zen-grid-xs-1 > .zen-grid-row { grid-template-columns: repeat(1, minmax(0, 1fr)); }
 .zen-grid-xs-2 > .zen-grid-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }

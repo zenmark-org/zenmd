@@ -1,6 +1,7 @@
 package cards
 
 import (
+	"io/fs"
 	"strings"
 	"testing"
 
@@ -298,6 +299,25 @@ func TestHelpSnippetsRender(t *testing.T) {
 		}
 		if strings.Contains(got, "<p>:::") || strings.Contains(got, "{") && strings.Contains(got, "```") {
 			t.Errorf("snippet %q left its syntax as text: %s", s.Title, got)
+		}
+	}
+}
+
+// A grid item holding one block (a figure, a callout) stretches that block to the height of the row, so the frames
+// of a row line up (#parts photos: figures of different caption lengths in one row).
+func TestGridItemBlockFillsTheRow(t *testing.T) {
+	css, err := fs.ReadFile(New().(plugins.AssetProvider).Assets(), "cards.css")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(css)
+	for _, want := range []string{
+		".zen-grid-row .zen-grid-item { display: flex; flex-direction: column; }",
+		".zen-grid-row .zen-grid-item > [data-zen-plugin]:only-child { flex: 1 1 auto; display: flex; flex-direction: column; }",
+		".zen-grid-row .zen-grid-item > [data-zen-plugin]:only-child > .zen-block { flex: 1 1 auto; margin: 0; }",
+	} {
+		if !strings.Contains(s, want) {
+			t.Errorf("cards.css lacks %q", want)
 		}
 	}
 }

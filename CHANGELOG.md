@@ -6,6 +6,9 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 
 ## [Unreleased]
 
+### Fixed
+- Figures and other single blocks in a grid row (`:::grid` / `grid-item`) stretch to the row's height, so the frames of a row line up whatever the length of their captions.
+
 ## [0.8.0] - 2026-11-25
 
 Diagrams grow up: Lini figures next to mermaid, diagrams from files, zoom and pan as on GitHub, and no freezes on big ones. The sidebar can show the folder as it is on disk, MyST is complete, pages are checked against their templates (`zenmd check`), and zenmd runs on Linux and in GitHub Actions.
