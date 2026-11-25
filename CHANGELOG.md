@@ -6,6 +6,10 @@ follows [Semantic Versioning](https://semver.org) (see docs/wiki/VERSIONING.md).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-25
+
+Diagrams grow up: Lini figures next to mermaid, diagrams from files, zoom and pan as on GitHub, and no freezes on big ones. The sidebar can show the folder as it is on disk, MyST is complete, pages are checked against their templates (`zenmd check`), and zenmd runs on Linux and in GitHub Actions.
+
 ### Added
 - Diagrams and Lini figures can be zoomed and panned where they are (corner controls, pinch, drag, keys) and opened over the whole window, as on GitHub, in the app and in exported websites (plugins/diagrams).
 - A `lini` built-in draws [Lini](https://lini.rs/) figures (flows, mindmaps, sequences, charts, floor plans, circuits) from a ```` ```lini ```` block, next to mermaid, also from a file of the folder as mermaid can. On by default; the compiler loads only on a page with a `lini` block. Pages and built sites now allow WebAssembly (`'wasm-unsafe-eval'`), which the compiler needs (plugins/lini).
